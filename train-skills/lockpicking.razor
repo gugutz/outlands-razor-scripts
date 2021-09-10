@@ -1,0 +1,54 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+if not findtype 'lockpick'
+    overhead '**Out of lockpicks**'
+    stop
+endif
+
+dclicktype 'lockpick' backpack
+waitfortarget
+if skill 'lockpicking' < 50
+    target 'box_thirty'
+    pause 4000
+    if insysmsg 'yields'
+        dclick 'keychain' 
+        waitfortarget
+        target 'box_thirty'
+        pause 1000  
+    endif
+elseif skill 'lockpicking' < 73.6
+    target 'box_fifty'
+    pause 4000
+    if insysmsg 'yields'
+        dclick 'keychain' 
+        waitfortarget
+        target 'box_fifty'
+        pause 1000  
+    endif
+    elseif skill 'lockpicking' < 82
+    target 'box_seventy'
+    pause 4000
+    if insysmsg 'yields'
+        dclick 'keychain' 
+        waitfortarget
+        target 'box_seventy'
+        pause 1000  
+    endif
+elseif skill 'lockpicking' < 95
+    target 'box_gm'
+    pause 4000
+    if insysmsg 'yields'
+        dclick 'keychain' 
+        waitfortarget
+        target 'box_gm'
+        pause 1000  
+    endif
+else
+    overhead '**Done**'
+    sysmsg 'Cannot gain more from boxes' 44
+    stop
+endif
+
+loop

@@ -1,0 +1,14 @@
+// bandage type 0xe21
+
+if poisoned or hp < maxhp
+    if findbuff 'healing'
+        overhead '⌛ already applying bandage.. ⌛'
+    else
+        hotkey 'bandage self'
+        overhead '♥ using bandage ♥' 60 'self'
+    endif
+else
+    overhead '** hp 100% **' 240 'self'
+    usetype 0xe21
+endif
+

@@ -1,0 +1,11 @@
+say 'room'
+waitforgump 2393832411
+if name = 'Neron'
+    overhead 'entering own room'
+    gumpresponse 4
+else
+    overhead 'entering neron room'
+    gumpresponse 5
+    waitforgump 2393832411
+    gumpresponse 100
+endif

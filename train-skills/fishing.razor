@@ -1,0 +1,208 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+clearsysmsg 
+
+if skill 'fishing' = 100
+    sysmsg 'You have reached skill level 100 in Fishing' 44
+    stop
+endif
+
+# eat prized fish
+if findtype '3542' true
+    dclicktype '3542'
+endif
+
+# spot 1
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc 6 -6
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 2
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc 6 0
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 3
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc 6 6
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 4
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc 0 -6
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 5
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc 0 0
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 6
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc 0 6
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 7
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc -6 -6
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 8
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc -6 0
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# spot 9
+hotkey 'use item in hand'
+wait 200
+if insysmsg 'must wait'
+    overhead 'Trying again!' 333
+    hotkey 'use item in hand'
+    wait 200
+    clearsysmsg 
+endif
+waitfortarget
+targetrelloc -6 6
+wait 200
+if insysmsg 'seem to be biting'
+    overhead 'No fish here!' 33
+else
+    pause 7500
+endif
+
+# cut fish to steaks
+if weight > maxweight
+    while findtype 2508 true
+        dclicktype 'dagger'
+        waitfortarget
+        targettype 2508 
+        pause 500
+    endwhile
+
+    while findtype 2509 true
+        dclicktype 'dagger'
+        waitfortarget
+        targettype 2509
+        pause 500
+    endwhile
+
+    while findtype 2510
+        dclicktype 'dagger'
+        waitfortarget
+        targettype 2510
+        pause 500
+    endwhile
+
+    while findtype 2511
+        dclicktype 'dagger'
+        waitfortarget
+        targettype 2511
+        pause 500
+    endwhile
+endif
+loop

@@ -1,0 +1,13 @@
+# PACK ANIMAL GRAPHICS
+# pack llama - 220
+# pack horse - ???
+
+if findtype 292 'ground' 2 as llama
+    overhead '*opening llama bag*'
+    dclick llama
+elseif findtype 291 'ground' 2 as horse
+    overhead '*opening horse bag*'
+    dclick horse
+else
+    overhead 'no packies nearby'
+endif

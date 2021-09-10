@@ -1,0 +1,19 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+if skill 'itemidentification' < 85
+    skill 'itemidentification'
+    waitfortarget
+    target 'ItemIDItem'
+    pause 10000
+elseif skill 'itemidentification' < 100
+    skill 'itemidentification'
+    waitfortarget
+    target 'ItemIDSign'
+    pause 10000
+else
+    sysmsg 'You have reached skill level 100 in Item Identification' 44
+    stop
+endif
+loop

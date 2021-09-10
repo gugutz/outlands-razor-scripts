@@ -1,0 +1,13 @@
+if hp < maxhp
+    if not findbuff 'mortal strike'
+        hotkey 'target self'
+    endif
+    target 'self'
+    cast 'greater heal'
+    waitfortarget
+
+else
+    target 'self'
+    overhead '** hp 100% **' 340 'self'
+    cast 'greater heal'
+endif

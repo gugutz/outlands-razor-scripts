@@ -1,0 +1,14 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+if skill 'anatomy' < 100
+    skill 'anatomy'
+    waitfortarget
+    hotkey 'Target Closest Friendly'
+    pause 10000
+else
+    sysmsg 'You have reached skill level 100 in Anatomy' 44
+    stop
+endif
+loop

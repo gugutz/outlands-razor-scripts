@@ -1,0 +1,57 @@
+if poisoned
+    // if theres orange petals, use them so we can drink a heal pot immediatelly
+    if not findtype 'orange potion'
+        overhead 'NO CURE POTS'
+    else
+        potion 'cure'
+        overhead 'cure pot' 40 'self'
+        wait 550
+        stop
+    endif
+endif
+
+
+# restore HP
+if hp < maxhp
+    if not findtype 'yellow potion'
+        overhead 'NO HEAL POTS'
+    else
+        overhead '** heal pot **'
+        potion 'heal'
+        wait 50
+        stop
+    endif
+endif
+
+# restore stamina (pot or food)
+if stam < maxstam
+    if findtype 'red potion' backpack
+        overhead 'refresh pots'
+        potion 'refresh'
+        wait 50
+        stop
+    elseif findtype 'sausage' backpack as food
+        dclick food
+    elseif findtype 'apple' backpack as food
+        overhead '** eating food **' 62 'self'
+        dclick food
+    elseif findtype 'grape' backpack as food
+        overhead '** eating food **' 62 'self'
+        dclick food
+    elseif findtype 'peach' backpack as food
+        overhead '** eating food **' 62 'self'
+        dclick food
+    elseif findtype 'fishsteak' backpack as food
+        overhead '** eating food **' 62 'self'
+        dclick food
+    elseif findtype 'wedge of cheese' backpack as food
+        overhead '** eating food **' 62 'self'
+        dclick food
+    else
+        overhead 'NO REFRESH POTS'
+    endif
+
+endif
+
+overhead '*nothing to do...*' 65
+

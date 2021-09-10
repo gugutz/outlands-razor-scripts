@@ -1,0 +1,12 @@
+if findtype 'storage shelf' ground any any 2 as storageshelf
+    setvar 'shelf' storageshelf
+    #overhead 'using shelf' 68 'shelf'
+    menu 'shelf' 0
+    wft 600
+    target 'self'
+    waitforgump 3232825965 600
+    menu 'shelf' 1
+else
+    overhead 'no shelfs'
+    
+endif

@@ -1,0 +1,7 @@
+if not findtype corpse ground any any 2
+    overhead '*no corpses nearby*' 45
+elseif findtype corpse ground any any 2 as corp
+    overhead '*opening corpse*'
+    dclick corp
+endif
+    

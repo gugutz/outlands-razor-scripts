@@ -1,0 +1,50 @@
+# LIVE MOUNT GRAPHICS
+# horse            204
+# llama            220
+# forest ostard    219
+
+# MOUNT TOKENS GRAPHICS
+# llama ethy       0x20f6
+# ethy polar bear  0x20E1
+
+if mounted
+    overhead '* dismounting *'
+    useobject 'self'
+    stop
+endif
+
+if not mounted and not findbuff 'dismount'
+    # horses or llamas
+    if findtype 204 true as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    # horses diff graphic
+    elseif findtype 228 true as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    # llamas
+    elseif findtype 220 true as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    # forest ostards
+    elseif findtype '219' true as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    #
+    # mount tokens
+    elseif findtype '0x20f6' as mount
+        useobject 'mount'
+    elseif findtype '0x20e1' as 'mount'
+        useobject 'mount'
+    endif
+
+
+    # check pet status by monitoring sysmsgs when clikcking it
+    if insysmsg 'That is too far away to ride.'
+        overhead '** calling **' 37 'pet'
+        say 'all follow me'
+    elseif insysmsg 'This mount is too ill to ride.'
+        overhead '** curing pet **' 37 'pet'
+        cast 'cure'
+        waitfortarget
+        target 'pet'
+    else
+        overhead '* mounting *'
+    endif
+endif

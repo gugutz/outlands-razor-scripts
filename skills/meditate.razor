@@ -1,0 +1,25 @@
+if not timerexists 'medit_msg'
+    createtimer 'medit_msg'
+    settimer 'medit_msg' 0
+endif
+
+if mana == maxmana
+    overhead 'already max mana'
+    stop
+endif
+
+if findbuff 'actively meditating'
+    overhead '*already meditating*'
+    stop
+endif
+
+while not findbuff 'actively meditating'
+    skill 'meditation'
+    wait 600
+    if findbuff 'actively meditating'
+        if timer 'medit_msg' > 2000
+            overhead 'meditating...'
+        endif
+    endif
+endwhile
+    

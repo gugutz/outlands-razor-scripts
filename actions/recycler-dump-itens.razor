@@ -1,0 +1,13 @@
+if not findtype 11761 true and not findtype 11762 true
+    overhead 'no recycler nearby'
+    stop
+endif
+
+usetype 11761 true
+usetype 11762 true
+waitforgump 4045111101
+gumpresponse 3
+waitfortarget
+target 'self'
+waitforgump 4045111101
+gumpclose

@@ -1,0 +1,21 @@
+# str pots
+if str < 120
+    if not findtype 'white potion' 'backpack'
+    overhead '*NO STR POTS*' 39
+    else
+        potion 'strength'
+        stop
+    endif
+endif
+
+# agil pots
+# if char is mage, dex will be 25
+if skill 'magery' > 50
+    if dex < 25
+        overhead '✩ agil str pot ✩'
+        potion 'agility'
+        wait 550
+        stop
+    endif
+endif
+

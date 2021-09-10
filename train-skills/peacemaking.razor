@@ -1,0 +1,30 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+if skill 'peacemaking' < 100
+    skill 'peacemaking'
+    waitfortarget
+    if insysmsg 'What instrument'
+        if findtype 'tambourine' true
+            targettype 'tambourine' backpack
+        elseif findtype 'lute' true
+            targettype 'lute' backpack
+        elseif findtype 'harp' true
+            targettype 'harp' backpack
+        elseif findtype 'drum' true
+            targettype 'drum' backpack
+        else
+            overhead '**No instrument found**'
+            sysmsg 'Cannot find an instrument to play' 44
+            stop
+        endif
+        waitfortarget
+    endif
+    target 'self'
+    pause 9000
+else
+    sysmsg 'You have reached skill level 100 in Peacemaking' 44
+    stop
+endif
+loop

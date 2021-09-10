@@ -1,0 +1,56 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+# meditation has a 10s cooldown so
+# we don't need to call the skill again
+# until that has passed, but we also don't
+# want to wait longer than necessary so
+# we check every second if mana is maxmana
+
+while mana < maxmana
+  skill 'meditation'
+  for 10
+    pause 1000
+    if mana = maxmana
+      replay
+    endif
+  endfor
+endwhile
+
+
+#restock 1
+#waitfortarget
+#target 'regrestock'
+#pause 3000
+
+#if skill 'magery' < 62.8
+#  cast 'Lightning'
+#  waitfortarget
+#  target 'righthand'
+#  pause 1250
+for 2
+if skill 'magery' > 90.0
+  cast 'Earthquake'
+  pause 3000
+elseif skill 'magery' > 76.0
+  cast 'Gate Travel'
+  waitfortarget
+  target 'self'
+  pause 1000
+elseif skill 'magery' > 62.0
+  cast 'Invisibility'
+  waitfortarget
+  target 'self'
+  pause 1000
+elseif skill 'magery' > 48.0
+  cast 'Magic Reflection'
+  pause 2000
+elseif skill 'magery' > 30.0
+  cast 'Curse'
+  waitfortarget
+  target 'self'
+  pause 1000
+endif
+endfor
+loop

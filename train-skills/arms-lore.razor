@@ -1,0 +1,14 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+if skill 'armslore' < 100
+    skill 'armslore'
+    waitfortarget
+    target 'ArmsLoreWeapon'
+    wait 10000
+else
+    sysmsg 'You have reached skill level 100 in Arms Lore' 44
+    stop
+endif
+loop

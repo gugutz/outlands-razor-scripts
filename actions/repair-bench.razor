@@ -1,0 +1,11 @@
+if findtype 'tinker table' ground any any 2 as bench
+    dclick bench
+    wait 300
+    if insysmsg 'in need of repairs'
+        overhead '*nothing to repair*'
+    endif
+else
+    overhead 'no benches nearby' 50
+endif
+    
+    

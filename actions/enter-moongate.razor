@@ -1,0 +1,10 @@
+# GRAPHICS
+# blue moongate     3948
+if not findtype 3948 ground any any 2
+    overhead '*No Moongates Nearby*' 45
+    stop
+endif
+usetype 3948 ground any any 2
+waitforgump 3773199800 1000
+overhead 'ENTERING MOONGATE'
+gumpresponse 2

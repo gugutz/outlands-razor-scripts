@@ -1,0 +1,157 @@
+# TIMERS
+
+sysmsg '>>> SUMMONER BOT RUNNING'
+
+if not timerexists 'mana_drain_timer'
+    createtimer 'mana_drain_timer'
+    settimer 'mana_drain_timer' 60000
+    wait 10
+endif
+
+if not timerexists 'curse_timer'
+    createtimer 'curse_timer'
+    settimer 'curse_timer' 60000
+    wait 10
+endif
+
+if not timerexists 'ma_timer'
+    createtimer 'ma_timer'
+    settimer 'ma_timer' 60000
+    wait 10
+endif
+
+if not timerexists 'harm_timer'
+    createtimer 'harm_timer'
+    settimer 'harm_timer' 60000
+    wait 10
+endif
+
+if not timerexists 'lightning_timer'
+    createtimer 'lightning_timer'
+    settimer 'lightning_timer' 60000
+    wait 10
+endif
+
+if not timerexists 'eb_timer'
+    createtimer 'eb_timer'
+    settimer 'eb_timer' 60000
+endif
+
+# CAMPFIRE BUFF
+if not findbuff 'campfire visit'
+    if not findtype campfire ground any any 2
+        if findtype 'kindling' backpack as firestarter
+            overhead '*starting campfire*' 65
+            dclick firestarter
+        else 
+            overhead 'no kindling' 41
+        endif
+    elseif findtype campfire ground any any 2 as fire
+        dclick fire
+    endif
+endif
+
+# TASTE BUFF
+if skill 'tasteid' > 50
+    if not findbuff 'herbal poultice'
+        overhead '*herbal poultice*'
+        skill 'taste identification'
+        wft 600
+        targetrelloc 1 1
+    endif
+endif
+
+# DELECTABLE
+if not findbuff 'food satisfaction'
+    if findtype 'tray' as delectable
+        overhead '*eating deletable*'
+        dclick delectable
+    else
+        overhead '*no delectable*'
+    endif
+endif
+
+# SPELLS
+if timer 'mana_drain_timer' > 60000
+    overhead 'mana drain'
+    cast 'mana drain'
+    wft 3500
+    target 'last'
+    wait 600
+    settimer 'mana_drain_timer' 0
+endif
+
+if timer 'curse_timer' > 60000
+    overhead 'curse'
+    cast 'curse'
+    wft 3500
+    target 'last'
+    wait 600
+    settimer 'curse_timer' 0
+endif
+
+if timer 'ma_timer' > 60000
+    overhead 'magic arrow'
+    cast 'magic arrow'
+    wft 2000
+    target 'last'
+    wait 600
+    settimer 'ma_timer' 0
+endif
+
+if timer 'harm_timer' > 60000
+    overhead 'harm'
+    cast 'harm'
+    wft 2000
+    target 'last'
+    wait 600
+    settimer 'harm_timer' 0
+endif
+
+if timer 'lightning_timer' > 60000
+    overhead 'lightning' 40
+    cast 'lightning'
+    wft 3500
+    target 'last'
+    wait 600
+    settimer 'lightning_timer' 0
+endif
+
+if timer 'eb_timer' > 60000
+    overhead 'energy bolt'
+    cast 'energy bolt' 40
+    wft 4000
+    target 'last'
+    wait 600
+    settimer 'eb_timer' 0
+endif
+
+# heal self
+if hits < maxhits
+    overhead 'HEALING' 39
+    cast 'greater heal'
+    wft 4000
+    target 'self'
+endif
+
+if mana < 50
+    overhead 'meditating'
+    while not findbuff 'actively meditating'
+        usetype 'mushroom'
+        wait 600
+        skill 'meditation'
+        wait 600
+        while findbuff 'actively meditating' and mana < 50
+            if timer 'medit_msg_timer' > 1500
+                ovehead 'meditating'
+            endif
+        endwhile
+    endwhile
+endif
+
+overhead 'FS' 39
+cast 'flamestrike'
+wft 4000
+target 'last'
+wait 400
+loop

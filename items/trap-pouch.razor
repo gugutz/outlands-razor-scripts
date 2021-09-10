@@ -1,0 +1,22 @@
+// pouch graphic = 0x0e79
+//magic trap scroll = 0x1f39
+
+// only try anything if there actual pouches on the backpack
+if findtype 0x0e79 
+    // first try with magery
+    if skill 'magery' > 50
+        cast 'magic trap'
+        waitfortarget
+        targettype  0x0e79 'backpack'
+    else
+        // if magery fails, try to use scrolls
+        if findtype 0x1F39
+            usetype 0x1F39
+            waitfortarget
+            targettype  0x0e79 'backpack'
+        else
+            overhead '** no magic trap scrolls! **' 48 'self'
+        endif
+else
+    overhead '** no pouches!! **' 37 'self'
+endif

@@ -1,0 +1,9 @@
+if mana = maxmana
+    overhead 'already full mana'
+    stop
+elseif not findtype 'mushroom' 'backpack'
+    overhead 'no mushrooms!' 37
+    stop
+else
+    usetype 'mushroom' backpack
+endif

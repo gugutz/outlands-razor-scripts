@@ -1,0 +1,87 @@
+# the idea here is to execute only 1 action per key press
+
+interrupt
+
+#script 'housing\rental-room-exit'
+
+# handle paralyze
+if findbuff 'paralyze'
+    if not findtype 'pouch' 'backpack' 38
+        overhead '** NO POUCH **' 39
+        stop
+    endif
+    overhead 'pouch' 54
+    usetype 'pouch' 'backpack' 38 
+    stop
+endif
+
+# if there is a moongate nearby, enter it
+if findtype 'blue moongate' 'ground' any any 2
+    script 'moongate\enter-moongate'
+    wait 10
+    stop
+endif
+
+# keep campfire buff
+if skill 'camping' > 20 and not findbuff 'campfire visit'
+    if not findtype 'campfire' ground any any 2 and findtype 'kindling' backpack
+        script 'skills\camping-create-campfire'
+        stop
+    endif
+endif
+
+# maintain food satisfaction buff
+if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
+    script 'items\eat-delectable'
+    stop
+endif
+
+
+# keep taste id buff
+if skill 'taste identification' > 20 and not findbuff 'herbal poultice'
+    script 'skills\taste-identification'
+    stop
+endif
+
+# maintain str at 120 pots
+if str < 120 and findtype 'white potion'
+    script 'potions\pot-str-agil'
+    stop
+endif
+
+
+# maintain dex up
+if skill 'magery' > 49
+    if dex < 25 and findtype 'blue potion'
+      script 'potions\pot-str-agil'
+      stop
+    endif
+# for dexxers
+elseif skill 'magery' < 51
+    if dex < 101 and findtype 'blue potion'
+      script 'potions\pot-str-agil'
+      stop
+    endif
+endif
+
+# magic resist pot buff
+if not findbuff 'magic resist potion' and findtype 'black potion'
+    script 'potions\magic-resist'
+    stop
+endif
+
+
+
+# drop empty pots on ground
+if findtype 3854 'backpack' as bottles
+    overhead '✩ droping bottles ✩'
+    wait 600
+    lift bottles 999
+    #wait 600
+    droprelloc 1 1
+    stop
+endif
+
+wait 10
+overhead 'nothing to do...'
+hotkey '> stop current script'

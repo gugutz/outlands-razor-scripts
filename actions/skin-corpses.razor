@@ -1,0 +1,31 @@
+if skill 'forensic' = 0
+    overhead '*no skill to skin*' 40
+    stop
+else
+    if not findtype 'corpse' ground any any 2
+    overhead '*no corpses to skin*' 45
+        stop
+    elseif findtype corpse ground any any 2 as body
+        if not findtype 'elven spellblade' backpack
+            overhead '*NO KNIFE*'
+            stop
+        else
+            skill 'forensic'
+            wft 250
+            if insysmsg 'must wait'
+                overhead '*skill cooldown*' 45
+                wait 100
+                #loop
+            endif
+            target 'self'
+            wait 200
+            if insysmsg 'dont see anything'
+                overhead '*nothing to carve*' 40
+            elseif insysmsg 'carved materials'
+                overhead '*carve materials!*'
+            endif
+            @ignore body
+            stop
+        endif
+    endif
+endif

@@ -1,0 +1,16 @@
+if not findbuff 'campfire visit'
+    if not findtype campfire ground any any 2
+        if findtype kindling backpack as firestarter
+            overhead '*creating campfire*'
+            dclick firestarter
+            wait 600
+        else
+            sysmsg 'Out of Kindling!' 33
+            overhead 'NO KINDLING' 40
+            wait 600
+            break
+        endif
+    else
+        overhead 'found campfire nearby!'*
+    endif
+endif

@@ -1,0 +1,26 @@
+say '[aspects'
+# my main char (eldrich and void)
+if name = 'Neron'
+    sysmsg '>>> ACTIVATING ELDRICH ASPECT'
+    waitforgump 2424293173
+    gumpresponse 13
+    waitforgump 2424293173
+    gumpresponse 13
+    waitforgump 2424293173
+    overhead '>>> ACTIVATING VOID ASPECT'
+    gumpresponse 17
+    waitforgump 2424293173
+    gumpresponse 17
+    waitforgump 2424293173
+# my tamer uses water
+elseif name 'Emillia'
+    waitforgump 2424293173
+    gumpresponse 13
+    waitforgump 2424293173
+    gumpresponse 13
+    waitforgump 2424293173
+    gumpresponse 17
+    waitforgump 2424293173
+    gumpresponse 17
+    waitforgump 2424293173
+endif

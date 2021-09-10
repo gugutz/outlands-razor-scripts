@@ -1,0 +1,46 @@
+while skill "magery" < 100 and not dead
+  if count "black pearl" < 1 or count "blood moss" < 1 or count "mandrake root" < 1 or count "garlic" < 1 or count "ginseng" < 1 count "nightshade" < 1 or count "spider's silk" < 1 or count "sulfurous ash" < 1
+    dclick 0x429BDDB2
+    waitforgump 3232825965
+    gumpresponse 7
+    waitforgump 3232825965
+    gumpclose
+  endif
+  if mana < 50
+    while mana < maxmana
+      if not insysmsg "You enter a meditative trance."
+        skill "meditation"
+      else
+        while mana < maxmana
+           pause 500
+        endwhile
+      endif
+    endwhile
+  endif
+  if hits < 50
+    cast "greater heal"
+    waitfortarget 
+    target "self"
+    pause 600
+    cast "greater heal"
+    waitfortarget 
+    target "self"
+    pause 600
+  endif
+  if skill "magery" < 60
+    cast "lightning"
+    waitfortarget 
+    target "self"
+    pause 600
+  elseif skill "magery" < 80
+    cast "invisibility"
+    waitfortarget 
+    target "self"
+    pause 600
+  else
+      cast "earth elemental"
+    pause 5250
+    say "an earth elemental release"
+    pause 600
+  endif
+endwhile

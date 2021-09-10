@@ -1,0 +1,14 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+if skill 'detectinghidden' < 100
+    skill 'detectinghidden'
+    waitfortarget
+    targetrelloc 0 1
+    wait 10000
+else
+    sysmsg 'You have reached skill level 100 in Detecting Hidden' 44
+    stop
+endif
+loop

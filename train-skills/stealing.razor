@@ -1,0 +1,44 @@
+if insysmsg 'The world will save'
+    wait 27000
+endif
+
+skill 'stealing'
+waitfortarget
+target 'stealbag'
+wait 1000
+if not insysmsg 'successfully'
+    wait 9000
+    replay
+endif
+
+if skill 'stealing' < 35
+    restock 1
+elseif skill 'stealing' < 45
+    restock 2
+elseif skill 'stealing' < 55
+    restock 3
+elseif skill 'stealing' < 65
+    restock 4
+elseif skill 'stealing' < 75
+    restock 5
+elseif skill 'stealing' < 85
+    restock 6
+elseif skill 'stealing' < 95
+    restock 7
+elseif skill 'stealing' < 100
+    restock 8
+else
+    overhead '** Skill 100 **'
+    sysmsg 'You have reached skill level 100 in Stealing' 44
+    stop
+endif
+waitfortarget
+target 'bottlebag'
+wait 5000
+
+lift 'stealbag' 1
+wait 500
+drop 'bottlebag' 0 0 0
+wait 4500
+
+loop

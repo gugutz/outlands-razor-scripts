@@ -1,0 +1,6 @@
+if not findtype 'tray' backpack
+    overhead 'NO DELECTABLE' 40
+elseif findtype 'tray' backpack as food
+    overhead '*delectable*'
+    dclick food
+endif

@@ -1,0 +1,9 @@
+# TASTE BUFF
+if skill 'taste identification' > 50
+    if not findbuff 'herbal poultice'
+        overhead '*herbal poultice*'
+        skill 'tasteid'
+        wft 600
+        targetrelloc 1 1
+    endif
+endif

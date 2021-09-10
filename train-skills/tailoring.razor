@@ -1,0 +1,223 @@
+// Tailoring: written by Zell
+// set your restock on the shelf to be just 1 sewing kit
+// set variable shelf to your shelf
+// set container leather to your leather storage
+// MAKE SURE YOUR TAIOR RECYCLE IT SET TO RECYCLE SINGLE ITEM
+if not findtype 3997 true
+    menu 'shelf' 1
+    pause 1000
+endif
+if count 'leather' < 30
+    restock 1
+    pause 500
+    target 'leather'
+    pause 1000
+endif
+if skill 'tailoring' < 65
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 101 //Leather section
+    pause 1000
+    gumpresponse 200 //gorget
+    pause 2000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5063 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5063 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+elseif skill 'tailoring' < 70
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 101 //Leather section
+    pause 1000
+    gumpresponse 201 //gloves
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5070 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5070 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+elseif skill 'tailoring' < 75
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 101 //Leather section
+    pause 1000
+    gumpresponse 202 //cap
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 7610 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 7610 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+elseif skill 'tailoring' < 80
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 101 //Leather section
+    pause 1000
+    gumpresponse 203 //arms
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5061 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5061 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+elseif skill 'tailoring' < 85
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 101 //Leather section
+    pause 1000
+    gumpresponse 204 //legs
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5074 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5074 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+//endif
+//if list chest < 1
+elseif skill 'tailoring' < 90
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 101 //Leather section
+    pause 1000
+    gumpresponse 207 //chest
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5075 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5075 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+//endif
+elseif skill 'tailoring' < 95
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 108 // Utility section
+    pause 1000
+    gumpresponse 11 // page 2
+    pause 1000
+    gumpresponse 206 // boarding rope
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5370 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5370 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+elseif skill 'tailoring' < 100
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 102 // studded section
+    pause 1000
+    gumpresponse 203 // studded arms
+    pause 1000
+    menu 'shelf' 0
+    pause 500
+    target 'backpack'
+    pause 1500
+    if findtype 5076 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 1000
+        targettype 5076 backpack
+        pause 1000
+        script 'tailoring'
+    else
+        pause 1000
+        script 'tailoring'
+    endif
+elseif skill 'tailoring' < 119.9
+    dclicktype 3997 backpack
+    pause 1000
+    gumpresponse 108 // utility section
+    pause 1000
+    gumpresponse 203 // leather repair kit
+    pause 1000
+    if findtype 7866 true
+        dclicktype 3997 backpack
+        pause 1000
+        gumpresponse 3
+        pause 500
+        targettype 7866 backpack
+    endif
+elseif skill 'tailoring' > 119.9
+    stop
+    msg 'I AM DONE'
+endif
+replay
