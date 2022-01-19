@@ -1,0 +1,123 @@
+#################################
+# Corpse Looter
+# v0.0.1
+# by gugutz
+#
+#################################
+# CHANGELOG
+#
+# v0.0.1
+# - Initial release
+#
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#
+if not listexists 'config_lists'
+    createlist 'config_lists'
+else
+    clearlist 'config_lists'
+endif
+
+pushlist 'config_lists' 'trapped_pouches'
+
+foreach list in 'config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+#################################
+# CONFIGURATION
+#
+@setvar action_delay_var 300
+
+#################################
+# Ask for which corpse to loot
+#
+createtimer 'waiting_tchest_msg_timer'
+settimer 'waiting_tchest_msg_timer' 1501
+
+@unsetvar container
+@setvar container
+wft 500
+while targetexists 'neutral'
+    if timer 'waiting_tchest_msg_timer' >= 1500
+        overhead 'select container to loot...' 52
+        sysmsg 'Select Container To Loot...' 51
+    endif
+endwhile
+#
+
+if not varexist container
+    overhead 'no container set'
+    stop
+endif
+
+
+#################################
+#
+# CODE
+#
+
+# ------------------------------
+# ITEMS LIST
+if not listexists 'corpse_items'
+    createlist 'corpse_items'
+    pushlist 'corpse_items' 'chain link'
+    # focis
+    pushlist 'corpse_items' 48261
+    # skill balls
+    pushlist 'corpse_items' 'void orb'
+    # research materials
+    pushlist 'corpse_items' 'wall shelf'
+endif
+
+
+clearignore
+while findtype 'pouch' backpack 38 as trapped_pouch
+    pushlist 'trapped_pouches' trapped_pouch
+    @ignore trapped_pouch
+endwhile
+
+foreach item in 'corpse_items'
+    while findtype item container any any as item_to_unload
+        sysmsg 'LOOTING FROM CONTAINER' 53
+        overhead 'looting container' 51 'self'
+
+        lift item_to_unload 1
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+
+foreach pouch in 'trapped_pouches'
+    getlabel pouch pouch_label
+
+    if '0 items' in pouch_label
+        overhead 'ACHOU 0 POUCH'
+    else
+        dclick pouch
+        wait action_delay_var
+        dclick pouch
+        wait action_delay_var
+        overhead 'ACHOU ITEMS POUCH'
+
+
+        foreach item in 'corpse_items'
+            while findtype item pouch any any as item_to_unload
+                sysmsg 'LOOTING FROM TRAP POUCH' 53
+                overhead 'looting pouch' 51 'self'
+
+                lift item_to_unload 1
+                wait action_delay_var
+                drop backpack
+                wait action_delay_var
+            endwhile
+        endfor
+#
+    endif
+endfor

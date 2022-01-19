@@ -1,10 +1,14 @@
-if hp < maxhp
-    target 'self'
-    cast 'heal'
-    waitfortarget
+if targetexists 'beneficial'
+    if poisoned or hits < maxhits
+        hotkey 'Target Self'
+    else
+        overhead '** hp 100% **' 340 'self'
+    endif
+    stop
+endif
 
+if poisoned
+    cast 'cure'
 else
-    target 'self'
-    overhead '** hp 100% **' 340 'self'
     cast 'heal'
 endif

@@ -1,0 +1,223 @@
+createlist 'aspect_colors'
+# artisan
+pushlist 'aspect_colors' 2096
+# blood
+pushlist 'aspect_colors' 2087
+# command
+pushlist 'aspect_colors' 1782
+# fortune
+pushlist 'aspect_colors' 2843
+# eldrich
+pushlist 'aspect_colors' 2615
+# fire
+pushlist 'aspect_colors' 2635
+# water
+pushlist 'aspect_colors' 1788
+# void
+pushlist 'aspect_colors' 2599
+# poison
+pushlist 'aspect_colors' 2897
+
+
+
+# define whether to use weapons or books depending if char is mage or not
+if not listexists 'is_mage'
+    createlist 'is_mage'
+else
+    clearlist 'is_mage'
+endif
+
+if skill 'magery' >= 50
+    @setvar hand_item_activate_aspect_gump_btn  13
+    pushlist 'is_mage' 'yes'
+else
+    @setvar hand_item_activate_aspect_gump_btn 8
+    if inlist 'is_mage' 'yes'
+        clearlist 'is_mage'
+        pushlist 'is_mage' 'no'
+    endif
+endif
+
+say '[aspects'
+waitforgump 2424293173 500
+
+
+# if char is tamer activate aspect on crook so it dont get dump into the recycler
+if not listexists 'aspect_active_on_crook'
+    createlist 'aspect_active_on_crook'
+else
+    clearlist 'aspect_active_on_crook'
+endif
+
+if skill 'herding' > 0
+    if findtype 3713 backpack as crook
+        foreach aspect_color in 'aspect_colors'
+            if hue crook == aspect_color
+                @pushlist 'aspect_active_on_crook' 'yes'
+                break
+            endif
+        endfor
+
+
+        if not inlist 'aspect_active_on_crook' 'yes'
+            # undress hands to equip crook
+            while not lhandempty
+                hotkey 'Undress Left Hand'
+                wait 500
+            endwhile
+            while not rhandempty
+                hotkey 'Undress Right Hand'
+                wait 500
+            endwhile
+
+            while lhandempty
+                lift crook
+                wait 500
+                drop self LeftHand
+                wait 500
+            endwhile
+
+            sysmsg "Activating aspect on  Crook..." 90
+            waitforgump 2424293173 500
+            gumpresponse 8
+            waitforgump 2424293173 500
+            gumpresponse 8
+            waitforgump 2424293173 500
+            hotkey 'Undress Left Hand'
+        endif
+    endif
+
+    if inlist 'aspect_active_on_crook' 'yes'
+        overhead "crook aspect active" 48
+        sysmsg "Aspect already active on Sheperd's Crook" 48
+    endif
+
+endif
+
+# if char is mage we should look for a magic book
+unsetvar hand_item
+if inlist 'is_mage' 'yes'
+    # equip book first if needed
+    if rhandempty
+        # need to loop here or else razor finds the regular spell book first and stops
+        removelist 'char_books'
+        createlist 'char_books'
+        while findtype 'spellbook' backpack as book
+            # sysmsg 'loop books'
+            if hue book != 0
+                pushlist 'char_books' book
+            endif
+            @ignore book
+        endwhile
+        @clearignore
+
+        if list 'char_books' > 0
+            foreach book in 'char_books'
+                @setvar hand_item book
+                sysmsg 'Equipping Magic Spellbook...' 56
+                lift book
+                wait 500
+                drop 'self' righthand
+                wait 500
+                break
+            endfor
+        else
+            sysmsg 'Magic Spellbook NOT FOUND!!!' 41
+        endif
+    endif
+
+    if findtype 'spellbook' righthand as book
+        @setvar hand_item book
+    endif
+endif
+
+if inlist 'is_mage' 'no'
+    if findlayer 'self' righthand 2606 as weapon
+        setvar hand_item weapon
+    else
+        sysmsg 'Weapon NOT EQUIPED!!!' 57
+    endif
+endif
+
+
+
+removelist 'is_active_on_hand'
+createlist 'is_active_on_hand'
+removelist 'is_active_on_armor'
+createlist 'is_active_on_armor'
+
+# if i didnt find any items on hand, like a book, but char is not empty handed,
+# need to undress his hands to put a book on them
+if not varexist hand_item
+    # undress hands to equip book/weapon
+    while not lhandempty
+        sysmsg 'Undressing Left Hand'
+        hotkey 'Undress Left Hand'
+        wait 500
+    endwhile
+    while not rhandempty
+        sysmsg 'Undressing Right Hand'
+        hotkey 'Undress Right Hand'
+        wait 500
+    endwhile
+endif
+# check if aspect is active on book/weapon using item found in hand
+if varexist hand_item
+    foreach aspect_color in 'aspect_colors'
+        if hue hand_item == aspect_color
+        sysmsg 'debug: found aspect color on hand'
+            pushlist 'is_active_on_hand' 'yes'
+            break
+        endif
+    endfor
+endif
+
+# check if aspect is active on armor using chest piece
+if findlayer 'self' innertorso as tunic
+    foreach aspect_color in 'aspect_colors'
+        if hue tunic == aspect_color
+            pushlist 'is_active_on_armor' 'yes'
+            break
+        endif
+    endfor
+endif
+
+
+if inlist 'is_active_on_hand' 'yes'
+    if inlist 'is_mage' 'yes'
+        overhead "book aspect active" 48
+        sysmsg "Aspect already active on Book" 48
+    else
+        overhead "weapon aspect active" 48
+        sysmsg "weapon already active on Weapon" 48
+    endif
+else
+    if not rhandempty
+        sysmsg "Activating aspect on hand..." 56
+        waitforgump 2424293173 500
+        gumpresponse hand_item_activate_aspect_gump_btn
+        waitforgump 2424293173 500
+        gumpresponse hand_item_activate_aspect_gump_btn
+    else
+        if inlist 'is_mage' 'yes'
+            overhead "book not equiped" 48
+            sysmsg "Book is not equiped" 48
+        else
+            overhead "weapon not equiped" 48
+            sysmsg "Weapon is not equiped" 48
+        endif
+    endif
+endif
+
+# change armor aspect to char defined aspect
+if inlist 'is_active_on_armor' 'yes'
+    overhead "armor aspect active!" 48
+    sysmsg "Aspect already active on Armor" 48
+else
+
+    waitforgump 2424293173 500
+    gumpresponse 17
+    waitforgump 2424293173 500
+    gumpresponse 17
+    waitforgump 2424293173 500
+endif

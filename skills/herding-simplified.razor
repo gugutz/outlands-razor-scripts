@@ -1,0 +1,36 @@
+
+if dead 'last' or not find 'last' ground any any 20
+    overhead 'no last target!' 56
+    hotkey 'Set Last Target'
+    wft 500
+    if targetexists 'neutral'
+        while targetexists 'neutral'
+            wait 50
+        endwhile
+    endif
+endif
+
+if dead 'last' or not find 'last' ground any any 20
+    stop
+else
+    say 'all kill'
+    wft 500
+    if targetexists 'harmful'
+        hotkey 'Last Target'
+    endif
+
+    if findtype 3713 as crook
+        useobject crook
+        wft 600
+        if targetexists 'harmful'
+            hotkey 'Last Target'
+            wait 400
+            if insysmsg 'You focus your follower'
+                overhead 'focused pets agression' 41 'last'
+            endif
+        endif
+    else
+        overhead "no sheperd's crook!"
+    endif
+
+endif

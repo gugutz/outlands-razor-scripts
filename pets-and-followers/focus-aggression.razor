@@ -1,0 +1,18 @@
+@setvar sheperds_crook_graphic 3713
+
+if not dead 'last' and noto 'last' != friend and noto 'last' != friendly
+    overhead 'attacking last target' 55
+    hotkey 'Attack Last Target'
+    if skill 'herding' > 20 and followers > 0
+        if findtype sheperds_crook_graphic as crook
+            useobject crook
+            wft 600
+            if targetexists 'harmful'
+                overhead 'focusing pets agression'
+                target 'last'
+            endif
+        else
+            overhead "no sheperd's crook!"
+        endif
+    endif
+endif

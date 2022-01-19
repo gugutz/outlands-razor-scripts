@@ -2,12 +2,12 @@ if insysmsg 'The world will save'
     wait 27000
 endif
 
-if not findtype 'lockpick'
+if not findtype 'lockpicks'
     overhead '**Out of lockpicks**'
     stop
 endif
 
-dclicktype 'lockpick' backpack
+dclicktype 'lockpicks' backpack
 waitfortarget
 if skill 'lockpicking' < 50
     target 'box_thirty'

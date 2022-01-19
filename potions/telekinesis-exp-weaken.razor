@@ -1,0 +1,17 @@
+cast 'telekinesis'
+wft 1500
+hotkey "Last Target"
+wait 300
+# waitforsysmsg 'Your next explosion potion' 500
+if insysmsg 'Your next explosion potion'
+    overhead '*throwing exp pot' 55 'last'
+    potion 'explosion'
+    wft 600
+    hotkey "Last Target"
+    wait 200
+    cast 'weaken'
+    wft 1500
+    hotkey "Last Target"
+else
+    sysmsg 'TELEKINESIS FAIL' 55
+endif

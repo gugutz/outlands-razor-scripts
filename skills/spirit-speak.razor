@@ -1,0 +1,132 @@
+if not listexists 'vampiric_embraced_corpses'
+    sysmsg '>>> Creating list to control consumed (vamp embraced) corpses...' 74
+    createlist 'vampiric_embraced_corpses'
+endif
+
+if skill 'spirit' > 0 and not listexists 'drained_corpses'
+    sysmsg '>>> Creating list to control drained corpses...' 74
+    createlist 'drained_corpses'
+endif
+
+# CHOOSE CHARACTER SUMMONS
+if not listexists 'summons'
+    createlist 'summons'
+else
+    clearlist 'summons'
+endif
+
+# CHOOSE CHARACTER SUMMONS
+if not listexists 'found_summon'
+    createlist 'found_summon'
+endif
+
+# CHOOSE CHARACTER SUMMONS
+if not listexists 'found_undead_summon'
+    createlist 'found_undead_summon'
+endif
+
+if not listexists 'make_undead_summon'
+    createlist 'make_undead_summon'
+endif
+
+@pushlist 'summons' 'an earth elemental'
+@pushlist 'summons' 'a fire elemental'
+clearlist 'found_summon'
+
+if followers < 5
+    script 'spells\summon-summons'
+    stop
+endif
+
+foreach summon in 'summons'
+
+    # determine summon name by whether char has necromancy or not
+    if skill 'necromancy' >= 50
+        # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
+        if not listexists 'undead_summons'
+            createlist 'undead_summons'
+        else
+            clearlist 'undead_summons'
+        endif
+
+        if earth in summon
+            pushlist 'undead_summons' 'an ancient mummy'
+        elseif fire in summon
+            pushlist 'undead_summons' 'a lich'
+        elseif air in summon
+            pushlist 'undead_summons' 'a skeletal fiend'
+        elseif daemon in summon
+            pushlist 'undead_summons' 'a vampire thrall'
+        elseif water in summon
+            pushlist 'undead_summons' 'a rag witch'
+        endif
+    endif
+
+    #########################
+    # try to find a similir creature summon to see if we need to cast this one or skip to next one
+    clearlist 'found_summon'
+    clearlist 'found_undead_summon'
+    clearlist 'cast_summon_spell'
+    if findtype summon ground any 1 find_summon_range as summonserial
+        if noto summonserial = friend
+            overhead '*found summon*' 98 summonserial
+            pushlist 'found_summon' 'yes'
+        endif
+    endif
+
+    # if the 'undead_summons' list has elements, we need to check for those undead summons as well
+    if list 'undead_summons' > 0
+        foreach necro_summon in 'undead_summons'
+            if findtype necro_summon ground any 1 find_summon_range as summonserial
+                if noto summonserial = friend
+                overhead 'necro_summon' 16 summonserial
+                    pushlist 'found_undead_summon' 'yes'
+                endif
+            endif
+        endfor
+    endif
+endfor
+
+
+# drain energy to increse mage summons duration
+if inlist 'found_summon' 'yes'
+    if skill 'spirit' > 0
+        if findtype 'corpse' ground any any 10 as body
+            if not inlist 'drained_corpses' body
+                sysmsg '>>> DRANING NEARBY CORPSES' 55
+                skill 'spirit'
+                @pushlist 'drained_corpses' body
+                @ignore body
+            endif
+        else
+            overhead '*no corpses to drain*' 56
+        endif
+    endif
+else
+    sysmsg '>>> No Summons To Extend*' 56
+endif
+
+
+# consume nearby corpses to increase undead summons hp
+if inlist 'found_undead_summon' 'yes'
+    if skill 'necromancy' > 0
+        if findtype 'corpse' ground any any 10 as body
+            say '[vampiricembrace'
+            wft 400
+            if targetexists 'neutral'
+                sysmsg '>>> CONSUMING NEARBY CORPSE...' 95
+                overhead '*consuming corpse*' 95
+                target 'self'
+            endif
+        else
+            overhead '*no corpses to consume*' 56
+        endif
+    endif
+elseif not inlist 'found_undead_summon' 'yes'
+    sysmsg '>>> No Undeads To Heal' 56
+endif
+
+if inlist 'found_summon' 'yes' and not inlist 'found_undead_summon' 'yes'
+    overhead '|* no followers to maintain *|' 56
+    stop
+endif

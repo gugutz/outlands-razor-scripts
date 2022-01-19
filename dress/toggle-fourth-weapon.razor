@@ -1,0 +1,93 @@
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#
+
+if not listexists 'config_lists'
+    createlist 'config_lists'
+else
+    clearlist 'config_lists'
+endif
+
+pushlist 'config_lists' 'dont_unequip_if_already_equiped'
+
+foreach list in 'config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+pushlist 'dont_unequip_if_already_equiped' 'no'
+
+#################################
+# SCRIPT CONFIGURATION
+#
+
+
+if not listexists 'disturb_weapons_2'
+    createlist 'disturb_weapons_2'
+    if skill 'archery' >= 50
+        pushlist 'disturb_weapons_2' 'bow'
+    elseif skill 'fencing' >= 50
+        pushlist 'disturb_weapons_2' 'kryss'
+    elseif skill 'mace fighting' >= 50
+        pushlist 'disturb_weapons_2' 'club'
+    elseif skill 'swordsmanship' >= 50 or findtype 'katana' backpack
+        pushlist 'disturb_weapons_2' 'katana'
+        pushlist 'disturb_weapons_2' 'broadsword'
+    else
+        overhead 'char has no weapon skill'
+    endif
+endif
+
+if list 'disturb_weapons_2' == 0
+    overhead 'no disturb_weapons_2 in list'
+endif
+
+foreach weapon in 'disturb_weapons_2'
+    if findtype weapon lefthand
+        if inlist 'dont_unequip_if_already_equiped' 'yes'
+            overhead 'equiped on left hand' 54
+            break
+        else
+            hotkey 'Undress Left Hand'
+            break
+        endif
+    elseif findtype weapon righthand
+        if inlist 'dont_unequip_if_already_equiped' 'yes'
+            overhead 'equiped on right hand' 54
+            break
+        else
+            hotkey 'Undress Right Hand'
+            break
+        endif
+    else
+        if not rhandempty
+            if targetexists 'any'
+                overhead '*undressing right hand*'
+                hotkey 'Undress Right Hand'
+                wait 100
+            endif
+        elseif not lhandempty
+            if targetexists 'any'
+                overhead '*undressing left hand*'
+                hotkey 'Undress Left Hand'
+                wait 200
+            endif
+        endif
+
+        if findtype weapon backpack as weap
+            overhead 'equiping weapon' 48
+            if targetexists
+                lift weap 1
+                wait 100
+                drop 'self' LeftHand
+                break
+            else
+                dclick weap
+            endif
+        endif
+    endif
+endfor

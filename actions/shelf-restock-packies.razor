@@ -1,0 +1,31 @@
+# restock shelf from pack llama or pack horse
+
+createlist 'packies'
+
+while findtype 292 ground any any 2 as 'packie'
+    @pushlist 'packies' 'packie'
+    @ignore 'packie'
+endwhile
+
+while findtype 'a pack horse' ground any any 2 as packie
+    @pushlist 'packies' 'packie'
+    @ignore 'packie'
+endwhile
+
+if list 'packies' > 0
+    if findtype 'storage shelf' ground any any 2 as 'shelf'
+        foreach packanimal in 'packies'
+            overhead 'unloading' 55 packanimal
+            menu 'shelf' 0
+            wft 600
+            target packanimal
+            wait 200
+        endfor
+        @removelist 'packies'
+        @clearignore
+    else
+        overhead 'no shelfs nearby'
+    endif
+else
+    overhead 'no packies found'
+endif

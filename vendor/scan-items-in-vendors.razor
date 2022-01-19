@@ -1,0 +1,110 @@
+clearignore
+
+createlist 'words'
+clearlist 'words'
+
+pushlist 'words' 'command'
+pushlist 'words' 'agapite'
+pushlist 'words' 'fortune'
+pushlist 'words' 'wilderness'
+pushlist 'words' 'provocation'
+
+createlist 'rares'
+clearlist 'rares'
+
+pushlist 'rares' '0x227A' //ss
+#pushlist 'rares' '0x240'  //phyl
+#pushlist 'rares' '0x5740' //ball
+#pushlist 'rares' '0x7161' //dye
+#pushlist 'rares' '0xEFC'  //extract
+#pushlist 'rares' 'oxEFE'  //dye
+#pushlist 'rares' '0xF02'  //headwear_dye
+#pushlist 'rares' '0xF03'  //shield/hair_dye
+pushlist 'rares' '0x7161' //furniture_dye
+#pushlist 'rares' '0xefa'  //spellbook
+#pushlist 'rares' '0x14ec' //map
+#pushlist 'rares' '0xf91'  //core
+#pushlist 'rares' '0x42BF' //MCD
+#pushlist 'rares' '0xa8c6' //Link
+#pushlist 'rares' '0x72a4' //research
+#pushlist 'rares' '0x14ef' //deed
+#pushlist 'rares' '0x175d' //cloth
+#pushlist 'rares' '0x4516' //distill
+
+clearlist 'ContainerTypes'
+createlist 'ContainerTypes'
+
+pushlist 'ContainerTypes' '0xe75' //Backpack
+pushlist 'ContainerTypes' '0xe76' //Bag
+pushlist 'ContainerTypes' '0xe80' //Lesser_Paragon_Chest
+pushlist 'ContainerTypes' '0xe79' //Pouch
+pushlist 'ContainerTypes' '0x9aa' //Wooden_Box
+pushlist 'ContainerTypes' '0xe40' //Metal_Chest
+pushlist 'ContainerTypes' '0xe41' //Metal_Chest
+pushlist 'ContainerTypes' '0xe42' //Wooden_Chest
+pushlist 'ContainerTypes' '0xe43' //Wooden_Chest
+pushlist 'ContainerTypes' '0xE3C' //Wood_box
+pushlist 'ContainerTypes' '0xE3D' //Wood_box
+pushlist 'ContainerTypes' '0xE3E' //Wood_box
+pushlist 'ContainerTypes' '0xE3F' //Wood_box
+pushlist 'ContainerTypes' '0xE40'
+pushlist 'ContainerTypes' '0xE41'
+pushlist 'ContainerTypes' '0xE42'
+pushlist 'ContainerTypes' '0xE43'
+pushlist 'ContainerTypes' '0xE7C' //Metal_chest
+pushlist 'ContainerTypes' '0xE7D' //Wooden_box
+pushlist 'ContainerTypes' '0xE7E' //Wood_crate_small
+pushlist 'ContainerTypes' '0xE7F'
+pushlist 'ContainerTypes' '0x09AA'
+pushlist 'ContainerTypes' '0x09AB'
+pushlist 'ContainerTypes' '0x09A9'
+pushlist 'ContainerTypes' '0x7489' //greater_paragon
+pushlist 'ContainerTypes' '0x719f' //treasure_chest
+
+createlist 'BuyList'
+clearlist 'BuyList'
+
+unsetvar 'Vendor'
+setvar 'Vendor'
+
+
+dclick Vendor
+wait 1000
+foreach rare in rares
+    while findtype rare Vendor any any any as found
+        getlabel found label
+        foreach word in words
+            if word in label
+                pushlist 'BuyList' found
+            endif
+        endfor
+        ignore found
+    endwhile
+endfor
+foreach container in ContainerTypes
+    while findtype container Vendor any any any as cont
+        dclick cont
+        wait 1000
+        foreach rare in rares
+            while findtype rare cont any any any as found
+                getlabel found label
+                foreach word in words
+                    if word in label
+                        pushlist 'BuyList' found
+                    endif
+                endfor
+                ignore found
+            endwhile
+        endfor
+        ignore cont
+    endwhile
+endfor
+
+if list 'BuyList' > 0
+    foreach item in BuyList
+        menu item 0
+        while gumpexists any
+            wait 1000
+        endwhile
+    endfor
+endif

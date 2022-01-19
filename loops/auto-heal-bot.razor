@@ -1,0 +1,81 @@
+while not dead 'self'
+
+    # if diffhits == 0 and maxhp < 110
+    #     sysmsg '>>> Strenght' 76
+    #     cast 'strength'
+
+    #     @settimer 'waiting_target_timer' 0
+    #     while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 2000
+    #         wft 100
+    #         if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+    #             sysmsg 'BREAKING WHILE WAITING FOR STRENGTH'
+    #             wait 150
+    #             break
+    #         endif
+    #     endwhile
+
+    #     if targetexists 'beneficial' and maxhp < 110
+    #         hotkey 'Target Self'
+    #         wait 150
+    #     endif
+    # endif
+
+if poisoned
+        sysmsg '>>> CURING...' 76
+        cast 'cure'
+
+        @settimer 'waiting_target_timer' 0
+        while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+            wft 100
+            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                wait 150
+                break
+            endif
+        endwhile
+
+        if targetexists 'beneficial' and hits < maxhits
+            hotkey 'Target Self'
+            wait 150
+        endif
+
+
+
+    elseif diffhits >= 20
+        sysmsg '>>> GREATER HEALING...' 76
+        cast 'greater heal'
+
+        @settimer 'waiting_target_timer' 0
+        while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+            wft 100
+            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                wait 150
+                break
+            endif
+        endwhile
+
+        if targetexists 'beneficial' and hits < maxhits
+            hotkey 'Target Self'
+            wait 150
+        endif
+    elseif diffhits >= 1
+        sysmsg '>>> MINI HEALING...' 78
+        cast 'heal'
+
+        @settimer 'waiting_target_timer' 0
+        while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 1500
+            wft 100
+            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                sysmsg 'BREAKING WHILE WAITING FOR HEAL TARGET'
+                wait 150
+                break
+            endif
+        endwhile
+
+        if targetexists 'beneficial' and hits < maxhits
+            hotkey 'Target Self'
+            wait 150
+        endif
+    endif
+endwhile

@@ -1,26 +1,19 @@
-if findtype 'light' 'backpack' 2903
-    usetype 'light' 'backpack' 2903
-    wft 600
-    target 'self'
-    stop
+if not listexists 'summon_stone_hues'
+   createlist 'summon_stone_hues'
+   pushlist 'summon_stone_hues' 2903
+   pushlist 'summon_stone_hues' 2157
+   pushlist 'summon_stone_hues' 2259
+   pushlist 'summon_stone_hues' 2803
 endif
-if findtype 'light' 'backpack' 2157
-    usetype 'light' 'backpack' 2157
-    wft 600
-    target 'self'
-    stop
-endif
-if findtype 'light' 'backpack' 2259
-    usetype 'light' 'backpack' 2259
-    wft 600
-    target 'self'
-    stop
-endif
-if findtype 'light' 'backpack' 2803
-    usetype 'light' 'backpack' 2803
-    wft 600
-    target 'self'
-    stop
-endif
+
+
+foreach hue in 'summon_stone_hues'
+    if findtype 'light' 'backpack' hue as stone
+        useobject stone
+        wft 600
+        hotkey 'Target Self'
+        stop
+    endif
+endfor
 
 overhead 'no summon stone'

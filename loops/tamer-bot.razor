@@ -1,0 +1,1385 @@
+sysmsg '#########################' 90
+overhead 'TAMER BOT' 55
+overhead 'by gugutz' 55
+overhead 'version 1.0' 56
+sysmsg '>>> TAMER BOT' 55
+sysmsg 'by gugutz' 55
+sysmsg 'version 1.0' 56
+sysmsg '########################' 90
+#
+#
+sysmsg ">> UNSETTING VARS..." 74
+# targeting and attack config reset
+@removelist 'auto_attack_targets'
+@createlist 'auto_attack_targets'
+@removelist 'auto_get_new_targets'
+@createlist 'auto_get_new_targets'
+@removelist 'get_humanoids_on_auto_target'
+@createlist 'get_humanoids_on_auto_target'
+@removelist 'kill_close_to_loot'
+@createlist 'kill_close_to_loot'
+# pet config resetrelated
+@removelist 'auto_vet_pets'
+@createlist 'auto_vet_pets'
+@removelist 'auto_heal_pets'
+@createlist 'auto_heal_pets'
+@removelist 'auto_ress_pets'
+@createlist 'auto_ress_pets'
+@removelist 'player_pets'
+@createlist 'player_pets'
+@removelist 'player_tank_pets'
+@createlist 'player_tank_pets'
+@removelist 'player_ranged_pets'
+@createlist 'player_ranged_pets'
+# buffs config reset
+@removelist 'auto_reactive_armor_buff'
+@createlist 'auto_reactive_armor_buff'
+@removelist 'auto_magic_reflection_buff'
+@createlist 'auto_magic_reflection_buff'
+@removelist 'auto_bless_buff'
+@createlist 'auto_bless_buff'
+@removelist 'auto_protection_buff'
+@createlist 'auto_protection_buff'
+@removelist 'auto_arch_protection_buff'
+@createlist 'auto_arch_protection_buff'
+@removelist 'auto_campfire_buff'
+@createlist 'auto_campfire_buff'
+@removelist 'auto_tasteid_buff'
+@createlist 'auto_tasteid_buff'
+@removelist 'auto_delectable'
+@createlist 'auto_delectable'
+# spell config reset
+@removelist 'use_mana_drain'
+@createlist 'use_mana_drain'
+@removelist 'use_curse'
+@createlist 'use_curse'
+@removelist 'use_ma'
+@createlist 'use_ma'
+@removelist 'use_harm'
+@createlist 'use_harm'
+@removelist 'use_fireball'
+@createlist 'use_fireball'
+@removelist 'use_lightning'
+@createlist 'use_lightning'
+@removelist 'use_eb'
+@createlist 'use_eb'
+@removelist 'use_fs'
+@createlist 'use_fs'
+#
+#
+@removelist 'auto_heal'
+@createlist 'auto_heal'
+@removelist 'auto_cure_poison'
+@createlist 'auto_cure_poison'
+@removelist 'auto_meditate'
+@createlist 'auto_meditate'
+@removelist 'auto_skin_corpses'
+@createlist 'auto_skin_corpses'
+@removelist 'auto_all_guard'
+@createlist 'auto_all_guard'
+@removelist 'auto_escape_pks'
+@createlist 'auto_escape_pks'
+################################################
+#
+sysmsg '>>> APPLYING CONFIG...' 74
+#
+# GENERAL OPTIONS
+@pushlist 'auto_attack_targets' 'yes'
+@pushlist 'auto_get_new_targets' 'no'
+@pushlist 'get_humanoids_on_auto_target' 'yes'
+@pushlist 'kill_close_to_loot' 'no'
+@pushlist 'auto_heal' 'yes'
+@pushlist 'auto_cure_poison' 'yes'
+@pushlist 'auto_meditate' 'yes'
+@pushlist 'auto_skin_corpses' 'yes'
+@pushlist 'auto_all_guard' 'yes'
+#
+# PET RELATED
+@pushlist 'auto_vet_pets' 'no'
+@pushlist 'auto_heal_pets' 'yes'
+@pushlist 'auto_ress_pets' 'yes'
+#
+# BUFF RELATED
+@pushlist 'auto_campfire_buff' 'yes'
+@pushlist 'auto_tasteid_buff' 'yes'
+@pushlist 'auto_delectable' 'yes'
+@pushlist 'auto_protection_buff' 'no'
+@pushlist 'auto_arch_protection_buff' 'no'
+@pushlist 'auto_bless_buff' 'yes'
+#
+# GRIMOIRE SPELLS
+@pushlist 'use_mana_drain' 'yes'
+@pushlist 'use_curse' 'yes'
+@pushlist 'use_ma' 'yes'
+@pushlist 'use_harm' 'yes'
+@pushlist 'use_fireball' 'no'
+@pushlist 'use_lightning' 'yes'
+@pushlist 'use_eb' 'yes'
+@pushlist 'use_fs' 'yes'
+
+@pushlist 'auto_escape_pks' 'yes'
+@setvar escape_runetome 0x4530DB4B
+#
+# CHECK IF CHAR HAVE MAGERY, MIGHT BE ARCHER TAMER OR DEXXER TAMER
+# IF THATS THE CASE WE NEED TO DISABLE CASTING OF SPELLS
+if inlist 'use_mana_drain' 'yes' or inlist 'use_curse' 'yes' or inlist 'use_ma' 'yes' or inlist 'use_harm' 'yes' or inlist 'use_fireball' 'yes' or inlist 'use_lightning' 'yes' or inlist 'use_eb' 'yes' or inlist 'use_fs' 'yes'
+    if skill 'magery' <= 50
+        sysmsg 'CONFIG SET TO CAST SPELLS BUT CHAR DOENST HAVE ENOUGHT MAGERY.' 49
+        sysmsg 'DISABLING CAST OF SPELLS...' 49
+        @clearlist 'use_mana_drain'
+        @clearlist 'use_curse'
+        @clearlist 'use_ma'
+        @clearlist 'use_harm'
+        @clearlist 'use_fireball'
+        @clearlist 'use_lightning'
+        @clearlist 'use_eb'
+        @clearlist 'use_fs'
+        @pushlist 'use_mana_drain' 'no'
+        @pushlist 'use_curse' 'no'
+        @pushlist 'use_ma' 'no'
+        @pushlist 'use_harm' 'no'
+        @pushlist 'use_fireball' 'no'
+        @pushlist 'use_lightning' 'no'
+        @pushlist 'use_eb' 'no'
+        @pushlist 'use_fs' 'no'
+    endif
+endif
+#
+###############################################################
+#
+sysmsg '>>> CONFIGURING DELAY AND LIMITS...' 74
+@setvar action_delay 600
+@setvar all_guard_delay 5000
+@setvar use_mushroom_delay 60000
+@setvar ress_pets_delay 5000
+# limits for some actions
+@setvar min_mana_to_attack 42
+@setvar mana_limit_to_medit 38
+@setvar min_diffhits_to_attack 10
+@setvar mana_limit_to_eat_mushroom 70
+@setvar find_pet_range 6
+@setvar find_last_target_max_range 20
+#
+#
+###############################################################
+#
+sysmsg '>>> CONFIGURING SPELL DELAYS...' 74
+if inlist 'use_mana_drain' 'yes'
+    @setvar mana_drain_delay 60000
+endif
+if inlist 'use_curse' 'yes'
+    @setvar curse_delay 60000
+endif
+if inlist 'use_eb' 'yes'
+    @setvar eb_delay 10000
+endif
+if inlist 'use_ma' 'yes'
+    @setvar ma_delay 60000
+endif
+if inlist 'use_harm' 'yes'
+    @setvar harm_delay 60000
+endif
+if inlist 'use_fireball' 'yes'
+    @setvar fireball_delay 60000
+endif
+if inlist 'use_lightning' 'yes'
+    @setvar lightning_delay 60000
+endif
+
+
+#
+###############################################################
+sysmsg '>>> CREATING LISTS...' 74
+# used to control which mobs i already used herding on
+@createlist 'herdened_mobs'
+
+@createlist 'items_to_move_to_llama'
+@pushlist 'items_to_move_to_llama' 'gold coin'
+@pushlist 'items_to_move_to_llama' 'cut up leather'
+#
+# gems
+@pushlist 'items_to_move_to_llama' 'rub%ies/y%'
+@pushlist 'items_to_move_to_llama' 'tourmaline%s%'
+@pushlist 'items_to_move_to_llama' 'emerald%s%'
+@pushlist 'items_to_move_to_llama' 'diamond%s%'
+@pushlist 'items_to_move_to_llama' 'piece%s% of amber'
+@pushlist 'items_to_move_to_llama' 'amethyst%s%'
+@pushlist 'items_to_move_to_llama' 'star sapphire%s%'
+@pushlist 'items_to_move_to_llama' 'citrine%s%'
+@pushlist 'items_to_move_to_llama' 'sapphire%s%'
+#
+# foods
+@pushlist 'items_to_move_to_llama' 'sliced ham'
+@pushlist 'items_to_move_to_llama' 'raw chicken leg%s%'
+@pushlist 'items_to_move_to_llama' 'raw leg%s% of lamb'
+@pushlist 'items_to_move_to_llama' 'slab%s% of bacon'
+@pushlist 'items_to_move_to_llama' 'sausage%s%'
+@pushlist 'items_to_move_to_llama' 'ham%s%'
+@pushlist 'items_to_move_to_llama' 'cut%s% of raw ribs'
+
+if not listexists 'skinned_corpses'
+    createlist 'skinned_corpses'
+endif
+
+###############################################################
+# SET TIMERS
+
+
+sysmsg '>>> CREATING AND SETTING TIMERS...' 74
+
+createtimer 'script_running_warning_msg_timer'
+settimer 'script_running_warning_msg_timer' 2000
+
+createtimer 'heal_pets_timer'
+settimer 'heal_pets_timer' 1000
+
+createtimer 'ress_pets_timer'
+settimer 'ress_pets_timer' ress_pets_delay
+
+if not timerexists 'use_mushroom_timer'
+    createtimer 'use_mushroom_timer'
+    settimer 'use_mushroom_timer' use_mushroom_delay
+endif
+
+createtimer 'mana_drain_timer'
+settimer 'mana_drain_timer' mana_drain_delay
+createtimer 'curse_timer'
+settimer 'curse_timer' curse_delay
+
+if not timerexists 'eb_timer'
+    createtimer 'eb_timer'
+    settimer 'eb_timer' eb_delay
+endif
+
+if not timerexists 'ma_timer'
+    createtimer 'ma_timer'
+    settimer 'ma_timer' ma_delay
+endif
+
+if not timerexists 'harm_timer'
+    createtimer 'harm_timer'
+    settimer 'harm_timer' harm_delay
+endif
+
+if not timerexists 'lightning_timer'
+    createtimer 'lightning_timer'
+    settimer 'lightning_timer' lightning_delay
+endif
+
+
+createtimer 'medit_msg_timer'
+settimer 'medit_msg_timer' 1000
+
+
+createtimer 'auto_get_new_targets_timer'
+settimer 'auto_get_new_targets_timer' 1000
+createtimer 'get_new_target_msg'
+settimer 'get_new_target_msg' 120000
+createtimer 'all_guard_timer'
+settimer 'all_guard_timer' all_guard_delay
+
+createtimer 'reset_all_timers_once'
+settimer 'reset_all_timers_once' 0
+@settimer 'wait_when_getting_target_first_time' 5000001
+
+createtimer 'holding_target_warning_msg'
+settimer 'holding_target_warning_msg' 0
+
+createtimer 'waiting_spell_timer'
+settimer 'waiting_spell_timer' 0
+
+createtimer 'waiting_target_timer'
+settimer 'waiting_target_timer' 0
+
+createtimer 'bring_mob_closer_timer'
+settimer 'bring_mob_closer_timer' 5000
+
+###############################################################
+# PETS
+#
+sysmsg '>>> CREATING PETS LITS...' 74
+# ---------------------
+# TANK PETS LIST
+@createlist 'tank_pets'
+#lemura
+@pushlist 'tank_pets' 293
+# Drake grey body
+pushlist 'tank_pets' 60
+# Drake red body
+pushlist 'tank_pets' 61
+# Acarid
+pushlist 'tank_pets' 385
+# Drake grey body
+pushlist 'tank_pets' 60
+# Drake red body
+pushlist 'tank_pets' 61
+# Aegis Minion
+pushlist 'tank_pets' 776
+# or Sphinx
+pushlist 'tank_pets' 293
+#Cave Bear
+pushlist 'tank_pets' 213
+#Scarab
+pushlist 'tank_pets' 169
+# Drake Whelp
+pushlist 'tank_pets' 718
+# or Aegis Slime
+pushlist 'tank_pets' 51
+# Deep Crawler
+pushlist 'tank_pets' 315
+# Drake red body
+pushlist 'tank_pets' 61
+# Drake grey body
+pushlist 'tank_pets' 60
+# Dragon whelp
+pushlist 'tank_pets' 718
+# Husk Crab
+pushlist 'tank_pets' 729
+# or Dragon grey body
+pushlist 'tank_pets' 12
+# or Dragon red body
+pushlist 'tank_pets' 59
+# Snow Drift
+pushlist 'tank_pets' 51
+# Grey Dragon body value
+pushlist 'tank_pets' 12
+# Red Dragon body value
+pushlist 'tank_pets' 59
+# or Colossal Sandroach
+pushlist 'tank_pets' 388
+#
+# ---------------------
+# RANGED PETS LIST
+@createlist 'ranged_pets'
+# phoenix
+@pushlist 'ranged_pets' 832
+# colossal slugs
+pushlist 'ranged_pets' 287
+
+#
+#
+#######################################################
+## BEGIN MAIN ROUTINE
+#
+sysmsg '>>> STARTING...' 75
+
+if not varexist pack_animal or not find pack_animal ground 0 any 5
+    @unsetvar pack_animal
+    # FIND AND SAVE PLAYER LLAMA
+    if findtype 292 ground 0 any 5 as llama
+        overhead 'scanning' 55 llama
+        if noto llama == noto 'self'
+            @setvar pack_animal llama
+            overhead 'found player llama' 55 pack_animal
+        endif
+    elseif findtype 291 ground 0 any 5 as horse
+        overhead 'scanning' 55 horse
+        if noto horse == noto 'self'
+            @setvar pack_animal horse
+        endif
+    endif
+
+    if varexist pack_animal
+            sysmsg "FOUND PLAYER PACK LLAMA" 55
+            overhead "found and saving llama!" 55 'self'
+            overhead 'found player llama' 55 pack_animal
+
+            overhead '*renaming*' 55 pack_animal
+            rename pack_animal 'i'
+            menu pack_animal 4
+    else
+        sysmsg '>>> COULD NOT FIND ANY PACK ANIMALS CLOSE.' 56
+        sysmsg '****** IMPORTANT: ******' 90
+        sysmsg '>>> YOU SHOULD BE WITHIN 5 TILES OF YOUR LLAMA SO THE SCRIPT CAN FIND AND SAVE IT!' 56
+    endif
+endif
+
+sysmsg "SCANNING FOR PLAYER PETS"
+@createlist 'player_pets'
+createlist 'player_tank_pets'
+createlist 'player_ranged_pets'
+
+foreach pet in 'tank_pets'
+    # using 5 here cause thats the max ammount of pets of the same graphic a player can have
+    while findtype pet ground any 5 find_pet_range as pet
+        if noto pet = friend and not inlist 'player_pets' pet
+            overhead 'found tank pet!' 55 pet
+            @pushlist 'player_tank_pets' pet
+            @pushlist 'player_pets' pet
+            # ignore for now so razor cant find it anymore and we can leave the while loop
+            @ignore pet
+        endif
+    endwhile
+endfor
+
+foreach pet in 'ranged_pets'
+    # using 5 here cause thats the max ammount of pets of the same graphic a player can have
+    while findtype pet ground any 5 find_pet_range as pet
+        if noto pet = friend and not inlist 'player_pets' pet
+            overhead 'found ranged pet!' 55 pet
+            @pushlist 'player_ranged_pets' pet
+            @pushlist 'player_pets' pet
+            # ignore for now so razor cant find it anymore and we can leave the while loop
+            @ignore pet
+        endif
+    endwhile
+endfor
+
+# clear the ignore list since we ignored players pets to escape loop
+# so we can detect them again on other parts of the macro
+@clearignore
+
+# this is because sometimes i turn on the macro in the middle of a fight
+# i want my elementals to immeditally attack my last target
+
+
+clearsysmsg
+
+while not dead 'self'
+    if timer 'script_running_warning_msg_timer' > 4000
+        sysmsg '>>> RUNNING TAMER BOT...' 55
+        settimer 'script_running_warning_msg_timer' 0
+    endif
+
+
+    ########################################
+    # MOST IMPORTANT ROUTINE - KEEP RESSING PETS
+    if varexist auto_ress_pets
+        if timer 'ress_pets_timer' >= ress_pets_delay
+            settimer 'ress_pets_timer' 0
+            foreach pet in 'player_pets'
+                if find pet ground any 1 15
+                    sysmsg "ACHOU PET NO CHAO PORRA!" 55
+                    if dead pet and diffhits <= 10
+                        sysmsg "ACHOU DEAD PET PORRA!"
+                        # use context menu to give the 'follow' command to this pet
+                        menu pet 4
+                        if skill 'veterinary' > 90
+                            if findtype 'wall shelf' backpack as supplies
+                                overhead '>>> TRYING TO RESS PET WITH VET SUPPLIES' 55 pet
+                                useobject supplies
+                                waitforsysmsg 'begin using veterinary supplies'
+                            elseif findtype 'clean bandage%s%' backpack as bands
+                                overhead '>>> TRYING TO RESS PET WITH BANDAGES' 55 pet
+                                useobject bands
+                                wft 600
+                                if targetexists 'beneficial'
+                                    overhead '*ressing with bands*' 55 pet
+                                    target pet
+                                endif
+                            else
+                                sysmsg "NO BANDAGES TO RESS PET!" 55
+                            endif
+                        elseif skill 'magery' > 90 or skill 'veterinary' > 90 and not findtype 'wall shelf' backpack and not findtype 'clean bandage%s%' backpack
+                            if mana > 50
+                                overhead '>>> TRYING TO RESS PET WITH MAGERY' 55 pet
+                                cast 'resurrection'
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'beneficial' and timer 'waiting_target_timer' < 8000
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR RESS TARGET'
+                                        break
+                                    endif
+                                endwhile
+                                wait 150
+                                if targetexists 'beneficial'
+                                    overhead 'ressing with magery' 55 pet
+                                    target pet
+                                endif
+                            else
+                                overhead '*no mana to ress*' 55 petserial
+                                overhead '*no mana to ress pet*' 55 'self'
+                                while mana < 50 and not findbuff 'actively meditating'
+                                    useskill 'meditation'
+                                    wait 500
+                                endwhile
+                                while findbuff 'actively meditating' and mana < 50
+                                    if timer 'medit_msg_timer' >= 2000
+                                        sysmsg '>>> MEDITATING TO RESS PET...'
+                                        overhead 'meditating to ress pet'
+                                        settimer 'medit_msg_timer' 0
+                                    endif
+                                endwhile
+                            endif
+                        endif
+                    endif
+                endif
+            endfor
+        endif
+    endif
+
+    ########################################
+    # KEEP HEALING PETS
+
+    if varexist auto_heal_pets and not targetexists 'any'
+        foreach pet in 'player_pets'
+        # check if we can find this pet within 2 tiles first
+            if find pet ground any 1 2 as pet
+                if varexist auto_vet_pets and timer 'vet_pets_timer' >= vet_pets_delay
+                    if skill 'veterinary' > 50 and findtype 'wall shelf' as vet_supplies
+                        settimer 'heal_pets_timer' 0
+                        useobject vet_supplies
+                        sysmsg ">>> USING VET SUPPLIES ON PET" 55
+                        overhead '*vetting...*' 55 pet
+                        overhead '*vetting player pet*' 55 'self'
+                    elseif findtype 'clean bandage%s%' as bands
+                        useobject bands
+                        wft 1000
+                        if targetexists 'beneficial'
+                            overhead '*bandaging...*' 55 pet
+                            sysmsg ">>> BANDAGING PET" 55
+                            target pet
+                        endif
+                    endif
+                # elseif find summon ground any 1 12 as pet
+                #     if findtype 'wall shelf' as vet_supplies
+                #         overhead '*ressing*' 55 pet
+                #         overhead '*ressing player pet*' 55 'self'
+                #     endif
+                endif
+            endif
+        endfor
+    endif
+
+
+
+    ########################################
+    # KEEP CHAR BUFFED UP
+
+    # reflect buff
+    if diffhits < min_diffhits_to_attack
+        if inlist 'auto_magic_reflection_buff' 'yes' and not findbuff 'magic reflection'
+            sysmsg '>>> MAGIC REFLECT' 88
+            cast 'magic reflection'
+            @settimer 'waiting_spell_timer' 0
+            while not findbuff 'magic reflection' and timer 'waiting_spell_timer' < 3000
+                wait 10
+                if insysmsg 'disturbed' or insysmsg 'spell will not adhere'
+                    sysmsg 'BREAKING WHILE WAITING FOR MAGIC REFLECTION'
+                    wait 150
+                    break
+                endif
+            endwhile
+
+            if findbuff 'magic reflection'
+                overhead '+magic reflect'
+            endif
+        endif
+    endif
+
+    # reactive armor buff
+    if diffhits < min_diffhits_to_attack
+        if inlist 'auto_reactive_armor_buff' 'yes' and not findbuff 'reactive armor'
+            sysmsg '>>> REACTIVE ARMOR' 88
+            cast 'reactive armor'
+            @settimer 'waiting_spell_timer' 0
+            while not findbuff 'reactive armor' and timer 'waiting_spell_timer' < 2000
+                wait 10
+                if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot'
+                    sysmsg 'BREAKING WHILE WAITING FOR REACTIVE ARMOR'
+                    wait 150
+                    break
+                endif
+            endwhile
+
+            if findbuff 'reactive armor'
+                overhead '+reactive'
+            endif
+
+        endif
+    endif
+
+    # PROTECTION ARMOR BUFF
+    if diffhits < min_diffhits_to_attack
+        if inlist 'auto_protection_buff' 'yes' and not findbuff 'protection'
+            sysmsg '>>> PROTECTION' 88
+            cast 'protection'
+
+            @settimer 'waiting_spell_timer' 0
+            while not findbuff 'protection' and timer 'waiting_spell_timer' < 1500
+                wait 10
+                if insysmsg 'disturbed' or insysmsg 'spell will not adhere'
+                    sysmsg 'BREAKING WHILE WAITING FOR PROTECTION'
+                    wait 150
+                    break
+                endif
+            endwhile
+
+            if findbuff 'protection'
+                overhead '+protection'
+            endif
+        # OR ARCH PROTECTION
+        elseif inlist 'auto_arch_protection_buff' 'yes' and not findbuff 'protection'
+
+            @settimer 'waiting_spell_timer' 0
+            while not targetexists 'neutral' and timer 'waiting_spell_timer' < 4000
+                wft 100
+                if insysmsg 'disturbed' or insysmsg 'spell will not adhere'
+                    sysmsg 'BREAKING WHILE WAITING FOR ARCH PROTECTION TARGET'
+                    wait 150
+                    break
+                endif
+            endwhile
+            wait 150
+
+            if targetexists 'neutral'
+                hotkey 'Target Self'
+                wait 150
+            endif
+
+            if findbuff 'protection'
+                overhead '+arch protection'
+            endif
+        endif
+    endif
+
+    # keep str above 100
+    if diffhits < min_diffhits_to_attack
+        if inlist 'auto_bless_buff' 'yes' and not findbuff 'Strength' or str < 110
+            sysmsg '>>> BLESS' 88
+            cast 'Bless'
+
+            @settimer 'waiting_target_timer' 0
+            while not findbuff 'cunning' and not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 2000
+                wft 100
+                if insysmsg 'disturbed'
+                    sysmsg 'BREAKING WHILE WAITING FOR BLESS TARGET'
+                    wait 150
+                    break
+                endif
+            endwhile
+            wait 150
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+            endif
+
+            if findbuff 'strength' and findbuff 'agility' and findbuff 'cunning'
+                overhead '+bless'
+            endif
+        endif
+    endif
+
+    # CAMPFIRE BUFF
+    if diffhits < min_diffhits_to_attack
+        if inlist 'auto_campfire_buff' 'yes' and skill 'camping' >= 20 and not findbuff 'campfire visit'
+            if not findtype campfire ground any any 4
+                if findtype 'kindling' backpack as firestarter
+                    sysmsg '>>> STARTING CAMPFIRE*' 88
+                    overhead '*starting campfire*' 65
+                    dclick firestarter
+                else
+                    overhead 'no kindling' 41
+                endif
+            elseif findtype campfire ground any any 2 as fire
+                dclick fire
+            endif
+        endif
+    endif
+
+
+    # DELECTABLE
+    if inlist 'auto_delectable' 'yes' and not findbuff 'food satisfaction'
+        if findtype 'tray' as delectable
+            overhead '*eating deletable*'
+            dclick delectable
+        else
+            overhead '*no delectable*'
+        endif
+    endif
+
+
+    # TASTE BUFF
+    if inlist 'auto_tasteid_buff' 'yes' and skill 'taste identification' > 50
+        if not findbuff 'herbal poultice'
+            sysmsg '>>> HERBAL POULTICE'
+            skill 'tasteid'
+            wft 600
+            targetrelloc 1 1
+        endif
+    endif
+
+    # AUTO CURE POISON
+    if inlist 'auto_cure_poison' 'yes' and poisoned
+        # if diffhits is too high, better guarantee and use a gheal pot
+        if findtype 'orange potion' backpack as pot
+            sysmsg '>>> POISONED! USING CURE POTION.. ' 39
+            useobject pot
+        else
+            sysmsg '>>> ARCH CURING...' 39
+            cast 'arch cure'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 4000
+                wft 100
+                if insysmsg 'disturbed'
+                    sysmsg 'BREAKING WHILE WAITING FOR ARCH CURE TARGET'
+                    wait 150
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+                wait 150
+            endif
+        endif
+    endif
+
+    # KEEP CHAR HITS UP
+    if inlist 'auto_heal' 'yes' and diffhits > 0
+        # if diffhits is too high, better guarantee and use a gheal pot
+        if diffhits > 50
+            if findtype 'yellow potion' backpack as pot
+                sysmsg '>>> LOW HP! USING HEAL POTION.. ' 39
+                useobject pot
+            endif
+        elseif diffhits > 20
+            sysmsg '>>> GREATER HEALING...' 76
+            cast 'greater heal'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 4000
+                wft 100
+                if insysmsg 'disturbed'
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                    wait 150
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+                wait 150
+            endif
+        elseif diffhits > 10
+            sysmsg '>>> MINI HEALING...' 48
+            cast 'heal'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 1500
+                wft 100
+                if insysmsg 'disturbed'
+                    sysmsg 'BREAKING WHILE WAITING FOR HEAL TARGET'
+                    wait 150
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+                wait 150
+            endif
+        endif
+    endif
+
+
+
+    # keep mushrooms stock in backpack
+    if counttype 'mushroom' < 15
+        cast 'create food'
+        wait action_delay
+    endif
+
+    # eat mushroom on its timer
+    if mana < mana_limit_to_eat_mushroom and timer 'use_mushroom_timer' >= use_mushroom_delay
+        if findtype 'mushroom' backpack as mush
+            useobject mush
+            wait action_delay
+            if insysmsg 'you consume'
+                sysmsg '>>> Used mushroom! Resetting timer...' 55
+                settimer 'use_mushroom_timer' 0
+            endif
+        else
+            sysmsg ">>> NO MUSHROOM!" 41
+        endif
+    endif
+
+    # meditate when needed
+    if inlist 'auto_meditate' 'yes' and mana < mana_limit_to_medit and not findbuff 'actively meditating'
+        skill 'meditation'
+        waitforsysmsg 'You start meditating' 200
+
+        if findbuff 'actively meditating'
+            overhead 'meditating' 56
+            while findbuff 'actively meditating' and mana < min_mana_to_attack
+                if mana < mana_limit_to_eat_mushroom and timer 'use_mushroom_timer' >= use_mushroom_delay
+                    if findtype 'mushroom' backpack as mush
+                        useobject mush
+                        if insysmsg 'you consume'
+                            sysmsg '>>> Used mushroom! Resetting timer...' 55
+                            settimer 'use_mushroom_timer' 0
+                        endif
+                    else
+                        sysmsg ">>> NO MUSHROOM!" 41
+                    endif
+                endif
+                if timer 'medit_msg_timer' >= 2000
+                    sysmsg '>>> MEDITATING...'
+                    overhead 'meditating...'
+                    settimer 'medit_msg_timer' 0
+                endif
+            endwhile
+        endif
+    endif
+
+
+    if inlist 'auto_skin_corpses' 'yes' and skill 'forensic' > 0 and not findbuff 'Actively Meditating'
+        if findtype corpse ground any any 2 as body
+            if not inlist 'skinned_corpses' body
+                if findtype 'elven spellblade' backpack as knife
+                    useobject knife
+                    wft 500
+                    if insysmsg 'must wait'
+                        sysmsg '>>> SKILL COOLDOWN (FORENSIC)' 45
+                        clearsysmsg
+                        wait action_delay
+                    endif
+
+                    if targetexists 'neutral'
+                        overhead '*skinning corpses*' 56 'self'
+                        overhead '*skinning*' 56 body
+                        sysmsg '>>> SKINNING CORPSES NEARBY'
+                        hotkey 'Target Self'
+                        wait action_delay
+                        @pushlist 'skinned_corpses' body
+                    endif
+                    waitforsysmsg 'carve materials' 200
+
+                    if insysmsg 'dont see anything'
+                        overhead '*NOTHING TO CARVE*' 41
+                        clearsysmsg
+                        @ignore body
+                    elseif insysmsg 'carve materials'
+                        overhead '*carved materials!*'
+                        clearsysmsg
+                        # switched ignore to list control cause spirit speak will ignore corpses and then razor wont skin it anymore since it would be globally ignored
+                        # @ignore body
+                        @pushlist 'skinned_corpses' body
+                    endif
+                endif
+            endif
+        endif
+    endif
+
+
+    # monitor sysmsgs to know when we can reset time spell timers
+    if insysmsg 'You may now cast a wizardry harm'
+        sysmsg '>>> RESETING HARM TIMER...' 51
+        settimer 'harm_timer' 0
+    endif
+
+    if insysmsg 'You may now cast a wizardry magic arrow'
+        sysmsg '>>> RESETING MAGIC ARROW TIMER...' 51
+        settimer 'magic arrow_timer' 0
+    endif
+
+    if insysmsg 'You may now cast a wizardry fireball'
+        sysmsg '>>> RESETING FIREBALL TIMER...' 51
+        settimer 'fireball_timer' 0
+    endif
+
+    if insysmsg 'You may now cast a wizardry lightning'
+        sysmsg '>>> RESETING LIGHTNING TIMER...' 51
+        settimer 'lightning_timer' 0
+    endif
+
+    # if inlist 'auto_escape_pks' 'yes'
+    #     if findtype 400 ground any any 20 as pk
+    #         if noto player = murderer
+    #             sysmsg '>>> FOUND PK! TRYING TO ESCAPE...'
+    #             sysmsg '>>> FOUND PK! TRYING TO ESCAPE...'
+    #             sysmsg '>>> FOUND PK! TRYING TO ESCAPE...'
+    #             sysmsg '>>> FOUND PK! TRYING TO ESCAPE...'
+    #             say 'time to go...'
+    #             cast 'recall'
+    #             wft 3500
+    #             target escape_runetome
+    #             wait 2000
+    #             sysmsg '>>> STOPPING MACRO'
+    #             stop
+    #         endif
+    #     elseif insysmsg 'Attacking you'
+    #         sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...'
+    #         sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...'
+    #         sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...'
+    #         sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...'
+    #         say 'time to go...'
+    #         cast 'recall'
+    #         wft 3500
+    #         target escape_runetome
+    #         wait 2000
+    #         sysmsg '>>> STOPPING MACRO'
+    #         stop
+    #     endif
+    # endif
+
+
+
+    if diffweight <= 15 or weight >= maxweight
+        if varexist pack_animal and find pack_animal 'ground' 0 any 7
+
+            useobject pack_animal
+            wait action_delay
+
+            # make one more search with range reduced to 2 to see if we need to call the llama close
+            if not find pack_animal 'ground' 0 1 2
+                menu pack_animal 4
+                overhead 'calling llama closer' 55 'self'
+                overhead '*calling' 55 pack_animal
+            else
+                foreach item_graphic in 'items_to_move_to_llama'
+                    if findtype item_graphic backpack as item
+                        setvar found_item_to_deposit item
+                        break
+                    endif
+                endfor
+                if varexist found_item_to_deposit
+                    foreach item_graphic in 'items_to_move_to_llama'
+                        if findtype item_graphic backpack as item
+                            sysmsg ">>> CHAR HEAVY. UNLOADING ITEMS IN LLAMA..." 41 'self'
+                            overhead "*unloading char*" 56 'self'
+                            overhead "*depositing items*" 56 pack_animal
+                            lift item 999
+                            wait 400
+                            drop pack_animal 1 1 1
+                        endif
+                    endfor
+                else
+                    overhead '*no items to move to packie*'
+                endif
+            endif
+        else
+            overhead "CHAR HEAVY AND CAN FIND CHAR LLAMA NEARBY"
+        endif
+    endif
+
+    # keep mobs guarding player
+    if inlist 'auto_all_guard' 'yes' and timer 'all_guard_timer' >= all_guard_delay
+        say 'all guard me'
+        @settimer 'all_guard_timer' 0
+    endif
+
+    ########################################
+    # IF THERE ARE TARGETS OPENED, SPEND THEM
+    # ACCORDING TO THEIR TYPE
+
+    if targetexists 'beneficial'
+        overhead 'holding beneficial target'
+        while targetexists 'beneficial'
+            wft 100
+            if timer 'holding_target_warning_msg' > 2000
+                settimer 'holding_target_warning_msg' 0
+                sysmsg '>>> HOLDING BENEFICIAL TARGET' 99
+                # hotkey 'Target Self'
+            endif
+        endwhile
+        wait action_delay
+
+        if noto 'last' == friend or noto 'last' == innocent
+            sysmsg 'RE-SETTING LAST TARGET TO LAST MONSTER...' 150
+            setvar 'last' last_target_serial_found
+        endif
+
+    endif
+
+    if targetexists 'neutral'
+        overhead 'holding neutral target'
+        while targetexists 'neutral'
+            wft 100
+            if timer 'holding_target_warning_msg' > 2000
+                settimer ' holding_target_warning_msg' 0
+                sysmsg '>>> HOLDING NEUTRAL TARGET' 99
+                # targetrelloc 0 1
+            endif
+        endwhile
+    endif
+
+    if targetexists 'harmful'
+        if not dead 'last' and noto 'last' == hostile or noto 'last' == murderer or noto 'last' == criminal
+            overhead 'spending harmful target'
+            sysmsg '>>> SPENDING HARMFUL TARGET' 99
+            hotkey 'Last Target'
+        else
+            overhead 'holding harmful target'
+            while targetexists 'harmful'
+                wft 100
+                if timer 'holding_target_warning_msg' > 2000
+                    settimer 'holding_target_warning_msg' 0
+                    sysmsg '>>> HOLDING HARMFUL TARGET' 99
+                    # targetrelloc 0 1
+                endif
+
+                # copied this part from bottom of script to get new targets if option is set
+                if varexist auto_get_new_targets and timer 'auto_get_new_targets_timer' > 1000
+                    overhead 'searching monsters...' 55
+                    sysmsg '> Searching Monters Targets...' 55
+                    hotkey 'Next Non-Friendly Monster Target'
+                    if varexist get_humanoids_on_auto_target
+                        overhead 'searching humanoids...'
+                        sysmsg '> Searching Humanoid Targets...' 56
+                        hotkey 'Next Grey Humanoid Target'
+                        wait action_delay
+                    endif
+                    settimer 'auto_get_new_targets_timer' 0
+                elseif not varexist auto_get_new_targets and timer 'get_new_target_msg' > 4000
+                    overhead 'waiting for new target' 55
+                    settimer 'get_new_target_msg' 0
+                endif
+
+                if not dead 'last' and noto 'last' == hostile or noto 'last' == criminal
+                    hotkey 'Last Target'
+                endif
+            endwhile
+
+        endif
+    endif
+
+    #########################################
+    # MAIN ATTACK ROUTINE
+    #########################################
+
+    # if timer 'reset_all_timers_once' >= 5000000
+          # essa porra tava sempre entrando, com o mob morto ou nao
+    #     sysmsg 'ta etnrando aqui caralho'
+    #     @unsetvar 'last'
+    #     settimer 'mana_drain_timer' mana_drain_delay
+    #     settimer 'curse_timer' mana_drain_delay
+    #     settimer 'medit_msg_timer' 6000
+    #     settimer 'auto_get_new_targets_timer' 1000
+    #     settimer 'all_guard_timer' 5000
+    #     settimer 'reset_all_timers_once' 0
+    # endif
+
+    # make sure char has high hp and mana for FS before attacking
+    if inlist 'auto_attack_targets' 'yes' and diffhits < min_diffhits_to_attack and mana >= min_mana_to_attack
+
+        if not dead 'last' and find 'last' ground any any find_last_target_max_range
+            if noto 'last' == hostile or noto 'last' == murderer or noto 'last' == criminal
+                sysmsg 'Entered attack routine'
+
+                attack 'last'
+
+                if timer 'wait_when_getting_target_first_time' >= 5000000
+                    settimer 'wait_when_getting_target_first_time' 0
+                    wait 2500
+                endif
+
+                # save last target serial on custom var to re-set after healing friendly targets
+                if not dead 'last' and noto 'last' == hostile or noto 'last' == murderer or noto 'last' == criminal
+                    if find 'last' 'ground' 'any' 1 find_last_target_max_range as last_target_serial_found
+                        setvar last_target_serial last_target_serial_found
+                    endif
+                endif
+
+                # use crook on last target
+                if not dead 'last' and find 'last' ground any any find_last_target_max_range and noto 'last' == hostile or noto 'last' == murderer or noto 'last' == criminal
+                    if varexist last_target_serial and not inlist 'herdened_mobs' last_target_serial
+                        if skill 'herding' > 20
+                            if findtype sheperds_crook_graphic as crook
+                                while not targetexists 'harmful'
+                                    useobject crook
+                                    wft 600
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    sysmsg 'USING CROOK' 55
+                                    hotkey 'Last Target'
+                                    wait 400
+                                    if insysmsg 'You focus your follower'
+                                        overhead 'focused pets agression' 41 'last'
+                                        @pushlist 'herdened_mobs' last_target_serial
+                                    endif
+                                endif
+
+                                say 'all kill'
+                                wft 700
+                                if targetexists 'harmful'
+                                    hotkey "Last Target"
+                                    wait 150
+                                endif
+
+                            else
+                                overhead "no sheperd's crook!"
+                            endif
+                        endif
+                    endif
+                endif
+
+                # kill close to loot mob easier
+                if inlist 'kill_close_to_loot' 'yes' and timer 'bring_mob_closer_timer' > 5000
+                    sysmsg '>>> ATTRACTING MOB CLOSE TO CHAR'
+                    say 'all kill'
+                    wft 1000
+                    target 'last'
+                    wait 500
+                    say 'all follow me'
+                    hotkey 'Toggle Peace Only'
+                    settimer 'bring_mob_closer_timer' 0
+                endif
+    
+                # safe clause to not attack self or friendsa
+                if noto 'last' = friend or noto 'last' = friendly or noto 'last' = innocent
+                    sysmsg 'RE-SETTING LAST TARGET TO LAST MONSTER...' 150
+                    setvar 'last' last_target_serial_found
+                    target 'clear'
+                endif
+    
+                # if all checks pass, start attacking the target
+                if noto 'last' != friend and noto 'last' != friendly
+                    if noto 'last' == hostile or noto 'last' == murderer or noto 'last' == criminal
+                        attack 'last'
+    
+                        if timer 'reset_all_timers_once' >= 5000000
+                            sysmsg 'ta etnrando aqui caralho  22'
+                            @unsetvar 'last'
+                            settimer 'mana_drain_timer' mana_drain_delay
+                            settimer 'curse_timer' mana_drain_delay
+                            settimer 'medit_msg_timer' 6000
+                            settimer 'auto_get_new_targets_timer' 1000
+                            settimer 'all_guard_timer' 5000
+                            settimer 'reset_all_timers_once' 0
+    
+                        endif
+    
+    
+                        if inlist 'auto_all_guard' 'yes' and timer 'all_guard_timer' >= all_guard_delay
+                            say 'all guard me'
+                            settimer 'all_guard_timer' 0
+                        endif
+    
+    
+                        # SPELLS
+                        # mana drain
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_mana_drain' 'yes' and timer 'mana_drain_timer' >= mana_drain_delay
+                                overhead 'mana drain'
+                                sysmsg '>>> MANA DRAIN' 88
+                                cast 'mana drain'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 3500
+                                    wait 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR CURSE TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'mana_drain_timer' 0
+                                endif
+                            endif
+                        endif
+    
+                        # curse
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_curse' 'yes' and timer 'curse_timer' >= curse_delay
+                                sysmsg '>>> Curse' 88
+                                cast 'curse'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 3500
+                                    wait 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR CURSE TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'curse_timer' 0
+                                endif
+                            endif
+                        endif
+
+                        # energy bolt
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if varexist use_eb and timer 'eb_timer' >= eb_delay
+                                sysmsg '>>> ENERGY BOLT'
+                                cast 'energy bolt' 40
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 4000
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR EB TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'eb_timer' 0
+                                endif
+                            endif
+                        endif
+
+                        # magic arrow
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_ma' 'yes' and timer 'ma_timer' > ma_delay
+                                sysmsg '>>> Magic Arrow'
+                                cast 'magic arrow'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 2000
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR MA TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'ma_timer' 0
+                                endif
+                            endif
+                        endif
+
+                        # harm
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_harm' 'yes' and timer 'harm_timer' > harm_delay
+                                sysmsg '>>> HARM'
+                                cast 'harm'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 2000
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR HARM TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'harm_timer' 0
+                                endif
+                            endif
+                        endif
+
+                        # fireball
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_fireball' 'yes' and timer 'fireball_timer' > fireball_delay
+                                sysmsg '>>> FIREBALL'
+                                cast 'fireball'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 1500
+                                    wft 100
+                                    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell'
+                                        sysmsg 'BREAKING WHILE WAITING FOR FIREBALl TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'fireball_timer' 0
+                                endif
+                            endif
+                        endif
+
+                        # lightning
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_lightning' 'yes' and timer 'lightning_timer' > lightning_delay
+                                sysmsg '>>> LIGHTNING' 40
+                                cast 'lightning'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 4000
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR LIGHTNING TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                    settimer 'lightning_timer' 0
+                                endif
+                            endif
+                        endif
+    
+    
+                        if diffhits < min_diffhits_to_attack and not dead 'last' and find 'last' ground any any find_last_target_max_range
+                            if inlist 'use_fs' 'yes'
+                                sysmsg '>>> FLAMESTRIKE' 39
+                                cast 'flamestrike'
+
+                                @settimer 'waiting_target_timer' 0
+                                while not targetexists 'harmful' and timer 'waiting_target_timer' < 4000
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        sysmsg 'BREAKING WHILE WAITING FOR FLAMESTRIKE TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'harmful'
+                                    hotkey 'Last Target'
+                                    wait 150
+                                endif
+                            endif
+                        endif
+                    endif
+                endif
+
+            endif
+        endif
+    endif
+
+    if dead 'last' or not find 'last' ground any any find_last_target_max_range
+        # when an enemy dies, set the reset_all_timers timer to its trigger value
+        # so it will cause all spell timers to reset when getting a new target
+        @unsetvar 'last'
+        @settimer 'reset_all_timers_once' 5000001
+        @settimer 'wait_when_getting_target_first_time' 5000001
+
+
+        if inlist 'auto_get_new_targets' 'yes' and timer 'auto_get_new_targets_timer' > 1000
+            overhead 'searching monsters...' 55
+            sysmsg '> Searching Monters Targets...' 55
+            hotkey 'Next Non-Friendly Monster Target'
+            if inlist 'get_humanoids_on_auto_target' 'yes'
+                overhead 'searching humanoids...'
+                sysmsg '> Searching Humanoid Targets...' 56
+                hotkey 'Next Grey Humanoid Target'
+                wait 500
+            endif
+            settimer 'auto_get_new_targets_timer' 0
+        else
+            if timer 'get_new_target_msg' > 4000
+                overhead 'waiting for new target' 55
+                settimer 'get_new_target_msg' 0
+            endif
+        endif
+
+    endif
+
+    # putting the clear here to reset all possible msgs i caught during the previous iteration
+    clearsysmsg
+
+#random 10
+
+endwhile

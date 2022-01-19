@@ -1,0 +1,11 @@
+getlabel 0x18885B nome
+if nome = '[Veterano, BRA] Sir Isaac Newton'
+    overhead 'isaaaac'
+    unsetvar nome
+endif
+wait 500
+overhead nome
+if find 0x148261 ground any any 2
+    sysmsg 'detectou char'
+endif
+loop

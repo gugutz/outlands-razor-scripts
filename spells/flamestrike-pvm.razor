@@ -1,0 +1,10 @@
+# ELDRICH_PROC = 0x54a4
+# ELDRICH_PROC_COLOR = 0x0a39
+
+if mana > 40
+    cast 'flamestrike'
+elseif findtype 0x54A4 ground any any 4
+    cast 'flamestrike'
+else
+    script 'items\magic-mushroom'
+endif

@@ -1,0 +1,182 @@
+#################################
+# Treasure Chest Looter
+# v0.0.4
+# by gugutz
+#
+#################################
+# CHANGELOG
+#
+# v0.0.4
+# - Makes lists creation happen only the first time the script runs instead of every time
+#
+# v0.0.3
+# - Splits single items list into separate lists to increase iteration performance on prioritized items
+#
+# v0.0.2
+# - Changes some items priority in items list
+# - Fix: lift item amount from 999 to 60000 so the script wont split gold into several 999 piles
+#
+# v0.0.1
+# - Initial release
+#
+#################################
+# PREPARING TO START
+#
+createtimer 'waiting_tchest_msg_timer'
+settimer 'waiting_tchest_msg_timer' 1501
+
+@unsetvar tchest
+@setvar tchest
+wft 500
+while targetexists 'neutral'
+    if timer 'waiting_tchest_msg_timer' >= 1500
+        overhead 'select t-chest to loot...'
+        sysmsg 'Select T-Chest To Loot...'
+    endif
+endwhile
+#
+
+if not varexist tchest
+    overhead 'no tchest set'
+    stop
+endif
+
+
+#################################
+#
+# CONFIGURATION
+#
+@setvar action_delay_var 300
+@setvar sysmsgs_color 50
+
+
+#################################
+#
+# CODE
+#
+# ------------------------------
+# MASTERY CHAIN LINKS
+if not listexists 'links'
+    createlist 'links'
+    pushlist 'links' 'chain link'
+endif
+
+foreach item in 'links'
+    while findtype item tchest any any as item_to_unload
+        sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
+        overhead 'found a link!' 51 'self'
+
+        lift item_to_unload 1
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+#
+# ------------------------------
+if not listexists 'rares'
+    sysmsg 'Creating rares list...' 51
+    createlist 'rares'
+    # mastery chain links
+    # skill orb
+    pushlist 'rares' 22336
+    # # mcd (this goes into the resource stockpile)
+    pushlist 'rares' 17087
+    # research material
+    pushlist 'rares' 29348
+    # spell hue deeds
+    pushlist 'rares' 5359
+    # rare cloth
+    pushlist 'rares' 'folded cloth'
+    pushlist 'rares' 'map'
+    # skill scrolls
+    pushlist 'rares' 'scroll of calling'
+    pushlist 'rares' 'aspect core'
+    # aspect extract
+    pushlist 'rares' 3836
+    pushlist 'rares' 'phylactery'
+    # runebook dye
+    pushlist 'rares' 3838
+    # backpack dye
+    pushlist 'rares' 3839
+    # headwear dye
+    pushlist 'rares' 3842
+    # facial hair dye
+    pushlist 'rares' 3843
+    # hair, shield and quiver dye
+    pushlist 'rares' 3843
+    # fortuniture dye
+    pushlist 'rares' 29025
+    # carpet dye
+    pushlist 'rares' 29036
+endif
+
+foreach item in 'rares'
+    while findtype item tchest any any as item_to_unload
+        overhead item_graphic 51 'self'
+        sysmsg item_graphic 52
+
+        lift item_to_unload 60000
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+# ------------------------------
+# arcane runes
+if not listexists 'arcane_runes'
+    sysmsg 'Creating arcane runes list...' 51
+    createlist 'arcane_runes'
+    pushlist 'arcane_runes' 39891
+    pushlist 'arcane_runes' 39892
+    pushlist 'arcane_runes' 39917
+    pushlist 'arcane_runes' 39909
+    pushlist 'arcane_runes' 39912
+    pushlist 'arcane_runes' 39905
+    pushlist 'arcane_runes' 39911
+    pushlist 'arcane_runes' 39897
+    pushlist 'arcane_runes' 39918
+    pushlist 'arcane_runes' 39889
+    pushlist 'arcane_runes' 39898
+    pushlist 'arcane_runes' 39896
+    pushlist 'arcane_runes' 39916
+endif
+
+foreach item in 'arcane_runes'
+    while findtype item tchest any any as item_to_unload
+        overhead item_graphic 51 'self'
+        sysmsg item_graphic 52
+
+        lift item_to_unload 60000
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+# ------------------------------
+if not listexists 'tchest_items'
+    sysmsg 'Creating regular tchest items list...' 51
+    createlist 'tchest_items'
+    # non-indentified items
+    pushlist 'tchest_items' 'gold coin'
+    pushlist 'tchest_items' 'bow'
+    pushlist 'tchest_items' 'seed of renewal'
+    pushlist 'tchest_items' 'bag of seeds'
+endif
+
+foreach item in 'tchest_items'
+    while findtype item tchest any any as item_to_unload
+        overhead item_graphic 51 'self'
+        sysmsg item_graphic 52
+
+        lift item_to_unload 60000
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+
+sysmsg 'LOOT CHEST FINISHED'
+
+@clearignore
+@clearsysmsg

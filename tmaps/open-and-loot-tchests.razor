@@ -1,0 +1,259 @@
+# Treasure Chest Unlocker and Looter
+# v0.0.1
+# by gugutz
+#
+# This script will search for treasure chests in the ground within 2 tiles of the char, and if it finds any
+# it will remove traps, unlock and then loot the chests
+#
+#################################
+#
+# PREPARING TO START
+#
+
+@setvar action_delay_var 600
+@setvar locked_chest_gump 736038070
+
+
+
+# check if chest nearby is already opened
+if findtype 29089 ground any any 2 or findtype 29076 ground any any 2
+    overhead 'found opened chest'
+    sysmsg 'CHEST ON GROUND IS ALREADY OPENED!'
+    stop
+endif
+
+
+
+# search for tchests in the ground to start the whole process
+unsetvar chest
+# metal t-chests
+if findtype 29076 ground any any 2
+    setvar chest tchest
+# wood t-chests
+elseif findtype 29089 ground any any 2
+    setvar chest tchest
+endif
+
+if varexist chest
+    overhead 'found locked tchest'
+    sysmsg 'FOUND LOCKED TCHEST!'
+    # Remove Traps Section
+    while not dead and not insysmsg 'appears to be devoid'
+
+        # Skip ahead if devoid of traps
+        if insysmsg 'appears to be devoid'
+            overhead '* TRAPS CLEARED * ' 59
+            break
+        endif
+
+        # # Skip ahead if chest already open
+        # if findtype 29076 ground any any 2 true or findtype 29089 ground any any 2
+        #     overhead '* ALREADY OPEN * ' 59
+        #     break
+        # endif
+
+        # Remove traps
+        #
+        if findtype drill as tool
+            if not gumpexists locked_chest_gump
+                sysmsg 'Clicking chest first time to open gump'
+                dclick chest
+                waitforgump locked_chest_gump 1000
+            else
+                gumpresponse 7
+                wait action_delay_var
+                if insysmsg 'You do not have any trap tools of that material on hand'
+                    gumpresponse 5
+                    waitforgump locked_chest_gump 1000
+                else
+                    while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
+                        wait 100
+                        if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                            settimer 'wait_for_progress' 0
+                            break
+                        endif
+                    endwhile
+                endif
+            endif
+        else
+            overhead 'NO MORE DRILLS' 55
+            stop
+        endif
+
+
+    endwhile
+
+    # Lockpicking Section
+    while not dead and not insysmsg 'You successfully pick the lock'
+        #
+        if findtype 'lockpicks' as tool
+            if not gumpexists locked_chest_gump
+                sysmsg 'Clicking chest first time to open gump'
+                dclick chest
+                waitforgump locked_chest_gump 1000
+            else
+                gumpresponse 4
+                wait action_delay_var
+                if insysmsg 'You do not have any lockpicks of that material on hand'
+                    gumpresponse 2
+                    waitforgump locked_chest_gump 1000
+                else
+                    settimer 'wait_for_progress' 0
+                    while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
+                        wait 100
+                        if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                            settimer 'wait_for_progress' 0
+                            break
+                        endif
+                    endwhile
+                endif
+            endif
+        else
+            overhead 'NO MORE LOCKPICKS' 55
+            stop
+        endif
+
+        if insysmsg 'You successfully pick the lock'
+            overhead 'chest opened!' 54
+            sysmsg '>>> Chest Opened!' 54
+            break
+        endif
+
+        # Lockpick
+    endwhile
+
+
+
+    #################################
+    #
+    # LOOT THE CHEST
+    #
+    # ------------------------------
+    # MASTERY CHAIN LINKS
+    if not listexists 'links'
+        createlist 'links'
+        pushlist 'links' 'chain link'
+    endif
+
+    foreach item in 'links'
+        while findtype item tchest any any as item_to_unload
+            sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
+            overhead 'found a link!' 51 'self'
+
+            lift item_to_unload 1
+            wait action_delay_var
+            drop backpack
+            wait action_delay_var
+        endwhile
+    endfor
+    #
+    # ------------------------------
+    if not listexists 'rares'
+        sysmsg 'Creating rares list...' 51
+        createlist 'rares'
+        # mastery chain links
+        # skill orb
+        pushlist 'rares' 22336
+        # # mcd (this goes into the resource stockpile)
+        pushlist 'rares' 17087
+        # research material
+        pushlist 'rares' 29348
+        # spell hue deeds
+        pushlist 'rares' 5359
+        # rare cloth
+        pushlist 'rares' 'folded cloth'
+        pushlist 'rares' 'map'
+        # skill scrolls
+        pushlist 'rares' 'scroll of calling'
+        pushlist 'rares' 'aspect core'
+        # aspect extract
+        pushlist 'rares' 3836
+        pushlist 'rares' 'phylactery'
+        # runebook dye
+        pushlist 'rares' 3838
+        # backpack dye
+        pushlist 'rares' 3839
+        # headwear dye
+        pushlist 'rares' 3842
+        # facial hair dye
+        pushlist 'rares' 3843
+        # hair, shield and quiver dye
+        pushlist 'rares' 3843
+        # fortuniture dye
+        pushlist 'rares' 29025
+        # carpet dye
+        pushlist 'rares' 29036
+    endif
+
+    foreach item in 'rares'
+        while findtype item tchest any any as item_to_unload
+            overhead item_graphic 51 'self'
+            sysmsg item_graphic 52
+
+            lift item_to_unload 60000
+            wait action_delay_var
+            drop backpack
+            wait action_delay_var
+        endwhile
+    endfor
+    # ------------------------------
+    # arcane runes
+    if not listexists 'arcane_runes'
+        sysmsg 'Creating arcane runes list...' 51
+        createlist 'arcane_runes'
+        pushlist 'arcane_runes' 39891
+        pushlist 'arcane_runes' 39892
+        pushlist 'arcane_runes' 39917
+        pushlist 'arcane_runes' 39909
+        pushlist 'arcane_runes' 39912
+        pushlist 'arcane_runes' 39905
+        pushlist 'arcane_runes' 39911
+        pushlist 'arcane_runes' 39897
+        pushlist 'arcane_runes' 39918
+        pushlist 'arcane_runes' 39889
+        pushlist 'arcane_runes' 39898
+        pushlist 'arcane_runes' 39896
+        pushlist 'arcane_runes' 39916
+    endif
+
+    foreach item in 'arcane_runes'
+        while findtype item tchest any any as item_to_unload
+            overhead item_graphic 51 'self'
+            sysmsg item_graphic 52
+
+            lift item_to_unload 60000
+            wait action_delay_var
+            drop backpack
+            wait action_delay_var
+        endwhile
+    endfor
+    # ------------------------------
+    if not listexists 'tchest_items'
+        sysmsg 'Creating regular tchest items list...' 51
+        createlist 'tchest_items'
+        # non-indentified items
+        pushlist 'tchest_items' 'gold coin'
+        pushlist 'tchest_items' 'bow'
+        pushlist 'tchest_items' 'seed of renewal'
+        pushlist 'tchest_items' 'bag of seeds'
+    endif
+
+    foreach item in 'tchest_items'
+        while findtype item tchest any any as item_to_unload
+            overhead item_graphic 51 'self'
+            sysmsg item_graphic 52
+
+            lift item_to_unload 60000
+            wait action_delay_var
+            drop backpack
+            wait action_delay_var
+        endwhile
+    endfor
+
+    sysmsg 'LOOT CHEST FINISHED'
+
+    @clearignore
+    @clearsysmsg
+
+    sysmsg '>>> Open Locked Chests Script finished!' 53
+endif

@@ -1,0 +1,36 @@
+if not findtype 'Field of Poison' ground any any 2
+    cast 'poison field'
+    wft 3500
+    hotkey 'Target Self'
+else
+    while hits > 30 and findtype 'Field of Poison' ground any any 2
+        walk 'South'
+        walk 'South'
+        walk 'South'
+        walk 'South'
+        walk 'North'
+        walk 'North'
+        walk 'North'
+        walk 'North'
+    endwhile
+    if hits < maxhits
+        walk 'East'
+        walk 'East'
+        while hits < maxhits
+            if poisoned
+                cast 'cure'
+                wft 2000
+                hotkey 'Target Self'
+                wait 200
+            endif
+            cast 'greater heal'
+            wft 3500
+            hotkey 'Target Self'
+        endwhile
+        walk 'West'
+        walk 'West'
+    endif
+
+endif
+
+loop

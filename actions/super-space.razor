@@ -4,6 +4,14 @@ interrupt
 
 #script 'housing\rental-room-exit'
 
+
+# if there is a ress gump up, we click in accept
+if gumpexists 2957810225
+    overhead 'RESSING...' 10
+    gumpresponse 1
+    stop
+endif
+
 # handle paralyze
 if findbuff 'paralyze'
     if not findtype 'pouch' 'backpack' 38
@@ -17,10 +25,26 @@ endif
 
 # if there is a moongate nearby, enter it
 if findtype 'blue moongate' 'ground' any any 2
-    script 'moongate\enter-moongate'
+    script 'actions\enter-moongate'
     wait 10
     stop
 endif
+
+# open door if theres one close (1 tile)
+if not listexists 'doors'
+    createlist 'doors'
+    pushlist 'doors' 'wooden door'
+    pushlist 'doors' 'metal door'
+endif
+
+foreach door in 'doors'
+    if findtype door ground any any 1 as doorx
+        overhead 'clicking door...' 53
+        useobject doorx
+        stop
+    endif
+endfor
+
 
 # keep campfire buff
 if skill 'camping' > 20 and not findbuff 'campfire visit'
@@ -29,6 +53,7 @@ if skill 'camping' > 20 and not findbuff 'campfire visit'
         stop
     endif
 endif
+
 
 # maintain food satisfaction buff
 if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
@@ -71,10 +96,14 @@ if not findbuff 'magic resist potion' and findtype 'black potion'
 endif
 
 
+if skill 'spirit' > 20 and skill 'necromancy' == 0
+    overhead 'turning SS loop' 55
+    script 'skills\spirit-speak'
+endif
 
 # drop empty pots on ground
-if findtype 3854 'backpack' as bottles
-    overhead '✩ droping bottles ✩'
+if findtype 3854 'backpack' as bottles and counttype 3854 > 3
+    overhead '✩ droping bottles ✩' 55
     wait 600
     lift bottles 999
     #wait 600
@@ -82,6 +111,14 @@ if findtype 3854 'backpack' as bottles
     stop
 endif
 
+# FROM DOWN HERE, ONLY NON IMPORTANT ACTIONS
+# THAT WONT HOLD DOWN THE CHAR
+# IN CASE OF DANGER
+
+
 wait 10
-overhead 'nothing to do...'
-hotkey '> stop current script'
+if name = 'Tau'
+   script 'loops\town-struggle'
+endif
+
+overhead 'nothing to do...' 55

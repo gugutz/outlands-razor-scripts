@@ -1,0 +1,93 @@
+if dead 'last'
+    overhead 'last target dead' 56
+    sysmsg 'Last target is dead' 56
+    stop
+endif
+
+clearsysmsg
+
+if not timerexists 'bloodoath_timer'
+    createtimer 'bloodoath_timer'
+    settimer 'bloodoath_timer' 30001
+endif
+
+if not timerexists 'painspike_timer'
+    createtimer 'painspike_timer'
+    settimer 'painspike_timer' 30001
+endif
+
+
+if not dead 'last' and noto 'last' != friend and noto 'last' != friendly
+    if skill 'taming' = 0 or followers = 0
+        overhead 'attacking last target' 55
+        overhead '*** ATTACKING ***' 55 'last'
+        hotkey 'Attack Last Target'
+    endif
+     # if find 'last' 'ground' 'any' 1 find_last_target_max_range as last_target_serial
+     #    sysmsg 'FOUDN ALST TARGET SERIAL'
+     # endif
+
+    if skill 'herding' > 20 and followers > 0
+        # search for a shepards crook (graphic 3713)
+        if findtype 3713 backpack any any as crook
+            useobject crook
+            wft 600
+            if targetexists 'harmful'
+                hotkey 'Last Target'
+                waitforsysmsg 'You focus your follower' 400
+                if insysmsg 'You focus your follower'
+                    overhead 'focused pets agression' 41 'last'
+                endif
+            endif
+        else
+            overhead "no sheperd's crook!"
+        endif
+    endif
+
+    if skill 'necromancy' > 20
+        if timer 'bloodoath_timer' >= 30000
+            sysmsg '>>> Using bloodoath...'
+            say '[bloodoath'
+            wait 600
+            if insysmsg 'Unholy symbols'
+                settimer 'bloodoath_timer' 0
+                sysmsg '>>> BLOODOATH!'
+            endif
+        else
+            sysmsg 'Bloodoath cooldown...' 56
+        endif
+
+        if timer 'painspike_timer' >= 30000
+            if findtype 'corpse' ground any any 12 as corp
+                sysmsg '>>> Using pain spike...'
+                say '[painspike'
+                wft 600
+                if targetexists 'neutral'
+                    settimer 'painspike_timer' 0
+                    sysmsg '>>> PAIN SPIKE!' 89
+                    overhead 'exploding corpse!' 56
+                    hotkey 'Last Target'
+                endif
+                wait 200
+            else
+                sysmsg 'No corpses nearby to explode!' 41
+            endif
+        else
+            sysmsg 'Pain spike cooldown...' 56
+        endif
+    endif
+
+    # make tamers pets attack last target
+    if followers > 0
+        if skill 'taming' > 20 or skill 'magery' > 80
+            say 'all kill'
+            wft 700
+            if targetexists 'harmful'
+                hotkey "Last Target"
+            endif
+        endif
+    endif
+    stop
+endif
+
+overhead "last target not set!" 55

@@ -1,0 +1,130 @@
+# Locked Chest Opener
+# v0.0.3
+# by gugutz
+#
+# This script will remove traps and unlock locked chests (paragon and treasure map chests)
+#################################
+#
+# PREPARING TO START
+#
+createtimer 'waiting_tchest_msg_timer'
+settimer 'waiting_tchest_msg_timer' 1501
+createtimer 'wait_for_progress'
+settimer 'wait_for_progress' 5000
+
+
+@unsetvar chest
+@setvar chest
+wft 500
+while targetexists 'neutral'
+    if timer 'waiting_tchest_msg_timer' >= 1500
+        overhead 'select t-chest to loot...'
+        sysmsg 'Select T-Chest To Loot...'
+    endif
+endwhile
+#
+
+if not varexist chest
+    overhead 'no chest set'
+    stop
+endif
+
+
+@setvar action_delay_var 600
+@setvar locked_chest_gump 736038070
+
+# # Open Metal Chest
+# if findtype 29076 true
+#     dclicktype 29076 true
+# endif
+# # Open Wooden Chest
+# if findtype 29089 true
+#     dclicktype 29089 true
+# endif
+
+# Remove Traps Section
+while not dead and not insysmsg 'appears to be devoid'
+
+    # Skip ahead if devoid of traps
+    if insysmsg 'appears to be devoid'
+        overhead '* TRAPS CLEARED * ' 59
+        break
+    endif
+
+    # # Skip ahead if chest already open
+    # if findtype 29076 ground any any 2 true or findtype 29089 ground any any 2
+    #     overhead '* ALREADY OPEN * ' 59
+    #     break
+    # endif
+
+    # Remove traps
+    #
+    if findtype drill as tool
+        if not gumpexists locked_chest_gump
+            sysmsg 'Clicking chest first time to open gump'
+            dclick chest
+            waitforgump locked_chest_gump 1000
+        else
+            gumpresponse 7
+            wait action_delay_var
+            if insysmsg 'You do not have any trap tools of that material on hand'
+                gumpresponse 5
+                waitforgump locked_chest_gump 1000
+            else
+                while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
+                    wait 100
+                    if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                        settimer 'wait_for_progress' 0
+                        break
+                    endif
+                endwhile
+            endif
+        endif
+    else
+        overhead 'NO MORE DRILLS' 55
+        stop
+    endif
+
+
+endwhile
+
+# Lockpicking Section
+while not dead and not insysmsg 'You successfully pick the lock'
+    #
+    if findtype 'lockpicks' as tool
+        if not gumpexists locked_chest_gump
+            sysmsg 'Clicking chest first time to open gump'
+            dclick chest
+            waitforgump locked_chest_gump 1000
+        else
+            gumpresponse 4
+            wait action_delay_var
+            if insysmsg 'You do not have any lockpicks of that material on hand'
+                gumpresponse 2
+                waitforgump locked_chest_gump 1000
+            else
+                settimer 'wait_for_progress' 0
+                while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
+                    wait 100
+                    if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                        settimer 'wait_for_progress' 0
+                        break
+                    endif
+                endwhile
+            endif
+        endif
+    else
+        overhead 'NO MORE LOCKPICKS' 55
+        stop
+    endif
+
+    if insysmsg 'You successfully pick the lock'
+        overhead 'chest opened!' 54
+        sysmsg '>>> Chest Opened!' 54
+        break
+    endif
+
+    # Lockpick
+endwhile
+
+sysmsg '>>> Open Locked Chests Script finished!' 53

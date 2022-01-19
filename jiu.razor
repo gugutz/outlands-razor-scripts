@@ -1,0 +1,14 @@
+if findtype 'hatchet' backpack as axe
+    if lhandempty
+        sysmsg 'Equipping Axe In Hand...' 56
+        dclick axe
+        wait 600
+    else
+        hotkey 'Use Item In Hand'
+        wft 600
+        if targetexists 'neutral'
+            hotkey 'Target Self'
+            wait 2000
+        endif
+    endif
+endif

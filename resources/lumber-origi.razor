@@ -1,0 +1,121 @@
+if not timerexists '_lumberjacking'
+    createtimer '_lumberjacking'
+    settimer '_lumberjacking' 99999
+endif
+if not timerexists '_sysmsg'
+    createtimer '_sysmsg'
+    settimer '_sysmsg' 99999
+endif
+
+settimer '_lumberjacking' 0
+settimer '_sysmsg' 0
+
+while timer '_lumberjacking' < 10000
+
+    if timer '_lumberjacking' < 500
+        if lhandempty
+        if not findtype 'hatchet' true
+                overhead "::: You are out of hatchets:::"
+                stop
+                //script "WaitAndWatch"
+            endif
+            if findtype 'hatchet' true
+                dclicktype 'hatchet'
+                overhead ":::equipped new hatchet:::"
+                endif
+        endif
+        if findtype 'hatchet' true
+        //SET THIS NUMBER TO 10 LESS THAN YOUR MAX WEIGHT
+        if weight < 502
+                hotkey 'Use item in Hand'
+                waitfortarget 1000
+                target 'self'
+            endif
+                if weight > 503
+                    organizer 1
+                waitfortarget 1000
+                endif
+        endif
+    endif
+
+    if insysmsg "You do not see any harvestable"
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        overhead '::: node empty :::'
+        clearsysmsg
+
+    endif
+
+    if insysmsg "World is sav"
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        overhead '::: World Saving :::'
+        clearsysmsg
+    endif
+
+    if insysmsg 'Dullwood'
+        overhead '::: dullwood :::' 248
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Shadowwood'
+        overhead '::: shadowwood :::' 193
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Copperwood'
+            overhead '::: copperwood :::' 248
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Bronzewood'
+        overhead '::: bronzewood :::' 248
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Goldenwood'
+        overhead '::: goldenwood :::' 55
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Rosewood'
+        overhead '::: rosewood :::' 55
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Verewood'
+        overhead '::: verewood :::' 55
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Valewood'
+        overhead '::: valewood :::' 33
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Avarwood'
+        overhead '::: avarwood :::' 33
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    elseif insysmsg 'Logs'
+        overhead '::: logs :::' 15
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        clearsysmsg
+    endif
+
+    if insysmsg "You hack"
+        settimer '_lumberjacking' 0
+        settimer '_sysmsg' 0
+        overhead '::: hacked :::'
+        clearsysmsg
+    endif
+
+
+    if timer '_sysmsg' > 7000
+        overhead "::: GUMP or LAG :::" 33
+        overhead "::: Restart Script :::" 55
+        //script "WaitAndWatch"
+    endif
+endwhile

@@ -1,0 +1,8 @@
+say '[vampiricembrace'
+wft 600
+if targetexists 'neutral'
+    overhead 'consume which corpse?' 20
+    while targetexists 'neutral'
+        wait 100
+    endwhile
+endif

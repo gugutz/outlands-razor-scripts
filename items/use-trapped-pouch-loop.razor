@@ -1,0 +1,36 @@
+# USE TRAPPED POUCHES LOOP
+# by gugutz
+
+# pouch graphic = 0x0e79
+
+createtimer 'loop_on_warning_msg'
+settimer 'loop_on_warning_msg' 0
+
+createtimer 'no_trap_pouches_warning_msg'
+settimer 'no_trap_pouches_warning_msg' 2000
+
+sysmsg 'Starting Auto-Pouch Loop...'
+while not dead 'self'
+    # remember player the loop is active every 5s
+    if timer 'loop_on_warning_msg' >= 5000
+        settimer 'loop_on_warning_msg' 0
+        sysmsg 'Auto-Pouch Loop On...'
+    endif
+
+    # warn if there are no pouches
+    if not findtype pouch backpack 38
+        if timer 'no_trap_pouches_warning_msg' >= 2000
+            settimer 'no_trap_pouches_warning_msg' 0
+            overhead 'no trap pouches!' 37
+        endif
+    endif
+
+    if paralyzed
+        if findtype pouch backpack 38 as trap_pouch
+            sysmsg '>>> Using Trapped Pouch!'
+            useobject trap_pouch
+        else
+            overhead 'no trap pouches!' 37
+        endif
+    endif
+endwhile

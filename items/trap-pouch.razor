@@ -1,22 +1,41 @@
-// pouch graphic = 0x0e79
-//magic trap scroll = 0x1f39
+# pouch graphic = 0x0e79
+# magic trap scroll = 0x1f39
 
-// only try anything if there actual pouches on the backpack
-if findtype 0x0e79 
-    // first try with magery
-    if skill 'magery' > 50
-        cast 'magic trap'
-        waitfortarget
-        targettype  0x0e79 'backpack'
-    else
-        // if magery fails, try to use scrolls
-        if findtype 0x1F39
-            usetype 0x1F39
-            waitfortarget
-            targettype  0x0e79 'backpack'
+removelist 'untrapped_pouches'
+createlist 'untrapped_pouches'
+
+while findtype pouch backpack 0 as untrapped_pouch
+    pushlist 'untrapped_pouches' untrapped_pouch
+    @ignore untrapped_pouch
+endwhile
+
+clearignore
+
+if list 'untrapped_pouches' == 0
+    overhead '*no untrapped pouches*' 55
+    stop
+endif
+
+if list 'untrapped_pouches' > 0
+    foreach untrapped_pouch in 'untrapped_pouches'
+        # first try to use scrolls
+        if findtype 0x1F39 as magic_trap_scroll
+            useobject magic_trap_scroll
+            wft 1800
+            if targetexists 'neutral'
+                target untrapped_pouch
+            endif
+            wait 100
+        # if there are no scrolls in backpack, try with magery if char has the skill
+        elseif skill 'magery' > 50
+            cast 'magic trap'
+            wft 1800
+            if targetexists 'neutral'
+                target untrapped_pouch
+            endif
+            wait 100
         else
-            overhead '** no magic trap scrolls! **' 48 'self'
+            overhead '*no ways to trap pouch*' 48 'self'
         endif
-else
-    overhead '** no pouches!! **' 37 'self'
+    endfor
 endif

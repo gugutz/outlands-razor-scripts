@@ -1,0 +1,37 @@
+target closest 'gray,red' monster
+
+
+
+createlist 'ranges'
+pushlist 'ranges' 1
+pushlist 'ranges' 2
+pushlist 'ranges' 3
+pushlist 'ranges' 4
+pushlist 'ranges' 5
+pushlist 'ranges' 6
+pushlist 'ranges' 7
+pushlist 'ranges' 8
+pushlist 'ranges' 9
+pushlist 'ranges' 10
+pushlist 'ranges' 11
+pushlist 'ranges' 12
+pushlist 'ranges' 13
+pushlist 'ranges' 14
+pushlist 'ranges' 15
+pushlist 'ranges' 16
+pushlist 'ranges' 17
+pushlist 'ranges' 18
+pushlist 'ranges' 19
+pushlist 'ranges' 20
+
+
+foreach range in 'ranges'
+    if findtype 0x190 ground any any range as mob
+        overhead 'pegou' mob
+        target mob
+
+    elseif findtype 0x191 ground any any range as mob
+        overhead 'pegou' mob
+        target mob
+    endif
+endfor

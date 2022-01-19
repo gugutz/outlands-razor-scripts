@@ -1,0 +1,42 @@
+for 10
+    if counttype 'pouch' backpack 38 < 3 #colocar 3 trapped pouches uma dentro da outra com a ultima setada para hotbag do organizer-01 com os materiais dentro
+        script RecallOut
+    endif
+    if insysmsg 'you have completed a society job' ##parar se for sÃ³ para concluir society
+        script RecallOut
+    endif
+    if insysmsg 'you have acquired enough' ##parar se precisa upar o artisan aspect
+        script RecallOut
+    endif
+    if skill 'Tinkering' >= 60 #ajustar para o bracket de skill
+        script RecallOut
+    endif
+    if diffweight < 20 or not findtype 'iron ingot%s' backpack 0 1 or not findtype 'tool kit' backpack
+        dclick 0x42511E54 #book de recall
+        waitforgump 1551740969
+        gumpresponse 8 #runa do banco
+        wait 3000
+        say bank
+        hotkey 'Organizer Agent-01' #organizer pra guardar o gold
+        wait 500
+        hotkey 'Restock Agent-01' #restock pra pegar tool kit, iron e pedras
+        wft
+        target 0x4054198F #uma bag dentro do banco onde vao ficar os materiais
+        wait 1500
+        dclick 0x42511E54 #book de recall
+        waitforgump 1551740969
+        gumpresponse 92 #runa no tinker da cidade bonus
+        loop
+    endif
+    dclicktype 'tool kit' backpack
+    waitforgump 949095101
+    wait 300
+    gumpresponse 7
+    wait 950
+endfor
+skill 'detectinghidden'
+waitfortarget
+target 'self'
+wait 1250
+menu 0x254F 2 #menu no vendor (configurar sell agent para vender a joia que for usar)
+loop

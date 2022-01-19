@@ -1,0 +1,15 @@
+say '[poisonstrike'
+wft 500
+if targetexists 'neutral'
+    overhead 'poison strike'
+    while targetexists 'neutral'
+        wait 10
+    endwhile
+    clearsysmsg
+    wait 100
+    if insysmsg 'symbols remaining'
+        overhead 'poison striked enemy' 71
+        overhead 'pegou poison strike msg' 18 'last'
+        clearsysmsg
+    endif
+endif

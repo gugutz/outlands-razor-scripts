@@ -1,0 +1,45 @@
+#target closest 'gray,red' monster
+
+
+
+createlist 'ranges'
+pushlist 'ranges' 2
+pushlist 'ranges' 4
+pushlist 'ranges' 6
+pushlist 'ranges' 8
+pushlist 'ranges' 10
+pushlist 'ranges' 12
+pushlist 'ranges' 14
+pushlist 'ranges' 16
+pushlist 'ranges' 18
+pushlist 'ranges' 20
+
+
+# unset previously set var, in case it was set
+if varexist closest_target_humanoid
+    @unsetvar closest_target_humanoid
+endif
+
+foreach range in 'ranges'
+    if findtype 400 ground any any range as mob
+        @setvar closest_target_humanoid mob
+        overhead 'PEGOU 1' 55
+
+        overhead 'pegou' 55 mob
+        break
+
+    elseif findtype 401 ground any any range as mob
+        @setvar closest_target_humanoid mob
+        overhead 'PEGOU 2' 55
+        overhead 'pegou' 55 mob
+        break
+    endif
+endfor
+
+
+if varexist closest_target_humanoid
+    overhead 'CLOSEST TARGET' 55 closest_target_humanoid
+    target closest_target_humanoid
+else
+    overhead 'NO TARGETS NEARBY' 55 'self'
+endif

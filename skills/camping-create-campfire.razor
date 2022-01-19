@@ -1,5 +1,5 @@
 if not findbuff 'campfire visit'
-    if not findtype campfire ground any any 2
+    if not findtype campfire ground any any 7
         if findtype kindling backpack as firestarter
             overhead '*creating campfire*'
             dclick firestarter
@@ -13,4 +13,6 @@ if not findbuff 'campfire visit'
     else
         overhead 'found campfire nearby!'*
     endif
+else
+    overhead '*campfire buff active*' 55
 endif

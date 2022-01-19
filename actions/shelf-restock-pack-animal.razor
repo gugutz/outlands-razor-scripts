@@ -1,11 +1,11 @@
 # restock shelf from pack llama or pack horse
 
 if findtype 'storage shelf' ground any any 2 as 'shelf'
-    if findtype 292 ground as 'packie'
+    if findtype 292 ground any any 2 as 'packie'
         menu 'shelf' 0
         waitfortarget 600
         target 'packie'
-    elseif findtype 'a pack horse' ground as packie
+    elseif findtype 291 ground any any 2 as packie
         menu 'shelf' 0
         wft 600
         target 'packie'
@@ -15,4 +15,3 @@ if findtype 'storage shelf' ground any any 2 as 'shelf'
 else
     overhead 'no shelfs nearby'
 endif
-    

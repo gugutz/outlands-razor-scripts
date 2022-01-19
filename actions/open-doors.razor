@@ -1,0 +1,28 @@
+if not listexists 'doors'
+    createlist 'doors'
+else
+    clearlist 'doors'
+endif
+
+pushlist 'doors' 'wooden door'
+pushlist 'doors' 'metal door'
+
+if not listexists 'found_door'
+    createlist 'found_door'
+else
+    clearlist 'found_door'
+endif
+
+foreach door in 'doors'
+    if findtype door ground any any 3 as doorx
+        overhead 'clicking door...' 53
+        pushlist 'found_door' 'yes'
+        useobject doorx
+        break
+    endif
+endfor
+
+
+if not inlist 'found_door' 'yes'
+    hotkey 'Open Door'
+endif

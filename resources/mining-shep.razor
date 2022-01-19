@@ -1,0 +1,219 @@
+if not timerexists '_mining'
+    createtimer '_mining'
+    settimer '_mining' 99999
+endif
+if not timerexists '_sysmsg'
+    createtimer '_sysmsg'
+    settimer '_sysmsg' 99999
+endif
+if not timerexists '_checkweight'
+    createtimer '_checkweight'
+    settimer '_checkweight' 99999
+endif
+
+
+//Set timers initially to get into while loop.
+settimer '_mining' 0
+settimer '_sysmsg' 0
+settimer '_checkweight' 0
+
+while timer '_mining' < 5000
+    
+    //LOOK FOR PK
+    if insysmsg "Now tracking:"
+        overhead "::: RED FOUND :::" 55
+        overhead "::: RECALLING NOW :::" 33
+        script RecallOut
+    endif
+
+    //MINE
+    if timer '_mining' < 750
+        if rhandempty
+            if not findtype 'pickaxe' true
+                overhead "::: You are out of pickaxes:::"
+                script RecallOut
+            endif
+            if findtype 'pickaxe' true
+                dclicktype 'pickaxe'
+                overhead ":::equipped new pickaxe:::"
+            endif
+        endif    
+        if findtype 'pickaxe' true
+            //SET THIS NUMBER TO 10 LESS THAN YOUR MAX WEIGHT
+        if weight < 620
+                hotkey 'Use item in Hand'
+            endif
+            //LOOK FOR PK AGAIN INCASE SYSMSG OVERWRITTEN
+            if insysmsg "Now tracking:"
+                overhead "::: RED FOUND :::" 55
+                overhead "::: RECALLING NOW :::" 33
+                script RecallOut
+            endif
+        endif
+    endif
+   
+    //HANDLE RESULTS
+    //SET THIS NUMBER TO 10 LESS THAN YOUR MAX WEIGHT
+    if diffweight < 20
+        if timer '_checkweight' < 2000
+            overhead "::: You have a full load :::" 15
+            overhead "::: Dropping on 'Packie' :::" 33
+            hotkey 'Organizer Agent-20'
+            while queued
+                wait 300
+            endwhile
+            settimer '_checkweight' 1000
+            settimer '_sysmsg' 0
+            settimer '_mining' 0
+        endif
+        if timer '_checkweight' > 3000
+            if weight >= 545
+                overhead "::: NO PACKIE FOUND :::" 55
+                overhead "::: RECALLING NOW :::" 33
+                script RecallOut
+            endif
+        endif
+    endif
+
+    if insysmsg 'shadow'
+        overhead '::: shadow :::' 193
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg 
+    elseif insysmsg 'dull copper'
+        overhead '::: dull copper :::' 248
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg 
+    elseif insysmsg 'iron'
+        overhead '::: iron :::' 15
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'copper'
+        overhead '::: copper :::' 248
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'bronze'
+        overhead '::: bronze :::' 248
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'gold'
+        overhead '::: gold :::' 55
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'agapite'
+        overhead '::: agapite :::' 55
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'verite'
+        overhead '::: verite :::' 33
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'valorite'
+        overhead '::: valorite :::' 33
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    elseif insysmsg 'avarite'
+        overhead '::: avarite :::' 33
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg
+    endif
+    if insysmsg "You loosen"
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        overhead '::: loosened :::'
+        //clearsysmsg 
+    endif
+    if insysmsg "You do not see any harvestable resources nearby"
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        overhead '::: MUDAR DE LUGAR :::' 55
+        #SCRIPT DE CAMINHAR
+        clearsysmsg 
+        random 8
+        if insysmsg 'Random: 1'
+            walk 'south'
+            walk 'south'
+            walk 'south'
+        elseif insysmsg  'Random: 2'
+            walk 'down'
+            walk 'down'
+            walk 'down'
+        elseif insysmsg  'Random: 3'
+            walk 'east'
+            walk 'east'
+            walk 'east'
+        elseif insysmsg  'Random: 4'
+            walk 'right'
+            walk 'right'
+            walk 'right'
+        elseif insysmsg  'Random: 5'
+            walk 'north'    
+            walk 'north'
+            walk 'north'
+        elseif insysmsg  'Random: 6'
+            walk 'up'
+            walk 'up'
+            walk 'up'
+        elseif insysmsg  'Random: 7'
+            walk 'west'
+            walk 'west'
+            walk 'west'
+        elseif insysmsg  'Random: 8'
+            walk 'left'
+            walk 'left'
+            walk 'left'
+        endif
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+        //clearsysmsg 
+    endif
+
+    if insysmsg 'recently traveled'
+        overhead '::: recently traveled :::'
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+    endif
+    
+    if insysmsg 'You must wait to perform another action'
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+    endif
+    
+    if insysmsg 'The world is saving'
+        wait 4000
+        settimer '_mining' 0
+        settimer '_sysmsg' 0
+        settimer '_checkweight' 0
+    endif
+    
+    if timer '_sysmsg' > 3500
+        overhead "::: GUMP or LAG :::" 33
+        overhead "::: Restart Script :::" 55
+        script 'WaitAndWatch'
+    endif
+
+endwhile

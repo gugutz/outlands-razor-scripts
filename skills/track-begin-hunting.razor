@@ -1,0 +1,17 @@
+setvar tracking_gump_id 4267467659
+
+
+if not gumpexists tracking_gump_id
+    skill 'tracking'
+    waitforgump tracking_gump_id 200
+endif
+
+if gumpexists tracking_gump_id
+    if not ingump 'Stop Hunting' tracking_gump_id
+        overhead 'STARTING HUNTING' 65
+        gumpresponse 6
+        gumpclose
+    else
+        overhead 'already hunting' 55
+    endif
+endif

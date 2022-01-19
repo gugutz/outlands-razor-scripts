@@ -1,0 +1,58 @@
+if not listexists 'summon_stone_hues'
+   createlist 'summon_stone_hues'
+   pushlist 'summon_stone_hues' 2903
+   pushlist 'summon_stone_hues' 2157
+   pushlist 'summon_stone_hues' 2259
+   pushlist 'summon_stone_hues' 2803
+endif
+
+
+if not listexists 'spell_stone_hues'
+   createlist 'spell_stone_hues'
+   pushlist 'spell_stone_hues' 2163
+   pushlist 'spell_stone_hues' 215
+   pushlist 'spell_stone_hues' 229
+   pushlist 'spell_stone_hues' 283
+endif
+
+
+foreach hue in 'summon_stone_hues'
+    if findtype 'light' 'backpack' hue as stone
+        @setvar found_summon_stone stone
+    endif
+endfor
+
+foreach hue in 'spell_stone_hues'
+    if findtype 'light' 'backpack' hue as stone
+        @setvar found_spell_stone stone
+    endif
+endfor
+
+if not varexist found_summon_stone
+   if findtype 'light' backpack 0 as stone
+      overhead '*creating summon stone*' 55
+      cast 'magic lock'
+      wft 2000
+      target stone
+   else
+      overhead 'no empty stones found' 55
+   endif
+endif
+
+if not varexist found_spell_stone
+   if findtype 'light' backpack 0 as stone
+      overhead '*creating spell stone*' 55
+      cast 'magic lock'
+      wft 2000
+      target stone
+      wait 200
+   else
+      overhead 'no empty stones found' 55
+   endif
+else
+    getlabel found_spell_stone stonelabel
+    if not 'active' in stonelabel
+        overhead 'activating spell stone'
+        dclick stone
+    endif
+endif

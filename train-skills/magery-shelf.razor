@@ -1,46 +1,81 @@
-while skill "magery" < 100 and not dead
-  if count "black pearl" < 1 or count "blood moss" < 1 or count "mandrake root" < 1 or count "garlic" < 1 or count "ginseng" < 1 count "nightshade" < 1 or count "spider's silk" < 1 or count "sulfurous ash" < 1
-    dclick 0x429BDDB2
-    waitforgump 3232825965
-    gumpresponse 7
-    waitforgump 3232825965
-    gumpclose
-  endif
-  if mana < 50
-    while mana < maxmana
-      if not insysmsg "You enter a meditative trance."
-        skill "meditation"
-      else
-        while mana < maxmana
-           pause 500
-        endwhile
-      endif
+overhead 'MAGERY TRAINER' 55
+overhead 'by gugutz' 55
+sysmsg '#########################' 90
+sysmsg '>>> MAGERY MASTERY TRAINER' 55
+sysmsg 'by gugutz' 56
+sysmsg '########################' 90
+
+
+
+if findtype 'storage shelf' ground any any 2 as shelf_found
+   setvar shelf shelf_found
+else
+   overhead 'NO SHELFS FOUND!'
+   overhead 'get close to a shelf and try again'
+   stop
+endif
+
+if varexist shelf
+    while not find shelf ground any any 2
+        overhead 'Get back closer to the shelf!'
+        wait 2000
     endwhile
-  endif
-  if hits < 50
-    cast "greater heal"
-    waitfortarget 
-    target "self"
-    pause 600
-    cast "greater heal"
-    waitfortarget 
-    target "self"
-    pause 600
-  endif
-  if skill "magery" < 60
-    cast "lightning"
-    waitfortarget 
-    target "self"
-    pause 600
-  elseif skill "magery" < 80
-    cast "invisibility"
-    waitfortarget 
-    target "self"
-    pause 600
-  else
-      cast "earth elemental"
-    pause 5250
-    say "an earth elemental release"
-    pause 600
-  endif
-endwhile
+
+    while find shelf ground any any 2
+        while skill "magery" < 100 and not dead
+
+            if skill "magery" < 60
+                @setvar mana_needed 11
+            elseif skill "magery" < 80
+                @setvar mana_needed 20
+            else
+                @setvar mana_needed 50
+            endif
+
+            # ressuply when reg count is low
+            if count "black pearl" < 1 or count "blood moss" < 1 or count "mandrake root" < 1 or count "garlic" < 1 or count "ginseng" < 1 count "nightshade" < 1 or count "spider's silk" < 1 or count "sulfurous ash" < 1
+                sysmsg 'RESSUPLYING...' 55
+                menu shelf 1
+                gumpclose
+            endif
+
+            # meditate when needed
+            if mana < mana_needed
+                sysmsg 'TRYING TO MEDITATE...' 55
+                while mana < mana_needed and not findbuff 'Actively Meditating'
+                    skill "meditation"
+                    wait 1000
+                endwhile
+
+                # while meditating, wait until needed mana for current spell
+                while mana < mana_needed and findbuff 'Actively Meditating'
+                    wait 100
+                endwhile
+            endif
+
+            # start spell cicle training
+            if hits < 50
+                cast "greater heal"
+                waitfortarget
+                target "self"
+                pause 600
+            endif
+            if skill "magery" < 60
+                cast "lightning"
+                waitfortarget 3500
+                target "self"
+                pause 600
+            elseif skill "magery" < 80
+                cast "invisibility"
+                waitfortarget 4000
+                target "self"
+                pause 600
+            else
+                cast "air elemental"
+                pause 5250
+                say "an air elemental release"
+                pause 600
+            endif
+        endwhile
+    endwhile
+endif

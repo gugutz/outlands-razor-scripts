@@ -1,0 +1,71 @@
+# Treasure Map Decypher (no tome version)
+# v0.0.1
+# by gugutz
+#
+###################################
+
+@setvar default_hue 0
+@setvar cartography_map_gump 1520869851
+
+removelist 'maps'
+createlist 'maps'
+
+overhead 'select chest with tmaps'
+@setvar tmap_chest
+
+dclick tmap_chest
+wait 1000
+while findtype map tmap_chest as mapx
+    # getlabel mapx map_label
+    # if not 100% in map_label
+    sysmsg 'found map!'
+    pushlist 'maps' mapx
+    # we need to ignore each map or else we get trapped in this loop forever
+    #
+    @ignore mapx
+    # endif
+endwhile
+
+
+# now we reset the ignore list so we can find the maps again, this time to decypher them
+clearignore
+if list 'maps' = 0
+    overhead 'NO MAPS TO DECYPHER' 55
+    stop
+endif
+
+if list 'maps' > 0
+    foreach mapx in 'maps'
+        sysmsg 'Picking map to decypher' 55
+        # lifttype 5356 1 tmap_chest default_hue
+        lift mapx
+        pause 550
+        drop backpack
+        pause 550
+        clearsysmsg
+        while not insysmsg 'You have reached the maximum accuracy'
+            if not findtype spyglass
+                overhead 'NO MORE SPYGLASSES' 55
+                stop
+            else
+                if not gumpexists cartography_map_gump
+                    sysmsg 'Opening map gump first time'
+                    dclicktype spyglass backpack
+                    wft 600
+                    target mapx
+                    waitforgump cartography_map_gump
+                else
+                    gumpresponse 4
+                    waitforsysmsg 'You improve' 2000
+                endif
+            endif
+        endwhile
+        sysmsg 'Putting map back on chest' 55
+        lift mapx
+        pause 550
+        drop tmap_chest 0 0 0
+        pause 550
+        gumpclose
+    endfor
+sysmsg "ALL MAPS DECYPHERED!" 55
+endif

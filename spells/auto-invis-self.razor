@@ -1,0 +1,27 @@
+sysmsg '#########################' 90
+overhead 'Auto Invis Self' 55
+overhead 'by gugutz' 55
+overhead 'version 1.0' 56
+sysmsg '>>> SUMMONER BOT' 55
+sysmsg 'by gugutz' 55
+sysmsg 'version 1.0' 56
+sysmsg '########################' 90
+
+if not timerexists 'loop_on_warning_msg'
+    createtimer 'loop_on_warning_msg'
+    settimer 'loop_on_warning_msg' 23000
+endif
+
+while not dead
+    if timer 'loop_on_warning_msg' >= 10000
+        sysmsg '>>> Auto Invis Self is running...'
+        settimer 'loop_on_warning_msg' 0
+    endif
+    if not hidden
+        sysmsg '>>> Hiding' 50
+        cast 'invisibility'
+        wft 3500
+        hotkey 'Target Self'
+        wait 500
+    endif
+endwhile

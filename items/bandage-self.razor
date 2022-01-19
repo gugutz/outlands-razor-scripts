@@ -1,14 +1,28 @@
 // bandage type 0xe21
 
-if poisoned or hp < maxhp
-    if findbuff 'healing'
-        overhead '⌛ already applying bandage.. ⌛'
-    else
-        hotkey 'bandage self'
-        overhead '♥ using bandage ♥' 60 'self'
-    endif
-else
-    overhead '** hp 100% **' 240 'self'
-    usetype 0xe21
+if not timerexists "bandagetimer"
+    createtimer "bandagetimer"
+    settimer "bandagetimer" 11000
 endif
 
+if hp < maxhp
+    if findtype "clean bandage%s%" backpack
+        if timer "bandagetimer" >= 11000
+            dclicktype "clean bandage%s%" backpack
+            waitfortarget 300
+            hotkey "Target Self"
+            waitforsysmsg 'begin applying' 200
+            wait 10
+            if insysmsg "begin applying"
+                overhead '*applying bandages*'
+                settimer "bandagetimer" 0
+            endif
+        else
+            overhead "already applying..." 88
+        endif
+    else
+        overhead "*no bandages*" 40
+    endif
+else
+    overhead "*full hp*"
+endif

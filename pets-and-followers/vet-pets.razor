@@ -1,0 +1,56 @@
+###################################################
+# VET FRIENDLY PETS
+# by gugutz
+###################################################
+
+# CONFIG
+
+@setvar find_pets_range 5
+
+# choose your summon combo here (use the name of the summons)
+@createlist 'pets'
+# dragon
+@pushlist 'pets' 59
+# drake
+@pushlist 'pets' 60
+
+
+##############################################
+# CODE
+
+if followers = 0
+    sysmsg '>>> NO PETS TO VET' 55
+    overhead 'no pets to vet'
+    stop
+endif
+j
+
+# use vet kit
+if findtype "wall shelf" true
+    dclicktype 'wall shelf' backpack
+else
+    dclicktype 'clean bandage%s%' backpack
+endif
+
+# foreach summon in 'pets'
+#     if summon = 'summ. creature'
+#         @setvar! summon_max_limit 4
+#     else
+#         @setvar! summon_max_limit 3
+#     endif
+
+#     @unsetvar 'foundsummon'
+#     if findtype summon ground any 1 find_summon_range as summonserial
+#         if noto summonserial = friend
+#             @setvar! 'foundsummon' summon
+#         endif
+#     endif
+#     if not varexist 'foundsummon' and followers <= summon_max_limit
+#         foreach summonspell in 'summonspells'
+#             if summonspell in summon
+#                 cast summonspell
+#                 stop
+#             endif
+#         endfor
+#     endif
+# endfor

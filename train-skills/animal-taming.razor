@@ -1,0 +1,414 @@
+##########################################################
+# Animal taming
+# by gugutz
+# based on original macro by Zell
+#
+# IMPORTANT
+# This requires you to have a dagger in your backpack
+#
+# You require a tank for this
+# Create a script variable called tank
+# Make sure that tank is on follow, not guard
+#
+# 50-72.5 use rock guar as tank
+# 75-102.5 use scarab as tank
+# 105-120 use sand roach as tank
+#
+# The important thing here is to not use
+# a scarab as a tank when taming scarabs
+#
+# UPDATES:
+# * add GH self if diffhits > 0 (thanks @Mummaz)
+# * use setvar instead of list to set tank pet
+# * re-set tank pet if previously set cant be find in screen
+# * change several pauses before targets for wait for target to optimize performance
+# * replace camelCased word to snake_cased version
+# * replaced looping method from 'replay' command to while loop to set config part only once on script start
+# * add check if tamable exist to avoid spamming clicking dagger for nothing
+# * add timed msg to warn that script is running
+# * add check for bandages on backpack and warning if there are none
+# * add check for dagger on backpack and warning if there are none
+# * auto animal lore current pet and change gump to show Value vs Avg page
+# * add check if targetexists before sending it on tameable and reseting taming timer
+# * add several checks for targetexists before spending them
+# * add notoriety check on last target before canceling right before luring mob with all kill to reduce spam
+#
+##########################################################
+
+# CONFIGURATION
+
+@setvar bandage_delay 8000
+@setvar script_running_warning_msg_delay 8000
+@setvar find_tameables_range 10
+@setvar max_taming_level 121
+@setvar searching_tameables_msg_warning_delay 2000
+
+##########################################################
+
+# SCRIPT VARIABLES
+
+@setvar animal_lore_gump_id 3280914284
+
+##########################################################
+
+# BOOTSTRAPING
+
+# SET TANK PET WHEN NEEDED OR TANK IS SET BUT NOT FOUND NEARBY
+if not varexist tank
+    overhead 'Please select your tanking pet'
+    setvar tank
+elseif varexist tank and not find tank
+    overhead 'Please select your tanking pet'
+    setvar tank
+endif
+
+if diffhits > 0
+    say 'all guard'
+    cast 'Greater Heal'
+    wft 4000
+    @target 'self'
+    pause 2000
+    say 'all follow'
+    hotkey 'Toggle Peace Only'
+endif
+##################################
+# CONFIGURE TIMERS
+
+
+if not timerexists 'taming_timer'
+    createtimer 'taming_timer'
+    settimer 'taming_timer' 0
+endif
+
+if not timerexists 'running_script_warning_timer'
+    createtimer 'running_script_warning_timer'
+    # this is 0 because i already put a 'starting msg' before the while loop
+    settimer 'running_script_warning_timer' 0
+endif
+
+if not timerexists 'bandage_timer'
+    createtimer 'bandage_timer'
+    settimer 'bandage_timer' bandage_delay
+endif
+
+if not timerexists 'searching_tameables_msg_timer'
+    createtimer 'searching_tameables_msg_timer'
+    settimer 'searching_tameables_msg_timer' searching_tameables_msg_warning_delay
+endif
+
+
+sysmsg ">>> STARTING ANIMAL TAMING TRAINING SCRIPT..." 56
+pause 1000
+
+##################################
+# MAIN ROUTINE
+
+while skill 'taming' < max_taming_level
+
+    # warn every X (pre-set) seconds the script is running
+    if timer 'running_script_warning_timer' > script_running_warning_msg_delay
+        sysmsg '>>> RUNNING ANIMAL TAMING SCRIPT...' 55
+        settimer 'running_script_warning_timer' 0
+    endif
+
+    # bandage tank every X (pre-set) seconds
+    if timer 'bandage_timer' >= bandage_delay
+        sysmsg '>>> TIME FOR HEALING TANK...' 60
+        if findtype 'clean bandage%s%' backpack any any as bands
+            useobject bands
+            wft 1000
+            target tank
+            waitforsysmsg 'not damaged' 1000
+            if insysmsg 'not damaged'
+                settimer 'bandage_timer' 4000
+            else
+                settimer 'bandage_timer' 0
+            endif
+        else
+            overhead 'NO BANDAGES!!!' 39
+        endif
+    # else
+        #sysmsg '>>> NO TIME TO HEAL TANK JUST YET...' 55
+    endif
+
+    # In case for some reason bandage doesnt get used on tank
+    # cancels target so bandage doesnt target grey untamed
+    # hotkey 'Cancel current target'
+
+    # Apply pets to tame at specific levels, feel free to add
+    # them, see user doc for how
+    #
+    createlist 'pets'
+    #Frogs
+    pushlist 'pets' '80'
+    #Cave Bear
+    pushlist 'pets' '213'
+    #Scarab
+    pushlist 'pets' '169'
+    # Drake Whelp
+    pushlist 'pets' '718'
+    # or Aegis Slime
+    pushlist 'pets' '51'
+    # Deep Crawler
+    pushlist 'pets' '315'
+    # Drake red body
+    pushlist 'pets' '61'
+    # Drake grey body
+    pushlist 'pets' '60'
+    # Dragon whelp
+    pushlist 'pets' '718'
+    # Husk Crab
+    pushlist 'pets' '729'
+    # or Dragon grey body
+    pushlist 'pets' '12'
+    # or Dragon red body
+    pushlist 'pets' '59'
+
+    # Snow Drift
+    pushlist 'pets' '51'
+    # At 105 taming, Earth Drake
+    # Drake grey body
+    pushlist 'pets' '60'
+    # Drake red body
+    pushlist 'pets' '61'
+    # Acarid
+    #pushlist 'pets' '385'
+
+    # Drake grey body
+    pushlist 'pets' '60'
+    # Drake red body
+    pushlist 'pets' '61'
+
+    # Aegis Minion
+    pushlist 'pets' '776'
+    # or Sphinx
+    pushlist 'pets' '293'
+    # Grey Dragon body value
+    pushlist 'pets' '12'
+    # Red Dragon body value
+    pushlist 'pets' '59'
+    # or Colossal Sandroach
+    pushlist 'pets' '388'
+
+    # # Frog
+    # if skill 'taming' < 60 # At 50 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     pushlist 'pets' '80'
+    # #Cave Bear
+    # elseif skill 'taming' < 70 # At 60 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     pushlist 'pets' '213'
+    # #Scarab
+    # elseif skill 'taming' < 75 # At 70 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     pushlist 'pets' '169'
+    # elseif skill 'taming' < 80 # At 75 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Drake Whelp
+    #     pushlist 'pets' '718'
+    #     # or Aegis Slime
+    #     pushlist 'pets' '51'
+    # elseif skill 'taming' < 85 # At 80 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Deep Crawler
+    #     pushlist 'pets' '315'
+    # elseif skill 'taming' < 90 # At 85 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Drake red body
+    #     pushlist 'pets' '61'
+    #     # Drake grey body
+    #     pushlist 'pets' '60'
+    #     # Dragon whelp
+    #     pushlist 'pets' '718'
+    # elseif skill 'taming' < 95 # At 90 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Husk Crab
+    #     pushlist 'pets' '729'
+    # elseif skill 'taming' < 100 # At 95 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # or Dragon grey body
+    #     pushlist 'pets' '12'
+    #     # or Dragon red body
+    #     pushlist 'pets' '59'
+
+    # elseif skill 'taming' < 105 # At 100 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Snow Drift
+    #     pushlist 'pets' '51'
+    # # At 105 taming, Earth Drake
+    # elseif skill 'taming' < 110
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Drake grey body
+    #     pushlist 'pets' '60'
+    #     # Drake red body
+    #     pushlist 'pets' '61'
+    #     # Acarid
+    #     #pushlist 'pets' '385'
+    # elseif skill 'taming' < 115 # At 110 taming
+    #     removelist 'pets'
+    #     createlist 'pets'
+
+    #     # Drake grey body
+    #     pushlist 'pets' '60'
+    #     # Drake red body
+    #     pushlist 'pets' '61'
+
+    #     # Aegis Minion
+    #     pushlist 'pets' '776'
+    #     # or Sphinx
+    #     pushlist 'pets' '293'
+    # elseif skill 'taming' < 120 # At 115 taming, Earth Dragon
+    #     removelist 'pets'
+    #     createlist 'pets'
+    #     # Grey Dragon body value
+    #     pushlist 'pets' '12'
+    #     # Red Dragon body value
+    #     pushlist 'pets' '59'
+    #     # or Colossal Sandroach
+    #     pushlist 'pets' '388'
+    # else
+    #     overhead 'STOP! You have finished your journey'
+    #     pause 1000
+    #     replay
+    # endif
+
+
+    foreach pet in pets
+        if not findtype pet ground any any find_tameables_range
+            if timer 'searching_tameables_msg_timer' >= searching_tameables_msg_warning_delay
+                overhead 'Searching Tameables...' 55
+                settimer 'searching_tameables_msg_timer' 0
+            endif
+        elseif findtype pet ground any any find_tameables_range as tameable
+            if noto tameable != friend and noto tameable != friendly
+                overhead 'Found tameable! Luring...' 60
+
+                # try to use a dagger on mob to see which msg it creates
+                # if says 'too far away, we have to lure the mob first'
+                if findtype 'dagger' backpack as knife
+                    useobject knife
+                    wft 1000
+                    if targetexists 'neutral'
+                        target tameable
+                    endif
+                    pause 500
+                else
+                    overhead 'CANT FIND DAGGER' 40
+                    overhead 'YOU NEED A DAGGER' 40
+                    overhead 'STOPPING SCRIPT...' 40
+                    sysmsg 'THIS SCRIPT NEEDS A DAGGER TO WORK.' 55
+                    sysmsg 'GET A DAGGER AND PLAY THE SCRIPT AGAIN' 55
+                    sysmsg 'STOPPING SCRIPT...' 55
+                    stop
+                endif
+
+                if noto 'last' == friendly or noto 'last' == friend or noto 'last' == innocent
+                    sysmsg 'CANCELING LAST TARGET BEFORE ALL KILL' 55
+                    hotkey 'Cancel current target'
+                endif
+
+                # check if mob is tamed already by trying to hit "Release" on its context menu
+                # the herding check is because if you have herding, the "Release" option changes to position 11
+                if skill 'herding' > 0
+                    menu tameable 11
+                else
+                    menu tameable 10
+                endif
+
+                pause 500
+
+                # if systems asks who do we want to transfer ownership to, that means the pet is tamed and we call kill it to tame the next one
+                if insysmsg 'Click on the person to transfer ownership to'
+                    while not dead tameable
+                        sysmsg 'Killing tamed pet to release slot'
+                        if hits < maxhits
+                            hotkey '> Greater Heal/Cure Self'
+                        endif
+                        say 'all kill'
+                        wft 1000
+                        @target tameable
+                        attack tameable
+                        wait 2000
+                    endwhile
+
+                    break
+                elseif insysmsg 'You have already received the maximum taming skill gain possible for this individual creature'
+                    sysmsg '>>> CANT GAIN FROM THIS CREATURE ANYMORE. KILLING IT...' 40
+                    say 'all kill'
+                    wft 1000
+                    target tameable
+
+                elseif insysmsg 'too far away'
+                    sysmsg 'LURING MORE CLOSER TO TAME...' 55
+                    overhead 'luring mob close...' 55
+                    say 'all kill'
+                    wft 1000
+                    target tameable
+                    pause 2000
+                    say 'all follow me'
+
+                # if when using dagger the message is cant used a bladed item in that, mob is close enough
+                # we can start trying to tame it
+                elseif insysmsg 'use a bladed item on that'
+
+                    # animal lore pet so player can see its stats
+                    # if not gumpexists animal_lore_gump_id
+                    if not gumpexists 3280914284
+                        sysmsg '>>> OPENING PET LORE GUMP...'
+                        skill 'AnimalLore'
+                        wft 1000
+                        @target tameable
+                        waitforgump animal_lore_gump_id 1000
+                        wait 400
+
+                        if not ingump 'Base' 3280914284
+                            sysmsg '>>> CHANGING GUMP TO SHOW Value vs Avg VALUES'
+                            gumpresponse 5
+                            waitforgump animal_lore_gump_id 1000
+                            wait 400
+                        endif
+                    endif
+
+                    if timer 'taming_timer' > 13000
+                        useskill 'taming'
+                        wft 750
+                        if targetexists 'neutral'
+                            @target 'last'
+                            settimer 'taming_timer' 0
+                        endif
+                    endif
+
+                endif
+            endif
+
+
+            # if findtype 'dagger' backpack as knife
+            #     useobject knife
+            #     wft 1000
+            #     target tameable
+            #     pause 500
+            # else
+            #     overhead 'YOU NEED A DAGGER' 40
+            #     overhead 'STOPPING SCRIPT...' 40
+            #     sysmsg 'YOU NEED A DAGGER TO RUN THIS SCRIPT' 40
+            #     sysmsg 'STOPPING SCRIPT...' 40
+            #     stop
+            # endif
+        endif
+
+        clearsysmsg
+
+    endfor
+endwhile
+
+sysmsg 'EXITING ANIMAL TAMING TRAINIG SCRIPT...' 54

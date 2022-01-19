@@ -1,0 +1,107 @@
+# Recall Home
+# v0.1
+# by gugutz
+#
+# ################################
+#
+# DESCRICAO
+#
+# Este script ajuda a recallar pra casa, usando algumas regras:
+#
+#  1. Sempre procura primeiro por um runetome, se nao encontrar procura um runebook
+#  2. Se voce tem regs na bag, ele casta a spell Recall e da target no book
+#  3. Se você não tem regs na bag, ele abre o runetome/runebook e recall usando carga aa primeira runa.
+#
+# **OBS: LEMBRE-SE DE DEIXAR A RUNA DA CASA COMO PRIMEIRA RUNA DO TOME/BOOK**
+#
+# ################################
+#
+# DESCRICAO
+#
+# This script will help you recall to your home, by following a few rules:
+#
+#   1- It will always look first for a runetome, and if it cant find one, searches for a runebook
+#   2- If you have recall regs on your backpack, it will cast recall and target the runetome/runebook
+#   3- If you dont have recall regs on your backpack, it will open the runetome/runebook and use a charge to recall to the first rune
+#
+# PS: MAKE SURE YOUR HOME RUNE IS THE FIRST RUNE OF YOUR RUNETOME/RUNEBOOK
+#
+#
+# ################################
+# CREATE ALL LISTS FOR CONFIG
+
+
+if not listexists 'config_lists_recall_home'
+    createlist 'config_lists_recall_home'
+else
+    clearlist 'config_lists_recall_home'
+endif
+
+pushlist 'config_lists_recall_home' 'use_charges'
+pushlist 'config_lists_recall_home' 'use_recall_scrolls'
+
+# routine-related lists
+pushlist 'config_lists_recall_home' 'use_charges'
+pushlist 'config_lists_recall_home' 'use_recall_scrolls'
+pushlist 'config_lists_recall_home' 'runetome_rune_btn_number'
+pushlist 'config_lists_recall_home' 'runebook_rune_btn_number'
+
+
+foreach list in 'config_lists_recall_home'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+##################################
+# CONFIGURATION
+pushlist 'runetome_rune_btn_number' 101
+pushlist 'runebook_rune_btn_number' 30
+
+
+##################################
+# CODE
+
+sysmsg '>> Recalling Home...' 56
+
+overhead '*going home*' 56
+
+foreach runetome_rune_btn in 'runetome_rune_btn_number'
+    foreach runebook_rune_btn in 'runebook_rune_btn_number'
+
+        if counttype "Black Pearl%s%" backpack == 0 or counttype "Blood Moss" backpack == 0 or counttype "Mandrake Root%s%" backpack == 0
+            if counttype "Recall" backpack
+                overhead 'no regs. trying scroll...'
+                pushlist 'use_scroll' 'yes'
+            else
+                overhead 'no regs. trying charges...'
+                pushlist 'use_charges' 'yes'
+            endif
+        endif
+
+        if findtype 'runetome' backpack as rtome
+            if not inlist 'use_charges' 'yes'
+                hotkey 'Recall'
+                waitfortarget
+                target rtome
+            elseif inlist 'use_charges' 'yes'
+                dclick rtome
+                waitforgump 167090027 600
+                gumpresponse 100
+            endif
+        elseif findtype 'runebook' backpack as rbook
+            if not inlist 'use_charges' 'yes'
+                hotkey 'Recall'
+                waitfortarget
+                target rbook
+            elseif inlist 'use_charges' 'yes'
+                dclick rbook
+                waitforgump 167090027 600
+                gumpresponse 20
+            endif
+        endif
+    endfor
+endfor

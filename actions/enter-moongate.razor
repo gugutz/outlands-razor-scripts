@@ -1,10 +1,60 @@
-# GRAPHICS
-# blue moongate     3948
-if not findtype 3948 ground any any 2
-    overhead '*No Moongates Nearby*' 45
-    stop
+# enter-moongate
+# by gugutz
+# v0.3
+
+
+# @setvar public_moongate_gump_id 3773199800
+# @setvar magery_moongate_gump_id 3773199800
+
+# @setvar chivalry_moongate_graphic 27754
+# @setvar chivalry_moongate_hue 2091
+
+# player enter gate confirmation gump 3899019871
+# check for regular moongates
+# this includes public moongates and magery moongates
+#
+# omni gates
+if gumpexists 687547349
+    overhead '*entering omni moongate*' 70
+    gumpresponse 10
+# public moongates
+elseif gumpexists 3773199800
+    overhead '*entering public moongate*' 70
+    gumpresponse 2
+elseif gumpexists  3899019871
+    overhead '*entering player moongate*' 70
+    gumpresponse 2
+
+# search for regular blue moongates (color 0) that is opened by players
+elseif findtype 'blue moongate' ground 0 any 2 as mg
+    useobject mg
+    overhead '*clicking player moongate*' 70
+
+    waitforgump 3899019871 1000
+    if gumpexists  3899019871
+        overhead '*entering player moongate*' 70
+        gumpresponse 2
+    endif
+
+# search for custom color blue moongates (any color), usually public moongates
+elseif findtype 'blue moongate' ground any any 2 as mg
+    useobject mg
+    waitforgump 3773199800 500
+    if gumpexists 3773199800
+        overhead '*entering public moongate*' 70
+        gumpresponse 2
+    endif
+
+# if we get here, check for chivarly moongate type on the ground
+# chivarly moongate type - 27754
+# chivarly moongate hue - 2091
+elseif findtype 27754 ground 2091 any 2 as mg
+    useobject mg
+    waitforgump 3773199800 600
+    if gumpexists 3773199800
+        overhead '*entering chiv gate*' 70
+        gumpresponse 2
+    endif
+else
+    overhead '*no moongates nearby' 56
 endif
-usetype 3948 ground any any 2
-waitforgump 3773199800 1000
-overhead 'ENTERING MOONGATE'
-gumpresponse 2

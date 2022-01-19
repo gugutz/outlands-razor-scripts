@@ -1,0 +1,29 @@
+if not timerexists 'poison-strike-timer'
+    createtimer 'poison-strike-timer'
+    settimer 'poison-strike-timer' 30000
+endif
+
+while not dead 'self'
+    while not insysmsg 'poison upgraded to lethal'
+        cast 'Poison'
+        wft 3500
+        lasttarget
+    endwhile
+
+    if insysmsg "poison upgraded to lethal"
+        if timer 'poison-strike-timer' >= 30000
+            while not targetexists 'neutral'
+                say '[poisonstrike'
+                waitfortarget 600
+            endwhile
+            if targetexists 'neutral'
+                hotkey 'Last Target'
+                if insysmsg 'Unholy symbols'
+                    settimer 'poison-strike-timer' 0
+                    sysmsg 'Poison Striked enemy!'
+                    overhead 'poison striked!' 'last'
+                endif
+            endif
+        endif
+    endif
+endwhile

@@ -1,13 +1,12 @@
-if not findtype 11761 true and not findtype 11762 true
-    overhead 'no recycler nearby'
-    stop
+if findtype 'ornate elven chest' ground any any 2 as 'recycler'
+    sysmsg "> Dumping itens in recycler"
+    useobject 'recycler'
+    waitforgump 4045111101
+    gumpresponse 3
+    waitfortarget
+    target 'self'
+    waitforgump 4045111101
+    gumpclose
+else
+    overhead 'no recyclers nearby'
 endif
-
-usetype 11761 true
-usetype 11762 true
-waitforgump 4045111101
-gumpresponse 3
-waitfortarget
-target 'self'
-waitforgump 4045111101
-gumpclose

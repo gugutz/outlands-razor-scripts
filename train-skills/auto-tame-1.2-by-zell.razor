@@ -25,12 +25,21 @@ if not listexists 'tankcount'
   setvar 'tank'
 endif
 // Bandage timer creation
+if hits < maxhits
+          say 'all guard'
+          cast 'Greater Heal'
+          waitfortarget
+          @target 'self'
+          pause 5000
+          say 'all follow'
+          hotkey 'Toggle Peace Only'
+          endif
 if not timerexists 'bandageTimer'
   createtimer 'bandageTimer'
   settimer 'bandageTimer' 0
 endif
 // Bandage my tank every 10 seconds, change as required
-if timer 'bandageTimer' > 10000
+if timer 'bandageTimer' > 7000
   @dclicktype 3617 backpack
   pause 500
   target 'tank'
@@ -80,6 +89,8 @@ elseif skill 'Taming' < 90 // At 85 taming
   pushlist 'pets' '61'
   // Drake grey body
   pushlist 'pets' '60'
+   // Dragon whelp
+  pushlist 'pets' '718'
 elseif skill 'Taming' < 95 // At 90 taming
   removelist 'pets'
   createlist 'pets'
@@ -92,8 +103,7 @@ elseif skill 'Taming' < 100 // At 95 taming
   pushlist 'pets' '12'
   // or Dragon red body
   pushlist 'pets' '59'
-  // Dragon whelp
-  //pushlist 'pets' '718'
+
 elseif skill 'Taming' < 105 // At 100 taming
   removelist 'pets'
   createlist 'pets'
@@ -194,6 +204,10 @@ else
         say 'all kill'
         pause 1000
         @target 'last'
+        skill 'AnimalLore'
+pause 750
+@target 'last'
+pause 3500
         break
     else
       if insysmsg 'bladed item'

@@ -1,0 +1,27 @@
+# @setvar find_field_max_range 12
+
+if not targetexists 'neutral'
+    cast 'dispel field'
+else
+    if findtype 'blue moongate' ground 0 any 12 as field
+        overhead '*dispelling gate*' 56
+        target field
+    elseif findtype 128 ground any any 12 as field
+        overhead '*dispelling wall*' 56
+        target field
+    elseif findtype 'field of energy' ground any any 12 as field
+        overhead '*dispelling energy field*' 56
+        target field
+    elseif findtype 'field of paralysis' ground any any 12 as field
+        overhead '*dispelling paralyze field*' 56
+        target field
+    elseif findtype 'Field of Poison' ground any any 12 as field
+        overhead '*dispelling poison field*' 56
+        target field
+    elseif findtype 'Field of Poison' ground any any 12 as field
+        overhead '*dispelling energy field*'
+        target field
+    else
+        overhead '*no fields nearby*'
+    endif
+endif

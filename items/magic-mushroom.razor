@@ -1,9 +1,42 @@
+
+# set this variable according to the level of Create Food in your grimoire
+
+if not timerexists 'use_mushroom_timer'
+    sysmsg 'Creating mushroom timer...'
+    createtimer 'use_mushroom_timer'
+    settimer 'use_mushroom_timer' 60001
+endif
+
+
 if mana = maxmana
-    overhead 'already full mana'
+    overhead '*already full mana*' 55
     stop
-elseif not findtype 'mushroom' 'backpack'
-    overhead 'no mushrooms!' 37
+endif
+
+if mana > 70
+    overhead 'over mana limit'
     stop
-else
-    usetype 'mushroom' backpack
+endif
+
+if mana < 70
+    if timer 'use_mushroom_timer' < 60000
+        overhead '! mushroom cooldown !' 55
+        stop
+    endif
+
+    if not findtype 'mushroom' 'backpack'
+        overhead 'no mushrooms!' 37
+        while counttype 'mushroom' < 5 and mana > 11
+            cast 'create food'
+        endwhile
+    else
+        usetype 'mushroom' backpack
+        wait 600
+        # waitforsysmsg 'you consume' 600
+        if insysmsg 'you consume'
+            sysmsg '>>> Used mushroom! Resetting timer...' 55
+            settimer 'use_mushroom_timer' 0
+            clearsysmsg
+        endif
+    endif
 endif

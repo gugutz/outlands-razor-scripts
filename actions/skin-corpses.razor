@@ -1,31 +1,76 @@
-if skill 'forensic' = 0
-    overhead '*no skill to skin*' 40
+
+
+if not findtype 'elven spellblade' backpack
+    overhead '!no skinning knife!' 45
     stop
-else
-    if not findtype 'corpse' ground any any 2
-    overhead '*no corpses to skin*' 45
-        stop
-    elseif findtype corpse ground any any 2 as body
-        if not findtype 'elven spellblade' backpack
-            overhead '*NO KNIFE*'
-            stop
-        else
-            skill 'forensic'
-            wft 250
-            if insysmsg 'must wait'
-                overhead '*skill cooldown*' 45
-                wait 100
-                #loop
-            endif
-            target 'self'
-            wait 200
-            if insysmsg 'dont see anything'
-                overhead '*nothing to carve*' 40
-            elseif insysmsg 'carved materials'
-                overhead '*carve materials!*'
-            endif
-            @ignore body
-            stop
-        endif
-    endif
 endif
+
+if not listexists 'skinned_corpses'
+    createlist 'skinned_corpses'
+endif
+
+if not listexists 'corpses'
+    createlist 'corpses'
+else
+    clearlist 'corpses'
+endif
+
+
+if not findtype 'corpse' ground any any 2
+    overhead '*no corpses nearby*' 45
+    stop
+endif
+
+while findtype 'corpse' ground any any 2 as body
+    sysmsg 'debug 1'
+    if not inlist 'skinned_corpses' body
+        sysmsg 'debug 3' 87
+        pushlist 'corpses' body
+    endif
+    ignore body
+    if list 'corpses' >= 2
+        break
+    endif
+endwhile
+clearignore
+
+if list 'corpses' == 0
+    if list 'skinned_corpses' > 0
+        overhead '*no new corpses to skin*' 44
+    else
+        overhead '*no corpses to skin*' 45
+    endif
+    stop
+endif
+
+foreach corp in 'corpses'
+    sysmsg 'debug 2'
+    usetype 'elven spellblade'
+    wft 500
+    if insysmsg 'must wait'
+        sysmsg '>>> SKILL COOLDOWN (FORENSIC)' 45
+        overhead 'forensic cooldown' 45
+        clearsysmsg
+        break
+    endif
+
+    if targetexists 'neutral'
+        sysmsg '>>> SKINNING CORPSES NEARBY' 56
+        overhead '*skinning corpses*' 56 'self'
+        hotkey 'Target Self'
+        wait 600
+        if insysmsg 'dont see anything'
+            overhead '*NOTHING TO CARVE*' 41
+            clearsysmsg
+            @pushlist 'skinned_corpses' corp
+        elseif insysmsg 'carve materials'
+            overhead '*carved materials!*'
+            clearsysmsg
+            # switched ignore to list control cause spirit speak will ignore corpses and then razor wont skin it anymore since it would be globally ignored
+            # @ignore body
+            @pushlist 'skinned_corpses' corp
+        endif
+        break
+    endif
+    break
+endfor

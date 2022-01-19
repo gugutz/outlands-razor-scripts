@@ -1,0 +1,120 @@
+# Treasure Map Tome Decypher
+# v0.0.1
+# by gugutz
+#
+###################################
+
+
+removelist tomes
+createlist tomes
+clearsysmsg
+
+if findtype 'storage shelf' ground 'any' 'any' 2 as myshelf
+    sysmsg 'Saving shelf...'
+    @setvar shelf  myshelf
+endif
+# Set tome serials
+# Add as little or as many
+# different types of map
+# tomes here as you want
+# use >info in game to find
+# the serial, and add it
+# below like the two examples
+
+@setvar cartography_map_gump 1520869851
+#gump oremap
+//3367641484
+#gump lumbermap
+//1332805401
+#gump skinningmap
+//3473029237
+#gump fishingmap
+//2589357942
+
+# Tmap
+pushlist tomes '0x4339E3CB'
+# Ore
+# pushlist tomes '0x486C10D8'
+# Lumber
+pushlist tomes '0x408189A3'
+# Skinning
+# pushlist tomes '0x40AF4677'
+# Fishing
+# pushlist tomes '0x486C12B7'
+
+removelist buttons
+createlist buttons
+
+#Set buttons
+pushlist buttons '10'
+pushlist buttons '11'
+pushlist buttons '12'
+pushlist buttons '13'
+pushlist buttons '14'
+pushlist buttons '15'
+pushlist buttons '16'
+pushlist buttons '17'
+pushlist buttons '18'
+
+foreach tome in tomes
+    if not find tome ground any any 2
+        sysmsg 'TOME NOT FOUND' 54
+        overhead 'TOME NOT FOUND' 54
+        break
+    endif
+
+    dclick tome
+    waitforgump any
+    foreach button in buttons
+        while not insysmsg 'No map of that type is currently being stored'
+            sysmsg 'Picking map to decypher' 55
+            gumpresponse button
+            wait 1500
+            while findtype map backpack
+                sysmsg 'Starting decoding map...' 55
+                if findtype map backpack as mapx
+                    while not insysmsg 'You have reached the maximum accuracy'
+                        sysmsg 'Decoding map' 55
+                        if findtype spyglass backpack as tool
+                            if not ingump 'Cartography'
+                                sysmsg 'Opening map gump first time'
+                                dclicktype spyglass backpack
+                                wft 600
+                                target mapx
+                                waitforgump 'any' 1000
+                            elseif ingump 'Cartography'
+                                gumpresponse 4
+                                wait 1500
+                            else
+                                overhead 'couldnt open cartography map gump'
+                            endif
+                        else
+                            if find shelf ground any any 2
+                                overhead 'Resupplying to get more spyglasses from shelf...' 55
+                                menu shelf 1
+                            else
+                                overhead 'NO MORE SPYGLASSES' 55
+                                # stop
+                            endif
+                        endif
+                    endwhile
+                    sysmsg 'Putting map back on tome' 55
+                    lift mapx
+                    pause 500
+                    drop tome 0 0 0
+                    pause 600
+                endif
+
+                dclick tome
+                waitforgump any
+                gumpresponse button
+                waitforgump any
+                wait 700
+            endwhile
+        endwhile
+
+        sysmsg 'SKIPPING TO NEXT MAP LEVEL IN TOME'
+
+    endfor
+    gumpclose
+endfor

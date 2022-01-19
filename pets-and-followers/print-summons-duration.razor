@@ -1,0 +1,30 @@
+#if not listexists 'summons'
+removelist 'summons'
+    createlist 'summons'
+    pushlist 'summons' 'an air elemental'
+    pushlist 'summons' 'an earth elemental'
+    pushlist 'summons' 'a water elemental'
+    pushlist 'summons' 'a fire elemental'
+    pushlist 'summons' 'a daemon'
+    pushlist 'summons' 'an energy vortex'
+    pushlist 'summons' 'a blade spirits'
+    # summ creature mobs
+    pushlist 'summons' 'a drake whelp'
+    pushlist 'summons' 'a drake whelp'
+#endif    
+
+foreach summon in 'summons'
+    if findtype summon ground any 1 20 as summonserial 
+        if noto summonserial = friend
+            sysmsg 'FOUND:'
+            sysmsg summon
+            getlabel summonserial summonlabel
+            sysmsg summonlabel
+            if 'm' in summonlabel
+                overhead 'found player summon!'
+                overhead summon
+                overhead summonlabel
+            endif
+        endif
+    endif
+endfor

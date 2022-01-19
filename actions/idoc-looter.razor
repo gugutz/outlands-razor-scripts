@@ -1,0 +1,26 @@
+
+
+
+# tomes
+pushlist 'items' 29104
+
+pushlist 'items' 'storage shelf'
+# resource stockpile
+pushlist 'items' 23034
+# magic item recycler
+pushlist 'items' 11761
+pushlist 'items' 'bank deposit safe'
+
+
+
+while not dead 'self'
+    foreach item in 'items'
+        if findtype item_graphic
+            hotkey 'Grab'
+            wft 600
+            if targetexists 'neutral'
+                target item
+            endif
+        endif
+    endfor
+endwhile

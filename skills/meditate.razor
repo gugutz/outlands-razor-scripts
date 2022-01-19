@@ -9,17 +9,27 @@ if mana == maxmana
 endif
 
 if findbuff 'actively meditating'
-    overhead '*already meditating*'
+    overhead '*already meditating*' 55
+    while findbuff 'actively meditating'
+        if timer 'medit_msg' > 2000
+            settimer 'medit_msg' 0
+            overhead 'meditating...' 55
+        endif
+    endwhile
     stop
 endif
 
-while not findbuff 'actively meditating'
+while mana < maxmana and not findbuff 'actively meditating'
     skill 'meditation'
-    wait 600
-    if findbuff 'actively meditating'
-        if timer 'medit_msg' > 2000
-            overhead 'meditating...'
-        endif
+    waitforsysmsg 'You enter a meditative trance' 600
+    if findbuff 'actively meditating' or insysmsg 'You enter a meditative trance'
+        overhead '*begin meditating*' 90
+        settimer 'medit_msg' 0
+        while findbuff 'actively meditating'
+            if timer 'medit_msg' > 2000
+                settimer 'medit_msg' 0
+                overhead 'meditating...' 55
+            endif
+        endwhile
     endif
 endwhile
-    

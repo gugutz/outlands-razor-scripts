@@ -1,12 +1,73 @@
+# SUPER HOME RESTOCK & RESSUPLY
+# by gugutz
+#
+# ##########################
+# SEARCH FOR EVERY PACKANIMAL NEARBY WHOS NOTO IS SAME AS CHAR, TO RESTOCK FROM THEM
+createlist 'packies'
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = noto 'self'
+        pushlist 'packies' packie
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = noto 'self'
+        pushlist 'packies' packie
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+# ##########################
+# STORAGE SHELF
+# first search for a shelf, save it and use it to restock
 if findtype 'storage shelf' ground any any 2 as storageshelf
-    setvar 'shelf' storageshelf
+    @setvar storage_shelf storageshelf
     #overhead 'using shelf' 68 'shelf'
-    menu 'shelf' 0
+    sysmsg 'Restocking Storage Shelf...' sysmsgs_color
+    menu storage_shelf 0
     wft 600
-    target 'self'
+    if targetexists 'neutral'
+        target 'self'
+    endif
     waitforgump 3232825965 600
-    menu 'shelf' 1
+    gumpclose
+
+    # restock shelf from packies
+    if list 'packies' > 0 and varexist storage_shelf
+        foreach packanimal in 'packies'
+            sysmsg '> Restocking Shelf From Pack Animal...' sysmsgs_color
+            menu storage_shelf 0
+            wft 600
+            if targetexists 'neutral'
+                overhead "unloading on shelf" 56 packanimal
+                target packanimal
+            endif
+        endfor
+    endif
+
+    sysmsg '> Ressuplying From Storage Shelf...'
+    menu storage_shelf 1
+
+    waitforgump 3232825965 600
+
+    gumpclose
+
+    @removelist 'packies'
+    @clearignore
+    @clearsysmsg
+    gumpclose
 else
-    overhead 'no shelfs'
+    if varexist storage_shelf
+        @unsetvar storage_shelf
+    endif
+    overhead 'no shelfs nearby'
     
 endif
+
+#
+# ##########################
+# FINALLY, RESSUPLY FROM SHELF
+# waitforgump 3232825965 600
