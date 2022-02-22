@@ -1,28 +1,81 @@
-// bandage type 0xe21
 
-if not timerexists "bandagetimer"
-    createtimer "bandagetimer"
-    settimer "bandagetimer" 11000
-endif
-
-if hp < maxhp
-    if findtype "clean bandage%s%" backpack
-        if timer "bandagetimer" >= 11000
-            dclicktype "clean bandage%s%" backpack
-            waitfortarget 300
-            hotkey "Target Self"
-            waitforsysmsg 'begin applying' 200
-            wait 10
-            if insysmsg "begin applying"
-                overhead '*applying bandages*'
-                settimer "bandagetimer" 0
-            endif
-        else
-            overhead "already applying..." 88
-        endif
-    else
-        overhead "*no bandages*" 40
-    endif
+############################
+# CREATE SCRIPT LISTS
+if not listexists 'bandage_self_config_lists'
+    createlist 'bandage_self_config_lists'
 else
-    overhead "*full hp*"
+    clearlist 'bandage_self_config_lists'
 endif
+
+
+# routine-related lists
+pushlist 'bandage_self_config_lists' 'action_delay'
+pushlist 'bandage_self_config_lists' 'bandage_delay'
+
+foreach list in 'bandage_self_config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+############################
+# CREATE ALL TIMERS
+
+createlist 'bandage_self_script_timers'
+pushlist 'bandage_self_script_timers' 'bandage_timer'
+
+
+foreach timer in 'bandage_self_script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 99999
+    endif
+endfor
+
+# set bandage_delay based on char dex
+if skill 'healing' >= 50
+    if dex >= 100
+        pushlist 'bandage_delay' 10000
+    elseif dex <= 80
+        pushlist 'bandage_delay' 15000
+    endif
+endif
+
+pushlist 'action_delay' 550
+
+
+
+# if no bandages, warn and stop
+if counttype 'clean bandage%s%' == 0
+    overhead 'no bandages!' 33
+    stop
+endif
+
+foreach delay in 'bandage_delay'
+    # cure poison
+    if healing >= 50
+        if timer 'bandage_timer' >= bandage_delay
+            settimer 'bandage_timer' 0
+            hotkey 'Bandage Self'
+        endif
+        
+
+        # heal with healing
+        if diffhits > 0
+            if diffhits > max_diffhits_before_healing_with_bandages and timer 'bandage_timer' >= bandage_delay
+                settimer 'bandage_timer' 0
+                hotkey 'Bandage Self'
+                wait action_delay
+                wait 10
+                if insysmsg "begin applying"
+                    overhead '*applying bandages*' 65
+                    settimer "bandagetimer" 0
+                endif
+            endif
+        endif
+    endif
+
+    stop
+endfor

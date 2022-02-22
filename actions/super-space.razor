@@ -46,6 +46,10 @@ foreach door in 'doors'
 endfor
 
 
+######################################
+# BUFFS
+######################################
+
 # keep campfire buff
 if skill 'camping' > 20 and not findbuff 'campfire visit'
     if not findtype 'campfire' ground any any 2 and findtype 'kindling' backpack
@@ -58,14 +62,14 @@ endif
 # maintain food satisfaction buff
 if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
     script 'items\eat-delectable'
-    stop
+    # stop
 endif
 
 
 # keep taste id buff
 if skill 'taste identification' > 20 and not findbuff 'herbal poultice'
     script 'skills\taste-identification'
-    stop
+    # stop
 endif
 
 # maintain str at 120 pots

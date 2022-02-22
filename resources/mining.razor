@@ -1,56 +1,65 @@
 sysmsg '#########################' 90
 sysmsg '>>> MINING BOT' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.5' 31
+sysmsg 'version 0.0.6' 31
 sysmsg '########################' 90
 
 #################################
 # CHANGELOG
+#################################
 #
-# v0.5
+# v0.0.6
+# - Adds survival routine to defend char against closed-ranged combat creatures
+# - Adds sysmsg check to see if char got far from forge while inside the smelting loop
+#
+# v0.0.5
 # - Stops double clicking packie to open packpack when unloading ores while heavy
 # - Adds wait timer after recalling and before unloading when getting home
 #
-# v0.4
+# v0.0.4
 # - Adds setting to choose if script will auto smelt ores when close to forge
 #
-# v0.3
+# v0.0.3
 # - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
 #
-# v0.2
+# v0.0.2
 # - Adds checks for several map-forges around the world
 # - Adds option to not smelt colored ores (makes it hard for PKS to take them)
 #
-# v0.1
+# v0.0.1
 # - Initial release
+
 
 #################################
 # CREATE ALL LISTS FOR CONFIG
-#
+#################################
+
 sysmsg 'Creating script lists'
 
-if not listexists 'config_lists'
-    createlist 'config_lists'
+if not listexists 'mining_config_lists'
+    createlist 'mining_config_lists'
 else
-    clearlist 'config_lists'
+    clearlist 'mining_config_lists'
 endif
 
-pushlist 'config_lists' 'recall_to_escape_pks'
-pushlist 'config_lists' 'auto_smelt_ores_when_close_to_forges'
-pushlist 'config_lists' 'dont_smelt_colored_ores'
-pushlist 'config_lists' 'auto_walk_randomly'
-pushlist 'config_lists' 'auto_walk_to_direction'
-pushlist 'config_lists' 'direction_to_walk'
+pushlist 'mining_config_lists' 'recall_to_escape_pks'
+pushlist 'mining_config_lists' 'auto_smelt_ores_when_close_to_forges'
+pushlist 'mining_config_lists' 'dont_smelt_colored_ores'
+pushlist 'mining_config_lists' 'auto_walk_randomly'
+pushlist 'mining_config_lists' 'auto_walk_to_direction'
+pushlist 'mining_config_lists' 'direction_to_walk'
 
 # routine-related lists
-pushlist 'config_lists' 'packies'
-pushlist 'config_lists' 'pack_heavy'
-pushlist 'config_lists' 'full_packies'
-pushlist 'config_lists' 'reset_last_sysmsg_timer'
-pushlist 'config_lists' 'smelt_ores_now'
-pushlist 'config_lists' 'smelt_this_ore'
+pushlist 'mining_config_lists' 'packies'
+pushlist 'mining_config_lists' 'pack_heavy'
+pushlist 'mining_config_lists' 'full_packies'
+pushlist 'mining_config_lists' 'reset_last_sysmsg_timer'
+pushlist 'mining_config_lists' 'smelt_ores_now'
+pushlist 'mining_config_lists' 'smelt_this_ore'
+pushlist 'mining_config_lists' 'use_charges'
+pushlist 'mining_config_lists' 'use_recall_scroll'
 
-foreach list in 'config_lists'
+foreach list in 'mining_config_lists'
     if not listexists list
         createlist list
     else
@@ -59,17 +68,23 @@ foreach list in 'config_lists'
 endfor
 
 
-#################################
+###################################
 # SCRIPT CONFIGURATION
-#
+###################################
+
 sysmsg 'Applying configuration...'
 
-@setvar action_delay 600
+@setvar action_delay_var 600
 # wait this much in milliseconds for sysmsgs to appear
 # if we dont get any sysmsg for this much time, we probably got a gump
 @setvar max_wait_for_last_sysmsg_to_use_pickaxe  1000
 @setvar max_wait_for_last_sysmsg_to_suspect_gump 7000
 @setvar max_ores_in_packie 225
+
+@setvar max_diffhits_before_healing_with_potion 20
+@setvar max_diffhits_before_healing_with_bandages 10
+@setvar max_diffhits_before_healing_with_magery 20
+
 @setvar max_diffweight_before_unloading 50
 pushlist 'auto_walk_randomly' 'no'
 pushlist 'auto_walk_to_direction' 'no'
@@ -79,16 +94,28 @@ pushlist 'direction_to_walk' 'right'
 pushlist 'recall_to_escape_pks' 'yes'
 
 
+# PRINT CONFIGURATION
+# foreach setting_list in 'mining_config_lists'
+#     sysmsg "interpol {{setting_list}}"
+#     if atlist setting_list 0 as value
+#         sysmsg "{{setting_list}}: {{setting_value}}"
+#     endif
+# endfor
+
+
 ###################################
 # TIMERS
-#
+###################################
+
 sysmsg 'Creating timers...'
 
-createlist 'script_timers'
-pushlist 'script_timers' 'waiting_save'
-pushlist 'script_timers' 'last_sysmsg_timer'
+createlist 'mining_script_timers'
+pushlist 'mining_script_timers' 'waiting_save'
+pushlist 'mining_script_timers' 'last_sysmsg_timer'
+pushlist 'mining_script_timers' 'waiting_target_timer'
+pushlist 'mining_script_timers' 'bandage_timer'
 
-foreach timer in 'script_timers'
+foreach timer in 'mining_script_timers'
     if not timerexists timer
         createtimer timer
         settimer timer 0
@@ -98,7 +125,8 @@ endfor
 
 ###################################
 # PACK ANIMALS
-#
+###################################
+
 sysmsg 'Searching for pack animals...' 87
 
 while findtype 292 ground any any 2 as packie
@@ -106,7 +134,7 @@ while findtype 292 ground any any 2 as packie
         pushlist 'packies' packie
         overhead '*opening bag*' 56 packie
         # dclick packie
-        # wait action_delay
+        # wait action_delay_var
     endif
     @ignore packie
 endwhile
@@ -116,15 +144,28 @@ while findtype 291 ground any any 2 as packie
         pushlist 'packies' packie
         overhead '*opening bag*' 56 packie
         # dclick packie
-        # wait action_delay
+        # wait action_delay_var
     endif
     @ignore packie
 endwhile
 clearignore
 
+
 ###################################
 # PREPARING TO START
-#
+###################################
+
+# set bandage_delay based on char dex
+if skill 'healing' >= 50
+    if dex >= 100
+        sysmsg 'Setting bandage_delay to 10s' 53
+        setvar bandage_delay 10000
+    elseif dex <= 80
+        sysmsg 'Setting bandage_delay to 14s' 53
+        setvar bandage_delay 14000
+    endif
+endif
+
 if list 'packies' >= 1
     say 'all follow me'
 endif
@@ -135,7 +176,7 @@ endif
 if not rhandempty and not findtype 'pickaxe' righthand
     overhead 'undressing hands for pickaxe'
     hotkey "Undress Both Hands"
-    wait action_delay
+    wait action_delay_var
 endif
 
 if rhandempty
@@ -172,10 +213,10 @@ endif
 # endif
 
 
-wait action_delay
 
 ###################################
 sysmsg 'Starting...' 19
+wait action_delay_var
 
 clearsysmsg
 settimer 'last_sysmsg_timer' 0
@@ -212,12 +253,13 @@ while not dead 'self'
         # smelt if close to a forge
 
         if inlist 'auto_smelt_ores_when_close_to_forges' 'yes'
-            if findtype 'forge' ground any any 2
+            if findtype 'forge' ground any any 2 as forg
                 pushlist 'smelt_ores_now' 'yes'
                 overhead 'debug 1113'
-            elseif findtype 0x1996 ground any any 2
+            elseif findtype 0x1996 ground any any 2 as forg
                 pushlist 'smelt_ores_now' 'yes'
                 overhead 'debug 1223'
+
             #
             # shelter island forge
             elseif position 1979 2554
@@ -250,6 +292,7 @@ while not dead 'self'
                 pushlist 'smelt_ores_now' 'yes'
             elseif position 1340 1189 or position 1340 1188 or position 1339 1188
                 pushlist 'smelt_ores_now' 'yes'
+
             endif
 
             if inlist 'smelt_ores_now' 'yes'
@@ -257,7 +300,13 @@ while not dead 'self'
                 overhead 'close to forge!'
 
                 # smelt ores in backpack
-                while findtype ore backpack as ores
+                while findtype 6585 backpack as ores
+                    if insysmsg 'You do not see any nearby forges to smelt this ore on'
+                        overhead 'got far from forge!' 41
+                        sysmsg 'Got Far From Forge! Breaking smelting loop...' 41
+                        break
+                    endif
+
                     if inlist 'dont_smelt_colored_ores' 'yes'
                         if hue ores == 0
                             pushlist 'smelt_this_ore' 'yes'
@@ -270,7 +319,7 @@ while not dead 'self'
                         clearlist 'smelt_this_ore'
                         overhead 'smelting!'
                         dclick ores
-                        wait action_delay
+                        wait action_delay_var
                         pushlist 'reset_last_sysmsg_timer' 'yes'
                     endif
                 endwhile
@@ -278,11 +327,17 @@ while not dead 'self'
                 # smelt ores in pack animals
                 foreach packanimal in 'packies'
                     dclick packanimal
-                    wait action_delay
+                    wait action_delay_var
 
                     if findtype 6585 packanimal as ores and diffweight > 10
                         overhead 'smelting ores in animal' 56 packanimal
                         while findtype 6585 packanimal as ores and diffweight > 10
+                            if insysmsg 'You do not see any nearby forges to smelt this ore on'
+                                overhead 'got far from forge!' 41
+                                sysmsg 'Got Far From Forge! Breaking smelting loop...' 41
+                                break
+                            endif
+
                             if inlist 'dont_smelt_colored_ores' 'yes'
                                 if hue ores == 0
                                     pushlist 'smelt_this_ore' 'yes'
@@ -296,7 +351,7 @@ while not dead 'self'
                                 sysmsg 'smelting ore in packie' 56
                                 overhead 'smelting ores' 56 packanimal
                                 dclick ores
-                                wait action_delay
+                                wait action_delay_var
                                 pushlist 'reset_last_sysmsg_timer' 'yes'
                             endif
                         endwhile
@@ -310,7 +365,7 @@ while not dead 'self'
         #
         while findtype 6585 ground any any 1 as ore and diffweight > 50
             hotkey 'Grab Item'
-            wft action_delay
+            wft action_delay_var
             if targetexists 'neutral'
                 sysmsg 'Getting ore from ground' 51
                 overhead '* ore from ground *' 51
@@ -362,11 +417,11 @@ while not dead 'self'
                         # call packies if they are not within 2 tiles
                         while not find packanimal ground any any 2
                             say 'all follow me'
-                            wait action_delay
+                            wait action_delay_var
                         endwhile
 
                         # dclick packanimal
-                        # wait action_delay
+                        # wait action_delay_var
                         # if this pet is already full, we move to the next one
 
                         while findtype 6585 backpack as ores and counttype 6585 packanimal < max_ores_in_packie
@@ -374,9 +429,9 @@ while not dead 'self'
                             overhead '*unloading ores*' 56
                             overhead '*unloading ores*' 56 packanimal
                             lift ores 999
-                            wait action_delay
+                            wait action_delay_var
                             drop packanimal -1 -1 0
-                            wait action_delay
+                            wait action_delay_var
                             if findtype 6585 ground any any 1
                                 # put this animal to the end of the list so we use the next one next time
                                 overhead 'heavy?? moving to end of list' 53 packanimal
@@ -392,13 +447,13 @@ while not dead 'self'
                             overhead '*unloading ingots*' 56
                             overhead '*unloading ingots*' 56 packanimal
                             lift ingots 999
-                            wait action_delay
+                            wait action_delay_var
                             drop packanimal -1 -1 0
-                            wait action_delay
+                            wait action_delay_var
                             if findtype 7154 ground any any 1
                                 # put this animal to the end of the list so we use the next one next time
                                 overhead 'heavy?? moving to end of list' 53 packanimal
-                                sysmsg 'Found ore on ground. Pet is probably heavy... Moving To End Of List' 53
+                                sysmsg 'Found ingots on ground. Pet is probably heavy... Moving To End Of List' 53
                                 pushlist 'full_packies' packanimal
                             endif
 
@@ -467,10 +522,10 @@ while not dead 'self'
             endif
 
 
-            wait 1500
+            wait 2500
 
 
-            # after escaping, smelt ores from char and packies
+            # after escaping, smelt ores from char
             while findtype 6585 backpack as ores_from_backpack
                 if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
                     overhead '*smelting ores*' 49 packanimal
@@ -484,10 +539,12 @@ while not dead 'self'
             endwhile
 
 
-            # smelt ores or make boards from resources inside packies to deposit them in resource stockpile
+            # after escaping, smelt ores from all packies
             if list 'packies' > 0
                 foreach packanimal in 'packies'
 
+                    dclick packanimal
+                    wait action_delay_var
                     # smelt ores
                     while findtype 6585 packanimal any any 2 as ores_from_packie
                         if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
@@ -543,16 +600,20 @@ while not dead 'self'
 
 
     # handle world saves
-    elseif insysmsg "World is sav"
+    elseif insysmsg "The world is saving"
         overhead '*WORLD SAVING*' 90
-        pushlist 'reset_last_sysmsg_timer' 'yes'
-        while not insysmsg 'saved'
-            wait 10
+        while not insysmsg 'World save complete'
+            wait 100
             if timer 'waiting_save' >= 5000
                 sysmsg 'BREAKING WAITING FOR SAVE' 49
                 break
             endif
         endwhile
+
+        if insysmsg 'World save complete'
+            overhead '*save complete!*' 90
+            pushlist 'reset_last_sysmsg_timer' 'yes'
+        endif
 
 
 
@@ -679,6 +740,139 @@ while not dead 'self'
 
     endif
 
+
+    # HANDLE POISON
+    if poisoned
+        if findtype 'orange potion' backpack
+            sysmsg 'Curing poison with potion...' 90
+            hotkey 'Drink Cure'
+        elseif magery >= 50 and counttype 'Garlic' > 0 and counttype 'Ginseng' > 0
+            sysmsg 'Curing poison with magery...' 90
+            cast 'Cure'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 1500
+                wait 100
+                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                target 'self'
+            endif
+        elseif healing >= 50 and counttype 'clean bandage%s%' > 0 and timer 'bandage_timer' >= bandage_delay
+            settimer 'bandage_timer' 0
+            hotkey 'Bandage Self'
+        endif
+    endif
+
+    # MAINTAIN CHAR HP
+    if diffhits > 0
+        # heal with pots
+        if diffhits > max_diffhits_before_healing_with_potion
+            if findtype 'yellow potion' backpack
+                hotkey 'Drink Heal'
+                wait action_delay_var
+            endif
+        endif
+
+        # heal with healing
+        if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= 50 and timer 'bandage_timer' >= bandage_delay
+            settimer 'bandage_timer' 0
+            hotkey 'Bandage Self'
+        # heal with magery
+        elseif diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+            cast 'greater heal'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                wait 100
+                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+            endif
+        endif
+    endif
+
+    # DEFEND AGAINST MONSTERS ROUTINE
+    if diffhits > 0
+        hotkey 'Next Non-Friendly Monster Target'
+        wait action_delay_var
+        settimer 'bandage_timer' bandage_delay
+
+        while find 'last' ground any any 2 and not dead 'last'
+
+            # equip weapon if needed
+            if skill 'swordsmanship' >= 50 and lhandempty
+                if not findtype 'hatchet' backpack
+                    overhead ":: You are out of hatchets::"
+                elseif findtype 'hatchet' backpack as weap
+                    dclick weap
+                    overhead "::equipped swords weapon::"
+                    wait action_delay_var
+                endif
+            elseif skill 'mace fighting' >= 50 and rhandempty
+                if not findtype 'club' backpack and not findtype 'war mace' backpack
+                    overhead ":: You are out of macing weapons::"
+                elseif findtype 'war mace' backpack as weap or findtype 'club' backpack as weap
+                    dclick weap
+                    overhead "::equipped macing weapon::"
+                    wait action_delay_var
+                endif
+            endif
+
+            if not rhandempty or not lhandempty
+                sysmsg 'Attacking last target'
+                hotkey 'Attack Last Target'
+            endif
+
+            # MAINTAIN CHAR HP
+            if diffhits > 0
+                # heal with pots
+                if diffhits > max_diffhits_before_healing_with_potion
+                    if findtype 'yellow potion' backpack
+                        hotkey 'Drink Heal'
+                        wait action_delay_var
+                    endif
+                endif
+
+                # heal with healing
+                if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= 50 and timer 'bandage_timer' >= bandage_delay
+                    settimer 'bandage_timer' 0
+                    hotkey 'Bandage Self'
+                # heal with magery
+                elseif diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+                    cast 'greater heal'
+
+                    @settimer 'waiting_target_timer' 0
+                    while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                        wait 100
+                        if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                            sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                            break
+                        endif
+                    endwhile
+
+                    if targetexists 'beneficial'
+                        hotkey 'Target Self'
+                    endif
+                endif
+            endif
+
+            if diffhits == 0 or insysmsg 'You finish applying the bandages' and timer 'bandage_timer' >= bandage_delay
+                sysmsg 'RESETING BANDAGE TIMER'
+                settimer 'bandage_timer' bandage_delay
+            endif
+
+        endwhile
+    endif
 
     # check if we got any sysmsg that should reset the timer in each iteration
     if inlist 'reset_last_sysmsg_timer' 'yes'

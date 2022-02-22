@@ -1,62 +1,62 @@
 # ###############################
-# USE HEAL, CURE AND STAM POT
-# v0.1a
+# USE HEAL AND CURE POT
+# v0.0.1
 # by gugutz
 
 # create all lists used in script setup
 
-if not listexists 'script_lists'
-    createlist 'script_lists'
-else
-    clearlist 'script_lists'
-endif
+if not listexists 'heal_cure_script_lists'
+    createlist 'heal_cure_script_lists'
+    pushlist 'heal_cure_script_lists' 'unequip_hands_to_drink_potion'
+    pushlist 'heal_cure_script_lists' 'drink_heal_potion'
+    pushlist 'heal_cure_script_lists' 'drink_refresh_potion'
+    pushlist 'heal_cure_script_lists' 'drink_cure_potion'
+    pushlist 'heal_cure_script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
+    foreach list in 'heal_cure_script_lists'
+        if not listexists list
+            createlist list
+        else
+            clearlist list
+        endif
+    endfor
 
-pushlist 'script_lists' 'unequip_hands_to_drink_potion'
-pushlist 'script_lists' 'drink_heal_potion'
-pushlist 'script_lists' 'drink_refresh_potion'
-pushlist 'script_lists' 'drink_cure_potion'
-pushlist 'script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
-foreach list in 'script_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
+    # this list  is created separatedely cause we also seed it with values
+    if not listexists 'one_handed_weapons'
+        createlist 'one_handed_weapons'
+        pushlist 'one_handed_weapons' 'katana'
+        pushlist 'one_handed_weapons' 'viking sword'
+        pushlist 'one_handed_weapons' 'broadsword'
+        pushlist 'one_handed_weapons' 'longsword'
     endif
-endfor
 
-# this list  is created separatedely cause we also seed it with values
-if not listexists 'one_handed_weapons'
-    createlist 'one_handed_weapons'
-    pushlist 'one_handed_weapons' 'katana'
-    pushlist 'one_handed_weapons' 'viking sword'
-    pushlist 'one_handed_weapons' 'broadsword'
-    pushlist 'one_handed_weapons' 'longsword'
+    # CONFIG
+    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+    pushlist 'unequip_hands_to_drink_potion' 'yes'
 endif
+
 
 
 ################################
-# CONFIG
-pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-pushlist 'unequip_hands_to_drink_potion' 'yes'
 
 
 
+clearlist 'drink_cure_potion'
+clearlist 'drink_heal_potion'
+
+# DECISION FLOW
 if poisoned
     pushlist 'drink_cure_potion' 'yes'
-# restore stamina (pot or food)
-elseif stam == 0 and diffhits < 10
-    pushlist 'drink_refresh_potion' 'yes'
-    sysmsg 'PREFERRING STAM 0...'
-elseif diffstam > 0 and diffhits < 10
-    sysmsg 'PREFERRING STAM 1...'
-    pushlist 'drink_refresh_potion' 'yes'
-elseif diffstam > 0 and diffhits < 30
-    pushlist 'drink_heal_potion' 'yes'
-    sysmsg 'PREFERRING HEAL 0...'
-elseif diffhits > 0
+endif
+
+
+# restore hits
+if diffhits > 0
     pushlist 'drink_heal_potion' 'yes'
     sysmsg 'HEAL 1: ONLY DIFFHITS'
 endif
+
+
+
 
 
 
@@ -69,14 +69,13 @@ if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes' or inlis
                 if findtype weapon backpack as weap
                     overhead "*switching to 1-handed*"
                     dclick weap
-                    wait 400
+                    wait action_delay
                     break
                 endif
             endfor
         elseif inlist 'unequip_hands_to_drink_potion' 'yes'
             hotkey "Undress Left Hand"
-            wait 400
-            wait
+            wait action_delay
         endif
     endif
 endif
@@ -91,6 +90,16 @@ if inlist 'drink_cure_potion' 'yes'
     endif
 endif
 
+if inlist 'drink_refresh_potion' 'yes'
+    if findtype 'red potion' backpack as pot
+        overhead 'refresh pots'
+        useobject pot
+        stop
+    else
+        overhead '!no refresh pots!' 41
+        stop
+    endif
+endif
 
 if inlist 'drink_heal_potion' 'yes'
     if findtype 'yellow potion' as pot
@@ -105,21 +114,9 @@ if inlist 'drink_heal_potion' 'yes'
         overhead '!no heal POTS!'
         stop
     endif
+    stop
 endif
 
 
-
-
-if inlist 'drink_refresh_potion' 'yes'
-    if findtype 'red potion' backpack as pot
-        overhead 'refresh pots'
-        useobject pot
-        stop
-    else
-        overhead '!no refresh pots!' 41
-        stop
-    endif
-endif
 
 overhead '*everything ok!*' 65
-

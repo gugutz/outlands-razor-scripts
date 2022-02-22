@@ -1,0 +1,9 @@
+# check if char has ship repair kit in backpack
+if not findtype 25758 backpack
+    overhead 'no ship repair tool' 41
+    sysmsg '>>> No Ship Repair Tool!' 41
+    stop
+endif
+
+overhead 'reparing ship sails...' 54
+say '[repairsails'

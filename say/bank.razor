@@ -1,5 +1,10 @@
-if noto 'self' == hostile or noto 'self' == murderer
-    say 'bank i ban thee'
+if findtype 'hatch' ground any any 10 as boat_box
+    overhead 'openning boat hatch' 65
+    dclick boat_box
 else
-    say 'bank i ban thee guards'
+    if noto 'self' == hostile or noto 'self' == murderer
+        say 'bank i ban thee dock'
+    else
+        say 'bank i ban thee guards dock'
+    endif
 endif

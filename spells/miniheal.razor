@@ -4,6 +4,9 @@ if targetexists 'beneficial'
     else
         overhead '** hp 100% **' 340 'self'
     endif
+
+    hotkey 'Toggle War Only'
+    hotkey 'Toggle Peace Only'
     stop
 endif
 
@@ -12,3 +15,6 @@ if poisoned
 else
     cast 'heal'
 endif
+
+hotkey 'Toggle War Only'
+hotkey 'Toggle Peace Only'

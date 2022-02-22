@@ -64,6 +64,9 @@ createlist 'face_items'
 createlist 'facialhair_items'
 createlist 'backpack_items'
 
+createlist 'quiver_items'
+createlist 'outerbody_items'
+
 ###########################
 # CATALOG OF DRESSEABLE ITEMS AND THEIR LAYERS
 
@@ -192,6 +195,17 @@ pushlist 'talisman_items' 'fur shoulder wrap'
 
 # ONE HANDED SECONDARY ITEMS LAYER (Pipes)
 pushlist 'onehandedsecondary_items' 'large pipe'
+
+
+# QUIVER LAYER (specifically for quivers)
+pushlist 'quiver_items' 'quiver'
+
+# OUTER BODY LAYER ( for Suspenders, Leather Satchel, Leather Harness, and Brown Leather Harness )
+pushlist 'outerbody_items' 'suspenders'
+pushlist 'outerbody_items' 'leather satchel'
+pushlist 'outerbody_items' 'leather harness'
+
+
 ###########################
 # CODE
 
@@ -582,6 +596,41 @@ foreach action_delay in 'action_delay_list'
     else
         sysmsg 'Backpack Already Equipped' layer_already_equipped_msg_color
     endif
+
+    # # quiver layer
+    # if not findlayer self quiver
+    #     sysmsg 'Searching for Quiver Items' searching_for_items_msg_color
+    #     foreach type in 'quiver_items'
+    #         if findtype type backpack as item
+    #             sysmsg 'Equipping Talisman!' equipping_items_msg_color
+    #             while not findlayer self talisman
+    #                 dclick item
+    #                 wait action_delay
+    #             endwhile
+    #             break
+    #         endif
+    #     endfor
+    # else
+    #     sysmsg 'Quive Already Equipped' layer_already_equipped_msg_color
+    # endif
+
+    # new outerbody for Suspenders, Leather Satchel, Leather Harness, and Brown Leather Harness
+    if not findlayer self outerbody_items
+        sysmsg 'Searching for Outer Body Items' searching_for_items_msg_color
+        foreach type in 'quiver_items'
+            if findtype type backpack as item
+                sysmsg 'Equipping Talisman!' equipping_items_msg_color
+                while not findlayer self talisman
+                    dclick item
+                    wait action_delay
+                endwhile
+                break
+            endif
+        endfor
+    else
+        sysmsg 'Outer Body Already Equipped' layer_already_equipped_msg_color
+    endif
+
 
     sysmsg '###############################' 90
 

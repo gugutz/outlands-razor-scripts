@@ -1,4 +1,82 @@
+sysmsg '#########################' 90
+sysmsg '>>> ARENA HEAL BOT' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.0.1' 31
+sysmsg '########################' 90
+
+#################################
+# BOOTSTRAPING
+#################################
+
+# CREATE ALL LISTS FOR CONFIG
+
+if not listexists 'arean_heal_bot_config_lists'
+    createlist 'arean_heal_bot_config_lists'
+else
+    clearlist 'arean_heal_bot_config_lists'
+endif
+
+pushlist 'arean_heal_bot_config_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
+
+# routine-related lists
+pushlist 'arean_heal_bot_config_lists' 'reset_last_sysmsg_timer'
+pushlist 'arean_heal_bot_config_lists' 'drink_refresh_potion'
+pushlist 'arean_heal_bot_config_lists' 'drink_heal_potion'
+pushlist 'arean_heal_bot_config_lists' 'drink_cure_potion'
+
+foreach list in 'arean_heal_bot_config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+# CREATE ALL TIMERS
+
+createlist 'arean_heal_bot_script_timers'
+pushlist 'arean_heal_bot_script_timers' 'loop_on_warning_msg'
+pushlist 'arean_heal_bot_script_timers' 'waiting_save'
+pushlist 'arean_heal_bot_script_timers' 'last_sysmsg_timer'
+pushlist 'arean_heal_bot_script_timers' 'waiting_target_timer'
+pushlist 'arean_heal_bot_script_timers' 'bandage_timer'
+
+
+foreach timer in 'arean_heal_bot_script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 99999
+    endif
+endfor
+
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+pushlist 'unequip_hands_to_drink_potion' 'yes'
+pushlist 'monitor_items_amounts' 'yes'
+pushlist 'warn_when_items_amount_is_bellow' 5
+
+@setvar action_delay_var 600
+
+@setvar max_diffhits_before_healing_with_potion 20
+@setvar max_diffhits_before_healing_with_bandages 10
+@setvar max_diffhits_before_healing_with_magery 20
+
+@setvar max_diffweight_before_unloading 50
+
 while not dead 'self'
+
+
+    # remember player the loop is active every 5s
+    if timer 'loop_on_warning_msg' >= 5000
+        settimer 'loop_on_warning_msg' 0
+        sysmsg 'Auto Heal Bot Loop On...' 89
+    endif
 
     # if diffhits == 0 and maxhp < 110
     #     sysmsg '>>> Strenght' 76
@@ -20,7 +98,7 @@ while not dead 'self'
     #     endif
     # endif
 
-if poisoned
+    if poisoned
         sysmsg '>>> CURING...' 76
         cast 'cure'
 
@@ -41,6 +119,7 @@ if poisoned
 
 
 
+    # greater heal if diffhits is big
     elseif diffhits >= 20
         sysmsg '>>> GREATER HEALING...' 76
         cast 'greater heal'
@@ -59,6 +138,8 @@ if poisoned
             hotkey 'Target Self'
             wait 150
         endif
+
+    # mini heal if diffhits is small
     elseif diffhits >= 1
         sysmsg '>>> MINI HEALING...' 78
         cast 'heal'

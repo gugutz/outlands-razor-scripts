@@ -1,0 +1,27 @@
+###############################
+# Use Boarding Rope
+# v0.0.1
+# by gugutz
+###############################
+
+if not gumpexists 2881168634
+    if findtype 'rope' backpack 0 as rop
+        useobject rop
+        waitforgump 2881168634 600
+    else
+        overhead 'no boarding rope!'
+        stop
+    endif
+endif
+
+if gumpexists 2881168634
+    gumpresponse 5 2881168634
+    wft 600
+
+    if targetexists 'neutral'
+        overhead 'board which ship?' 64
+        while targetexists  'neutral'
+            wait 100
+        endwhile
+    endif
+endif

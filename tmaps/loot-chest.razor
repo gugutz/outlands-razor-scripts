@@ -20,60 +20,16 @@
 # - Initial release
 #
 #################################
-# PREPARING TO START
-#
-createtimer 'waiting_tchest_msg_timer'
-settimer 'waiting_tchest_msg_timer' 1501
-
-@unsetvar tchest
-@setvar tchest
-wft 500
-while targetexists 'neutral'
-    if timer 'waiting_tchest_msg_timer' >= 1500
-        overhead 'select t-chest to loot...'
-        sysmsg 'Select T-Chest To Loot...'
-    endif
-endwhile
-#
-
-if not varexist tchest
-    overhead 'no tchest set'
-    stop
-endif
-
-
+# CREATE AND POPULATE ALL LISTS
 #################################
-#
-# CONFIGURATION
-#
-@setvar action_delay_var 300
-@setvar sysmsgs_color 50
 
-
-#################################
-#
-# CODE
-#
-# ------------------------------
 # MASTERY CHAIN LINKS
 if not listexists 'links'
     createlist 'links'
     pushlist 'links' 'chain link'
 endif
 
-foreach item in 'links'
-    while findtype item tchest any any as item_to_unload
-        sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
-        overhead 'found a link!' 51 'self'
-
-        lift item_to_unload 1
-        wait action_delay_var
-        drop backpack
-        wait action_delay_var
-    endwhile
-endfor
-#
-# ------------------------------
+# RARES
 if not listexists 'rares'
     sysmsg 'Creating rares list...' 51
     createlist 'rares'
@@ -111,19 +67,7 @@ if not listexists 'rares'
     pushlist 'rares' 29036
 endif
 
-foreach item in 'rares'
-    while findtype item tchest any any as item_to_unload
-        overhead item_graphic 51 'self'
-        sysmsg item_graphic 52
-
-        lift item_to_unload 60000
-        wait action_delay_var
-        drop backpack
-        wait action_delay_var
-    endwhile
-endfor
-# ------------------------------
-# arcane runes
+# ARCANE RUNES
 if not listexists 'arcane_runes'
     sysmsg 'Creating arcane runes list...' 51
     createlist 'arcane_runes'
@@ -142,10 +86,251 @@ if not listexists 'arcane_runes'
     pushlist 'arcane_runes' 39916
 endif
 
-foreach item in 'arcane_runes'
-    while findtype item tchest any any as item_to_unload
-        overhead item_graphic 51 'self'
-        sysmsg item_graphic 52
+# MISC TCHEST ITEMS
+if not listexists 'tchest_items'
+    sysmsg 'Creating regular tchest items list...' 51
+    createlist 'tchest_items'
+
+    pushlist 'tchest_items' 'gold coin'
+    pushlist 'tchest_items' 'bow'
+    pushlist 'tchest_items' 'seed of renewal'
+    pushlist 'tchest_items' 'bag of seeds'
+    # arcane scrolls
+    pushlist 'tchest_items' 'blank scroll%s%'
+
+
+    # gems
+    @pushlist 'tchest_items' 'rub%ies/y%'
+    @pushlist 'tchest_items' 'tourmaline%s%'
+    @pushlist 'tchest_items' 'emerald%s%'
+    @pushlist 'tchest_items' 'diamond%s%'
+    @pushlist 'tchest_items' 'piece%s% of amber'
+    @pushlist 'tchest_items' 'amethyst%s%'
+    @pushlist 'tchest_items' 'star sapphire%s%'
+    @pushlist 'tchest_items' 'citrine%s%'
+    @pushlist 'tchest_items' 'sapphire%s%'
+
+
+    pushlist 'tchest_items' 'spellbook'
+
+    # WRESTLE MARTIAL MANUAL
+    pushlist 'tchest_items' 'martial arts scroll'
+
+    # ARCHERY WEAPONS
+    pushlist 'tchest_items' 'bow'
+    pushlist 'tchest_items' 'crossbow'
+    pushlist 'tchest_items' 'heavy crossbow'
+
+    # SWORDS WEAPONS
+    pushlist 'tchest_items' 'cutlass'
+    pushlist 'tchest_items' 'katana'
+    pushlist 'tchest_items' 'viking sword'
+    pushlist 'tchest_items' 'broadsword'
+    pushlist 'tchest_items' 'longsword'
+    pushlist 'tchest_items' 'war mace'
+    pushlist 'tchest_items' 'club'
+    pushlist 'tchest_items' 'double axe'
+    pushlist 'tchest_items' 'large battle axe'
+    pushlist 'tchest_items' 'bardiche'
+    pushlist 'tchest_items' 'halberd'
+
+    # MACING WEAPONS
+    pushlist 'tchest_items' 'club'
+    pushlist 'tchest_items' 'mace'
+    pushlist 'tchest_items' 'war mace'
+    pushlist 'tchest_items' 'war axe'
+    pushlist 'tchest_items' 'hammer pick'
+    pushlist 'tchest_items' 'black staff'
+    pushlist 'tchest_items' 'gnarled staff'
+
+    # FENCING WEAPONS
+    pushlist 'tchest_items' 'kryss'
+    pushlist 'tchest_items' 'war fork'
+    pushlist 'tchest_items' 'short spear'
+    pushlist 'tchest_items' 'Long Spear'
+    pushlist 'tchest_items' 'pitchfork'
+    pushlist 'tchest_items' 'bladed staff'
+
+    # SHIELDs
+    pushlist 'tchest_items' 'buckler'
+    pushlist 'tchest_items' 'wooden shield'
+    pushlist 'tchest_items' 'metal shield'
+    # bronze shield (for some reason doenst work with name, only graphic number)
+    pushlist 'tchest_items' 7026
+    # kite shield (for some reason doenst work with name, only graphic number)
+    pushlist 'tchest_items' 7033
+    # metal kite shield
+    pushlist 'tchest_items' 7029
+    pushlist 'tchest_items' 'heater shield'
+
+    # HATS
+    pushlist 'tchest_items' "wizard's hat"
+    pushlist 'tchest_items' 'bone helmet'
+
+    # BONE SET
+    pushlist 'tchest_items' 'bone armor'
+    pushlist 'tchest_items' 'bone gorget'
+    pushlist 'tchest_items' 'bone arms'
+    pushlist 'tchest_items' 'bone gloves'
+    pushlist 'tchest_items' 'bone legs'
+
+    # LEATHER SET
+    pushlist 'tchest_items' 'leather cap'
+    pushlist 'tchest_items' 'leather tunic'
+    pushlist 'tchest_items' 'leather gorget'
+    pushlist 'tchest_items' 'leather sleeves'
+    pushlist 'tchest_items' 'leather gloves'
+    pushlist 'tchest_items' 'leather leggings'
+    pushlist 'tchest_items' 'leather skirt'
+    pushlist 'tchest_items' 'leather bustier'
+
+
+    # STUDDED SET
+    pushlist 'tchest_items' 'studded tunic'
+    pushlist 'tchest_items' 'studded armor'
+    pushlist 'tchest_items' 'studded sleeves'
+    pushlist 'tchest_items' 'studded legs'
+    pushlist 'tchest_items' 'studded gorget'
+    pushlist 'tchest_items' 'studded gloves'
+    pushlist 'tchest_items' 'studded bustier'
+
+    # HELMETS
+    pushlist 'tchest_items' 'helmet'
+    pushlist 'tchest_items' 'norse helm'
+    pushlist 'tchest_items' 'close helm'
+    pushlist 'tchest_items' 'bascinet'
+
+    # PLATEMAIL SET
+    pushlist 'tchest_items' 'platemail'
+    pushlist 'tchest_items' 'platemail arms'
+    pushlist 'tchest_items' 'platemail legs'
+    pushlist 'tchest_items' 'platemail gorget'
+    pushlist 'tchest_items' 'platemail gloves'
+
+    # CHAINMAIL SET
+    pushlist 'tchest_items' 'chainmail coif'
+    pushlist 'tchest_items' 'chainmail tunic'
+    pushlist 'tchest_items' 'chainmail arms'
+    pushlist 'tchest_items' 'chainmail leggings'
+    pushlist 'tchest_items' 'chainmail gorget'
+    pushlist 'tchest_items' 'chainmail gloves'
+
+    # CHAINMAIL SET
+    pushlist 'tchest_items' 'ringmail tunic'
+    pushlist 'tchest_items' 'ringmail sleeves'
+    pushlist 'tchest_items' 'ringmail leggings'
+    pushlist 'tchest_items' 'ringmail gorget'
+    pushlist 'tchest_items' 'ringmail gloves'
+
+    # INSTRUMENTS
+    pushlist 'tchest_items' 'bamboo flute'
+    pushlist 'tchest_items' 'lute'
+    pushlist 'tchest_items' 'drum'
+    pushlist 'tchest_items' 'tambourine'
+    pushlist 'tchest_items' 'lap harp'
+
+    # MISC & MAGERY SCROLLS
+    pushlist 'tchest_items' 'clean bandage%s%'
+    pushlist 'tchest_items' 'arrow'
+    pushlist 'tchest_items' 'bolt'
+
+
+    # REAGENTS
+    pushlist 'tchest_items' 'Blood Moss'
+    pushlist 'tchest_items' 'Black Pearl%s%'
+    pushlist 'tchest_items' 'Garlic'
+    pushlist 'tchest_items' 'Mandrake Root%s%'
+    pushlist 'tchest_items' 'Ginseng'
+    pushlist 'tchest_items' 'Nightshade'
+    pushlist 'tchest_items' 'Sulfurous Ash'
+    pushlist 'tchest_items' "Spider's Silk"
+
+
+    pushlist 'tchest_items' 'Recall Scroll'
+    pushlist 'tchest_items' 'ManaDrain Scroll'
+    pushlist 'tchest_items' 'Greater Heal Scroll'
+    pushlist 'tchest_items' 'Lightning Scroll'
+    pushlist 'tchest_items' 'Lightning Scroll'
+endif
+
+#
+createtimer 'waiting_tchest_msg_timer'
+settimer 'waiting_tchest_msg_timer' 1501
+
+
+#################################
+# ASK FOR CHEST TO LOOT
+#################################
+
+@unsetvar chest
+@setvar chest
+wft 500
+while targetexists 'neutral'
+    if timer 'waiting_tchest_msg_timer' >= 1500
+        overhead 'select t-chest to loot...'
+        sysmsg 'Select T-Chest To Loot...'
+        settimer 'waiting_tchest_msg_timer' 0
+    endif
+endwhile
+#
+
+if not varexist chest
+    overhead 'no tchest set'
+    stop
+endif
+
+
+#################################
+# CONFIGURATION
+#################################
+
+@setvar action_delay_var 300
+@setvar sysmsgs_color 50
+
+
+#################################
+#
+# CODE
+#
+# ------------------------------
+
+overhead 'opening chest' 53
+sysmsg 'Opening Chest To Loot' 53
+dclick chest
+wait action_delay_var
+
+
+
+#################################
+# ITERATE LISTS AND LOOT THE CHEST
+#################################
+
+foreach item in 'links'
+    while findtype item chest any any as item_to_unload
+        sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
+
+        getlabel item_to_unload link_label
+        if inlist 'beta_client' 'yes'
+            overhead 'found a link: {{link_label}}' 51 'self'
+            sysmsg 'FOUND A LINK: {{link_label}}' 51 'self'
+        else
+            overhead 'found a link!' 51 'self'
+            overhead link_label 51 'self'
+            sysmsg 'Found A Link!' 51 'self'
+            sysmsg link_label 51 'self'
+        endif
+
+        lift item_to_unload 1
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+
+foreach item in 'rares'
+    while findtype item chest any any as item_to_unload
+        overhead item 51 'self'
+        sysmsg item 52
 
         lift item_to_unload 60000
         wait action_delay_var
@@ -153,21 +338,23 @@ foreach item in 'arcane_runes'
         wait action_delay_var
     endwhile
 endfor
-# ------------------------------
-if not listexists 'tchest_items'
-    sysmsg 'Creating regular tchest items list...' 51
-    createlist 'tchest_items'
-    # non-indentified items
-    pushlist 'tchest_items' 'gold coin'
-    pushlist 'tchest_items' 'bow'
-    pushlist 'tchest_items' 'seed of renewal'
-    pushlist 'tchest_items' 'bag of seeds'
-endif
+
+foreach item in 'arcane_runes'
+    while findtype item chest any any as item_to_unload
+        overhead item 51 'self'
+        sysmsg item 52
+
+        lift item_to_unload 60000
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
 
 foreach item in 'tchest_items'
-    while findtype item tchest any any as item_to_unload
-        overhead item_graphic 51 'self'
-        sysmsg item_graphic 52
+    while findtype item chest any any as item_to_unload
+        overhead item 51 'self'
+        sysmsg item 52
 
         lift item_to_unload 60000
         wait action_delay_var

@@ -2,8 +2,10 @@ if targetexists 'beneficial'
     if hits < maxhits
         target 'self'
     else
-    overhead 'holding target (100% hp)' 41
+        overhead 'holding target (100% hp)' 41
     endif
 else
     cast 'greater heal'
+    hotkey 'Toggle War Only'
+    hotkey 'Toggle Peace Only'
 endif

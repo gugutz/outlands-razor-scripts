@@ -1,3 +1,17 @@
+# Dispell Fields
+# v0.0.1
+# by gugutz
+#
+# This script will dispel fields if a neutral target is opened
+# It will look for fields in this order:
+# - blue moongates
+# - wall of stones
+# - energy fields
+# - paralyze fields
+# - poison fields
+#################################
+
+
 # @setvar find_field_max_range 12
 
 if not targetexists 'neutral'
@@ -17,9 +31,6 @@ else
         target field
     elseif findtype 'Field of Poison' ground any any 12 as field
         overhead '*dispelling poison field*' 56
-        target field
-    elseif findtype 'Field of Poison' ground any any 12 as field
-        overhead '*dispelling energy field*'
         target field
     else
         overhead '*no fields nearby*'

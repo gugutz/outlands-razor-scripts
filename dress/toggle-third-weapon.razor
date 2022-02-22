@@ -31,6 +31,7 @@ if not listexists 'disturb_weapons_1'
     if skill 'archery' >= 50
         pushlist 'disturb_weapons_1' 'bow'
     elseif skill 'fencing' >= 50
+        pushlist 'disturb_weapons_1' 'short spear'
         pushlist 'disturb_weapons_1' 'war fork'
     elseif skill 'mace fighting' >= 50
         pushlist 'disturb_weapons_1' 'war mace'
@@ -84,9 +85,15 @@ foreach weapon in 'disturb_weapons_1'
                 lift weap 1
                 wait 100
                 drop 'self' LeftHand
+                # tab out, good for duels
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
                 break
             else
                 dclick weap
+                # tab out, good for duels
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
             endif
         endif
     endif

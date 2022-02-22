@@ -20,6 +20,7 @@ while targetexists 'neutral'
     if timer 'waiting_tchest_msg_timer' >= 1500
         overhead 'select t-chest to loot...'
         sysmsg 'Select T-Chest To Loot...'
+        settimer 'waiting_tchest_msg_timer' 0
     endif
 endwhile
 #
@@ -42,11 +43,40 @@ endif
 #     dclicktype 29089 true
 # endif
 
-# Remove Traps Section
-while not dead and not insysmsg 'appears to be devoid'
+clearsysmsg
+
+while not gumpexists locked_chest_gump
+    sysmsg 'Opening chest first time...' 53
+    dclick chest
+    waitforgump locked_chest_gump 600
+endwhile
+
+#################################
+# REMOVE CHEST TRAPS
+#################################
+
+
+while not dead and not insysmsg 'You have successfully cleared it of traps'
+
+    if skill 'hiding' >= 70
+        while not hidden
+            useskill 'hiding'
+            wait 1000
+        endwhile
+    elseif skill 'magery' >= 75
+        while not hidden
+            cast 'invisibility'
+            wft 3500
+            if targetexists 'neutral'
+                target 'self'
+            endif
+            wait action_delay_var
+        endwhile
+    endif
+
 
     # Skip ahead if devoid of traps
-    if insysmsg 'appears to be devoid'
+    if insysmsg 'You have successfully cleared it of traps'
         overhead '* TRAPS CLEARED * ' 59
         break
     endif
@@ -61,10 +91,15 @@ while not dead and not insysmsg 'appears to be devoid'
     #
     if findtype drill as tool
         if not gumpexists locked_chest_gump
-            sysmsg 'Clicking chest first time to open gump'
+            sysmsg 'Clicking chest to open gump...'
             dclick chest
             waitforgump locked_chest_gump 1000
         else
+            if ingump 'Cleared of Traps' 736038070 or insysmsg 'appears to be devoid'
+                sysmsg 'CHEST ALREADY CLARED OF TRAPS....'
+                break
+            endif
+
             gumpresponse 7
             wait action_delay_var
             if insysmsg 'You do not have any trap tools of that material on hand'
@@ -73,7 +108,7 @@ while not dead and not insysmsg 'appears to be devoid'
             else
                 while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
                     wait 100
-                    if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                    if timer 'wait_for_progress' >= 5000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress' or insysmsg 'cleared it of traps'
                         settimer 'wait_for_progress' 0
                         break
                     endif
@@ -88,12 +123,16 @@ while not dead and not insysmsg 'appears to be devoid'
 
 endwhile
 
-# Lockpicking Section
-while not dead and not insysmsg 'You successfully pick the lock'
+
+#################################
+# LOCKPICK CHEST
+#################################
+
+while not dead and not insysmsg 'You successfully pick the lock.'
     #
     if findtype 'lockpicks' as tool
         if not gumpexists locked_chest_gump
-            sysmsg 'Clicking chest first time to open gump'
+            sysmsg 'Clicking chest to open gump...'
             dclick chest
             waitforgump locked_chest_gump 1000
         else
@@ -106,7 +145,7 @@ while not dead and not insysmsg 'You successfully pick the lock'
                 settimer 'wait_for_progress' 0
                 while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
                     wait 100
-                    if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                    if timer 'wait_for_progress' >= 5000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress' or insysmsg 'You successfully pick the lock.'
                         settimer 'wait_for_progress' 0
                         break
                     endif
@@ -118,13 +157,16 @@ while not dead and not insysmsg 'You successfully pick the lock'
         stop
     endif
 
-    if insysmsg 'You successfully pick the lock'
-        overhead 'chest opened!' 54
-        sysmsg '>>> Chest Opened!' 54
+    if findtype 29076 ground any any 2 or findtype  29089 ground any any 2
         break
     endif
 
-    # Lockpick
 endwhile
+
+if insysmsg 'You successfully pick the lock' or findtype 29076 ground any any 2 or findtype  29089 ground any any 2
+    overhead 'chest opened!' 54
+    sysmsg '>>> Chest Opened!' 54
+    break
+endif
 
 sysmsg '>>> Open Locked Chests Script finished!' 53

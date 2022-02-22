@@ -1,0 +1,83 @@
+############################
+# SMART CYCLE DISRUPT SPELLS
+# by gugutz
+# version 0.0.1
+############################
+
+# Este script irá ciclar entre as 3 spells dos 3 primeiros circulos que causam disrupt a cada 5 segundos.
+# Ele irá controlar o timer individual de cada spell e somente castar ela se o tempo para ela disturbar já passou (5 segundos)
+
+# Sempre prioriza spell de circulos menores a circulos maiores (ex: primeira tenta MA, depois Harm, depois Poison, e depois Lightning)
+
+#################################
+# CHANGELOG
+#
+# v0.0.1
+# - Initial Release
+#
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#
+
+if not listexists 'debuff_spells'
+    createlist 'debuff_spells'
+    pushlist 'debuff_spells' 'weaken'
+    pushlist 'debuff_spells' 'feeblemind'
+    pushlist 'debuff_spells' 'clumsy'
+endif
+
+
+###################################
+# create a timer for each spell
+
+foreach spell in 'debuff_spells'
+    if not timerexists spell
+        createtimer spell
+        settimer spell  5001
+    endif
+endfor
+
+if not timerexists 'waiting_spell_timer'
+    createtimer 'waiting_spell_timer'
+    settimer 'waiting_spell_timer'  0
+endif
+
+###################################
+# CODE
+#
+
+foreach spell in 'debuff_spells'
+
+    # check for current spell timer
+    if timer spell >= 1600
+        sysmsg spell
+        @settimer 'waiting_spell_timer' 0
+        cast spell
+
+        while not targetexists 'harmful' and timer 'waiting_spell_timer' < 2500
+            wait 100
+            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                wait 150
+                break
+            endif
+            if targetexists 'harmful'
+                # sysmsg 'reseting spell timer 1...'
+                settimer spell 0
+                break
+            endif
+        endwhile
+
+        wait 100
+
+        if targetexists 'harmful'
+            # sysmsg 'reseting spell timer 2...'
+            settimer spell 0
+            break
+        endif
+
+        break
+        #####################################################
+    endif
+endfor

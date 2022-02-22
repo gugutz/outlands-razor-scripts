@@ -1,0 +1,17 @@
+
+
+
+if findtype 'spyglass' backpack as tool
+    dclick tool
+    waitfortarget 600
+    if targetexists 'neutral'
+        hotkey 'Target Self'
+        waitforgump 2890020940 600
+        if gumpexists 2890020940
+            sysmsg 'Searching Ships...' 89
+            overhead 'searching ships...' 89
+            gumpresponse 4
+            waitforgump 2890020940 600
+        endif
+    endif
+endif

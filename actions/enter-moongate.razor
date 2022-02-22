@@ -1,7 +1,22 @@
 # enter-moongate
 # by gugutz
-# v0.3
+# v0.0.2
+#
 
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Specifies which gump to press the buttons to avoid conflicting with the Necro Gump
+#
+# v0.0.1
+# - Initial release
+
+
+#################################
+# CODE
+#################################
 
 # @setvar public_moongate_gump_id 3773199800
 # @setvar magery_moongate_gump_id 3773199800
@@ -16,14 +31,14 @@
 # omni gates
 if gumpexists 687547349
     overhead '*entering omni moongate*' 70
-    gumpresponse 10
+    gumpresponse 10 687547349
 # public moongates
 elseif gumpexists 3773199800
     overhead '*entering public moongate*' 70
-    gumpresponse 2
+    gumpresponse 2 3773199800
 elseif gumpexists  3899019871
     overhead '*entering player moongate*' 70
-    gumpresponse 2
+    gumpresponse 2 3899019871
 
 # search for regular blue moongates (color 0) that is opened by players
 elseif findtype 'blue moongate' ground 0 any 2 as mg
@@ -33,7 +48,7 @@ elseif findtype 'blue moongate' ground 0 any 2 as mg
     waitforgump 3899019871 1000
     if gumpexists  3899019871
         overhead '*entering player moongate*' 70
-        gumpresponse 2
+        gumpresponse 2 3899019871
     endif
 
 # search for custom color blue moongates (any color), usually public moongates
@@ -42,7 +57,7 @@ elseif findtype 'blue moongate' ground any any 2 as mg
     waitforgump 3773199800 500
     if gumpexists 3773199800
         overhead '*entering public moongate*' 70
-        gumpresponse 2
+        gumpresponse 2 3773199800
     endif
 
 # if we get here, check for chivarly moongate type on the ground
@@ -53,7 +68,7 @@ elseif findtype 27754 ground 2091 any 2 as mg
     waitforgump 3773199800 600
     if gumpexists 3773199800
         overhead '*entering chiv gate*' 70
-        gumpresponse 2
+        gumpresponse 2 3773199800
     endif
 else
     overhead '*no moongates nearby' 56

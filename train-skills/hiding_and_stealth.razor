@@ -1,19 +1,60 @@
-if insysmsg 'The world will save'
-    wait 27000
-endif
 
-if skill 'hiding' < 100
-    skill 'hiding'
-    wait 10000
-elseif skill 'stealth' < 100
-    if not hidden
-        skill 'hiding'
-        wait 10000
+###################################
+# TIMERS
+#
+sysmsg 'Creating timers...'
+
+createlist 'mining_script_timers'
+pushlist 'mining_script_timers' 'waiting_save'
+pushlist 'mining_script_timers' 'last_sysmsg_timer'
+
+foreach timer in 'mining_script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 0
     endif
-    skill 'stealth'
-    wait 10000
-else
-    sysmsg 'You have reached skill level 100 in Hiding and Stealth' 44
-    stop
-endif
-loop
+endfor
+
+@setvar max_hiding_skill_level 100
+@setvar max_stealth_skill_level 100
+
+###################################
+# CODE
+while not dead 'self'
+
+    if skill 'hiding' == max_skill_level and skill 'stealth' == max_skill_level
+        sysmsg 'You have reached skill level in Hiding and Stealth' 44
+        stop
+    endif
+
+    # handle world saves
+    if insysmsg "The world is saving"
+        overhead '*WORLD SAVING*' 90
+        while not insysmsg 'World save complete'
+            wait 100
+            if timer 'waiting_save' >= 5000
+                sysmsg 'BREAKING WAITING FOR SAVE' 49
+                break
+            endif
+        endwhile
+
+        if insysmsg 'World save complete'
+            overhead '*save complete!*' 90
+            clearsysmsg
+        endif
+    endif
+
+    if skill 'hiding' < max_hiding_skill_level
+        skill 'hiding'
+        wait 1000
+    elseif skill 'stealth' < max_stealth_skill_level
+        if not hidden
+            skill 'hiding'
+            wait 1000
+        else
+            skill 'stealth'
+            wait 1000
+        endif
+    endif
+
+endwhile

@@ -34,7 +34,7 @@ if not listexists 'dps_weapons'
         pushlist 'dps_weapons' 'short spear'
     elseif skill 'mace fighting' >= 50
         pushlist 'dps_weapons' 'war axe'
-    elseif skill 'swordsmanship' >= 50 or findtype 'large axe' backpackm or findtype "executioner's axe" backpack
+    elseif skill 'swordsmanship' >= 50 or findtype 'large axe' backpackm or findtype "executioner's axe" backpack or findtype 'double axe' backpack
         pushlist 'dps_weapons' 'axe'
         pushlist 'dps_weapons' 'large axe'
         pushlist 'dps_weapons' 'double axe'
@@ -87,9 +87,15 @@ foreach weapon in 'dps_weapons'
                 lift weap 1
                 wait 100
                 drop 'self' LeftHand
+                # tab out, good for duels
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
                 break
             else
                 dclick weap
+                # tab out, good for duels
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
             endif
         endif
     endif

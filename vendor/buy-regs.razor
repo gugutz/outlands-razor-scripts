@@ -1,0 +1,121 @@
+sysmsg '#########################' 90
+sysmsg '>>> MAGE SHOP BUYER' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.0.1' 31
+sysmsg '########################' 90
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.6
+# - Adds survival routine to defend char against closed-ranged combat creatures
+# - Adds sysmsg check to see if char got far from forge while inside the smelting loop
+#
+# v0.5
+# - Stops double clicking packie to open packpack when unloading ores while heavy
+# - Adds wait timer after recalling and before unloading when getting home
+#
+# v0.4
+# - Adds setting to choose if script will auto smelt ores when close to forge
+#
+# v0.3
+# - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
+#
+# v0.2
+# - Adds checks for several map-forges around the world
+# - Adds option to not smelt colored ores (makes it hard for PKS to take them)
+#
+# v0.1
+# - Initial release
+
+
+#################################
+# CREATE LIST WITH VERNDORS SERIALS
+#################################
+
+if not listexists 'vendors_serials'
+    createlist 'vendors_serials'
+
+    ###################################
+    # OUTPOST MAGE SHOP
+    pushlist 'vendors_serials' 0x16F
+    pushlist 'vendors_serials' 0x170
+    pushlist 'vendors_serials' 0x172
+    pushlist 'vendors_serials' 0x171
+    ###################################
+    # PREVALIA MAGE SHOP WEST
+    pushlist 'vendors_serials' 0x37A
+    pushlist 'vendors_serials' 0x3CE
+    pushlist 'vendors_serials' 0x64BA2
+    pushlist 'vendors_serials' 0x388
+    # duncan
+    pushlist 'vendors_serials' 0xCC06D
+    # bentley
+    pushlist 'vendors_serials' 0x38F
+    ###################################
+    # PREVMAGE MAGE SHOP SOUTH EAST
+    # christable
+    pushlist 'vendors_serials' 0x45
+    # gideon
+    pushlist 'vendors_serials' 0x44
+    # arlene
+    pushlist 'vendors_serials' 0x46
+
+
+    # Reidon (scribe shop next door)
+    pushlist 'vendors_serials' 0xD5D15
+    # Brendon (scribe shop next door)
+    pushlist 'vendors_serials' 0x40
+
+    ###################################
+    # CAMBRIA MAGE SHOP SOUTH
+    pushlist 'vendors_serials' 0xFE
+    ###################################
+    # CAMBRIA MAGE SHOP NORTH
+    # zuza
+    pushlist 'vendors_serials' 0xF2
+    # kanika
+    pushlist 'vendors_serials' 0xF0
+    # magdaline
+    pushlist 'vendors_serials' 0x4BA97
+    # wayland
+    pushlist 'vendors_serials' 0xF1
+
+
+    ###################################
+    # ANDARIA MAGE SHOP NORTH
+    # abira the scribe
+    pushlist 'vendors_serials' 0xD3
+    # shunnar the alchemist
+    pushlist 'vendors_serials' 0xD0
+    # adrian the alchemist
+    pushlist 'vendors_serials' 0xD1
+    # rudyard the mage
+    pushlist 'vendors_serials' 0xD4
+    # dane the mage
+    pushlist 'vendors_serials' 0xCF
+    # amadis the scribe
+    pushlist 'vendors_serials' 0xD2
+    # peyton the mage
+    pushlist 'vendors_serials' 0xCE
+
+    ###################################
+    # ANDARIA MAGE SHOP SOUTH
+    # kelli the mage
+    pushlist 'vendors_serials' 0xA8
+    # shani the mage
+    pushlist 'vendors_serials' 0xAC
+    # Slevin the mage
+    pushlist 'vendors_serials' 0xAB
+    # mae the harbalist
+    pushlist 'vendors_serials' 0xAA
+    # Ines the alchemist
+    pushlist 'vendors_serials' 0xA9
+endif
+
+
+foreach vendor in 'vendors_serials'
+    overhead 'BUYING...' 90 vendor
+    menu vendor 1
+endfor

@@ -1,28 +1,32 @@
 sysmsg '#########################' 90
 sysmsg '>>> LUMBERJACKING BOT' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.4' 31
+sysmsg 'version 0.0.5' 31
 sysmsg '########################' 90
 
 
 #################################
 # CHANGELOG
 #
-# v0.4
+# v0.0.5
+# - Fix missing endif that was breaking the macro when i captcha was detected
+
+# v0.0.4
 # - Adds missing list 'use_charges' for using charges when escaping PKs
+# - Enhances unloading routine (based on my miner script unload routine)
 #
-# v0.3
+# v0.0.3
 # - Fix captcha pause check
-# - Stops double clicking packie to open packpack when unloading ores while heavy
+# - Stops double clicking packie to open packpack when unloading logs while heavy
 # - Adds variables to control rune slot button numbers while escaping PKs
 # - Adds checks if char has magery or regs before trying to cast recall, or use scrolls / charges to escape PK
 # - Fix colored logs check on journal messages
 #
-# v0.2
+# v0.0.2
 # - Adds unloading routine after escaping PKs and turn logs into boards
 # - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
 #
-# v0.1
+# v0.0.1
 # - Initial release
 #
 #################################
@@ -68,10 +72,26 @@ sysmsg 'Applying configuration...'
 # if we dont get any sysmsg for this much time, we probably got a gump
 @setvar max_wait_for_last_sysmsg_to_use_hatchet  750
 @setvar max_wait_for_last_sysmsg_to_suspect_gump 7000
+@setvar max_logs_in_packie 5000
+
+@setvar max_diffhits_before_healing_with_potion 20
+@setvar max_diffhits_before_healing_with_bandages 10
+@setvar max_diffhits_before_healing_with_magery 20
+
+@setvar max_diffweight_before_unloading 40
 
 # rune positions in either runetome or runebook
 @setvar runetome_rune_position 100
-@setvar runebook_rune_position 20
+@setvar runebook_rune_position 2
+
+# set bandage_delay based on char dex
+if skill 'healing' >= 50
+    if dex >= 100
+        setvar bandage_delay 10000
+    elseif dex <= 80
+        setvar bandage_delay 15000
+    endif
+endif
 
 pushlist 'auto_walk_randomly' 'no'
 pushlist 'auto_walk_to_direction' 'no'
@@ -87,6 +107,8 @@ sysmsg 'Creating timers...'
 createlist 'script_timers'
 pushlist 'script_timers' 'waiting_save'
 pushlist 'script_timers' 'last_sysmsg_timer'
+pushlist 'script_timers' 'waiting_target_timer'
+pushlist 'script_timers' 'bandage_timer'
 
 foreach timer in 'script_timers'
     if not timerexists timer
@@ -168,16 +190,20 @@ endif
 
 ###################################
 sysmsg 'Starting...' 87
+wait action_delay_var
 
 clearsysmsg
 settimer 'last_sysmsg_timer' 0
+
 
 while not dead 'self'
 
     if timer 'last_sysmsg_timer' > max_wait_for_last_sysmsg_to_suspect_gump
         overhead "✩ GUMP or LAG ✩" 33
+        wait 1000
     endif
 
+    # if we dont suspect gump, start lumbering and monitor char weight
     if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
         # sysmsg 'Timer low...' 65
 
@@ -194,46 +220,121 @@ while not dead 'self'
             endif
         endif
 
-
         if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_hatchet and not lhandempty
-            sysmsg 'Lumbering...' 65
-            hotkey 'Use item in Hand'
-            waitfortarget action_delay_var
-            target 'self'
+
+            while not targetexists 'neutral'
+                hotkey 'Use item in Hand'
+                waitfortarget action_delay_var
+            endwhile
+
+            if targetexists 'neutral'
+                sysmsg 'Lumbering...' 65
+                target 'self'
+            endif
+
             wait max_wait_for_last_sysmsg_to_use_hatchet
         endif
 
 
-        # if heavy, empty logs in packies if there are any nearby
-        if diffweight < 10
-            while diffweight < 10
+        ##############################################
+        # UNLOADING ROUTINE
+        # if heavy and there are packies nearby, unload
+        if diffweight <= max_diffweight_before_unloading and findtype 'log%s' backpack
 
-                if list 'packies' > 0
-                    foreach packanimal in 'packies'
-                        while findtype 'ore' backpack as ores
-                            sysmsg 'MOVING ORE TO PACKIE' 56
-                            overhead '*unloading ores*' 56
-                            lift ores 999
-                            wait action_delay_var
-                            drop packanimal -1 -1 0
-                            wait action_delay_var
-                            # put this animal to the end of the list so we use the next one next time
-                            poplist 'packies' packanimal
-                            pushlist 'packies' packanimal 'back'
-                            break
+            if list 'packies' > 0
+                foreach packanimal in 'packies'
+                    clearlist 'pack_heavy'
+                    # check packie weight to determine if its full or not
+                    if counttype 'log%s' packanimal >= max_logs_in_packie
+                        pushlist 'pack_heavy' 'yes'
+                    elseif counttype 'log%s' packanimal >= 3000 and counttype 'board%s' packanimal >= 2000
+                        sysmsg 'debug 001324'
+                        pushlist 'pack_heavy' 'yes'
+                    endif
+
+                    # add or remove packie to full 0packies list based on if its heavy or not
+                    if inlist 'pack_heavy' 'yes'
+                        if not inlist 'full_packies' packanimal
+                            overhead 'adding to full list' 54 packanimal
+                            pushlist 'full_packies' packanimal
+                        endif
+                        # sysmsg 'PACKIE HAS MORE THAN 100 logs' 40
+                        # overhead 'PACKIE HAS MORE THAN 100 logs' 40
+                        overhead '! heavy !' 34 packanimal
+                    else
+                        if inlist 'full_packies' packanimal
+                            overhead 'removing from full list' 52 packanimal
+                            poplist 'full_packies' packanimal
+                        endif
+                    endif
+                    #
+                    if not inlist 'full_packies' packanimal
+                        # getlabel packanimal packie_label
+                        # sysmsg packie_label 99
+
+
+
+                        # call packies if they are not within 2 tiles
+                        while not find packanimal ground any any 2
+                            say 'all follow me'
+                            wait action_delay
                         endwhile
-                    endfor
-                    @removelist 'packies'
-                    clearignore
-                endif
+
+                        # dclick packanimal
+                        # wait action_delay
+                        # if this pet is already full, we move to the next one
+
+                        while findtype 'log%s' backpack as logs and counttype 'log%s' packanimal < max_logs_in_packie
+                            sysmsg '>>> MOVING LOGS TO PACKIE' 56
+                            overhead '*unloading logs*' 56
+                            overhead '*unloading logs*' 56 packanimal
+                            lift logs 999
+                            wait action_delay
+                            drop packanimal -1 -1 0
+                            wait action_delay
+                            if findtype 'log%s' ground any any 1
+                                # put this animal to the end of the list so we use the next one next time
+                                overhead 'heavy?? moving to end of list' 53 packanimal
+                                sysmsg 'Found logs on ground. Pet is probably heavy... Moving To End Of List' 53
+                                pushlist 'full_packies' packanimal
+                            endif
+                        #
+                        endwhile
+
+                        # ingots. this isnt pretty, its duplicated from above. ill refactor it later
+                        while findtype 'board%s' backpack as boards and counttype 'log%s' packanimal < 2000
+                            sysmsg '>>> MOVING BOARDS TO PACKIE' 56
+                            overhead '*unloading boards*' 56
+                            overhead '*unloading boards*' 56 packanimal
+                            lift boards 999
+                            wait action_delay
+                            drop packanimal -1 -1 0
+                            wait action_delay
+                            if findtype 'board%s' ground any any 1
+                                # put this animal to the end of the list so we use the next one next time
+                                overhead 'heavy?? moving to end of list' 53 packanimal
+                                sysmsg 'Found boards on ground. Pet is probably heavy... Moving To End Of List' 53
+                                pushlist 'full_packies' packanimal
+                            endif
+
+                        endwhile
+
+
+                    endif
+                endfor
+                #
+                pushlist 'reset_last_sysmsg_timer' 'yes'
+                # settimer 'last_sysmsg_timer' 0
+
+
+            else
                 overhead '! HEAVY !' 90
-                organizer 1
-                waitfortarget 1000
-            endwhile
+            endif
+            # end if list 'packies' > 0
+
         endif
-
+        # end if diffweight > max_diffweight_before_unload
     endif
-
 
 
 
@@ -280,23 +381,23 @@ while not dead 'self'
                     target rbook
                 elseif inlist 'use_charges' 'yes'
                     dclick rbook
-                    waitforgump 167090027 600
+                    waitforgump 1551740969 600
                     gumpresponse runebook_rune_position
                 endif
             endif
 
 
-            wait 1500
+            wait 2500
 
             sysmsg 'STARTING TO CUT LOGS INTO BOARDS TO UNLOAD...' 53
 
             # UNLOADING BOARDS AT HOME
             # make boards from logs on backpack
-            while findtype 'logs' backpack any any 2 as logs_from_backpack
+            while findtype 'log%s' backpack any any 2 as logs_from_backpack
                 overhead '*making boards from logs*' 49 packanimal
                 sysmsg '> Making boards from logs in backpack' 49
                 if findtype 'hatchet' backpack
-                    dclick logs
+                    dclick logs_from_backpack
                     wait action_delay
                 elseif findtype 'scissors' backpack as cutter
                     dclick cutter
@@ -314,11 +415,11 @@ while not dead 'self'
                 foreach packanimal in 'packies'
 
                     # make boards from logs
-                    while findtype 'logs' packanimal any any 2 as logs_from_packie
+                    while findtype 'log%s' packanimal any any 2 as logs_from_packie
                         overhead '*making boards from logs*' 49 packanimal
                         sysmsg '> Making boards from logs in pack animal' 49
                         if findtype 'hatchet' backpack
-                            dclick logs
+                            dclick logs_from_packie
                             wait action_delay
                         elseif findtype 'scissors' backpack as cutter
                             dclick cutter
@@ -375,16 +476,20 @@ while not dead 'self'
 
 
     # handle world saves
-    elseif insysmsg "World is sav"
+    elseif insysmsg "The world is saving"
         overhead '*WORLD SAVING*' 90
-        pushlist 'reset_last_sysmsg_timer' 'yes'
-        while not insysmsg 'saved'
-            wait 10
+        while not insysmsg 'World save complete'
+            wait 100
             if timer 'waiting_save' >= 5000
                 sysmsg 'BREAKING WAITING FOR SAVE' 49
                 break
             endif
         endwhile
+
+        if insysmsg 'World save complete'
+            overhead '*save complete!*' 90
+            pushlist 'reset_last_sysmsg_timer' 'yes'
+        endif
 
 
 
@@ -458,6 +563,11 @@ while not dead 'self'
         pushlist 'reset_last_sysmsg_timer' 'yes'
         overhead ':: action cooldown ::' 53
 
+    # skill cooldowns will break the macro, so we need to get them as well
+    elseif insysmsg "You must wait a few moments before using another skill"
+        pushlist 'reset_last_sysmsg_timer' 'yes'
+        overhead ':: skill cooldown ::' 53
+
     # action cooldowns (when sysmsg prints 'You must wait...') will break the macro, so we need to get them as well
     elseif insysmsg "Harvesting is not allowed in this area"
         pushlist 'reset_last_sysmsg_timer' 'yes'
@@ -465,11 +575,17 @@ while not dead 'self'
 
 
 
+# this msg is overhead, not sysmsg, thus we cant know if a char is doing a lumbermap
+    elseif insysmsg 'You gather some'
+        overhead ':: lumber map ::' 15
+        pushlist 'reset_last_sysmsg_timer' 'yes'
+
+
     # I TRIED LOOPING THROUGH A LIST INSTEAD OF USING MULTIPLE IF/ELSE AND DIDNT WORK, THE LOOP BREAKS THE MACRO
     elseif insysmsg 'Dullwood'
         overhead ':: dullwood ::' 248
         pushlist 'reset_last_sysmsg_timer' 'yes'
-    elseif insysmsg 'Shadowwood'
+    elseif insysmsg 'shadowwood'
         overhead ':: shadowwood ::' 193
         pushlist 'reset_last_sysmsg_timer' 'yes'
     elseif insysmsg 'Copperwood'
@@ -499,12 +615,189 @@ while not dead 'self'
         overhead ':: logs ::' 15
         pushlist 'reset_last_sysmsg_timer' 'yes'
 
+
+
+
+    # catch captcha successful msgs
     elseif insysmsg "Captcha successful"
         overhead 'captcha anwsered succesfully' 90
         sysmsg 'Captcha Anwsered Succesfully!' 90
 
+
+    # catch captcha failure msgs
+    elseif insysmsg "Due to previous captcha failures"
+        overhead '! resource locked !' 33
+        sysmsg 'CAPTCHA FAILED AND CHAR IS RESOURCE LOCKED. STOPPING MACRO...' 33
+        stop
+
+
     endif
 
+
+
+    # HANDLE POISON
+    if poisoned
+        if findtype 'orange potion' backpack
+            sysmsg 'Curing poison with potion...' 90
+            hotkey 'Drink Cure'
+        elseif magery >= 50 and counttype 'Garlic' > 0 and counttype 'Ginseng' > 0
+            sysmsg 'Curing poison with magery...' 90
+            cast 'Cure'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 1500
+                wait 100
+                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                target 'self'
+            endif
+        elseif healing >= 50 and counttype 'clean bandage%s%' > 0 and timer 'bandage_timer' >= bandage_delay
+            settimer 'bandage_timer' 0
+            hotkey 'Bandage Self'
+        endif
+    endif
+
+    # MAINTAIN CHAR HP
+    if diffhits > 0
+        # heal with pots
+        if diffhits > max_diffhits_before_healing_with_potion
+            if findtype 'yellow potion' backpack
+                hotkey 'Drink Heal'
+                wait action_delay_var
+            endif
+        endif
+
+        # heal with healing
+        if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= 50 and timer 'bandage_timer' >= bandage_delay
+            settimer 'bandage_timer' 0
+            hotkey 'Bandage Self'
+        # heal with magery
+        elseif diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+            cast 'greater heal'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                wait 100
+                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+            endif
+        endif
+    endif
+
+
+
+
+    # DEFEND AGAINST MONSTERS ROUTINE
+    if diffhits > 0
+        hotkey 'Next Non-Friendly Monster Target'
+        wait action_delay_var
+        settimer 'bandage_timer' bandage_delay
+
+        while find 'last' ground any any 2 and not dead 'last'
+
+            # equip weapon if needed
+            if skill 'swordsmanship' >= 50 and lhandempty
+                if not findtype 'hatchet' backpack
+                    overhead ":: You are out of hatchets::"
+                elseif findtype 'hatchet' backpack as weap
+                    dclick weap
+                    overhead "::equipped swords weapon::"
+                    wait action_delay_var
+                endif
+            elseif skill 'mace fighting' >= 50 and rhandempty
+                if not findtype 'club' backpack and not findtype 'war mace' backpack
+                    overhead ":: You are out of macing weapons::"
+                elseif findtype 'war mace' backpack as weap or findtype 'club' backpack as weap
+                    dclick weap
+                    overhead "::equipped macing weapon::"
+                    wait action_delay_var
+                endif
+            endif
+
+            if not rhandempty or not lhandempty
+                sysmsg 'Attacking last target'
+                hotkey 'Attack Last Target'
+            endif
+
+
+            # HANDLE POISON
+            if poisoned
+                if findtype 'orange potion' backpack
+                    sysmsg 'Curing poison with potion...' 90
+                    hotkey 'Drink Cure'
+                elseif magery >= 50 and counttype 'Garlic' > 0 and counttype 'Ginseng' > 0
+                    sysmsg 'Curing poison with magery...' 90
+                    cast 'Cure'
+
+                    @settimer 'waiting_target_timer' 0
+                    while not targetexists 'beneficial' and timer 'waiting_target_timer' < 1500
+                        wait 100
+                        if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                            sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                            break
+                        endif
+                    endwhile
+
+                    if targetexists 'beneficial'
+                        target 'self'
+                    endif
+                elseif healing >= 50 and counttype 'clean bandage%s%' > 0 and timer 'bandage_timer' >= bandage_delay
+                    settimer 'bandage_timer' 0
+                    hotkey 'Bandage Self'
+                endif
+            endif
+
+            # MAINTAIN CHAR HP
+            if diffhits > 0
+                # heal with pots
+                if diffhits > max_diffhits_before_healing_with_potion
+                    if findtype 'yellow potion' backpack
+                        hotkey 'Drink Heal'
+                        wait action_delay_var
+                    endif
+                endif
+
+                # heal with healing
+                if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= 50 and timer 'bandage_timer' >= bandage_delay
+                    settimer 'bandage_timer' 0
+                    hotkey 'Bandage Self'
+                # heal with magery
+                elseif diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+                    cast 'greater heal'
+
+                    @settimer 'waiting_target_timer' 0
+                    while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                        wait 100
+                        if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                            sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                            break
+                        endif
+                    endwhile
+
+                    if targetexists 'beneficial'
+                        hotkey 'Target Self'
+                    endif
+                endif
+            endif
+
+            if diffhits == 0 or insysmsg 'You finish applying the bandages' and timer 'bandage_timer' >= bandage_delay
+                sysmsg 'RESETING BANDAGE TIMER'
+                settimer 'bandage_timer' bandage_delay
+            endif
+
+        endwhile
+    endif
 
     # check if we got any sysmsg that should reset the timer in each iteration
     if inlist 'reset_last_sysmsg_timer' 'yes'

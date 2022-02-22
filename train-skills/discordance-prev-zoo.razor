@@ -1,0 +1,19 @@
+while skill 'Discordance' < 121.0
+    hotkey 'Cancel Current Target'
+    wait 400
+    skill 'Discordance'
+    wft 600
+    if insysmessage 'What instrument shall you play?'
+        hotkey 'Cancel Current Target'
+        wait 400
+        dclicktype '3763'
+        wait 600
+    else
+        targettype '0x013B'
+        wait 6000
+        skill 'Discordance'
+        wft 600
+        targettype '0x013B'
+        wait 6000
+    endif
+endwhile

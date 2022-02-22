@@ -1,0 +1,66 @@
+# ###############################
+# USE REFRESH
+# v0.0.1
+# by gugutz
+
+# create all lists used in script setup
+
+if not listexists 'refresh_script_lists'
+    createlist 'refresh_script_lists'
+    pushlist 'refresh_script_lists' 'unequip_hands_to_drink_potion'
+    pushlist 'refresh_script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
+    foreach list in 'refresh_script_lists'
+        if not listexists list
+            createlist list
+        else
+            clearlist list
+        endif
+    endfor
+
+    # this list  is created separatedely cause we also seed it with values
+    if not listexists 'one_handed_weapons'
+        createlist 'one_handed_weapons'
+        pushlist 'one_handed_weapons' 'katana'
+        pushlist 'one_handed_weapons' 'viking sword'
+        pushlist 'one_handed_weapons' 'broadsword'
+        pushlist 'one_handed_weapons' 'longsword'
+    endif
+
+    # CONFIG
+    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+    pushlist 'unequip_hands_to_drink_potion' 'yes'
+endif
+
+
+
+################################
+# if we have to drhink a potion, check if left hand has a weapon first
+if diffstam > 0
+    if not lhandempty
+        if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+            foreach weapon in 'one_handed_weapons'
+                if findtype weapon backpack as weap
+                    overhead "*switching to 1-handed*"
+                    dclick weap
+                    wait action_delay
+                    break
+                endif
+            endfor
+        elseif inlist 'unequip_hands_to_drink_potion' 'yes'
+            hotkey "Undress Left Hand"
+            wait action_delay
+        endif
+    endif
+
+    if findtype 'red potion' backpack as pot
+        overhead 'refresh pots'
+        useobject pot
+        stop
+    else
+        overhead '!no refresh pots!' 41
+        stop
+    endif
+    stop
+endif
+
+overhead '*everything ok!*' 65

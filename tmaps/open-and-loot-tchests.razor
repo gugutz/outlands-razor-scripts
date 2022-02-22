@@ -5,15 +5,271 @@
 # This script will search for treasure chests in the ground within 2 tiles of the char, and if it finds any
 # it will remove traps, unlock and then loot the chests
 #
+#
+#
+sysmsg '#########################' 90
+sysmsg '>>> T-Chest Unlocker and Looter' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.0.1' 31
+sysmsg '########################' 90
+
+
 #################################
-#
-# PREPARING TO START
-#
+# SCRIPT VARIABLES
+#################################
 
 @setvar action_delay_var 600
 @setvar locked_chest_gump 736038070
 
 
+#################################
+# PREPARING ALL ITEMS LISTS
+#################################
+
+# MASTERY CHAIN LINKS
+if not listexists 'links'
+    createlist 'links'
+    pushlist 'links' 'chain link'
+endif
+
+# RARES
+if not listexists 'rares'
+    sysmsg 'Creating rares list...' 51
+    createlist 'rares'
+    # mastery chain links
+    # skill orb
+    pushlist 'rares' 22336
+    # # mcd (this goes into the resource stockpile)
+    pushlist 'rares' 17087
+    # research material
+    pushlist 'rares' 29348
+    # spell hue deeds
+    pushlist 'rares' 5359
+    # rare cloth
+    pushlist 'rares' 'folded cloth'
+    pushlist 'rares' 'map'
+    # skill scrolls
+    pushlist 'rares' 'scroll of calling'
+    pushlist 'rares' 'aspect core'
+    # aspect extract
+    pushlist 'rares' 3836
+    pushlist 'rares' 'phylactery'
+    # runebook dye
+    pushlist 'rares' 3838
+    # backpack dye
+    pushlist 'rares' 3839
+    # headwear dye
+    pushlist 'rares' 3842
+    # facial hair dye
+    pushlist 'rares' 3843
+    # hair, shield and quiver dye
+    pushlist 'rares' 3843
+    # fortuniture dye
+    pushlist 'rares' 29025
+    # carpet dye
+    pushlist 'rares' 29036
+endif
+
+# ARCANE RUNES
+if not listexists 'arcane_runes'
+    sysmsg 'Creating arcane runes list...' 51
+    createlist 'arcane_runes'
+    pushlist 'arcane_runes' 39891
+    pushlist 'arcane_runes' 39892
+    pushlist 'arcane_runes' 39917
+    pushlist 'arcane_runes' 39909
+    pushlist 'arcane_runes' 39912
+    pushlist 'arcane_runes' 39905
+    pushlist 'arcane_runes' 39911
+    pushlist 'arcane_runes' 39897
+    pushlist 'arcane_runes' 39918
+    pushlist 'arcane_runes' 39889
+    pushlist 'arcane_runes' 39898
+    pushlist 'arcane_runes' 39896
+    pushlist 'arcane_runes' 39916
+endif
+
+# MISC TCHEST ITEMS
+if not listexists 'tchest_items'
+    sysmsg 'Creating regular tchest items list...' 51
+    createlist 'tchest_items'
+
+    pushlist 'tchest_items' 'gold coin'
+    pushlist 'tchest_items' 'bow'
+    pushlist 'tchest_items' 'seed of renewal'
+    pushlist 'tchest_items' 'bag of seeds'
+    # arcane scrolls
+    pushlist 'tchest_items' 'blank scroll%s%'
+
+
+    # gems
+    @pushlist 'tchest_items' 'rub%ies/y%'
+    @pushlist 'tchest_items' 'tourmaline%s%'
+    @pushlist 'tchest_items' 'emerald%s%'
+    @pushlist 'tchest_items' 'diamond%s%'
+    @pushlist 'tchest_items' 'piece%s% of amber'
+    @pushlist 'tchest_items' 'amethyst%s%'
+    @pushlist 'tchest_items' 'star sapphire%s%'
+    @pushlist 'tchest_items' 'citrine%s%'
+    @pushlist 'tchest_items' 'sapphire%s%'
+
+
+    pushlist 'tchest_items' 'spellbook'
+
+    # WRESTLE MARTIAL MANUAL
+    pushlist 'tchest_items' 'martial arts scroll'
+
+    # ARCHERY WEAPONS
+    pushlist 'tchest_items' 'bow'
+    pushlist 'tchest_items' 'crossbow'
+    pushlist 'tchest_items' 'heavy crossbow'
+
+    # SWORDS WEAPONS
+    pushlist 'tchest_items' 'katana'
+    pushlist 'tchest_items' 'viking sword'
+    pushlist 'tchest_items' 'broadsword'
+    pushlist 'tchest_items' 'longsword'
+    pushlist 'tchest_items' 'war mace'
+    pushlist 'tchest_items' 'club'
+    pushlist 'tchest_items' 'double axe'
+    pushlist 'tchest_items' 'large battle axe'
+    pushlist 'tchest_items' 'bardiche'
+    pushlist 'tchest_items' 'halberd'
+
+    # MACING WEAPONS
+    pushlist 'tchest_items' 'club'
+    pushlist 'tchest_items' 'war mace'
+    pushlist 'tchest_items' 'war axe'
+    pushlist 'tchest_items' 'hammer pick'
+    pushlist 'tchest_items' 'black staff'
+    pushlist 'tchest_items' 'gnarled staff'
+
+    # FENCING WEAPONS
+    pushlist 'tchest_items' 'kryss'
+    pushlist 'tchest_items' 'war fork'
+    pushlist 'tchest_items' 'short spear'
+    pushlist 'tchest_items' 'Long Spear'
+    pushlist 'tchest_items' 'pitchfork'
+    pushlist 'tchest_items' 'bladed staff'
+
+    # SHIELDs
+    pushlist 'tchest_items' 'buckler'
+    pushlist 'tchest_items' 'wooden shield'
+    pushlist 'tchest_items' 'metal shield'
+    pushlist 'tchest_items' 'bronze shield'
+    # kite shield (for some reason doenst work with name, only graphic number)
+    pushlist 'tchest_items' 7033
+    # metal kite shield
+    pushlist 'tchest_items' 7029
+    pushlist 'tchest_items' 'heater shield'
+
+    # HATS
+    pushlist 'tchest_items' "wizard's hat"
+    pushlist 'tchest_items' 'bone helmet'
+
+    # BONE SET
+    pushlist 'tchest_items' 'bone armor'
+    pushlist 'tchest_items' 'bone gorget'
+    pushlist 'tchest_items' 'bone arms'
+    pushlist 'tchest_items' 'bone gloves'
+    pushlist 'tchest_items' 'bone legs'
+
+    # LEATHER SET
+    pushlist 'tchest_items' 'leather cap'
+    pushlist 'tchest_items' 'leather tunic'
+    pushlist 'tchest_items' 'leather gorget'
+    pushlist 'tchest_items' 'leather sleeves'
+    pushlist 'tchest_items' 'leather gloves'
+    pushlist 'tchest_items' 'leather leggings'
+    pushlist 'tchest_items' 'leather skirt'
+    pushlist 'tchest_items' 'leather bustier'
+
+
+    # STUDDED SET
+    pushlist 'tchest_items' 'studded tunic'
+    pushlist 'tchest_items' 'studded sleeves'
+    pushlist 'tchest_items' 'studded legs'
+    pushlist 'tchest_items' 'studded gorget'
+    pushlist 'tchest_items' 'studded gloves'
+    pushlist 'tchest_items' 'studded bustier'
+
+    # HELMETS
+    pushlist 'tchest_items' 'helmet'
+    pushlist 'tchest_items' 'norse helm'
+
+    # PLATEMAIL SET
+    pushlist 'tchest_items' 'platemail chest'
+    pushlist 'tchest_items' 'platemail arms'
+    pushlist 'tchest_items' 'platemail legs'
+    pushlist 'tchest_items' 'platemail gorget'
+    pushlist 'tchest_items' 'platemail gloves'
+
+    # CHAINMAIL SET
+    pushlist 'tchest_items' 'chainmail tunic'
+    pushlist 'tchest_items' 'chainmail arms'
+    pushlist 'tchest_items' 'chainmail leggings'
+    pushlist 'tchest_items' 'chainmail gorget'
+    pushlist 'tchest_items' 'chainmail gloves'
+
+    # CHAINMAIL SET
+    pushlist 'tchest_items' 'ringmail tunic'
+    pushlist 'tchest_items' 'ringmail arms'
+    pushlist 'tchest_items' 'ringmail leggings'
+    pushlist 'tchest_items' 'ringmail gorget'
+    pushlist 'tchest_items' 'ringmail gloves'
+
+    # INSTRUMENTS
+    pushlist 'tchest_items' 'bamboo flute'
+    pushlist 'tchest_items' 'lute'
+    pushlist 'tchest_items' 'drums'
+    pushlist 'tchest_items' 'lap harp'
+
+    # MISC & MAGERY SCROLLS
+    pushlist 'tchest_items' 'clean bandage%s%'
+    pushlist 'tchest_items' 'arrow'
+    pushlist 'tchest_items' 'bolt'
+
+
+    # REAGENTS
+    pushlist 'tchest_items' 'Blood Moss'
+    pushlist 'tchest_items' 'Black Pearl%s%'
+    pushlist 'tchest_items' 'Garlic'
+    pushlist 'tchest_items' 'Mandrake Root%s%'
+    pushlist 'tchest_items' 'Ginseng'
+    pushlist 'tchest_items' 'Nightshade'
+    pushlist 'tchest_items' 'Sulfurous Ash'
+    pushlist 'tchest_items' "Spider's Silk"
+
+
+    pushlist 'tchest_items' 'Recall Scroll'
+    pushlist 'tchest_items' 'ManaDrain Scroll'
+    pushlist 'tchest_items' 'Greater Heal Scroll'
+    pushlist 'tchest_items' 'Lightning Scroll'
+    pushlist 'tchest_items' 'Lightning Scroll'
+endif
+
+
+
+###################################
+# TIMERS
+###################################
+
+sysmsg 'Creating timers...'
+
+createlist 'open_and_loot_tchests_script_timers'
+pushlist 'open_and_loot_tchests_script_timers' 'wait_for_progress'
+
+foreach timer in 'open_and_loot_tchests_script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 0
+    endif
+endfor
+
+
+###################################
+# SEARCH FOR CHESTS IN GROUND
+###################################
 
 # check if chest nearby is already opened
 if findtype 29089 ground any any 2 or findtype 29076 ground any any 2
@@ -23,25 +279,59 @@ if findtype 29089 ground any any 2 or findtype 29076 ground any any 2
 endif
 
 
-
 # search for tchests in the ground to start the whole process
 unsetvar chest
+
 # metal t-chests
-if findtype 29076 ground any any 2
+if findtype 29076 ground any any 2 as tchest or findtype 'metal chest' ground any any 2 as tchest
     setvar chest tchest
 # wood t-chests
-elseif findtype 29089 ground any any 2
+elseif findtype 29089 ground any any 2 as tchest or findtype 'wooden chest' ground any any 2 as tchest
     setvar chest tchest
+else
+    overhead 'NO CHESTS NEARBY!' 43
+    sysmsg 'Cant find any Treasure Chest nearby!' 43
 endif
 
+
+###################################
+# START WORKING CHEST
+###################################
+
 if varexist chest
-    overhead 'found locked tchest'
-    sysmsg 'FOUND LOCKED TCHEST!'
-    # Remove Traps Section
-    while not dead and not insysmsg 'appears to be devoid'
+
+    while not gumpexists locked_chest_gump
+        sysmsg 'Opening chest first time...' 53
+        dclick chest
+        waitforgump locked_chest_gump 600
+    endwhile
+
+    #################################
+    # REMOVE CHEST TRAPS
+    #################################
+
+
+    while not dead and not insysmsg 'You have successfully cleared it of traps'
+
+        if skill 'hiding' >= 70
+            while not hidden
+                useskill 'hiding'
+                wait 1000
+            endwhile
+        elseif skill 'magery' >= 75
+            while not hidden
+                cast 'invisibility'
+                wft 3500
+                if targetexists 'neutral'
+                    target 'self'
+                endif
+                wait action_delay_var
+            endwhile
+        endif
+
 
         # Skip ahead if devoid of traps
-        if insysmsg 'appears to be devoid'
+        if insysmsg 'You have successfully cleared it of traps'
             overhead '* TRAPS CLEARED * ' 59
             break
         endif
@@ -56,10 +346,15 @@ if varexist chest
         #
         if findtype drill as tool
             if not gumpexists locked_chest_gump
-                sysmsg 'Clicking chest first time to open gump'
+                sysmsg 'Clicking chest to open gump...'
                 dclick chest
                 waitforgump locked_chest_gump 1000
             else
+                if ingump 'Cleared of Traps' 736038070 or insysmsg 'appears to be devoid'
+                    sysmsg 'CHEST ALREADY CLARED OF TRAPS....'
+                    break
+                endif
+
                 gumpresponse 7
                 wait action_delay_var
                 if insysmsg 'You do not have any trap tools of that material on hand'
@@ -68,7 +363,7 @@ if varexist chest
                 else
                     while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
                         wait 100
-                        if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                        if timer 'wait_for_progress' >= 5000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress' or insysmsg 'cleared it of traps'
                             settimer 'wait_for_progress' 0
                             break
                         endif
@@ -83,12 +378,16 @@ if varexist chest
 
     endwhile
 
-    # Lockpicking Section
-    while not dead and not insysmsg 'You successfully pick the lock'
+
+    #################################
+    # LOCKPICK CHEST
+    #################################
+
+    while not dead and not insysmsg 'You successfully pick the lock.'
         #
         if findtype 'lockpicks' as tool
             if not gumpexists locked_chest_gump
-                sysmsg 'Clicking chest first time to open gump'
+                sysmsg 'Clicking chest to open gump...'
                 dclick chest
                 waitforgump locked_chest_gump 1000
             else
@@ -101,7 +400,7 @@ if varexist chest
                     settimer 'wait_for_progress' 0
                     while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
                         wait 100
-                        if timer 'wait_for_progress' >= 3000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress'
+                        if timer 'wait_for_progress' >= 5000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress' or insysmsg 'You successfully pick the lock.'
                             settimer 'wait_for_progress' 0
                             break
                         endif
@@ -113,30 +412,29 @@ if varexist chest
             stop
         endif
 
-        if insysmsg 'You successfully pick the lock'
-            overhead 'chest opened!' 54
-            sysmsg '>>> Chest Opened!' 54
+        if findtype 29076 ground any any 2 or findtype  29089 ground any any 2
             break
         endif
 
-        # Lockpick
     endwhile
+
+    if insysmsg 'You successfully pick the lock' or findtype 29076 ground any any 2 or findtype  29089 ground any any 2
+        overhead 'chest opened!' 54
+        sysmsg '>>> Chest Opened!' 54
+    else
+        sysmsg 'Couldnt confirm if chest really opened. Stopping...' 54
+        stop
+    endif
 
 
 
     #################################
-    #
     # LOOT THE CHEST
-    #
-    # ------------------------------
-    # MASTERY CHAIN LINKS
-    if not listexists 'links'
-        createlist 'links'
-        pushlist 'links' 'chain link'
-    endif
+    #################################
 
+    sysmsg 'Starting Looting Chest...'
     foreach item in 'links'
-        while findtype item tchest any any as item_to_unload
+        while findtype item chest any any as item_to_unload
             sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
             overhead 'found a link!' 51 'self'
 
@@ -146,49 +444,11 @@ if varexist chest
             wait action_delay_var
         endwhile
     endfor
-    #
-    # ------------------------------
-    if not listexists 'rares'
-        sysmsg 'Creating rares list...' 51
-        createlist 'rares'
-        # mastery chain links
-        # skill orb
-        pushlist 'rares' 22336
-        # # mcd (this goes into the resource stockpile)
-        pushlist 'rares' 17087
-        # research material
-        pushlist 'rares' 29348
-        # spell hue deeds
-        pushlist 'rares' 5359
-        # rare cloth
-        pushlist 'rares' 'folded cloth'
-        pushlist 'rares' 'map'
-        # skill scrolls
-        pushlist 'rares' 'scroll of calling'
-        pushlist 'rares' 'aspect core'
-        # aspect extract
-        pushlist 'rares' 3836
-        pushlist 'rares' 'phylactery'
-        # runebook dye
-        pushlist 'rares' 3838
-        # backpack dye
-        pushlist 'rares' 3839
-        # headwear dye
-        pushlist 'rares' 3842
-        # facial hair dye
-        pushlist 'rares' 3843
-        # hair, shield and quiver dye
-        pushlist 'rares' 3843
-        # fortuniture dye
-        pushlist 'rares' 29025
-        # carpet dye
-        pushlist 'rares' 29036
-    endif
 
     foreach item in 'rares'
-        while findtype item tchest any any as item_to_unload
-            overhead item_graphic 51 'self'
-            sysmsg item_graphic 52
+        while findtype item chest any any as item_to_unload
+            overhead item 51 'self'
+            sysmsg item 52
 
             lift item_to_unload 60000
             wait action_delay_var
@@ -196,30 +456,11 @@ if varexist chest
             wait action_delay_var
         endwhile
     endfor
-    # ------------------------------
-    # arcane runes
-    if not listexists 'arcane_runes'
-        sysmsg 'Creating arcane runes list...' 51
-        createlist 'arcane_runes'
-        pushlist 'arcane_runes' 39891
-        pushlist 'arcane_runes' 39892
-        pushlist 'arcane_runes' 39917
-        pushlist 'arcane_runes' 39909
-        pushlist 'arcane_runes' 39912
-        pushlist 'arcane_runes' 39905
-        pushlist 'arcane_runes' 39911
-        pushlist 'arcane_runes' 39897
-        pushlist 'arcane_runes' 39918
-        pushlist 'arcane_runes' 39889
-        pushlist 'arcane_runes' 39898
-        pushlist 'arcane_runes' 39896
-        pushlist 'arcane_runes' 39916
-    endif
 
     foreach item in 'arcane_runes'
-        while findtype item tchest any any as item_to_unload
-            overhead item_graphic 51 'self'
-            sysmsg item_graphic 52
+        while findtype item chest any any as item_to_unload
+            overhead item 51 'self'
+            sysmsg item 52
 
             lift item_to_unload 60000
             wait action_delay_var
@@ -227,21 +468,11 @@ if varexist chest
             wait action_delay_var
         endwhile
     endfor
-    # ------------------------------
-    if not listexists 'tchest_items'
-        sysmsg 'Creating regular tchest items list...' 51
-        createlist 'tchest_items'
-        # non-indentified items
-        pushlist 'tchest_items' 'gold coin'
-        pushlist 'tchest_items' 'bow'
-        pushlist 'tchest_items' 'seed of renewal'
-        pushlist 'tchest_items' 'bag of seeds'
-    endif
 
     foreach item in 'tchest_items'
-        while findtype item tchest any any as item_to_unload
-            overhead item_graphic 51 'self'
-            sysmsg item_graphic 52
+        while findtype item chest any any as item_to_unload
+            overhead item 51 'self'
+            sysmsg item 52
 
             lift item_to_unload 60000
             wait action_delay_var
@@ -249,6 +480,7 @@ if varexist chest
             wait action_delay_var
         endwhile
     endfor
+
 
     sysmsg 'LOOT CHEST FINISHED'
 

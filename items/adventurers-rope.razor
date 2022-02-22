@@ -1,20 +1,32 @@
-# @setvar yellow_dg_gate_hue 2822
-# @setvar red_dg_gate_hue 2820
-
-if not findtype 'rope' 'backpack'
-    overhead 'no rope!'
-    stop
-endif
+###############################
+# Use Adventurers Rope
+# v0.0.1
+# by gugutz
+###############################
 
 if not targetexists 'neutral'
-    overhead 'using rope'
-    usetype 'rope'
+    if findtype 'rope' backpack 2799 as adv_rop
+        useobject adv_rop
+        waitfortarget 300
+        if targetexist 'neutral'
+            overhead 'adventurers rope!' 64
+            while targetexist 'neutral'
+                wait 100
+            endwhile
+        endif
+    else
+        overhead 'no adventurers rope!'
+        stop
+    endif
 else
     if findtype 'blue moongate' ground 2822 any 20 as field
-        overhead '*targetting yellow gate*' 56
+        overhead '*targetting player gate*' 56
         target field
+    # public moongates?
     elseif findtype 'blue moongate' ground 2820 any 20 as field
-        overhead '*targetting red gate*' 56
+        overhead '*targetting public gate*' 56
         target field
+    else
+        overhead 'no moongates nearby' 43
     endif
 endif

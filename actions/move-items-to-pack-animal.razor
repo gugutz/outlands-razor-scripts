@@ -125,13 +125,13 @@ if not varexist pack_animal or not find pack_animal ground 0 any 5
     endif
 
     if varexist pack_animal
-            sysmsg "FOUND PLAYER PACK LLAMA" 55
-            overhead "found and saving llama!" 55 'self'
-            overhead 'found player llama' 55 pack_animal
+        sysmsg "FOUND PLAYER PACK LLAMA" 55
+        overhead "found and saving llama!" 55 'self'
+        overhead 'found player llama' 55 pack_animal
 
-            overhead '*renaming*' 55 pack_animal
-            rename pack_animal 'i'
-            menu pack_animal 4
+        overhead '*renaming*' 55 pack_animal
+        rename pack_animal 'i'
+        menu pack_animal 4
     else
         sysmsg '>>> COULD NOT FIND ANY PACK ANIMALS CLOSE.' 56
         sysmsg '****** IMPORTANT: ******' 90

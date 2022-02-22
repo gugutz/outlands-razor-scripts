@@ -1,0 +1,13 @@
+
+if followers == 0
+    overhead 'NO FOLLOWERS TO DISEMBARK' 41
+    stop
+endif
+
+say '[disembarkfollowers'
+wft 300
+if targetexists 'neutral'
+    while targetexists 'neutral'
+        overhead 'where to disermbark followers?' 53
+    endwhile
+endif

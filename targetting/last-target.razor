@@ -1,4 +1,9 @@
+
+hotkey 'Toggle War Only'
+hotkey 'Toggle Peace Only'
+
 @ignore 'self'
-hotkey 'Last Target'
-#overhead '* Last Target *' 54 'self'
-overhead '**LAST TARGET **' 55 'last'
+
+if targetexists 'any'
+    hotkey 'Last Target'
+endif
