@@ -2,17 +2,70 @@
 
 interrupt
 
-#script 'housing\rental-room-exit'
+###############################
+# first run actions
+###############################
+
+if not listexists 'first_run_done'
+    createlist 'first_run_done'
+endif
+if not listexists 'backpack_opened_once'
+    createlist 'backpack_opened_once'
+endif
+if not listexists 'reg_bag_opened_once'
+    createlist 'reg_bag_opened_once'
+endif
+
+if diffhits < 10 and not inlist 'first_run_done' 'yes'
+    clearsysmsg
+
+    if not inlist 'backpack_opened_once' 'yes'
+        if findlayer self 'backpack' as char_backpack
+            sysmsg 'Opening backpack first time...' 91
+            overhead 'opening backpack...' 91
+            dclick char_backpack
+            wait 550
+            if insysmsg 'You must wait to perform another action'
+                overhead 'failed to open backpack!' 41
+                stop
+            endif
+            pushlist 'backpack_opened_once' 'yes'
+        endif
+    endif
+
+    if not inlist 'reg_bag_opened_once' 'yes'
+        if findtype 'bag' backpack as reg_bag
+            sysmsg 'Opening reagent bag first time...' 91
+            overhead 'opening reg bag...' 91
+            dclick reg_bag
+            wait 550
+            if insysmsg 'You must wait to perform another action'
+                overhead 'failed to open reg bag!' 41
+                stop
+            endif
+            pushlist 'reg_bag_opened_once' 'yes'
+        endif
+    endif
+
+    overhead 'FIRST RUN FINISHED' 91
+    pushlist 'first_run_done' 'yes'
+endif
 
 
-# if there is a ress gump up, we click in accept
+###############################
+# confirm ress if gump present
+###############################
+
 if gumpexists 2957810225
     overhead 'RESSING...' 10
-    gumpresponse 1
+    gumpresponse 1 2957810225
     stop
 endif
 
+###############################
 # handle paralyze
+###############################
+
 if findbuff 'paralyze'
     if not findtype 'pouch' 'backpack' 38
         overhead '** NO POUCH **' 39
@@ -23,31 +76,124 @@ if findbuff 'paralyze'
     stop
 endif
 
-# if there is a moongate nearby, enter it
+
+###############################
+# apply bandages if has healing
+###############################
+
+if diffhits > 0 and skill 'healing' >= 20 and findtype 'clean bandage%s%' backpack
+    if not timerexists 'bandage_timer'
+        createtimer 'bandage_timer'
+        settimer 'bandage_timer' 99999
+    endif
+
+    # set bandage_delay based on char dex
+    removelist 'bandage_delay'
+    createlist 'bandage_delay'
+
+    if dex >= 100
+        pushlist 'bandage_delay' 10000
+    elseif dex <= 80
+        pushlist 'bandage_delay' 15000
+    endif
+
+    if atlist 'bandage_delay' 0 as bandage_delay
+        if timer 'bandage_timer' >= bandage_delay
+            script 'items\bandage-self'
+        endif
+    endif
+endif
+
+###############################
+# enter moongate if one nearby
+###############################
+
 if findtype 'blue moongate' 'ground' any any 2
     script 'actions\enter-moongate'
     wait 10
     stop
 endif
 
-# open door if theres one close (1 tile)
-if not listexists 'doors'
-    createlist 'doors'
-    pushlist 'doors' 'wooden door'
-    pushlist 'doors' 'metal door'
+###############################
+# open door if one nearby (1 tile)
+###############################
+
+if findtype 'wooden door' ground any any 1 as doorx
+    overhead 'clicking door...' 53
+    useobject doorx
+    stop
+elseif findtype 'metal door' ground any any 1 as doorx
+    overhead 'clicking door...' 53
+    useobject doorx
+    stop
 endif
 
-foreach door in 'doors'
-    if findtype door ground any any 1 as doorx
-        overhead 'clicking door...' 53
-        useobject doorx
-        stop
+######################################
+# BARDING BUFFS
+######################################
+
+# if not listexists 'barding_skills'
+#     createlist 'barding_skills'
+#     pushlist 'barding_skills' 'discordance'
+#     pushlist 'barding_skills' 'peacemaking'
+#     pushlist 'barding_skills' 'provocation'
+#     pushlist 'barding_skills' 'lap harp'
+# endif
+
+# foreach skill_name in 'barding_skills'
+    # if skill skill_name >= 50 and not findbuff 'song of {{skill_name}}'
+    #     setvar temp skill_name
+    #     useskill skill_name
+    #     overhead 'PEGOU CONCAT {{temp}}'
+    # endif
+# endfor
+
+if skill 'peacemaking' >= 50 or skill 'discordance' >= 50 or skill 'provocation' >= 50
+
+    if not listexists 'char_instrument'
+        createlist 'char_instrument'
+    else
+        createlist 'char_instrument'
     endif
-endfor
+
+    if findtype 'lute' backpack as instrument
+        pushlist 'char_instrument' instrument
+    elseif findtype 'drums' backpack as instrument
+        pushlist 'char_instrument' instrument
+    elseif findtype 'tambourine' backpack as instrument
+        pushlist 'char_instrument' instrument
+    elseif findtype 'lap harp' backpack as instrument
+        pushlist 'char_instrument' instrument
+    endif
+
+    if atlist 'char_instrument' 0 as instrument
+
+        # PEACEMAKING
+        if skill 'peacemaking' >= 20 and not findbuff 'song of peacemaking'
+            script 'buffs\peacemaking-buff'
+        endif
+
+        # PEACEMAKING
+        if skill 'discordance' >= 20 and not findbuff 'song of discordance'
+            script 'buffs\discordance-buff'
+        endif
+
+        # PROVOCATION
+        if skill 'provocation' >= 20 and not findbuff 'song of provocation'
+            script 'buffs\provocation-buff'
+        endif
+    else
+        overhead 'couldnt find instrument...' 40
+    endif
+
+endif
+
+
+
 
 
 ######################################
-# BUFFS
+# OTHER SKILL BUFFS
 ######################################
 
 # keep campfire buff
@@ -66,11 +212,17 @@ if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
 endif
 
 
+
 # keep taste id buff
 if skill 'taste identification' > 20 and not findbuff 'herbal poultice'
     script 'skills\taste-identification'
     # stop
 endif
+
+
+######################################
+# OTHER BUFFS
+######################################
 
 # maintain str at 120 pots
 if str < 120 and findtype 'white potion'
@@ -120,9 +272,41 @@ endif
 # IN CASE OF DANGER
 
 
-wait 10
-if name = 'Tau'
-   script 'loops\town-struggle'
 endif
 
 overhead 'nothing to do...' 55
+# script 'loops\survival'
+#
+#
+#
+
+if skill 'magery' >= 40 and not findbuff 'Magic Reflection'
+    if counttype 'Garlic' > 0 and counttype 'Mandrake Root%s%' > 0 and counttype "Spider's Silk" > 0
+        cast 'Magic Reflection'
+    elseif counttype 'Magic Reflection' > 0
+        cast 'Magic Reflection'
+    else
+        sysmsg 'No Reagents Or Scrolls for Magic Reflection'
+        sysmsg 'no reflect regs or scroll!' 39
+    endif
+endif
+
+if skill 'tracking' >= 20
+    setvar tracking_gump_id 4267467659
+
+
+    if not gumpexists tracking_gump_id
+        skill 'tracking'
+        waitforgump tracking_gump_id 200
+    endif
+
+    if gumpexists tracking_gump_id
+        if not ingump 'Stop Hunting' tracking_gump_id
+            overhead 'STARTING HUNTING' 65
+            gumpresponse 6 4267467659
+            gumpclose
+        else
+            overhead 'already hunting' 55
+        endif
+    endif
+endif

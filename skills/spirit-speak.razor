@@ -1,4 +1,91 @@
-if not listexists 'vampiric_embraced_corpses'
+
+###################################################
+# 1-KEY SUMMON COMBO
+# by gugutz
+###################################################
+
+## CONFIG LISTS
+
+if not listexists 'config_lists'
+    createlist 'config_lists'
+else
+    clearlist 'config_lists'
+endif
+
+pushlist 'config_lists' 'auto_summon'
+pushlist 'config_lists' 'summons'
+pushlist 'config_lists' 'found_summon'
+pushlist 'config_lists' 'found_undead_summon'
+pushlist 'config_lists' 'cast_summon_spell'
+pushlist 'config_lists' 'make_undead_summon'
+pushlist 'config_lists' 'find_summon_range'
+pushlist 'config_lists' 'summon_max_limit'
+pushlist 'config_lists' 'summon_spell_required_mana'
+
+
+#
+# CREATE ALL LISTS FOR CONFIG
+foreach list in 'config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+###################################################
+# CONFIG
+###################################################
+
+pushlist 'auto_summon' 'yes'
+pushlist 'find_summon_range' 5
+
+pushlist 'summons' 'a fire elemental'
+pushlist 'summons' 'summ. creature'
+
+# if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
+# if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
+foreach summon in 'summons'
+    if summon = 'summ. creature'
+        pushlist 'summon_max_limit' 5
+        break
+        # sysmsg 'SUMMONS LIMIT SET TO 5' 56
+    else
+        pushlist 'summon_max_limit' 4
+        break
+        # sysmsg 'SUMMONS LIMIT SET TO 4' 56
+    endif
+endfor
+
+# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+if atlist 'find_summon_range' 0 as find_summon_range
+if atlist 'summon_max_limit' 0 as summon_max_limit
+
+
+
+
+###################################################
+# ROUTINE RELATED LISTS
+###################################################
+if not listexists 'summonspells'
+    @createlist 'summonspells'
+    @pushlist 'summonspells' 'air elemental'
+    @pushlist 'summonspells' 'earth elemental'
+    @pushlist 'summonspells' 'water elemental'
+    @pushlist 'summonspells' 'fire elemental'
+    @pushlist 'summonspells' 'summon daemon'
+    @pushlist 'summonspells' 'energy vortex'
+    @pushlist 'summonspells' 'blade spirits'
+    @pushlist 'summonspells' 'summ. creature'
+endif
+
+if not timerexists 'vengeful_spirit_timer'
+    createtimer 'vengeful_spirit_timer'
+    settimer 'vengeful_spirit_timer' 30001
+endif
+
+if skill 'necromancy' > 0 and not listexists 'vampiric_embraced_corpses'
     sysmsg '>>> Creating list to control consumed (vamp embraced) corpses...' 74
     createlist 'vampiric_embraced_corpses'
 endif
@@ -8,35 +95,166 @@ if skill 'spirit' > 0 and not listexists 'drained_corpses'
     createlist 'drained_corpses'
 endif
 
-# CHOOSE CHARACTER SUMMONS
-if not listexists 'summons'
-    createlist 'summons'
-else
-    clearlist 'summons'
-endif
 
-# CHOOSE CHARACTER SUMMONS
-if not listexists 'found_summon'
-    createlist 'found_summon'
-endif
 
-# CHOOSE CHARACTER SUMMONS
-if not listexists 'found_undead_summon'
-    createlist 'found_undead_summon'
-endif
+###################################################
+# CODE
+###################################################
 
-if not listexists 'make_undead_summon'
-    createlist 'make_undead_summon'
-endif
 
-@pushlist 'summons' 'an earth elemental'
-@pushlist 'summons' 'a fire elemental'
-clearlist 'found_summon'
 
-if followers < 5
-    script 'spells\summon-summons'
+# this is just a print to inform char is under summon_limit and is getting ready to summon up
+if inlist 'auto_summon' 'yes' and followers < summon_max_limit
+    sysmsg 'Under Summon Limit. Preparing To Summon...' 67
+
+
+    foreach summon in 'summons'
+        clearlist 'found_summon'
+        clearlist 'undead_summons'
+
+        # determine summon name by whether char has necromancy or not
+        if skill 'necromancy' >= 50
+            # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
+            if not listexists 'undead_summons'
+                createlist 'undead_summons'
+            else
+                clearlist 'undead_summons'
+            endif
+
+            if earth in summon
+                pushlist 'undead_summons' 'an ancient mummy'
+            elseif fire in summon
+                pushlist 'undead_summons' 'a lich'
+            elseif air in summon
+                pushlist 'undead_summons' 'a skeletal fiend'
+            elseif daemon in summon
+                pushlist 'undead_summons' 'a vampire thrall'
+            elseif water in summon
+                pushlist 'undead_summons' 'a rag witch'
+            endif
+        endif
+
+        # if char is necro, make sure vengeful spirit is activated before summoning
+        if list 'undead_summons' > 0
+            if timer 'vengeful_spirit_timer' >= 30000
+                sysmsg '>>> VENGEFUL SPIRIT...' 95
+                say '[vengefulspirit'
+                wait 500
+                settimer 'vengeful_spirit_timer' 0
+            else
+                sysmsg 'Vengeful Spirit Cooldown..' 41
+            endif
+        endif
+
+        #########################
+        # try to find a similir creature summon to see if we need to cast this one or skip to next one
+
+
+        if findtype summon ground any 1 find_summon_range as summonserial
+            if noto summonserial = friend
+                overhead '*found summon*' 91 summonserial
+                pushlist 'found_summon' 'yes'
+            endif
+        # if the 'undead_summons' list has elements, we need to check for those undead summons as well
+        elseif list 'undead_summons' > 0
+            foreach necro_summon in 'undead_summons'
+                if findtype necro_summon ground any 1 find_summon_range as summonserial
+                    if noto summonserial = friend
+                        overhead '*found undead summon*' 91 summonserial
+                        pushlist 'found_summon' 'yes'
+                    endif
+                endif
+            endfor
+        endif
+
+        # if theres only one summon in the 'summons' list, even if we found the summon above,
+        # we still need to cast it again
+        if list 'summons' == 1 and followers < summon_max_limit
+            pushlist 'cast_summon_spell' 'yes'
+        # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
+        # summon before actually casting summ.creature
+        elseif inlist 'found_summon' 'yes' and followers <= 3 and inlist 'summons' 'summ. creature'
+            pushlist 'cast_summon_spell' 'yes'
+        # else if theres more than one summon in 'summons' list and we didnt find this specific summon
+        # we need to cast ig
+        elseif not inlist 'found_summon' 'yes'
+            pushlist 'cast_summon_spell' 'yes'
+        endif
+
+        #########################
+        # prepare to cast the summon spell for this summon
+        if inlist 'cast_summon_spell' 'yes'
+            clearlist 'summon_spell_required_mana'
+
+            foreach summonspell in 'summonspells'
+
+                # first make a mana check for this specific summon spell
+                if creature in summonspell or blade in summon
+                    pushlist 'summon_spell_required_mana' 14
+                else
+                    pushlist 'summon_spell_required_mana' 50
+                endif
+
+                if atlist 'summon_spell_required_mana' 0 as summon_max_limit
+                    if mana < summon_spell_required_mana
+                        sysmsg ">>> LOW MANA FOR SUMMONING..." 41
+                        overhead "low mana for summoning" 41
+                        stop
+                    else
+                        if summonspell in summon
+                            sysmsg ">>> SUMMONING..." 56
+                            cast summonspell
+                            if Blade in summonspell or Vortex in summonspell
+                                overhead 'Waiting for summon target..'
+
+                                @settimer 'waiting_summon_timer' 0
+                                while not targetexists 'neutral' and timer 'waiting_summon_timer' < 3500
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        @settimer 'waiting_summon_timer' 0
+                                        sysmsg 'BREAKING WHILE WAITING FOR RESS TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'neutral'
+                                    sysmsg 'CASTING BLADE OR VORTEX IN GROUND' 55
+                                    targetrelloc 0 1
+                                    break
+                                endif
+                            else
+                                @settimer 'waiting_summon_timer' 0
+                                while timer 'waiting_summon_timer' < 3500
+                                    wait 100
+                                    if insysmsg 'disturbed'
+                                        @settimer 'waiting_summon_timer' 0
+                                        sysmsg 'BREAKING WHILE WAITING FOR RESS TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+                                say 'all guard me'
+                            endif
+                            break
+                        endif
+                    endif
+                endif
+
+            endfor
+            break
+        else
+            sysmsg 'NAO CAST SUMMON SPELL' 19
+        endif
+    endfor
     stop
 endif
+
+
+
+###################################################
+# CHECK IF WE CAN EXTEND / RESTORE SUMMONS
+###################################################
 
 foreach summon in 'summons'
 
@@ -67,9 +285,10 @@ foreach summon in 'summons'
     clearlist 'found_summon'
     clearlist 'found_undead_summon'
     clearlist 'cast_summon_spell'
+
     if findtype summon ground any 1 find_summon_range as summonserial
         if noto summonserial = friend
-            overhead '*found summon*' 98 summonserial
+            overhead '*found summon*' 91 summonserial
             pushlist 'found_summon' 'yes'
         endif
     endif
@@ -79,7 +298,7 @@ foreach summon in 'summons'
         foreach necro_summon in 'undead_summons'
             if findtype necro_summon ground any 1 find_summon_range as summonserial
                 if noto summonserial = friend
-                overhead 'necro_summon' 16 summonserial
+                    overhead 'necro_summon' 16 summonserial
                     pushlist 'found_undead_summon' 'yes'
                 endif
             endif
@@ -126,7 +345,16 @@ elseif not inlist 'found_undead_summon' 'yes'
     sysmsg '>>> No Undeads To Heal' 56
 endif
 
-if inlist 'found_summon' 'yes' and not inlist 'found_undead_summon' 'yes'
+if not inlist 'found_summon' 'yes' and not inlist 'found_undead_summon' 'yes'
     overhead '|* no followers to maintain *|' 56
     stop
+endif
+
+
+
+################################
+# CLOSE CONFIG 'if atlist' STATEMENTS
+################################
+
+endif
 endif

@@ -1,18 +1,92 @@
+if not listexists 'str_agil_script_lists'
+    createlist 'str_agil_script_lists'
+    pushlist 'str_agil_script_lists' 'unequip_hands_to_drink_potion'
+    pushlist 'str_agil_script_lists' 'drink_agility_potion'
+    pushlist 'str_agil_script_lists' 'drink_refresh_potion'
+    pushlist 'str_agil_script_lists' 'drink_str_potion'
+    pushlist 'str_agil_script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
+    foreach list in 'str_agil_script_lists'
+        if not listexists list
+            createlist list
+        else
+            clearlist list
+        endif
+    endfor
+
+    # this list  is created separatedely cause we also seed it with values
+    if not listexists 'one_handed_weapons'
+        createlist 'one_handed_weapons'
+        pushlist 'one_handed_weapons' 'katana'
+        pushlist 'one_handed_weapons' 'viking sword'
+        pushlist 'one_handed_weapons' 'broadsword'
+        pushlist 'one_handed_weapons' 'longsword'
+    endif
+
+    # CONFIG
+    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+    pushlist 'unequip_hands_to_drink_potion' 'yes'
+endif
+
+
+
+################################
+
+
+clearlist 'drink_str_potion'
+clearlist 'drink_agility_potion'
+
+# DECISION FLOW
+if str < 120 or not findbuff 'Strength'
+    pushlist 'drink_str_potion' 'yes'
+endif
+
+
+# mage chars drink agil with 25 or less stam
+if skill 'magery' >= 80 and dex <= 25
+    pushlist 'drink_agility_potion' 'yes'
+elseif dex <= 100
+    pushlist 'drink_agility_potion' 'yes'
+endif
+
+
+################################
+# if we have to drhink a potion, check if left hand has a weapon first
+if inlist 'drink_str_potion' 'yes' or inlist 'drink_agility_potion' 'yes' or inlist 'drink_refresh_potion' 'yes'
+    if not lhandempty
+        if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+            foreach weapon in 'one_handed_weapons'
+                if findtype weapon backpack as weap
+                    overhead "*switching to 1-handed*"
+                    dclick weap
+                    wait action_delay
+                    break
+                endif
+            endfor
+        elseif inlist 'unequip_hands_to_drink_potion' 'yes'
+            hotkey "Undress Left Hand"
+            wait action_delay
+        endif
+    endif
+endif
+
+
 # str pots
-if str < 120
+if inlist 'drink_str_potion' 'yes'
     if not findtype 'white potion' 'backpack'
-    overhead '*NO STR POTS*' 39
+        overhead 'no str pots!' 39
     else
-        potion 'strength'
+        overhead '✩ str potion ✩' 91
+        potion 'strength' 91
         stop
     endif
 endif
 
 # agil pots
-# if char is mage, dex will be 25
-if skill 'magery' > 50
-    if dex < 25
-        overhead '✩ agil str pot ✩'
+if inlist 'drink_agility_potion' 'yes'
+    if not findtype 'blue potion' 'backpack'
+        overhead 'no agil pots!' 39
+    else
+        overhead '✩ agility potion ✩' 91
         potion 'agility'
         wait 550
         stop

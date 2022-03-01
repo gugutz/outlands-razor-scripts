@@ -100,12 +100,18 @@ foreach pouch in 'trapped_pouches'
     if '0 items' in pouch_label
         overhead 'ACHOU 0 POUCH'
     else
-        dclick pouch
-        wait action_delay_var
-        dclick pouch
-        wait action_delay_var
+
         overhead 'ACHOU ITEMS POUCH'
 
+        # dclick pouch
+        # wait action_delay_var
+        # dclick pouch
+        # wait action_delay_var
+
+        lift pouch
+        pause 550
+        droprelloc 0 1
+        pause 550
 
         foreach item in 'corpse_items'
             while findtype item pouch any any as item_to_unload

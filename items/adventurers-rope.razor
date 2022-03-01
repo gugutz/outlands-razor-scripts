@@ -8,9 +8,9 @@ if not targetexists 'neutral'
     if findtype 'rope' backpack 2799 as adv_rop
         useobject adv_rop
         waitfortarget 300
-        if targetexist 'neutral'
+        if targetexists 'neutral'
             overhead 'adventurers rope!' 64
-            while targetexist 'neutral'
+            while targetexists 'neutral'
                 wait 100
             endwhile
         endif

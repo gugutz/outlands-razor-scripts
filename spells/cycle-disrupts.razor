@@ -22,9 +22,9 @@
 
 if not listexists 'disrupt_spells'
     createlist 'disrupt_spells'
-    pushlist 'disrupt_spells' 'magic arrow'
     pushlist 'disrupt_spells' 'harm'
-    pushlist 'disrupt_spells' 'poison'
+    pushlist 'disrupt_spells' 'magic arrow'
+    pushlist 'disrupt_spells' 'fireball'
     pushlist 'disrupt_spells' 'lightning'
 endif
 
@@ -47,6 +47,10 @@ endif
 ###################################
 # CODE
 #
+
+if targetexists 'harmful'
+    target 'last'
+endif
 
 foreach spell in 'disrupt_spells'
 

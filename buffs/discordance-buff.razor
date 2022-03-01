@@ -1,0 +1,70 @@
+
+    overhead 'begin disco macro'
+
+if not listexists 'instruments'
+    createlist 'instruments'
+    pushlist 'instruments' 'lute'
+    pushlist 'instruments' 'drums'
+    pushlist 'instruments' 'tambourine'
+    pushlist 'instruments' 'lap harp'
+endif
+
+
+if skill 'discordance' >= 50 and not findbuff 'song of discordance'
+    overhead 'debug 00001'
+    if not listexists 'char_instrument'
+        createlist 'char_instrument'
+    else
+        createlist 'char_instrument'
+    endif
+
+    foreach type in 'instruments'
+        # find all instruments and see if any of them are magical
+        while findtype type backpack as instrument and list 'char_instrument' == 0
+            getlabel instrument instrument_label
+
+            if exceedingly in instrument_label or supremely in instrument_label
+                pushlist 'char_instrument' instrument
+                break
+            endif
+            @ignore instrument
+        endwhile
+
+        @clearignore
+
+        if list 'char_instrument' >0
+            break
+        endif
+    endfor
+
+    if atlist 'char_instrument' 0 as instrument
+        clearsysmsg
+        useskill 'discordance'
+        wft 600
+
+        if insysmsg 'What instrument shall you play?'
+            overhead 'selecting instrument...' 54
+            dclick instrument
+            wait 600
+        endif
+
+        if targetexists 'harmful' and insysmsg 'What do you wish to discord?'
+
+            if findtype 'dagger' backpack as knife
+                target knife
+            elseif findtype 'spellbook' backpack as book
+                target book
+            else
+                targetrelloc 1 1
+            endif
+
+            wait 200
+            if findbuff 'song of discordance'
+                overhead '+ discordance buff' 91
+                stop
+            endif
+        endif
+    else
+        overhead 'cant find instrument!' 41
+    endif
+endif

@@ -17,6 +17,7 @@ sysmsg '♥ UNLOAD BOSS LOOT by NT BaLLa & gugutz ♥' 55
 #
 # v0.0.2
 # - Puts char backpack and all packies found inside a list, and iterate that list to unload. This reduce number of lines and simplifies maintenance and addition of new features
+# - Puts char backpack and all packies found inside a list, and iterate that list to unload. This reduce number of lines and simplifies maintenance and addition of new features
 # - Asks player to re-set distro container if it cant be found within 2 tiles
 # - Puts hardcoded container serial values in variables
 #
@@ -97,6 +98,22 @@ wait object_delay
 
 gumpclose
 
+
+###############################
+sysmsg 'DETECTING THIEFS' 53
+###############################
+
+clearsysmsg
+wait detect_delay
+useskill 'detectinghidden'
+wft 600
+target 'self'
+wait object_delay
+
+if insysmsg 'you reveal what was hidden.'
+    overhead '>>>>> ATENÇÃO LADRAO NA GH <<<<<'
+    sysmsg ">>>>> ATENÇÃO LADRAO NA GH <<<<<"
+endif
 
 
 foreach container in 'source_containers'
@@ -268,10 +285,9 @@ foreach container in 'source_containers'
 endfor
 
 ###############################
-# PACKIES UNLOAD
+sysmsg 'DETECTING THIEFS' 53
 ###############################
 
-# USE DETECT HIDDEN
 #
 clearsysmsg
 wait detect_delay

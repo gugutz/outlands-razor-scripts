@@ -80,20 +80,21 @@ foreach weapon in 'disturb_weapons_1'
         endif
 
         if findtype weapon backpack as weap
-            overhead 'equiping weapon' 48
+            # overhead 'equiping weapon' 48
             if targetexists
+                hotkey 'Drop What You Are Currently Holding'
                 lift weap 1
                 wait 100
                 drop 'self' LeftHand
                 # tab out, good for duels
-                hotkey 'Toggle War Only'
-                hotkey 'Toggle Peace Only'
+                overhead 'attacking!' 41 'last'
+                hotkey 'Attack Last Target'
                 break
             else
                 dclick weap
+                overhead 'attacking!' 41 'last'
+                hotkey 'Attack Last Target'
                 # tab out, good for duels
-                hotkey 'Toggle War Only'
-                hotkey 'Toggle Peace Only'
             endif
         endif
     endif

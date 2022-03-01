@@ -25,23 +25,24 @@ if varexist shelf
             wait 2000
         endwhile
     
-        while mana < 10
-            while not findbuff 'Actively Meditating'
-                useskill 'meditation'
-                wait 1000
-            endwhile
-
-            while findbuff 'Actively Meditating' and mana < maxmana
-                wait 100
-
-                if timer 'meditating_msg_warning_timer' >= 2000
-                    overhead 'meditating...' 89
-                    settimer 'meditating_msg_warning_timer' 0
-                endif
-            endwhile
-        endwhile
 
         while find shelf ground any any 2
+
+            while mana < 50
+                while not findbuff 'Actively Meditating'
+                    useskill 'meditation'
+                    wait 1000
+                endwhile
+
+                while findbuff 'Actively Meditating' and mana < maxmana
+                    wait 100
+
+                    if timer 'meditating_msg_warning_timer' >= 4000
+                        overhead 'meditating...' 89
+                        settimer 'meditating_msg_warning_timer' 0
+                    endif
+                endwhile
+            endwhile
 
             # if counttype "pouch" backpack 0 < 2
             if not findtype "pouch" backpack 0

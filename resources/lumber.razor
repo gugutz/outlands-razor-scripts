@@ -228,7 +228,7 @@ while not dead 'self'
             endwhile
 
             if targetexists 'neutral'
-                sysmsg 'Lumbering...' 65
+                # sysmsg 'Lumbering...' 65
                 target 'self'
             endif
 
@@ -702,7 +702,7 @@ while not dead 'self'
     if diffhits > 0
         hotkey 'Next Non-Friendly Monster Target'
         wait action_delay_var
-        settimer 'bandage_timer' bandage_delay
+        # settimer 'bandage_timer' bandage_delay
 
         while find 'last' ground any any 2 and not dead 'last'
 

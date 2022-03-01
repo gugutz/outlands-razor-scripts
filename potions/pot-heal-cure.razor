@@ -9,9 +9,9 @@ if not listexists 'heal_cure_script_lists'
     createlist 'heal_cure_script_lists'
     pushlist 'heal_cure_script_lists' 'unequip_hands_to_drink_potion'
     pushlist 'heal_cure_script_lists' 'drink_heal_potion'
-    pushlist 'heal_cure_script_lists' 'drink_refresh_potion'
     pushlist 'heal_cure_script_lists' 'drink_cure_potion'
     pushlist 'heal_cure_script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
+
     foreach list in 'heal_cure_script_lists'
         if not listexists list
             createlist list
@@ -62,7 +62,7 @@ endif
 
 ################################
 # if we have to drhink a potion, check if left hand has a weapon first
-if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes' or inlist 'drink_refresh_potion' 'yes'
+if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes'
     if not lhandempty
         if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
             foreach weapon in 'one_handed_weapons'
@@ -87,17 +87,6 @@ if inlist 'drink_cure_potion' 'yes'
         stop
     else
         overhead '!no cure pots!' 41
-    endif
-endif
-
-if inlist 'drink_refresh_potion' 'yes'
-    if findtype 'red potion' backpack as pot
-        overhead 'refresh pots'
-        useobject pot
-        stop
-    else
-        overhead '!no refresh pots!' 41
-        stop
     endif
 endif
 

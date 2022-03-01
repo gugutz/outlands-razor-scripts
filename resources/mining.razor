@@ -242,7 +242,7 @@ while not dead 'self'
 
         # mine
         if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_pickaxe and not rhandempty and diffweight > 10
-            sysmsg '>>> Mining... ' 87
+            # sysmsg '>>> Mining... ' 87
             hotkey 'Use item in Hand'
             wait max_wait_for_last_sysmsg_to_use_pickaxe
         endif
