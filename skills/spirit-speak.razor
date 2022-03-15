@@ -14,6 +14,7 @@ endif
 
 pushlist 'config_lists' 'auto_summon'
 pushlist 'config_lists' 'summons'
+pushlist 'config_lists' 'undead_summons'
 pushlist 'config_lists' 'found_summon'
 pushlist 'config_lists' 'found_undead_summon'
 pushlist 'config_lists' 'cast_summon_spell'
@@ -60,7 +61,7 @@ endfor
 
 # INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
 if atlist 'find_summon_range' 0 as find_summon_range
-if atlist 'summon_max_limit' 0 as summon_max_limit
+if atlist 'summon_max_limit' 0 as summon_limit
 
 
 
@@ -104,22 +105,17 @@ endif
 
 
 # this is just a print to inform char is under summon_limit and is getting ready to summon up
-if inlist 'auto_summon' 'yes' and followers < summon_max_limit
+if inlist 'auto_summon' 'yes' and followers < summon_limit
     sysmsg 'Under Summon Limit. Preparing To Summon...' 67
 
 
     foreach summon in 'summons'
         clearlist 'found_summon'
-        clearlist 'undead_summons'
 
         # determine summon name by whether char has necromancy or not
         if skill 'necromancy' >= 50
             # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
-            if not listexists 'undead_summons'
-                createlist 'undead_summons'
-            else
-                clearlist 'undead_summons'
-            endif
+            clearlist 'undead_summons'
 
             if earth in summon
                 pushlist 'undead_summons' 'an ancient mummy'
@@ -162,6 +158,7 @@ if inlist 'auto_summon' 'yes' and followers < summon_max_limit
                     if noto summonserial = friend
                         overhead '*found undead summon*' 91 summonserial
                         pushlist 'found_summon' 'yes'
+                        break
                     endif
                 endif
             endfor
@@ -169,7 +166,7 @@ if inlist 'auto_summon' 'yes' and followers < summon_max_limit
 
         # if theres only one summon in the 'summons' list, even if we found the summon above,
         # we still need to cast it again
-        if list 'summons' == 1 and followers < summon_max_limit
+        if list 'summons' == 1 and followers < summon_limit
             pushlist 'cast_summon_spell' 'yes'
         # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
         # summon before actually casting summ.creature
@@ -195,8 +192,8 @@ if inlist 'auto_summon' 'yes' and followers < summon_max_limit
                     pushlist 'summon_spell_required_mana' 50
                 endif
 
-                if atlist 'summon_spell_required_mana' 0 as summon_max_limit
-                    if mana < summon_spell_required_mana
+                if atlist 'summon_spell_required_mana' 0 as summon_spell_mana
+                    if mana < summon_spell_mana
                         sysmsg ">>> LOW MANA FOR SUMMONING..." 41
                         overhead "low mana for summoning" 41
                         stop
@@ -242,7 +239,6 @@ if inlist 'auto_summon' 'yes' and followers < summon_max_limit
                 endif
 
             endfor
-            break
         else
             sysmsg 'NAO CAST SUMMON SPELL' 19
         endif
@@ -257,15 +253,13 @@ endif
 ###################################################
 
 foreach summon in 'summons'
+    overhead "BEGIN DEBUG 2222"
 
     # determine summon name by whether char has necromancy or not
     if skill 'necromancy' >= 50
         # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
-        if not listexists 'undead_summons'
-            createlist 'undead_summons'
-        else
-            clearlist 'undead_summons'
-        endif
+
+        clearlist 'undead_summons'
 
         if earth in summon
             pushlist 'undead_summons' 'an ancient mummy'
@@ -298,11 +292,17 @@ foreach summon in 'summons'
         foreach necro_summon in 'undead_summons'
             if findtype necro_summon ground any 1 find_summon_range as summonserial
                 if noto summonserial = friend
-                    overhead 'necro_summon' 16 summonserial
+                    overhead necro_summon 16 summonserial
                     pushlist 'found_undead_summon' 'yes'
+                    break
                 endif
             endif
+
         endfor
+    endif
+
+    if inlist 'found_summon' 'yes' or inlist 'found_undead_summon' 'yes'
+        break
     endif
 endfor
 
@@ -339,6 +339,7 @@ if inlist 'found_undead_summon' 'yes'
             endif
         else
             overhead '*no corpses to consume*' 56
+            sysmsg 'No Corpses Nearby To Consume...' 56
         endif
     endif
 elseif not inlist 'found_undead_summon' 'yes'

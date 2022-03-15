@@ -1,12 +1,15 @@
 sysmsg '#########################' 90
 sysmsg '>>> MINING BOT' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.0.6' 31
+sysmsg 'version 0.0.7' 31
 sysmsg '########################' 90
 
 #################################
 # CHANGELOG
 #################################
+#
+# v0.0.7
+# - Adds missing variables containing rune positions in runetome and runebook
 #
 # v0.0.6
 # - Adds survival routine to defend char against closed-ranged combat creatures
@@ -86,6 +89,11 @@ sysmsg 'Applying configuration...'
 @setvar max_diffhits_before_healing_with_magery 20
 
 @setvar max_diffweight_before_unloading 50
+
+# rune positions in either runetome or runebook
+@setvar runetome_rune_position 100
+@setvar runebook_rune_position 2
+
 pushlist 'auto_walk_randomly' 'no'
 pushlist 'auto_walk_to_direction' 'no'
 pushlist 'auto_smelt_ores_when_close_to_forges' 'yes'

@@ -37,10 +37,6 @@ pushlist 'arena_heal_bot_config_lists' 'ready_match'
 pushlist 'arena_heal_bot_config_lists' 'cancel_current_match'
 pushlist 'arena_heal_bot_config_lists' 'first_run_done'
 pushlist 'arena_heal_bot_config_lists' 'last_max_hp'
-pushlist 'arena_heal_bot_config_lists' 'harmful_spell_queue'
-pushlist 'arena_heal_bot_config_lists' 'beneficial_spell_queue'
-
-
 
 
 
@@ -105,17 +101,16 @@ pushlist 'unequip_hands_to_drink_potion' 'yes'
 pushlist 'auto_walk_randomly' 'yes'
 
 @setvar action_delay_var 600
-@setvar spell_recovery_delay_var 600
 
 # HEALING SETTINGS
-@setvar min_hp_before_miniheal 22
+@setvar min_hp_before_miniheal 20
 @setvar min_hp_before_gheal 70
 
 @setvar min_mana_before_curing_poison 6
 @setvar min_mana_before_miniheal 4
 @setvar min_mana_before_gheal 11
 
-@setvar min_stam_before_refresh_pot 12
+@setvar min_stam_before_refresh_pot 18
 @setvar max_diffhits_before_healing_with_bandages 10
 
 
@@ -285,27 +280,8 @@ while not dead 'self' or dead 'self'
                 gumpresponse 12 4264910157
                 waitforgump 4264910157 600
 
-
-                if insysmsg 'Participating in that match would require 1 arena credits'
-                    overhead "NO ARENA CREDITS!" 31
-                    overhead "NO ARENA CREDITS!" 31
-                    overhead "NO ARENA CREDITS!" 31
-                    sysmsg "NO ARENA CREDITS!" 31
-                    sysmsg "NO ARENA CREDITS!" 31
-                    sysmsg "NO ARENA CREDITS!" 31
-                    stop
-                endif
-
                 if insysmsg 'You may not create a new match while a tournament is about to begin or in already underway'
-                    overhead "TOURNEY ON. CANT CREATE MATCH" 31
-                    overhead "TOURNEY ON. CANT CREATE MATCH" 31
-                    overhead "TOURNEY ON. CANT CREATE MATCH" 31
-                    sysmsg "TOURNEY ON. CANT CREATE MATCH" 31
-                    sysmsg "TOURNEY ON. CANT CREATE MATCH" 31
-                    sysmsg "TOURNEY ON. CANT CREATE MATCH" 31
-                    stop
                 endif
-
                 gumpresponse 12 4264910157
                 waitforgump 4264910157 600
 
@@ -323,16 +299,15 @@ while not dead 'self' or dead 'self'
             if ingump 'Ready' 4264910157
 
                 # keep announcing in-game that the match is up for joins
-                if timer 'loop_on_warning_msg' >= 30000
+                if timer 'loop_on_warning_msg' >= 10000
                     settimer 'loop_on_warning_msg' 0
-                    sysmsg '[ARENA TRAINER] Match UP' 89
-                    say '[ARENA TRAINER] Match UP'
+                    overhead '[ARENA TRAINER] Match UP' 89
                 endif
             endif
         endif
 
         if timer 'cancel_current_match_timer' >= 120000
-            say 'Cancelling currrent match due to innactivity... (2 min afk)'
+            # say 'Cancelling currrent match due to innactivity...'
             settimer 'cancel_current_match_timer' 0
             pushlist 'cancel_current_match' 'yes'
         endif
@@ -345,6 +320,15 @@ while not dead 'self' or dead 'self'
 
     while not 'dead' and not find arena_stone_serial ground any any 10
 
+        if gumpexists arena_match_results_gump_id
+            if dead 'self'
+                say 'Match Over! Congratulations!'
+            else
+                say 'Match Ended.'
+            endif
+
+            break
+        endif
 
         while findtype 128 ground any any 5
             sysmsg 'Waiting For Match to Start...'
@@ -380,79 +364,80 @@ while not dead 'self' or dead 'self'
         # MONITOR BOT STATUS AND KEEP IT ALIVE
         ##################################
 
-        if list 'beneficial_spell_queue' == 0
-            if poisoned and hp >= min_hp_before_gheal
-                if mana >= min_mana_before_curing_poison
-                    sysmsg '>>> CURING...' 76
-                    pushlist 'beneficial_spell_queue' 'cure'
-                else
-                    sysmsg 'NO MANA FOR CURE!' 43
-                endif
-            endif
-        endif
+        if poisoned and hp >= min_hp_before_miniheal
+            if mana >= min_mana_before_curing_poison
+                sysmsg '>>> CURING...' 76
+                cast 'cure'
 
-        # mini heal if diffhits is small
-        if list 'beneficial_spell_queue' == 0
-            if hits <= min_hp_before_miniheal
-                if mana >= min_mana_before_miniheal
-                    sysmsg '>>> MINI HEALING...' 78
-                    pushlist 'beneficial_spell_queue' 'heal'
-                else
-                    sysmsg 'NO MANA FOR MINIHEAL!' 43
-                endif
-
-            # greater heal if diffhits is big
-            elseif hits <= min_hp_before_gheal
-                if mana >= min_mana_before_gheal
-                    sysmsg '>>> GREATER HEALING...' 76
-                    pushlist 'beneficial_spell_queue' 'greater heal'
-                else
-                    sysmsg 'NO MANA FOR GREATER HEAL!' 43
-                endif
-            endif
-        endif
-
-        ##################################
-        # PROCESS BENEFICIAL SPELLS QUEUE
-        ##################################
-
-        if list 'beneficial_spell_queue' > 0
-
-            sysmsg 'PROCESSING BENEFICIAL SPELLS QUEUE...' 90
-
-            foreach spell in 'beneficial_spell_queue'
-            # if atlist 'beneficial_spell_queue' 0 as spell
-
-                sysmsg 'CASTING {{spell}}...'
-                @settimer 'waiting_spell_timer' 0
-                cast spell
-
-                while not targetexists 'beneficial' and timer 'waiting_spell_timer' < 3500
-                    wait 10
+                @settimer 'waiting_target_timer' 0
+                while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+                    wft 100
                     if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
-                        sysmsg 'BREAKING WHILE WAITING FOR SPELL'
-                        wait spell_recovery_delay_var
+                        sysmsg 'BREAKING WHILE WAITING FOR CURE TARGET'
+                        wait 150
                         break
                     endif
                 endwhile
 
-                if targetexists 'beneficial'
-                    sysmsg '>> TARGETING SELF' 90
-                    target 'self'
+                if targetexists 'beneficial' and hits < maxhits
+                    hotkey 'Target Self'
+                    wait 150
+                endif
+            else
+                sysmsg 'NO MANA FOR CURE!' 43
+            endif
+        endif
+
+        # mini heal if diffhits is small
+        if hits <= min_hp_before_miniheal
+            if mana >= min_mana_before_miniheal
+                sysmsg '>>> MINI HEALING...' 78
+                cast 'heal'
+
+                @settimer 'waiting_target_timer' 0
+                while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 1500
+                    wft 100
+                    if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                        sysmsg 'BREAKING WHILE WAITING FOR HEAL TARGET'
+                        wait 150
+                        break
+                    endif
+                endwhile
+
+                if targetexists 'beneficial' and hits < maxhits
+                    hotkey 'Target Self'
+                    wait 150
+                endif
+            else
+                sysmsg 'NO MANA FOR MINIHEAL!' 43
+            endif
+
+        # greater heal if diffhits is big
+        elseif hits <= min_hp_before_gheal
+            if mana >= min_mana_before_gheal
+                sysmsg '>>> GREATER HEALING...' 76
+                cast 'greater heal'
+
+                @settimer 'waiting_target_timer' 0
+                while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+                    wft 100
+                    if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                        sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                        wait 150
+                        break
+                    endif
+                endwhile
+
+                if targetexists 'beneficial' and hits < maxhits
+                    hotkey 'Target Self'
+                    wait 150
                 endif
 
-                wait spell_recovery_delay_var
-
-                break
-            # else
-            #     overhead "FUCK!!!!!!!!!!!!!!!!!!!!!!!!"
-
-            # endif
-            endfor
-
-            # after processing the queue, clear it
-            clearlist 'beneficial_spell_queue'
+            else
+                sysmsg 'NO MANA FOR GREATER HEAL!' 43
+            endif
         endif
+
 
         ##################################
         # MEDIDATE WHEN NEEDED
@@ -481,60 +466,48 @@ while not dead 'self' or dead 'self'
         # ARM THE BOT
         ##################################
 
+        if not findbuff 'Actively Meditating' and hp >= min_hp_for_offense
+            if lhandempty and rhandempty
+                createlist 'weapon_swing_timer'
+                clearlist 'weapon_swing_timer'
 
-        if hp > min_hp_before_gheal
-            if not findbuff 'Actively Meditating' and hp >= min_hp_for_offense
-                if lhandempty and rhandempty
-                    createlist 'weapon_swing_timer'
-                    clearlist 'weapon_swing_timer'
+                foreach weapon in 'heal_bot_weapons'
 
-                    foreach weapon in 'heal_bot_weapons'
+                    if weapon == 'heavy crossbow'
+                        pushlist 'weapon_swing_timer' 7500
+                    elseif weapon == 'crossbow'
+                        pushlist 'weapon_swing_timer' 5500
+                    elseif weapon == 'bow'
+                        pushlist 'weapon_swing_timer' 4000
+                    endif
 
-                        if weapon == 'heavy crossbow'
-                            pushlist 'weapon_swing_timer' 10000
-                        elseif weapon == 'crossbow'
-                            pushlist 'weapon_swing_timer' 7500
-                        elseif weapon == 'bow'
-                            pushlist 'weapon_swing_timer' 4000
-                        endif
+                    if atlist 'weapon_swing_timer' 0 as weapon_swing_timer
 
-                        if atlist 'weapon_swing_timer' 0 as weapon_swing_timer
+                        if timer weapon < weapon_swing_timer
+                            sysmsg 'Not time to equip {{weapon}} yet...'
+                        else
+                            if findtype weapon backpack as weap
+                                # overhead 'equiping weapon' 48
+                                if targetexists 'any'
+                                    hotkey 'Drop What You Are Currently Holding'
 
-                            if timer weapon < weapon_swing_timer
-                                sysmsg 'Not time to equip {{weapon}} yet...' 19
-                            else
-                                if findtype weapon backpack as weap
-                                    # overhead 'equiping weapon' 48
-                                    if targetexists 'any'
-                                        hotkey 'Drop What You Are Currently Holding'
-
-                                        lift weap 1
-                                        wait 300
-                                        drop 'self' LeftHand
-                                        wait action_delay_var
-                                    else
-                                        dclick weap
-                                        wait action_delay_var
-                                    endif
-
-                                    if not lhandempty or not rhandempty
-                                        overhead 'armed and attacking!' 41 'last'
-                                        hotkey 'Attack Last Target'
-                                        settimer weapon 0
-                                        break
-                                    else
-                                        # if weap not equiped, tab out to avoid wasting swings on punches
-                                        hotkey "Toggle Peace Only"
-                                    endif
-
+                                    lift weap 1
+                                    wait 100
+                                    drop 'self' LeftHand
+                                    # tab out, good for duels
+                                    overhead 'attacking!' 41 'last'
+                                    hotkey 'Attack Last Target'
+                                    settimer weapon 0
+                                else
+                                    dclick weap
+                                    overhead 'attacking!' 41 'last'
                                 endif
                             endif
                         endif
+                    endif
 
-                    endfor
-
-                    wait action_delay_var
-                endif
+                endfor
+                wait action_delay_var
             endif
         endif
 
@@ -543,14 +516,12 @@ while not dead 'self' or dead 'self'
         # KEEP STAMINA IN CHECK
         ##################################
 
-        if list 'beneficial_spell_queue' == 0
-            if hp > min_hp_before_gheal and mana > min_mana_before_meditating
-                if stam <= min_stam_before_refresh_pot and timer 'refresh_pot_timer' >= 4000
-                    @settimer 'refresh_pot_timer' 0
-                    potion 'refresh'
-                    say '*using refresh pot*'
-                    sysmsg 'Refresh Pot!' 90
-                endif
+        if hp > min_hp_before_gheal and mana > min_mana_before_meditating
+            if stam < min_stam_before_refresh_pot and timer 'refresh_pot_timer' >= 1000
+                @settimer 'refresh_pot_timer' 0
+                potion 'refresh'
+                say '*using refresh pot*'
+                sysmsg 'Refresh Pot!' 90
             endif
         endif
 
@@ -559,15 +530,12 @@ while not dead 'self' or dead 'self'
         # ATTACK ENEMY
         ##################################
 
-        if list 'beneficial_spell_queue' == 0
-            if hp > min_hp_before_gheal and timer 'attack_enemy_timer' >= 3000
-                if not lhandempty or not rhandempty
-                    @settimer 'attack_enemy_timer' 0
-                    hotkey 'Next Enemy Humanoid Target'
-                    hotkey 'Attack Last Target'
-                endif
-            endif
+        if timer 'attack_enemy_timer' >= 3000
+            @settimer 'attack_enemy_timer' 0
+            hotkey 'Next Enemy Humanoid Target'
+            hotkey 'Attack Last Target'
         endif
+
 
 
 
@@ -576,32 +544,48 @@ while not dead 'self' or dead 'self'
         # DEBUFF ENEMY EVERY 1 MINUTE
         ##################################
 
-        if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
-            sysmsg 'entrou spell queue debuffs'
-            if mana >= min_mana_before_debuffing_enemy
-                if hp > min_hp_for_offense and timer 'debuff_enemy_timer' >= 120000
-                    foreach spell in 'debuff_spells'
-                        if hp <= min_hp_before_gheal
-                            sysmsg 'Breaking on casting {{spell}} for heal...'
-                            break
+        if mana >= min_mana_before_debuffing_enemy
+            if hp > min_hp_for_offense and timer 'debuff_enemy_timer' >= 60000
+                foreach spell in 'debuff_spells'
+                    if hp <= min_hp_before_gheal
+                        sysmsg 'Breaking on casting {{spell}} for heal...'
+                        break
+                    endif
+
+                    if timer spell < 1600
+                        sysmsg 'Not time for {{spell}} yet...'
+                    else
+                        sysmsg 'Casting {{spell}}...'
+                        @settimer 'waiting_spell_timer' 0
+                        cast spell
+
+                        while not targetexists 'harmful' and timer 'waiting_spell_timer' < 2500
+                            wait 100
+                            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                                wait 150
+                                break
+                            endif
+                        endwhile
+
+                        wait 100
+
+                        if targetexists 'harmful'
+                            target 'last'
+                            sysmsg 'Reseting {{spell}} timer...'
+                            settimer spell 0
                         endif
+                        wait 100
+                    endif
 
-                        if timer spell < 1600
-                            sysmsg 'Not time for {{spell}} yet...'
-                        else
-                            # add this spell to spell queue
-                            pushlist 'harmful_spell_queue' spell
-                        endif
+                endfor
 
-                    endfor
-
-                    sysmsg 'Reseting Debuff Timer...'
-                    settimer 'debuff_enemy_timer' 0
-
-                endif
-            else
-                sysmsg 'No Mana for Debuffing yet...'
+                sysmsg 'Reseting Debuff Timer...'
+                settimer 'debuff_enemy_timer' 0
+                wait action_delay_var
             endif
+        else
+            sysmsg 'No Mana for Debuffing yet...'
         endif
 
         ##################################
@@ -610,50 +594,74 @@ while not dead 'self' or dead 'self'
         ##################################
 
         # determine which bigspell the bot is gonna use (33% being exp, 66% for EB)
-        if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
-            clearlist 'smallspells'
+        clearlist 'smallspells'
 
-            clearsysmsg
-            random 6
-            if insysmsg 'Random: 1'
-                pushlist 'smallspells' 'weaken'
-            elseif insysmsg 'Random: 2'
-                pushlist 'smallspells' 'harm'
-            elseif insysmsg 'Random: 3'
-                pushlist 'smallspells' 'magic arrow'
-            elseif insysmsg 'Random: 4'
-                pushlist 'smallspells' 'poison'
-            elseif insysmsg 'Random: 5'
-                pushlist 'smallspells' 'fireball'
-            elseif insysmsg 'Random: 6'
-                pushlist 'smallspells' 'lightning'
-            endif
+        clearsysmsg
+        random 6
+        if insysmsg 'Random: 1'
+            pushlist 'smallspells' 'weaken'
+        elseif insysmsg 'Random: 2'
+            pushlist 'smallspells' 'harm'
+        elseif insysmsg 'Random: 3'
+            pushlist 'smallspells' 'magic arrow'
+        elseif insysmsg 'Random: 4'
+            pushlist 'smallspells' 'poison'
+        elseif insysmsg 'Random: 5'
+            pushlist 'smallspells' 'fireball'
+        elseif insysmsg 'Random: 6'
+            pushlist 'smallspells' 'lightning'
+        endif
 
-            if mana >= min_mana_before_smallspells
-                if hp >= min_hp_for_offense and timer 'smallspells_timer' >= smallspell_interval
+        if mana >= min_mana_before_smallspells
+            if hp >= min_hp_for_offense and timer 'smallspells_timer' >= smallspell_interval
 
-                    if atlist 'smallspells' 0 as spell
-                        if hp > min_hp_before_gheal
-                            if timer spell < 10000
-                                sysmsg 'NOT TIME FOR {{spell}} yet...'
-                            elseif mana < 20
-                                sysmsg 'NO MANA FOR {{spell}} yet...'
-                            else
-                                # add this spell to spell queue
-                                pushlist 'harmful_spell_queue' spell
+                if atlist 'smallspells' 0 as spell
+
+                    if hp <= min_hp_before_gheal
+                        sysmsg 'BREAKING ON CASTING {{spell}}...'
+                        break
+                    endif
+
+                    if timer spell < 10000
+                        sysmsg 'NOT TIME FOR {{spell}} yet...'
+                    elseif mana < 20
+                        sysmsg 'NO MANA FOR {{spell}} yet...'
+                    else
+                        sysmsg 'CASTING {{spell}}...'
+                        @settimer 'waiting_spell_timer' 0
+                        cast spell
+
+                        while not targetexists 'harmful' and timer 'waiting_spell_timer' < 3500
+                            wait 100
+                            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                                wait 150
                                 break
                             endif
+                        endwhile
 
-                            sysmsg 'LAST COMBO INDEX RESETING COMBO ENEMY TIMER' 90
-                            settimer 'smallspells_timer' 0
+                        wait 100
+
+                        if targetexists 'harmful'
+                            target 'last'
+                            sysmsg 'RESETING {{spell}} TIMER...'
+                            settimer spell 0
                         endif
 
+                        wait 100
+                    endif
+
+                    if index == 3 or spell == 'poison'
+                        sysmsg 'LAST COMBO INDEX RESETING COMBO ENEMY TIMER' 90
+                        settimer 'smallspells_timer' 0
+                        wait action_delay_var
                     endif
 
                 endif
-            else
-                sysmsg 'No Mana for Combos...'
+
             endif
+        else
+            sysmsg 'No Mana for Combos...'
         endif
 
 
@@ -661,41 +669,58 @@ while not dead 'self' or dead 'self'
         # CYCLE DISRUPT CHAIN COMBO
         ##################################
 
-        if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
-            sysmsg 'entrou spell queue disrupt chain'
-            if mana >= min_mana_before_disrupt_chains
-                if hp >= min_hp_for_offense and timer 'disrupt_chain_timer' >= disrupt_chain_interval
-                    sysmsg 'STARTING DISRUPT CHAIN...' 90
+        if mana >= min_mana_before_disrupt_chains
+            if hp >= min_hp_for_offense and timer 'disrupt_chain_timer' >= disrupt_chain_interval
+                sysmsg 'STARTING DISRUPT CHAIN...' 90
 
-                    foreach spell in 'disrupt_spells'
+                foreach spell in 'disrupt_spells'
 
-                        if hp <= min_hp_before_gheal
-                            sysmsg 'Breaking on casting {{spell}} for heal...'
-                            break
+                    if hp <= min_hp_before_gheal
+                        sysmsg 'Breaking on casting {{spell}} for heal...'
+                        break
+                    endif
+
+                    # check for current spell timer
+                    if timer spell < 5000
+                        sysmsg 'Not time for {{spell}} yet...'
+                    else
+                        sysmsg 'Casting {{spell}}...'
+                        @settimer 'waiting_spell_timer' 0
+                        cast spell
+
+                        while not targetexists 'harmful' and timer 'waiting_spell_timer' < 2500
+                            wait 100
+                            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                                wait 150
+                                break
+                            endif
+                        endwhile
+
+                        wait 100
+
+                        if targetexists 'harmful'
+                            sysmsg 'Reseting {{spell}} timer...'
+                            settimer spell 0
+                            target 'last'
                         endif
 
-                        # check for current spell timer
-                        if timer spell < 5000
-                            sysmsg 'Not time for {{spell}} yet...'
-                        else
-                            # add this spell to spell queue
-                            pushlist 'harmful_spell_queue' spell
-                        endif
+                        wait 100
+                    endif
 
-                        if index == 3 or spell == 'lightning'
-                            sysmsg 'LAST DISRUPT CHAIN INDEX RESETING DISRUPT ENEMY TIMER' 90
-                            settimer 'disrupt_chain_timer' 0
-                            break
-                        endif
+                    if index == 3 or spell == 'lightning'
+                        sysmsg 'LAST DISRUPT CHAIN INDEX RESETING DISRUPT ENEMY TIMER' 90
+                        settimer 'disrupt_chain_timer' 0
+                    endif
 
-                    endfor
+                    wait action_delay_var
+                endfor
 
-                    # settimer 'disrupt_chain_timer' 0
-                    # wait action_delay_var
-                endif
-            else
-                sysmsg 'No Mana for Disrupt Chain...'
+                # settimer 'disrupt_chain_timer' 0
+                # wait action_delay_var
             endif
+        else
+            sysmsg 'No Mana for Disrupt Chain...'
         endif
 
 
@@ -706,39 +731,61 @@ while not dead 'self' or dead 'self'
         ##################################
 
         # 1 in 7 chances of the bot casting the exp eb poison combo
-        if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
-            sysmsg 'entrou spell queue combo'
-            random 7
-            if insysmsg 'Random: 1'
-                if mana >= min_mana_before_exp_eb_poison_combo
-                    if hp >= min_hp_for_offense and timer 'combo_exp_eb_poison_timer' >= combo_exp_eb_poison_interval
-                        foreach spell in 'combo_exp_eb_poison_spells'
-                            if timer spell < 10000
-                                sysmsg 'Not time for {{spell}} yet...'
-                            elseif mana < 20
-                                sysmsg 'No mana for {{spell}} yet...'
-                            else
-                                # add this spell to spell queue
-                                pushlist 'harmful_spell_queue' spell
-                            endif
+        random 7
+        if insysmsg 'Random: 1'
+            if mana >= min_mana_before_exp_eb_poison_combo
+                if hp >= min_hp_for_offense and timer 'combo_exp_eb_poison_timer' >= combo_exp_eb_poison_interval
+                    foreach spell in 'combo_exp_eb_poison_spells'
 
-                            if index == 3 or spell == 'poison'
-                                sysmsg 'LAST COMBO INDEX RESETING COMBO ENEMY TIMER' 90
-                                settimer 'combo_exp_eb_poison_timer' 0
-                                wait action_delay_var
+                        if hp <= min_hp_before_gheal
+                            sysmsg 'Breaking on casting {{spell}} for heal...'
+                            break
+                        endif
+
+                        if timer spell < 10000
+                            sysmsg 'Not time for {{spell}} yet...'
+                        elseif mana < 20
+                            sysmsg 'No mana for {{spell}} yet...'
+                        else
+                            sysmsg 'Casting {{spell}}...'
+                            @settimer 'waiting_spell_timer' 0
+                            cast spell
+
+                            while not targetexists 'harmful' and timer 'waiting_spell_timer' < 3500
+                                wait 100
+                                if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                    sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                                    wait 150
+                                    break
+                                endif
+                            endwhile
+
+                            wait 100
+
+                            if targetexists 'harmful'
+                                target 'last'
+                                sysmsg 'Reseting {{spell}} timer...'
+                                settimer spell 0
+                                # this break is so char will continue and equip weapon and hit in
+                                # the middle of the combo. we control the iteration with timers
                                 break
                             endif
+                            wait 100
+                        endif
 
-                            if hp <= min_hp_before_gheal
-                                sysmsg 'Breaking on casting {{spell}} for heal...'
-                                break
-                            endif
-                        endfor
-                    endif
-                else
-                    sysmsg 'NO MANA FOR EXP + EB + NOX COMBO...'
+                        if index == 3 or spell == 'poison'
+                            sysmsg 'LAST COMBO INDEX RESETING COMBO ENEMY TIMER' 90
+                            settimer 'combo_exp_eb_poison_timer' 0
+                            wait action_delay_var
+                        endif
+
+                    endfor
+
                 endif
+            else
+                sysmsg 'NO MANA FOR EXP + EB + NOX COMBO...'
             endif
+
         endif
 
         ##################################
@@ -747,94 +794,63 @@ while not dead 'self' or dead 'self'
         ##################################
 
         # determine which bigspell the bot is gonna use (33% being exp, 66% for EB)
-        if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
-            sysmsg 'entrou spell queue big spells'
-            clearlist 'bigspells'
-            random 3
-            if insysmsg 'Random: 1'
-                pushlist 'bigspells' 'explosion'
-            else
-                pushlist 'bigspells' 'energy bolt'
-            endif
-
-            if mana >= min_mana_before_bigspells
-                if hp >= min_hp_for_offense and timer 'bigspells_timer' >= bigspell_interval
-                    if atlist 'bigspells' 0 as spell
-
-                        if hp <= min_hp_before_gheal
-                            sysmsg 'Breaking on casting {{spell}} for heal...'
-                            break
-                        endif
-
-                        if timer spell < 10000
-                            sysmsg 'NO TIME FOR {{spell}} YET...'
-                        elseif mana < 20
-                            sysmsg 'NO MANA FOR {{spell}} YET...'
-                        else
-                            # add this spell to spell queue
-                            pushlist 'harmful_spell_queue' spell
-                        endif
-
-                        sysmsg 'RESETTING BIGSPELLS TIMER' 90
-                        settimer 'bigspells_timer' 0
-                        wait action_delay_var
-
-                    endif
-
-                endif
-            else
-                sysmsg 'No Mana for Combos...'
-            endif
+        clearlist 'bigspells'
+        random 3
+        if insysmsg 'Random: 1'
+            pushlist 'bigspells' 'explosion'
+        else
+            pushlist 'bigspells' 'energy bolt'
         endif
 
+        if mana >= min_mana_before_bigspells
+            if hp >= min_hp_for_offense and timer 'bigspells_timer' >= bigspell_interval
+                if atlist 'bigspells' 0 as spell
 
-        ##################################
-        # PROCESS THE SPELLS QUEUE
-        ##################################
-
-        if list 'harmful_spell_queue' > 0 and list 'beneficial_spell_queue' == 0
-
-            sysmsg 'PROCESSING HARMFUL SPELLS QUEUE...' 34
-
-            foreach spell in 'harmful_spell_queue'
-                sysmsg 'CASTING {{spell}}...'
-                @settimer 'waiting_spell_timer' 0
-                cast spell
-
-                while not targetexists 'harmful' and timer 'waiting_spell_timer' < 3500
-                    wait 10
-                    if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
-                        sysmsg 'BREAKING WHILE WAITING FOR SPELL'
-                        wait spell_recovery_delay_var
+                    if hp <= min_hp_before_gheal
+                        sysmsg 'Breaking on casting {{spell}} for heal...'
                         break
                     endif
-                endwhile
 
-                wait 100
+                    if timer spell < 10000
+                        sysmsg 'NO TIME FOR {{spell}} YET...'
+                    elseif mana < 20
+                        sysmsg 'NO MANA FOR {{spell}} YET...'
+                    else
+                        sysmsg 'CASTING {{spell}}...'
+                        @settimer 'waiting_spell_timer' 0
+                        cast spell
 
-                if hp <= min_hp_before_gheal
-                    sysmsg 'Breaking on casting {{spell}} for heal...'
-                    break
+                        while not targetexists 'harmful' and timer 'waiting_spell_timer' < 3500
+                            wait 100
+                            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                                wait 150
+                                break
+                            endif
+                        endwhile
+
+                        wait 100
+
+                        if targetexists 'harmful'
+                            target 'last'
+                            sysmsg 'Reseting {{spell}} timer...'
+                            settimer spell 0
+                        endif
+
+                        wait 100
+                    endif
+
+                    if index == 3 or spell == 'poison'
+                        sysmsg 'LAST COMBO INDEX RESETING COMBO ENEMY TIMER' 90
+                        settimer 'bigspells_timer' 0
+                        wait action_delay_var
+                    endif
+
                 endif
 
-                if targetexists 'harmful'
-                    target 'last'
-                    sysmsg 'Reseting {{spell}} timer...'
-                    settimer spell 0
-                endif
-
-                if insysmsg 'too far away'
-                    sysmsg 'BREAKING WHILE PROCESSING SPELL QUEUE (TARGET TOO FAR)'
-                    clearlist 'harmful_spell_queue'
-                    break
-                endif
-
-                wait spell_recovery_delay_var
-
-            endfor
-
-            # after processing the queue, clear it
-            clearlist 'harmful_spell_queue'
+            endif
+        else
+            sysmsg 'No Mana for Combos...'
         endif
 
 
@@ -845,7 +861,7 @@ while not dead 'self' or dead 'self'
         # play a dice to check if we must move at each iteratio (50% chance)
         if inlist 'auto_walk_randomly' 'yes' and timer 'walk_timer' > 2000
             clearsysmsg
-            random 6
+            random 5
             if insysmsg 'Random: 1'
                 # reset timer at random times, try to simulate realistic movement
                 clearsysmsg
@@ -921,20 +937,20 @@ while not dead 'self' or dead 'self'
             if maxhp != last_maxhp
                 # update 'last_max_hp'
                 clearlist 'last_max_hp'
-                # if maxhp == 89
-                #     pushlist 'last_max_hp' 89
-                # elseif maxhp == 100
-                #     pushlist 'last_max_hp' 100
-                # elseif maxhp == 111
-                #     pushlist 'last_max_hp' 111
-                # endif
+                if maxhp == 89
+                    pushlist 'last_max_hp' 89
+                elseif maxhp == 100
+                    pushlist 'last_max_hp' 100
+                elseif maxhp == 111
+                    pushlist 'last_max_hp' 111
+                endif
 
                 if maxhp == 100
-                    say 'MaxHP = 100 - Weaken Expired!'
-                elseif maxhp == 89
-                    say 'MaxHP = 89'
-                    sysmsg '[MaxHP: {{current_maxhp}}]'
-                    sysmsg '[HP] {{last_maxhp}}'
+                    say 'MaxHP = {{current_maxhp}} | Weaken Expired!'
+                else
+                    # say '[HP] {{current_maxhp}}'
+                    overhead '[MaxHP: {{current_maxhp}}]'
+                    overhead '[HP] {{last_maxhp}}'
                 endif
             endif
         endif
@@ -945,9 +961,12 @@ while not dead 'self' or dead 'self'
 
         if timer 'print_match_stats_timer' >= 60000
             settimer 'print_match_stats_timer' 0
+            say '[HP] {{last_maxhp}}'
+            overhead '[HP] {{last_maxhp}}'
+            say '[HP] {{current_maxhp}}'
+            overhead '[HP] {{current_maxhp}}'
         endif
 
-        # close 'atlist' variables initialized above
         endif
         endif
         ##########################
@@ -962,7 +981,7 @@ while not dead 'self' or dead 'self'
         #         wft 100
         #         if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
         #             sysmsg 'BREAKING WHILE WAITING FOR STRENGTH'
-                      # wait spell_recovery_delay_var
+        #             wait 150
         #             break
         #         endif
         #     endwhile
@@ -982,17 +1001,11 @@ while not dead 'self' or dead 'self'
     waitforgump arena_match_results_gump_id 3000
 
     # if there is a results gump with char name on it, a duel just finished
-    if gumpexists arena_match_results_gump_id
-        if dead 'self'
-            say 'Match Over! Congratulations!'
-        else
-            say 'Match Ended.'
-        endif
-
+    if dead 'self'
+        sysmsg 'Match Ended'
 
         # no need to recreate the match, player might want a rematch
         settimer 'cancel_current_match_timer' 0
-        settimer 'match_duration_timer' 0
 
         # set to ready the match as soon as char is back from pit
         pushlist 'ready_match' 'yes'

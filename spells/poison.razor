@@ -1,10 +1,17 @@
-if targetexists 'harmful'
-    hotkey 'Last Target'
+if not timerexists 'next_poison_tick'
+    createtimer 'next_poison_tick'
 endif
 
-hotkey 'Clear Target Queue'
 
-hotkey 'Toggle War Only'
-hotkey 'Toggle Peace Only'
+if targetexists 'harmful'
+    # if theres no need to cast, toggle hally
+    if lhandempty and rhandempty
+        script 'dress\toggle-main-weapon'
+    endif
+endif
 
-cast 'poison'
+if not timerexists 'casting_poison'
+    createtimer 'casting_poison'
+endif
+
+hotkey 'Play: spells\poison'

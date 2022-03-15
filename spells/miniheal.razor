@@ -1,20 +1,13 @@
+
+hotkey 'Toggle War Only'
+hotkey 'Toggle Peace Only'
+
 if targetexists 'beneficial'
     if poisoned or hits < maxhits
         hotkey 'Target Self'
     else
         overhead '** hp 100% **' 340 'self'
     endif
-
-    hotkey 'Toggle War Only'
-    hotkey 'Toggle Peace Only'
-    stop
-endif
-
-if poisoned
-    cast 'cure'
 else
-    cast 'heal'
+    hotkey 'Play: spells\heal'
 endif
-
-hotkey 'Toggle War Only'
-hotkey 'Toggle Peace Only'

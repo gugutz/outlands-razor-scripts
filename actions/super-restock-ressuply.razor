@@ -232,11 +232,11 @@ endif
 # SAVE BARDING INSTRUMENT TO GET IT FROM RECYCLER AFTER UNLOADING
 #
 
-if skill 'musicianship' > 50 or skill 'peacemaking' >= 50 or skill 'discordance' >= 50 or skill 'provocation' >= 50
+if skill 'musicianship' > 50
     if not listexists 'instruments'
         createlist 'instruments'
         pushlist 'instruments' 'lute'
-        pushlist 'instruments' 'drums'
+        pushlist 'instruments' 'drum'
         pushlist 'instruments' 'tambourine'
         pushlist 'instruments' 'lap harp'
     endif

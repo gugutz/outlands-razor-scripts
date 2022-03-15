@@ -67,12 +67,22 @@ foreach weapon in 'disturb_weapons_2'
         if not rhandempty
             if targetexists 'any'
                 overhead '*undressing right hand*'
+
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
+
                 hotkey 'Undress Right Hand'
                 wait 100
             endif
         elseif not lhandempty
             if targetexists 'any'
                 overhead '*undressing left hand*'
+
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
+
                 hotkey 'Undress Left Hand'
                 wait 200
             endif
@@ -86,15 +96,33 @@ foreach weapon in 'disturb_weapons_2'
                 wait 100
                 drop 'self' LeftHand
                 # tab out, good for duels
+            else
+                dclick weap
+                # tab out, good for duels
+            endif
+
+
+            settimer 'waiting_dress_timer' 0
+            while lhandempty and rhandempty
+                wait 10
+
+                sysmsg 'waiting to equip weapon...'
+                if timer 'waiting_dress_timer' >= 400
+                    sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
+                    break
+                endif
+            endwhile
+
+            if not lhandempty or not rhandempty
                 overhead 'attacking!' 41 'last'
                 hotkey 'Attack Last Target'
                 break
             else
-                dclick weap
-                # tab out, good for duels
-                overhead 'attacking!' 41 'last'
-                hotkey 'Attack Last Target'
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
             endif
+
+
         endif
     endif
 endfor

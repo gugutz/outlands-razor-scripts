@@ -1,10 +1,15 @@
 if targetexists 'beneficial'
+
+
     if hits < maxhits
         target 'self'
     else
+        # if we already got a gh open, avoid wasting punches in the arena
         overhead 'holding target (100% hp)' 41
     endif
 else
-    hotkey 'Attack Last Target'
-    cast 'greater heal'
+    if not dead 'last'
+        attack 'lasttarget'
+    endif
+    hotkey 'Play: spells\greater-heal'
 endif

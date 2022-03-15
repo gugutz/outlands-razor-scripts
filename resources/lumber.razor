@@ -1,12 +1,15 @@
 sysmsg '#########################' 90
 sysmsg '>>> LUMBERJACKING BOT' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.0.5' 31
+sysmsg 'version 0.0.6' 31
 sysmsg '########################' 90
 
 
 #################################
 # CHANGELOG
+#
+# v0.0.6
+# - Searches a list of weapons intead of using just hatchets and clubs
 #
 # v0.0.5
 # - Fix missing endif that was breaking the macro when i captcha was detected
@@ -50,6 +53,11 @@ pushlist 'config_lists' 'direction_to_walk'
 pushlist 'config_lists' 'reset_last_sysmsg_timer'
 pushlist 'config_lists' 'use_charges'
 pushlist 'config_lists' 'use_recall_scroll'
+pushlist 'config_lists' 'swords_weapons'
+pushlist 'config_lists' 'macing_weapons'
+pushlist 'config_lists' 'found_weapon'
+
+
 
 
 foreach list in 'config_lists'
@@ -116,6 +124,27 @@ foreach timer in 'script_timers'
         settimer timer 0
     endif
 endfor
+
+
+
+###################################
+# POPULATE SOME LISTS
+
+pushlist 'swords_weapons' 'halberd'
+pushlist 'swords_weapons' 'bardiche'
+pushlist 'swords_weapons' 'katana'
+pushlist 'swords_weapons' 'axe'
+pushlist 'swords_weapons' 'viking sword'
+pushlist 'swords_weapons' 'longsword'
+pushlist 'swords_weapons' 'broadsword'
+pushlist 'swords_weapons' 'double axe'
+
+pushlist 'macing_weapons' 'war mace'
+pushlist 'macing_weapons' 'mace'
+pushlist 'macing_weapons' 'club'
+pushlist 'macing_weapons' 'black staff'
+pushlist 'macing_weapons' 'gnarled staff'
+pushlist 'macing_weapons' 'war hammer'
 
 
 ###################################
@@ -398,7 +427,7 @@ while not dead 'self'
                 sysmsg '> Making boards from logs in backpack' 49
                 if findtype 'hatchet' backpack
                     dclick logs_from_backpack
-                    wait action_delay
+                    wait action_delay_var
                 elseif findtype 'scissors' backpack as cutter
                     dclick cutter
                     wft action_delay_var
@@ -707,23 +736,31 @@ while not dead 'self'
         while find 'last' ground any any 2 and not dead 'last'
 
             # equip weapon if needed
-            if skill 'swordsmanship' >= 50 and lhandempty
-                if not findtype 'hatchet' backpack
-                    overhead ":: You are out of hatchets::"
-                elseif findtype 'hatchet' backpack as weap
-                    dclick weap
-                    overhead "::equipped swords weapon::"
-                    wait action_delay_var
-                endif
-            elseif skill 'mace fighting' >= 50 and rhandempty
-                if not findtype 'club' backpack and not findtype 'war mace' backpack
-                    overhead ":: You are out of macing weapons::"
-                elseif findtype 'war mace' backpack as weap or findtype 'club' backpack as weap
-                    dclick weap
-                    overhead "::equipped macing weapon::"
-                    wait action_delay_var
-                endif
+            if skill 'swordsmanship' >= 50
+                foreach weapon_type in 'swords_weapons'
+                    if findtype weapon_type backpack as weap
+                        pushlist 'found_weapon' 'yes'
+                        dclick weap
+                        overhead "::equipped {{weapon_type}} weapon::"
+                        wait action_delay_var
+                    endif
+                endfor
+            elseif skill 'mace fighting' >= 50
+                foreach weapon_type in 'macing_weapons'
+                    if findtype weapon_type backpack as weap
+                        pushlist 'found_weapon' 'yes'
+                        dclick weap
+                        overhead "::equipped {{weapon_type}} weapon::"
+                        wait action_delay_var
+                    endif
+                endfor
             endif
+
+            if not inlist 'found_weapon' 'yes' and lhandempty and rhandempty
+                overhead 'CANT FIND WEAPON'
+            endif
+
+            clearlist 'found_weapon'
 
             if not rhandempty or not lhandempty
                 sysmsg 'Attacking last target'

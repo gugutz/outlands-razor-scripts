@@ -1,9 +1,68 @@
-
-hotkey 'Toggle War Only'
-hotkey 'Toggle Peace Only'
-
 @ignore 'self'
 
-if targetexists 'any'
-    hotkey 'Last Target'
+# hotkey 'Toggle War Only'
+
+###############################
+# integrate with poison hotkey
+# and check if recently casted poison
+# (by checking if casting_poison timer exists)
+# and create 'next_poison_tick' on target
+###############################
+
+
+if dead 'last'
+    overhead 'last target dead' 56
+    sysmsg 'Last target is dead' 56
+    stop
 endif
+
+if timerexists 'casting_poison'
+    if targetexists 'harmful'
+        removetimer 'casting_poison'
+        hotkey 'Last Target'
+
+        overhead 'poison target found!' 64 'self'
+        overhead 'creating poison tick timer' 64 'last'
+
+        if not timerexists 'next_poison_tick'
+            createtimer 'next_poison_tick'
+        endif
+
+        settimer 'next_poison_tick' 0
+    endif
+
+    removetimer 'casting_poison'
+endif
+
+###############################
+# EXECUTE LAST TARGET
+###############################
+
+hotkey 'Last Target'
+
+###############################
+# inform about poison tick timer
+###############################
+
+if not 'dead'
+    if timerexists 'next_poison_tick'
+        if timer 'next_poison_tick' <= 6000
+            if timer 'next_poison_tick' >= 4000
+                overhead 'poison tick NOW' 91 'last'
+                removetimer 'next_poison_tick'
+            elseif timer 'next_poison_tick' >= 3000
+                overhead 'POISON TICK IN 1s' 91 'last'
+            elseif timer 'next_poison_tick' >= 2000
+                overhead 'poison tick in 2s' 91 'last'
+            elseif timer 'next_poison_tick' >= 1000
+                overhead 'poison tick in 3s' 91 'last'
+            endif
+        endif
+    endif
+endif
+
+hotkey 'Toggle Peace Only'
+
+# if targetexists 'any'
+    # hotkey 'Last Target'
+# endif

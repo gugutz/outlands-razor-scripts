@@ -1,6 +1,17 @@
 # Treasure Chest Unlocker and Looter
-# v0.0.1
+# v0.0.2
 # by gugutz
+#
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Adds clearsysmsg at the beginning of the macro to avoid detecting sysmsgs from previous executions
+#
+# v0.0.1
+# - Initial release
+
 #
 # This script will search for treasure chests in the ground within 2 tiles of the char, and if it finds any
 # it will remove traps, unlock and then loot the chests
@@ -282,11 +293,9 @@ endif
 # search for tchests in the ground to start the whole process
 unsetvar chest
 
-# metal t-chests
-if findtype 29076 ground any any 2 as tchest or findtype 'metal chest' ground any any 2 as tchest
+if findtype 'metal chest' ground any any 2 as tchest
     setvar chest tchest
-# wood t-chests
-elseif findtype 29089 ground any any 2 as tchest or findtype 'wooden chest' ground any any 2 as tchest
+elseif findtype 'wooden chest' ground any any 2 as tchest
     setvar chest tchest
 else
     overhead 'NO CHESTS NEARBY!' 43
@@ -298,12 +307,15 @@ endif
 # START WORKING CHEST
 ###################################
 
+clearsysmsg
+
 if varexist chest
 
     while not gumpexists locked_chest_gump
         sysmsg 'Opening chest first time...' 53
         dclick chest
         waitforgump locked_chest_gump 600
+        wait action_delay_var
     endwhile
 
     #################################

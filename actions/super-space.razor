@@ -1,6 +1,73 @@
+
+if not timerexists 'next_poison_tick'
+    createtimer 'next_poison_tick'
+endif
+
 # the idea here is to execute only 1 action per key press
 
-interrupt
+
+# if find '0x40000ECB' ground any any 20 and not gumpexists 4264910157
+#     sysmsg 'Clicking Arena Stone...'
+# endif
+
+if not targetexists 'any'
+    interrupt
+endif
+
+
+# hotkey 'Toggle War Only'
+# hotkey 'Toggle Peace Only'
+
+# hotkey 'Clear Target Queue'
+
+
+
+###############################
+#
+# ARENA ACTIONS
+#
+###############################
+
+
+# if in arena, inform about poison tick timer
+if not 'dead'
+    if timerexists 'next_poison_tick' and timer 'next_poison_tick' <= 6000
+        if timer 'next_poison_tick' >= 4000
+            overhead 'poison tick NOW' 91 'last'
+            removetimer 'next_poison_tick'
+        elseif timer 'next_poison_tick' >= 3000
+            overhead 'POISON TICK IN 1s' 91 'last'
+        elseif timer 'next_poison_tick' >= 2000
+            overhead 'poison tick in 2s' 91 'last'
+        elseif timer 'next_poison_tick' >= 1000
+            overhead 'poison tick in 3s' 91 'last'
+        endif
+    endif
+endif
+
+
+if find '0x40000ECB' ground any any 10
+    overhead 'found arena stone (10 tiles)'
+    if not gumpexists 4264910157
+        sysmsg 'Clicking Arena Stone...'
+        dclick '0x40000ECB'
+        stop
+    endif
+# if we dont find arena stone for 10 tiles above,
+# but find it with 30 tiles, were inside the pits
+# dueling, and we dont wanna get past this point
+elseif findtype 28016 ground any any any and not mounted and noto 'last' == enemy
+    overhead '*attacking last target*' 90
+    overhead '*attacking*' 90 'last'
+    hotkey 'Attack Last Target'
+
+    sysmsg '[DUELING] Execution stopping here...' 43
+
+    stop
+endif
+
+
+
 
 ###############################
 # first run actions
@@ -16,40 +83,49 @@ if not listexists 'reg_bag_opened_once'
     createlist 'reg_bag_opened_once'
 endif
 
-if diffhits < 10 and not inlist 'first_run_done' 'yes'
-    clearsysmsg
+if not dead 'self' and not targetexists 'any'
+    if diffhits < 10 and not inlist 'first_run_done' 'yes'
+        clearsysmsg
 
-    if not inlist 'backpack_opened_once' 'yes'
-        if findlayer self 'backpack' as char_backpack
-            sysmsg 'Opening backpack first time...' 91
-            overhead 'opening backpack...' 91
-            dclick char_backpack
-            wait 550
-            if insysmsg 'You must wait to perform another action'
-                overhead 'failed to open backpack!' 41
-                stop
+        if not inlist 'backpack_opened_once' 'yes'
+            if findlayer self 'backpack' as char_backpack
+                sysmsg 'Opening backpack first time...' 91
+                overhead 'opening backpack...' 91
+                dclick char_backpack
+                wait 550
+                if insysmsg 'You must wait to perform another action'
+                    overhead 'failed to open backpack!' 41
+                    stop
+                endif
+                pushlist 'backpack_opened_once' 'yes'
             endif
-            pushlist 'backpack_opened_once' 'yes'
         endif
-    endif
 
-    if not inlist 'reg_bag_opened_once' 'yes'
-        if findtype 'bag' backpack as reg_bag
-            sysmsg 'Opening reagent bag first time...' 91
-            overhead 'opening reg bag...' 91
-            dclick reg_bag
-            wait 550
-            if insysmsg 'You must wait to perform another action'
-                overhead 'failed to open reg bag!' 41
-                stop
+        if not inlist 'reg_bag_opened_once' 'yes'
+            if findtype 'bag' backpack as reg_bag
+                sysmsg 'Opening reagent bag first time...' 91
+                overhead 'opening reg bag...' 91
+                dclick reg_bag
+                wait 550
+                if insysmsg 'You must wait to perform another action'
+                    overhead 'failed to open reg bag!' 41
+                    stop
+                endif
+                pushlist 'reg_bag_opened_once' 'yes'
             endif
-            pushlist 'reg_bag_opened_once' 'yes'
         endif
-    endif
 
-    overhead 'FIRST RUN FINISHED' 91
-    pushlist 'first_run_done' 'yes'
+        overhead 'FIRST RUN FINISHED' 91
+        pushlist 'first_run_done' 'yes'
+    endif
 endif
+
+###############################
+#
+# COMMON GENERAL ACTIONS
+#
+###############################
+
 
 
 ###############################
@@ -108,11 +184,12 @@ endif
 # enter moongate if one nearby
 ###############################
 
-if findtype 'blue moongate' 'ground' any any 2
+if findtype 'blue moongate' 'ground' any any 2 or findtype 27754 'ground' any any 2 or gumpexists 3773199800 or gumpexists 687547349
     script 'actions\enter-moongate'
     wait 10
     stop
 endif
+
 
 ###############################
 # open door if one nearby (1 tile)
@@ -158,7 +235,7 @@ if skill 'peacemaking' >= 50 or skill 'discordance' >= 50 or skill 'provocation'
 
     if findtype 'lute' backpack as instrument
         pushlist 'char_instrument' instrument
-    elseif findtype 'drums' backpack as instrument
+    elseif findtype 'drum' backpack as instrument
         pushlist 'char_instrument' instrument
     elseif findtype 'tambourine' backpack as instrument
         pushlist 'char_instrument' instrument
@@ -257,14 +334,22 @@ if skill 'spirit' > 20 and skill 'necromancy' == 0
     script 'skills\spirit-speak'
 endif
 
+
+
+
+
 # drop empty pots on ground
-if findtype 3854 'backpack' as bottles and counttype 3854 > 3
-    overhead '✩ droping bottles ✩' 55
-    wait 600
-    lift bottles 999
-    #wait 600
-    droprelloc 1 1
-    stop
+
+# make sure were not at arena grounds first
+if not find '0x40000ECB' ground any any 20
+    if findtype 3854 'backpack' as bottles and counttype 3854 > 3
+        overhead '✩ droping bottles ✩' 55
+        wait 600
+        lift bottles 999
+        #wait 600
+        droprelloc 1 1
+        stop
+    endif
 endif
 
 # FROM DOWN HERE, ONLY NON IMPORTANT ACTIONS
@@ -272,7 +357,7 @@ endif
 # IN CASE OF DANGER
 
 
-endif
+# endif
 
 overhead 'nothing to do...' 55
 # script 'loops\survival'
@@ -292,21 +377,28 @@ if skill 'magery' >= 40 and not findbuff 'Magic Reflection'
 endif
 
 if skill 'tracking' >= 20
-    setvar tracking_gump_id 4267467659
-
-
     if not gumpexists tracking_gump_id
         skill 'tracking'
         waitforgump tracking_gump_id 200
     endif
 
     if gumpexists tracking_gump_id
-        if not ingump 'Stop Hunting' tracking_gump_id
+        if not ingump 'Stop Hunting' 4267467659
             overhead 'STARTING HUNTING' 65
             gumpresponse 6 4267467659
-            gumpclose
+            waitforgump 4267467659 600
+            # gumpclose 4267467659
         else
             overhead 'already hunting' 55
         endif
+
+        gumpresponse 5 4267467659
+
+        waitforgump 4267467659 600
+
+        if ingump 'Tiles' 4267467659
+            overhead '!! FOUND PLAYERS !!' 33
+        endif
+
     endif
 endif

@@ -42,7 +42,6 @@ endfor
 # SCRIPT CONFIGURATION
 ################################
 
-# SET CONFIG VALUES
 pushlist 'action_delay' 600
 
 # VALIDATE THAT ALL CONFIG LISTS WERE ASSIGNED CONFIG VALUES
@@ -51,8 +50,7 @@ foreach list in 'activate_void_config_lists'
         sysmsg '{{list}} LIST MISSING VALUE!!!!!'
     endif
 endfor
-
-
+#################################
 # INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
 if atlist 'action_delay' 0 as action_delay
 

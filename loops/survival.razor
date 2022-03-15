@@ -17,9 +17,6 @@ sysmsg '♥ SURVIVAL LOOP by gugutz ♥' 91
 #################################
 #
 #
-# v0.1.0
-# - sdfadfasdf
-#
 # v0.0.1
 # - Initial release
 
@@ -61,6 +58,7 @@ pushlist 'survival_config_lists' 'max_diffhits_before_healing_with_bandages'
 pushlist 'survival_config_lists' 'max_diffhits_before_healing_with_magery'
 pushlist 'survival_config_lists' 'max_diffweight_before_unloading'
 pushlist 'survival_config_lists' 'monitor_items_warning_delay'
+pushlist 'survival_config_lists' 'lhand_item'
 
 foreach list in 'survival_config_lists'
     if not listexists list
@@ -81,6 +79,8 @@ pushlist 'survival_script_timers' 'waiting_save'
 pushlist 'survival_script_timers' 'last_sysmsg_timer'
 pushlist 'survival_script_timers' 'out_of_item_warning_msg'
 pushlist 'survival_script_timers' 'bandage_timer'
+pushlist 'survival_script_timers' 'waiting_dress_timer'
+
 
 
 foreach timer in 'survival_script_timers'
@@ -95,7 +95,14 @@ endfor
 # SCRIPT CONFIGURATION
 ################################
 
-pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+# if char is dexxer we want to undress and re-arm our main weaopn
+# if mage its probably a pvp char so we want to switch to 1 hand (if no target)
+if dex == 100
+    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+else
+    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+endif
+
 pushlist 'unequip_hands_to_drink_potion' 'yes'
 pushlist 'monitor_items_amounts' 'yes'
 pushlist 'beta_client' 'yes'
@@ -141,6 +148,13 @@ if inlist 'monitor_items_amounts' 'yes'
         createlist 'items_to_monitor'
         if skill 'healing' >= 50
             pushlist 'items_to_monitor' 'clean bandage%s'
+            pushlist 'items_to_monitor' 'Yellow Potion'
+            pushlist 'items_to_monitor' 'Orange Potion'
+            pushlist 'items_to_monitor' 'Red Potion'
+            pushlist 'items_to_monitor' 'Black Potion'
+            pushlist 'items_to_monitor' 'Purple Potion'
+            pushlist 'items_to_monitor' 'White Potion'
+            pushlist 'items_to_monitor' 'Blue Potion'
         endif
 
         if skill 'magery' >= 20
@@ -200,15 +214,15 @@ while not dead 'self'
                 foreach item in 'items_to_monitor'
                     if not findtype item backpack any
                         if inlist 'beta_client' 'yes'
-                            sysmsg 'WARNING: Out of {{item}}!' 37
+                            sysmsg 'WARNING: Out of {{item}}!' 41
                         else
                             sysmsg 'ITEM AMMOUNT 0' 37
                         endif
                     elseif counttype item backpack <= amount
                         if inlist 'beta_client' 'yes'
-                            sysmsg 'WARNING: {{item}} LOW AMMOUNT!' 41
+                            sysmsg 'WARNING: {{item}} LOW AMMOUNT!' 45
                         else
-                            sysmsg 'ITEM AMMOUNT LOW' 37
+                            sysmsg 'ITEM AMMOUNT LOW' 39
                         endif
                     endif
                 endfor
@@ -261,6 +275,10 @@ while not dead 'self'
 
     if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes' or inlist 'drink_refresh_potion' 'yes'
         if not lhandempty
+            if findlayer self lefthand as lhanditem
+                pushlist 'lhand_item' lhanditem
+            endif
+
             if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
                 foreach weapon in 'one_handed_weapons'
                     if findtype weapon backpack as weap
@@ -304,13 +322,11 @@ while not dead 'self'
             endif
 
         elseif healing >= 50 and counttype 'clean bandage%s%' > 0
-            if atlist 'bandage_delay' 0 as bandage_delay
-                if timer 'bandage_timer' >= bandage_delay
-                    sysmsg 'Curing poison with healing...' 90
-                    settimer 'bandage_timer' 0
-                    hotkey 'Bandage Self'
-                    wait action_delay
-                endif
+            if timer 'bandage_timer' >= bandage_delay
+                sysmsg 'Curing poison with healing...' 90
+                settimer 'bandage_timer' 0
+                hotkey 'Bandage Self'
+                wait action_delay
             endif
         endif
     endif
@@ -339,15 +355,15 @@ while not dead 'self'
 
     ####################################
     # HEAL SPELL OR BANDAGE
+    ####################################
+
     if diffhits > 0
         # heal with healing
         if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= 50 and counttype 'clean bandage%s%' > 0
-            if atlist 'bandage_delay' 0 as bandage_delay
-                if timer 'bandage_timer' >= bandage_delay
-                    settimer 'bandage_timer' 0
-                    hotkey 'Bandage Self'
-                    wait action_delay
-                endif
+            if timer 'bandage_timer' >= bandage_delay
+                settimer 'bandage_timer' 0
+                hotkey 'Bandage Self'
+                wait action_delay
             endif
 
         # heal with magery
@@ -372,7 +388,39 @@ while not dead 'self'
 
 
     ####################################
+    # RE-EQUIP LEFT HAND ITEM (IF CHAR HAD TO CAST OR DRINK POTION)
+    ####################################
+
+    if atlist 'lhand_item' 0 as lhanditem
+        while lhandempty
+
+            if targetexists
+                hotkey 'Drop What You Are Currently Holding'
+                lift lhanditem 1
+                drop 'self' LeftHand
+            else
+                dclick lhanditem
+            endif
+
+            wait 100
+
+            sysmsg 'Trying to re-equip left hand...'
+            if timer 'waiting_dress_timer' >= 400
+                sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
+                break
+            endif
+        endwhile
+
+        if not lhandempty
+            clearlist 'lhand_item'
+        endif
+
+    endif
+
+    ####################################
     # HANDLE WORLD SAVES
+    ####################################
+
     if insysmsg "The world is saving"
         overhead '*WORLD SAVING*' 90
         while not insysmsg 'World save complete'

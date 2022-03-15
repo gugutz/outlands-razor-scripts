@@ -4,7 +4,7 @@
 if not listexists 'instruments'
     createlist 'instruments'
     pushlist 'instruments' 'lute'
-    pushlist 'instruments' 'drums'
+    pushlist 'instruments' 'drum'
     pushlist 'instruments' 'tambourine'
     pushlist 'instruments' 'lap harp'
 endif
@@ -15,7 +15,7 @@ if skill 'discordance' >= 50 and not findbuff 'song of discordance'
     if not listexists 'char_instrument'
         createlist 'char_instrument'
     else
-        createlist 'char_instrument'
+        clearlist 'char_instrument'
     endif
 
     foreach type in 'instruments'
@@ -32,7 +32,7 @@ if skill 'discordance' >= 50 and not findbuff 'song of discordance'
 
         @clearignore
 
-        if list 'char_instrument' >0
+        if list 'char_instrument' > 0
             break
         endif
     endfor

@@ -1,3 +1,6 @@
+
+
+
 if dead 'last'
     overhead 'last target dead' 56
     sysmsg 'Last target is dead' 56
@@ -17,11 +20,53 @@ if not timerexists 'painspike_timer'
 endif
 
 
+
+###############################
+# if in arena, inform about poison tick timer
+###############################
+if not 'dead'
+    if timerexists 'next_poison_tick'
+        if timer 'next_poison_tick' <= 6000
+            if timer 'next_poison_tick' >= 4000
+                overhead 'poison tick NOW' 91 'last'
+                removetimer 'next_poison_tick'
+            elseif timer 'next_poison_tick' >= 3000
+                overhead 'POISON TICK IN 1s' 91 'last'
+            elseif timer 'next_poison_tick' >= 2000
+                overhead 'poison tick in 2s' 91 'last'
+            elseif timer 'next_poison_tick' >= 1000
+                overhead 'poison tick in 3s' 91 'last'
+            endif
+        endif
+    endif
+endif
+
+
+
+
 if not dead 'last' and noto 'last' != friend and noto 'last' != friendly
     if skill 'taming' = 0 or followers = 0
-        overhead 'attacking last target' 55
-        overhead '*** ATTACKING ***' 55 'last'
+        overhead 'attacking last target' 90
+        overhead '*** ATTACKING ***' 90 'last'
         hotkey 'Attack Last Target'
+
+        ###############################
+        # if theres a poison tick timer active, print it
+        ###############################
+        if not 'dead'
+            if timerexists 'next_poison_tick'
+                if timer 'next_poison_tick' >= 4000
+                    overhead 'poison tick NOW' 67 'last'
+                    removetimer 'next_poison_tick'
+                elseif timer 'next_poison_tick' >= 3000
+                    overhead 'poison tick in 1s' 67 'last'
+                elseif timer 'next_poison_tick' >= 2000
+                    overhead 'poison tick in 2s' 67 'last'
+                elseif timer 'next_poison_tick' >= 1000
+                    overhead 'poison tick in 3s' 67 'last'
+                endif
+            endif
+        endif
     endif
      # if find 'last' 'ground' 'any' 1 find_last_target_max_range as last_target_serial
      #    sysmsg 'FOUDN ALST TARGET SERIAL'

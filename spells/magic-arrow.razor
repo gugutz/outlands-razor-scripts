@@ -1,8 +1,13 @@
 if targetexists 'harmful'
-    hotkey 'Last Target'
+    hotkey 'Toggle Peace Only'
+    # if theres no need to cast, toggle viking
+    if lhandempty and rhandempty
+        script 'dress\toggle-third-weapon'
+    endif
 endif
 
-hotkey 'Toggle War Only'
+
 hotkey 'Toggle Peace Only'
 
-cast 'magic arrow'
+target clear
+hotkey 'Play: spells\magic-arrow'

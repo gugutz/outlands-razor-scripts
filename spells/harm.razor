@@ -1,9 +1,14 @@
 if targetexists 'harmful'
-    hotkey 'Last Target'
+    # if theres no need to cast, toggle axe
+    if lhandempty and rhandempty
+        script 'dress\toggle-second-weapon'
+    endif
 endif
 
 
-hotkey 'Toggle War Only'
-hotkey 'Toggle Peace Only'
+# hotkey 'Toggle War Only'
+# hotkey 'Toggle Peace Only'
 
-cast 'harm'
+target clear
+
+hotkey 'Play: spells\harm'

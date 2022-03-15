@@ -1,9 +1,13 @@
 if targetexists 'harmful'
-    hotkey 'Last Target'
+    hotkey 'Toggle Peace Only'
+    # if theres no need to cast, toggle katana
+    if lhandempty and rhandempty
+        script 'dress\toggle-fourth-weapon'
+    endif
 endif
 
 
-hotkey 'Toggle War Only'
-hotkey 'Toggle Peace Only'
+# hotkey 'Toggle Peace Only'
+target clear
 
-cast 'fireball'
+hotkey 'Play: spells\fireball'

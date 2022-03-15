@@ -21,6 +21,16 @@ endfor
 
 pushlist 'dont_unequip_if_already_equiped' 'no'
 
+
+################################
+# CREATE ALL TIMERS
+################################
+
+if not timerexists 'waiting_dress_timer'
+    createtimer 'waiting_dress_timer'
+    settimer 'waiting_dress_timer' 0
+endif
+
 #################################
 # SCRIPT CONFIGURATION
 #
@@ -69,15 +79,24 @@ foreach weapon in 'dps_weapons'
     else
         if not rhandempty
             if targetexists 'any'
-                overhead '*undressing right hand*'
+                # overhead '*undressing right hand*'
+
                 hotkey 'Undress Right Hand'
-                wait 100
+
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
+                # wait 100
             endif
         elseif not lhandempty
             if targetexists 'any'
-                overhead '*undressing left hand*'
+                # overhead '*undressing left hand*'
+
                 hotkey 'Undress Left Hand'
-                wait 200
+
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
             endif
         endif
 
@@ -86,17 +105,31 @@ foreach weapon in 'dps_weapons'
             if targetexists
                 hotkey 'Drop What You Are Currently Holding'
                 lift weap 1
-                wait 100
+                # wait 100
                 drop 'self' LeftHand
-                overhead 'attacking!' 41 'last'
-                hotkey 'Attack Last Target'
                 # tab out, good for duels
-                break
             else
                 dclick weap
+                # tab out, good for duels
+            endif
+
+            settimer 'waiting_dress_timer' 0
+            while lhandempty and rhandempty
+                wait 10
+                sysmsg 'waiting to equip weapon...'
+                if timer 'waiting_dress_timer' >= 400
+                    sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
+                    break
+                endif
+            endwhile
+
+            if not lhandempty or not rhandempty
                 overhead 'attacking!' 41 'last'
                 hotkey 'Attack Last Target'
-                # tab out, good for duels
+                break
+            else
+                hotkey 'Toggle War Only'
+                hotkey 'Toggle Peace Only'
             endif
         endif
     endif
