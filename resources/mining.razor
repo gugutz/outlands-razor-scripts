@@ -138,7 +138,7 @@ endfor
 sysmsg 'Searching for pack animals...' 87
 
 while findtype 292 ground any any 2 as packie
-    if noto packie = noto 'self'
+    if noto packie = friend
         pushlist 'packies' packie
         overhead '*opening bag*' 56 packie
         # dclick packie
@@ -148,7 +148,7 @@ while findtype 292 ground any any 2 as packie
 endwhile
 
 while findtype 291 ground any any 2 as packie
-    if noto packie = noto 'self'
+    if noto packie = friend
         pushlist 'packies' packie
         overhead '*opening bag*' 56 packie
         # dclick packie
@@ -592,7 +592,7 @@ while not dead 'self'
                 # restock stockpile from packies
                 if list 'packies' > 0 and varexist resource_stockpile
                     foreach packanimal in 'packies'
-                        if noto packanimal = noto 'self'
+                        if noto packanimal = friend
                             sysmsg '> Restocking Stockpile From Pack Animal...' sysmsgs_color
                             menu resource_stockpile 0
                             wft 600
