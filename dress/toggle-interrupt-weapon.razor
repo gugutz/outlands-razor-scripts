@@ -21,29 +21,46 @@ endfor
 
 pushlist 'dont_unequip_if_already_equiped' 'no'
 
+
 #################################
 # SCRIPT CONFIGURATION
-#
 
+if listexists 'disturb_weapons_2'
+    if list 'disturb_weapons_2' == 0
+        clearlist 'disturb_weapons_2'
+    endif
+endif
 
 if not listexists 'disturb_weapons_2'
     createlist 'disturb_weapons_2'
-    if skill 'archery' >= 50
-        pushlist 'disturb_weapons_2' 'bow'
-    elseif skill 'fencing' >= 50
-        pushlist 'disturb_weapons_2' 'kryss'
-    elseif skill 'mace fighting' >= 50
-        pushlist 'disturb_weapons_2' 'club'
-    elseif skill 'swordsmanship' >= 50 or findtype 'katana' backpack
-        pushlist 'disturb_weapons_2' 'katana'
-        pushlist 'disturb_weapons_2' 'broadsword'
+    # PS: ARCHERY DONT HAVE INTERRUPT WEAPON
+    if skill 'fencing' >= 50 or findtype 'kryss' backpack
+        if findtype 'kryss' backpack
+            pushlist 'disturb_weapons_2' 'kryss'
+        endif
+    elseif skill 'mace fighting' >= 50 or findtype 'club' backpack or findtype 'hammer pick' backpack or findtype 'war axe' backpack
+        if findtype 'club' backpack
+            pushlist 'disturb_weapons_2' 'club'
+        elseif findtype 'hammer pick' backpack
+            pushlist 'disturb_weapons_2' 'Hammer Pick'
+        elseif findtype 'war axe' backpack
+            pushlist 'disturb_weapons_2' 'war axe'
+        endif
+    elseif skill 'swordsmanship' >= 50 or findtype 'katana' backpack or findtype 'cutlass' backpack or findtype 'scimitar' backpack
+        if findtype 'katana' backpack
+            pushlist 'disturb_weapons_2' 'katana'
+        elseif findtype 'cutlass' backpack
+            pushlist 'disturb_weapons_2' 'cutlass'
+        elseif findtype 'scimitar' backpack
+            pushlist 'disturb_weapons_2' 'scimitar'
+        endif
     else
         overhead 'char has no weapon skill'
     endif
 endif
 
 if list 'disturb_weapons_2' == 0
-    overhead 'no disturb_weapons_2 in list'
+    overhead 'no disturb weapons in list'
 endif
 
 foreach weapon in 'disturb_weapons_2'
@@ -52,6 +69,7 @@ foreach weapon in 'disturb_weapons_2'
             overhead 'equiped on left hand' 54
             break
         else
+            hotkey 'Toggle Peace Only'
             hotkey 'Undress Left Hand'
             break
         endif
@@ -60,6 +78,7 @@ foreach weapon in 'disturb_weapons_2'
             overhead 'equiped on right hand' 54
             break
         else
+            hotkey 'Toggle Peace Only'
             hotkey 'Undress Right Hand'
             break
         endif
@@ -69,18 +88,16 @@ foreach weapon in 'disturb_weapons_2'
                 overhead '*undressing right hand*'
 
                 # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                hotkey 'Toggle War Only'
                 hotkey 'Toggle Peace Only'
 
                 hotkey 'Undress Right Hand'
-                wait 100
+                wait 200
             endif
         elseif not lhandempty
             if targetexists 'any'
                 overhead '*undressing left hand*'
 
                 # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                hotkey 'Toggle War Only'
                 hotkey 'Toggle Peace Only'
 
                 hotkey 'Undress Left Hand'

@@ -1,0 +1,144 @@
+#################################
+# BACKPACK LOOT ORGANIZER
+# v0.0.1
+# by gugutz
+#
+#################################
+# CHANGELOG
+#
+# v0.0.1
+# - Initial release
+#
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#
+if not listexists 'backpack_loot_organizer_config_lists'
+    createlist 'backpack_loot_organizer_config_lists'
+else
+    clearlist 'backpack_loot_organizer_config_lists'
+endif
+
+pushlist 'backpack_loot_organizer_config_lists' 'trapped_pouches'
+pushlist 'backpack_loot_organizer_config_lists' 'loadout_bag'
+pushlist 'backpack_loot_organizer_config_lists' 'char_loot_pouch'
+
+
+
+foreach list in 'backpack_loot_organizer_config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+#################################
+# CONFIGURATION
+#
+# @setvar action_delay_var 300
+
+
+
+#################################
+#
+# CODE
+#
+
+# ------------------------------
+# ITEMS LIST
+if not listexists 'loot_items'
+    createlist 'loot_items'
+    pushlist 'loot_items' 'chain link'
+    # focis
+    pushlist 'loot_items' 48261
+    # skill balls
+    pushlist 'loot_items' 'void orb'
+    # research materials
+    pushlist 'loot_items' 'wall shelf'
+endif
+
+
+clearignore
+while findtype 'pouch' backpack 38 as trapped_pouch
+    pushlist 'trapped_pouches' trapped_pouch
+    @ignore trapped_pouch
+endwhile
+
+foreach item in 'loot_items'
+    while findtype item container any any as item_to_unload
+        sysmsg 'LOOTING FROM CONTAINER' 53
+        overhead 'looting container' 51 'self'
+
+        lift item_to_unload 1
+        wait action_delay_var
+        drop backpack
+        wait action_delay_var
+    endwhile
+endfor
+
+# FIRST LOOT FOR THE LOOT BAG, THE ONE THE CHAR KEEPS ALL HIS STUFF AND HIS TRAP POUCHES
+if not atlist 'loadout_bag' 0
+    if findtype 'bag' as loadout_bag_serial
+        sysmsg 'FOUND LOADOUT BAG INSIDE BACKPACk' 53
+        pushlist 'loadout_bag' loadout_bag_serial
+    else
+        sysmsg 'COULDNT FIND LOADOUT BAG, USING BACKPACk INSTEAD' 53
+        pushlist 'loadout_bag' backpack
+    endif
+endif
+
+# DEFINE WHICH TRAP POUCH TO USE
+if not atlist 'char_loot_pouch' 0
+    foreach pouch in 'trapped_pouches'
+        getlabel pouch pouch_label
+
+        if '0 items' in pouch_label
+        else
+            overhead 'FOUND LOOT POUCH'
+            pushlist 'char_loot_pouch' pouch
+            # WE IGNORE IT HERE JUST TO BE ABLEW TO PUT ALL OTHER ON TOP OF IT
+            # THEN WE CLEAR IGNOE LIST (DOWN BELLOW)
+            ignore pouch
+            beak
+        endif
+
+        # if we get here and still didnt define a pouch, its probably because they are still all empty
+        # might be first execution of the script, so we need to pick an empty one anyways
+        if not atlist 'char_loot_pouch' 0 and counttype 'pouch' 38 == index
+            sysmsg 'PEGOU COUNTRYPE IGUAL INDEX'
+            pushlist 'char_loot_pouch' pouch
+        endif
+    endfor
+endif
+
+# PUT ALL POUCHES INSIDE ONE ANOTHER TO HIDE THE MAIN POUCH
+if atlist 'char_loot_pouch' 0
+    foreach pouch in 'trapped_pouches'
+
+        lift pouch
+        pause 550
+        drop loadout_bag 7 7
+        pause 550
+
+    endfor
+
+    # IMPORTANT: clear ignoe here to remove our main pouch from ignore list
+    @clearignoe
+endif
+
+# ORGANIZE ITENS IN CHOOSEN POUCH
+
+if atlist 'char_loot_pouch' 0 as char_loot_pouch
+    foreach item in 'loot_items'
+        while findtype item pouch any any as item_to_unload
+
+            overhead 'organizing {{item}}' 51 'self'
+
+            lift item_to_unload 1
+            wait action_delay_var
+            drop char_loot_pouch
+            wait action_delay_var
+        endwhile
+    endfor
+endif

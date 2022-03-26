@@ -1,0 +1,186 @@
+# SMART RECALL
+# v0.0.1
+# by gugutz
+#
+# ################################
+#
+# DESCRICAO
+#
+# Este script use recall, e faz as seguintes verificações:
+#
+#  1. Se o char tem herding, verifica se tem um sheps crook na bag
+#  2. Se o char é bardo, verifica se existe um instrumento mágico na bag
+#  3. Se o char for skinner, verifica se existe uma skinning knife na bag
+#  4. Se o char tem camping, verifica se tem kindling na backpack
+#  5. Se um target neutral estiver aberto ao pressionar a hotkey,
+#     da target automatico no primeiro runetome/runebook que encontrar na bag
+#  6. Se existe pocao de heal, refresh e cure na backpack
+#
+#
+#
+#################################
+# CREDITS :)
+#################################
+
+# 33% chance of printing credits, so we dont spam it
+random 3
+if insysmsg 'Random: 1'
+    sysmsg '♥ SMART RECALL by gugutz ♥' 91
+endif
+clearsysmsg
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release
+
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+
+if not listexists 'config_lists_smart_recall'
+    createlist 'config_lists_smart_recall'
+else
+    clearlist 'config_lists_smart_recall'
+endif
+
+pushlist 'config_lists_smart_recall' 'use_scrolls'
+
+
+foreach list in 'config_lists_smart_recall'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+##################################
+# CONFIGURATION
+##################################
+
+
+
+##################################
+# CHECK IF PLAYER IS FORGETTING
+# SOMETHING BEFORE RECALLING
+##################################
+
+if not findtype 'tray' backpack
+    overhead 'NO DELECTABLE' 40
+endif
+
+# check if all potions are in
+if not findtype 'yellow potion'
+    overhead '!NO HEAL POTS!' 43
+    sysmsg '!NO HEAL POTS!' 43
+endif
+
+if not findtype 'red potion'
+    overhead '!NO REFRESH POTS!' 43
+    sysmsg '!NO REFRESH POTS!' 43
+endif
+
+# if herder, check for sheps crook
+if skill 'herding' > 0 and not findtype 3713 backpack
+    overhead "NO SHEPERD'S CROOK!" 43
+    sysmsg "NO SHEPERD'S CROOK!" 43
+endif
+
+# if skinner, check for skinning knife
+if skill 'forensic' > 0 and not findtype 'elven spellblade' backpack
+    overhead 'NO SKINNING KNIFE!' 43
+    sysmsg 'NO SKINNING KNIFE!' 43
+endif
+
+# if has camping, check for kindling
+if skill 'camping' > 0 and not findtype 'kindling' backpack
+    overhead 'NO KINDLING!' 43
+    sysmsg 'NO KINDLING!' 43
+endif
+
+# if bard, check for magical (exceedingly or supremely) instruments
+if skill 'musicianship' > 0
+    if not listexists 'instruments'
+        createlist 'instruments'
+        pushlist 'instruments' 'lute'
+        pushlist 'instruments' 'drum'
+        pushlist 'instruments' 'tambourine'
+        pushlist 'instruments' 'lap harp'
+    endif
+
+
+    foreach type in 'instruments'
+        # find all instruments and see if any of them are magical
+        while findtype type backpack as instrument and list 'char_instrument' == 0
+            getlabel instrument instrument_label
+
+            if exceedingly in instrument_label or supremely in instrument_label
+                pushlist 'char_instrument' instrument
+                break
+            endif
+            @ignore instrument
+        endwhile
+
+        @clearignore
+
+        if list 'char_instrument' > 0
+            break
+        endif
+    endfor
+
+    if list 'char_instrument' == 0
+        overhead 'CANT FIND INSTRUMENT!' 43
+        sysmsg 'CANT FIND INSTRUMENT!' 43
+    endif
+endif
+
+
+
+
+################################
+# THE RECALL PART :)
+################################
+
+
+
+if targetexists 'neutral'
+    if findtype 'runetome' backpack as rtome
+        overhead 'targetting runetome!' 90
+        target rtome
+        stop
+    elseif findtype 'runebook' backpack as rbook
+        overhead 'targetting runebook!' 90
+        target rbook
+        stop
+    endif
+endif
+
+
+
+# check of char has reagents
+if counttype "Black Pearl%s%" backpack == 0 or counttype "Blood Moss" backpack == 0 or counttype "Mandrake Root%s%" backpack == 0
+    if counttype "Recall" backpack == 0
+        overhead 'no ways to recall' 41
+        stop
+    endif
+
+    overhead 'no regs. trying scroll...'
+    pushlist 'use_scroll' 'yes'
+endif
+
+if inlist 'use_scrolls' 'yes'
+    sysmsg '>> Recall Scroll...' 56
+    overhead '*using recall scroll*' 56
+    usetype 'Recall'
+    stop
+endif
+
+sysmsg '>> Recalling...' 56
+overhead '*recalling*' 56
+hotkey 'Recall'

@@ -1,0 +1,30 @@
+
+while not dead 'self'
+    if not gumpexists 1011700083
+        say '[guild'
+    endif
+
+    if gumpexists 1011700083
+        if not ingump 'Members' 1011700083
+            gumpresponse 11 1011700083
+            waitforgump 1011700083
+        endif
+    endif
+
+    while gumpexists 1011700083 and ingump 'Members' 1011700083
+            gumpresponse 11 1011700083
+            waitforgump 1011700083
+            wait 1000
+
+            if gumpexists 1011700083
+                waitforgump 1011700083
+                wait 300
+                if ingump Neron 1011700083
+                    while ingump Neron 1011700083
+                        guild 'guild message here'
+                        wait 1000
+                    endwhile
+                endif
+            endif
+    endwhile
+endwhile

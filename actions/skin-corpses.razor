@@ -27,12 +27,12 @@ while findtype 'corpse' ground any any 2 as body
         sysmsg 'debug 3' 87
         pushlist 'corpses' body
     endif
-    ignore body
+    @ignore body
     if list 'corpses' >= 2
         break
     endif
 endwhile
-clearignore
+@clearignore
 
 if list 'corpses' == 0
     if list 'skinned_corpses' > 0
@@ -43,7 +43,8 @@ if list 'corpses' == 0
     stop
 endif
 
-foreach corp in 'corpses'
+# foreach corp in 'corpses'
+if atlist 'corpses' 0 as corp
     sysmsg 'debug 2'
     usetype 'elven spellblade'
     wft 500
@@ -73,4 +74,5 @@ foreach corp in 'corpses'
         break
     endif
     break
-endfor
+# endfor
+endif

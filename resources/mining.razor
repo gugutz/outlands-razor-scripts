@@ -178,6 +178,13 @@ if list 'packies' >= 1
     say 'all follow me'
 endif
 
+if list 'packies' == 0
+    overhead '!COULDNT FIND ANY PACKIES!' 43
+    overhead '!COULDNT FIND ANY PACKIES!' 43
+    sysmsg '!COULDNT FIND ANY PACKIES!' 43
+    sysmsg '!COULDNT FIND ANY PACKIES!' 43
+endif
+
 # check and equip pickaxe if needed before starting so we dont waist the main timer equiping the axe
 # which was causing the timer to be greater then the mining value and the char wouldnt mine when that happened
 #

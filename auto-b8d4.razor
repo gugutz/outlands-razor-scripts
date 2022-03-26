@@ -1,0 +1,184 @@
+##########################
+# STEALER
+# by gugutz
+# version 0.0.1
+#################################
+
+
+#################################
+# CREDITS :)
+#################################
+
+sysmsg '♥ SNOOP ITEMS by gugutz ♥' 91
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release
+
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+
+
+if not listexists 'snoop_config_lists'
+    createlist 'snoop_config_lists'
+else
+    clearlist 'snoop_config_lists'
+endif
+
+# routine-related lists
+pushlist 'snoop_config_lists' 'action_delay'
+pushlist 'snoop_config_lists' 'found_something_to_steal'
+
+
+foreach list in 'snoop_config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+#################################
+# CREATE ALL TIMERS
+#################################
+
+createlist 'snoop_timers'
+pushlist 'snoop_timers' 'wait_snoop_cooldown'
+
+
+
+foreach timer in 'snoop_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 99999
+    endif
+endfor
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+pushlist 'action_delay' 600
+
+
+#################################
+# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+#################################
+
+if atlist 'action_delay' 0 as action_delay
+
+#################################
+# POPULATE LIST WITH ITEMS TO SEARCH
+#################################
+
+
+if not listexists 'items_to_steal'
+    createlist 'items_to_steal'
+    # rune to test
+    pushlist 'items_to_steal' '0x1f14'
+    # aspectPhylactery:
+    pushlist 'items_to_steal' '0x0240'
+    # aspectCore:
+    pushlist 'items_to_steal' '0x0f91'
+    # aspectExtract:
+    pushlist 'items_to_steal' '0x0efc'
+    # aspectSpellFoci:
+    pushlist 'items_to_steal' '0xbc85'
+    # skillMasteryOrb:
+    pushlist 'items_to_steal' '0x5740'
+    # skillMasteryScroll: __ 8 se for taming e lore rola ta entre os 4 primeiros
+    pushlist 'items_to_steal' '0x227a'
+    # treasureMap:
+    pushlist 'items_to_steal' '0x14ec'
+    # mastercraftingDiagram:
+    pushlist 'items_to_steal' '0x42bf'
+    #carpetDye: nao rola pega
+    pushlist 'items_to_steal' '0x716c'
+    # itens adicionados por mim
+    # # mausoleum dye
+    pushlist 'items_to_steal' '0xaaab'
+    # cupid arrow nao rola pega
+    pushlist 'items_to_steal' '0xaaab'
+    # research material.s__ 4
+    pushlist 'items_to_steal' '0x72a4'
+    # plainly down tresure map __5
+    pushlist 'items_to_steal' '0x14ec'
+    # a skill mastery orb  __ 2
+    pushlist 'items_to_steal' '0x5740'
+    # mastercrafting diagram _ 3
+    pushlist 'items_to_steal' '0x42bf'
+    # a bronze mastery chain link __ 1
+    pushlist 'items_to_steal' '0xa8c6'
+    # blood aspect core __ 6
+    pushlist 'items_to_steal' '0x0f91'
+    # blood aspect extract __ 7
+    pushlist 'items_to_steal' '0x0efc'
+    # botas que da pano de cor
+    pushlist 'items_to_steal' '0x1711'
+endif
+
+unsetvar steal_container
+setvar steal_container
+
+if targetexists 'neutral'
+    sysmsg 'select container to search'
+    overhead 'select container to search' 53
+    while targetexists 'neutral'
+        wait 100
+    endwhile
+endif
+
+if not varexist steal_container
+    sysmsg 'ABORTED...' 44
+    stop
+endif
+
+dclick steal_container
+wait action_delay
+
+if insysmsg 'You must wait'
+    while insysmsg 'You must wait'
+        clearsysmsg
+        dclick steal_container
+        wait action_delay
+    endwhile
+endif
+
+
+foreach item in items_to_steal
+    if findtype item steal_container as target_item
+        overhead 'caralho deu boa {{item}}!!!'
+        settimer 'snoop_timer' 0
+        pushlist 'found_something_to_steal' 'yes'
+        hotkey "Set Last Target"
+        wft 600
+        if targetexists 'neutral'
+            overhead 'setting {{item}} as last'
+            target target_item
+        endif
+    endif
+endfor
+
+if inlist 'found_something_to_steal' 'yes'
+
+    while timer 'snoop_timer' < 4000
+        sysmsg 'waiting snoop cooldown' 56
+        wait 100
+    endwhile
+    overhead 'CAN STEAL NOW! USE LAST TARGET'
+endif
+
+
+#################################
+# closing the ifs that initialized the config variables on top of tile
+#################################
+
+endif
