@@ -1,0 +1,20 @@
+#  script idea by chase
+#  remember to remove invuls from here
+#  we dont wanna get invuls while looking for friends
+#
+clearsysmsg
+hotkey 'Next Humanoid Target'
+if insysmsg 'no one matching'
+    wait 200
+    loop
+endif
+if noto last = 'friend'
+    sysmsg 'Guildmate target!' 77
+    hotkey 'Add Target to: Guild'
+    target last
+elseif noto last = 'invulnerable'
+    sysmsg 'Invulnerable target!'
+    hotkey 'Add Target to: Invulnerable'
+    target last
+endif
+loop

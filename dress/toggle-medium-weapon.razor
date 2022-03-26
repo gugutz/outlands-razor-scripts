@@ -21,38 +21,66 @@ endfor
 
 pushlist 'dont_unequip_if_already_equiped' 'no'
 
+
+################################
+# CREATE ALL TIMERS
+################################
+
+if not timerexists 'waiting_dress_timer'
+    createtimer 'waiting_dress_timer'
+    settimer 'waiting_dress_timer' 0
+endif
+
 #################################
 # SCRIPT CONFIGURATION
 #
 
 
-if not listexists 'disturb_weapons_1'
-    createlist 'disturb_weapons_1'
-    if skill 'archery' >= 50
-        pushlist 'disturb_weapons_1' 'bow'
-    elseif skill 'fencing' >= 50
-        pushlist 'disturb_weapons_1' 'short spear'
-        pushlist 'disturb_weapons_1' 'war fork'
-    elseif skill 'mace fighting' >= 50
-        pushlist 'disturb_weapons_1' 'war mace'
-    elseif skill 'swordsmanship' >= 50 or findtype 'viking sword' backpack or findtype 'longsword' backpack
-        pushlist 'disturb_weapons_1' 'viking sword'
-        pushlist 'disturb_weapons_1' 'longsword'
+if not listexists 'dps_weapons'
+    createlist 'dps_weapons'
+    if skill 'archery' >= 50 or findtype 'crossbow' backpack
+        pushlist 'dps_weapons' 'crossbow'
+    elseif skill 'fencing' >= 50 or findtype 'pitchfork' backpack or findtype 'short spear' backpack
+        pushlist 'dps_weapons' 'pitchfork'
+        pushlist 'dps_weapons' 'short spear'
+    elseif skill 'mace fighting' >= 50 or findtype 'black staff' or findtype 'gnarled staff' backpack or findtype 'quarter staff' backpack or findtype 3713 backpack
+        pushlist 'dps_weapons' 'black staff'
+        pushlist 'dps_weapons' 'gnarled staff'
+        pushlist 'dps_weapons' 'quarter staff'
+        # sheps crook
+        pushlist 'dps_weapons' 3713
+    elseif skill 'swordsmanship' >= 50 or findtype 'axe' backpack or findtype 'battle axe' backpack or findtype 'two handed axe' backpack or findtype 'large axe' backpackm or findtype "executioner's axe" backpack or findtype 'double axe' backpack
+        if findtype 'axe' backpack as weapon
+            pushlist 'dps_weapons' 'axe'
+        elseif findtype 'battle axe' backpack as weapon
+            pushlist 'dps_weapons' 'battle axe'
+        elseif findtype 'double axe' backpack as weapon
+            pushlist 'dps_weapons' 'double axe'
+        elseif findtype 'large battle axe' backpack as weapon
+            pushlist 'dps_weapons' 'large battle axe'
+        elseif findtype 'two handed axe' backpack as weapon
+            pushlist 'dps_weapons' 'two handed axe'
+        elseif findtype "executioner's axe" backpack as weapon
+            # pushlist 'dps_weapons' "executioner's axe"
+            pushlist 'dps_weapons' "executioner's axe"
+        endif
     else
         overhead 'char has no weapon skill'
     endif
 endif
 
-if list 'disturb_weapons_1' == 0
-    overhead 'no disturb_weapons_1 in list'
+
+if list 'dps_weapons' == 0
+    overhead 'no weapons in list'
 endif
 
-foreach weapon in 'disturb_weapons_1'
+foreach weapon in 'dps_weapons'
     if findtype weapon lefthand
         if inlist 'dont_unequip_if_already_equiped' 'yes'
             overhead 'equiped on left hand' 54
             break
         else
+            hotkey 'Toggle Peace Only'
             hotkey 'Undress Left Hand'
             break
         endif
@@ -61,6 +89,7 @@ foreach weapon in 'disturb_weapons_1'
             overhead 'equiped on right hand' 54
             break
         else
+            hotkey 'Toggle Peace Only'
             hotkey 'Undress Right Hand'
             break
         endif
@@ -68,24 +97,21 @@ foreach weapon in 'disturb_weapons_1'
         if not rhandempty
             if targetexists 'any'
                 # overhead '*undressing right hand*'
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Right Hand'
 
                 # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                hotkey 'Toggle War Only'
-                hotkey 'Toggle Peace Only'
-
-                hotkey 'Undress Right Hand'
-                # wait 100
+                wait 200
             endif
         elseif not lhandempty
             if targetexists 'any'
                 # overhead '*undressing left hand*'
 
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                hotkey 'Toggle War Only'
                 hotkey 'Toggle Peace Only'
-
                 hotkey 'Undress Left Hand'
-                # wait 200
+
+                wait 200
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
             endif
         endif
 
@@ -96,15 +122,15 @@ foreach weapon in 'disturb_weapons_1'
                 lift weap 1
                 # wait 100
                 drop 'self' LeftHand
+                # tab out, good for duels
             else
                 dclick weap
+                # tab out, good for duels
             endif
-
 
             settimer 'waiting_dress_timer' 0
             while lhandempty and rhandempty
                 wait 10
-
                 sysmsg 'waiting to equip weapon...'
                 if timer 'waiting_dress_timer' >= 400
                     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
@@ -120,8 +146,6 @@ foreach weapon in 'disturb_weapons_1'
                 hotkey 'Toggle War Only'
                 hotkey 'Toggle Peace Only'
             endif
-
-
         endif
     endif
 endfor

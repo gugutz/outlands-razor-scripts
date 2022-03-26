@@ -79,7 +79,7 @@ pushlist 'unload_misc_items' 'yes'
 
 # choose where to look for containers/tomes/vault (possible values: 'ground', 'subcontainer', 'master_container')
 pushlist 'unload_misc_items_container_location' 'ground'
-pushlist 'gold_deposit_container_location' 'none'
+pushlist 'gold_deposit_container_location' 'ground'
 pushlist 'tomes_location' 'ground'
 
 
@@ -351,7 +351,7 @@ endfor
 # DEPOSIT GOLD FROM PACKIES
 #
 if list 'packies' > 0
-    if not find gold_deposit_container gold_deposit_container_location any any 2
+    if not varexist gold_deposit_container or not find gold_deposit_container gold_deposit_container_location any any 2
         overhead 'cant find gold deposit container' 41
         sysmsg '> Cant Find gold deposit Container' sysmsgs_color
     elseif varexist gold_deposit_container and find gold_deposit_container gold_deposit_container_location any any 2

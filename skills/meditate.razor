@@ -78,39 +78,39 @@ if atlist 'min_mana_to_use_mushroom' 0 as min_mana_to_use_mushroom
 ################################
 
 # MUSHROOM
-if name == 'Neron' or name == 'Emillia'
-    if mana = maxmana
-        overhead 'no need for mushroom!' 55
-        stop
-    endif
+# if name == 'Neron' or name == 'Emillia'
+#     if mana = maxmana
+#         overhead 'no need for mushroom!' 55
+#         stop
+#     endif
 
-    if mana >= 70
-        overhead 'over mana limit for mushroom'
-    endif
+#     if mana >= 70
+#         overhead 'over mana limit for mushroom'
+#     endif
 
-    if mana < 70
-        if timer 'use_mushroom_timer' < 60000
-            overhead '! mushroom cooldown !' 55
-        endif
+#     if mana < 70
+#         if timer 'use_mushroom_timer' < 60000
+#             overhead '! mushroom cooldown !' 55
+#         endif
 
-        if not findtype 'mushroom' 'backpack'
-            overhead 'no mushrooms!' 37
-            while counttype 'mushroom' < 5 and mana > 11
-                cast 'create food'
-            endwhile
-        else
-            usetype 'mushroom' backpack
-            wait 600
-            # waitforsysmsg 'you consume' 600
-            if insysmsg 'you consume'
-                sysmsg '>>> Used mushroom! Resetting timer...' 55
-                settimer 'use_mushroom_timer' 0
-                clearsysmsg
-                stop
-            endif
-        endif
-    endif
-endif
+#         if not findtype 'mushroom' 'backpack'
+#             overhead 'no mushrooms!' 37
+#             while counttype 'mushroom' < 5 and mana > 11
+#                 cast 'create food'
+#             endwhile
+#         else
+#             usetype 'mushroom' backpack
+#             wait 600
+#             # waitforsysmsg 'you consume' 600
+#             if insysmsg 'you consume'
+#                 sysmsg '>>> Used mushroom! Resetting timer...' 55
+#                 settimer 'use_mushroom_timer' 0
+#                 clearsysmsg
+#                 stop
+#             endif
+#         endif
+#     endif
+# endif
 
 
 ###############################

@@ -8,7 +8,7 @@ if targetexists 'beneficial'
         overhead 'holding target (100% hp)' 41
     endif
 else
-    if not dead 'last'
+    if not dead 'last' and name != 'Neron'
         attack 'lasttarget'
     endif
     hotkey 'Play: spells\greater-heal'

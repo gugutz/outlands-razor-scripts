@@ -3,6 +3,10 @@ wft 500
 
 if insysmsg 'What instrument shall you play?'
     overhead 'selecting instrument' 90
+    wait 100
+    while targetexists
+        wait 100
+    endwhile
 endif
 if targetexists 'neutral'
     overhead 'discord which creature?' 90

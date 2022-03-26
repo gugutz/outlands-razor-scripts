@@ -1,17 +1,81 @@
 # Treasure Map Tome Decypher
-# v0.0.1
+# v0.0.2
 # by gugutz
 #
 ###################################
 
+#################################
+# CHANGELOG
+#################################
+#
+#
+# v0.0.2
+# - Makes search for tomes in any place, not just ground
+#
+# v0.0.1
+# - Initial release
+
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+
+if not listexists 'config_lists_smart_recall'
+    createlist 'config_lists_smart_recall'
+else
+    clearlist 'config_lists_smart_recall'
+endif
+
+pushlist 'config_lists_decypher_maps_in_tome' 'use_scrolls'
+pushlist 'config_lists_decypher_maps_in_tome' 'tomes_location'
+
+
+foreach list in 'config_lists_smart_recall'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+##################################
+# CONFIGURATION
+##################################
+
+pushlist 'tomes_location' 'ground'
+
+
+
+
+
+
+if inlist 'tomes_location' 'subcontainer'
+    if not varexist tomes_container or not find main_unload_container ground any any 2
+        overhead 'select master unload container' sysmsgs_color
+        sysmsg  '> Select Your Master Unload Container' sysmsgs_color
+        @setvar main_unload_container
+    endif
+endif
 
 removelist tomes
 createlist tomes
 clearsysmsg
 
-if findtype 'storage shelf' ground 'any' 'any' 2 as myshelf
-    sysmsg 'Saving shelf...'
-    @setvar shelf  myshelf
+setvar new_tome
+wft 1000
+
+if targetexists 'neutral'
+    while targetexists 'neutral'
+        wait 100
+        if varexist new_tome
+            pushlist 'tomes' new_tome
+            sysmsg "Added {{new_tome}} to tomes list"
+        endif
+
+        unsetvar new_tome
+        setvar new_tome
+    endwhile
 endif
 # Set tome serials
 # Add as little or as many
@@ -42,6 +106,16 @@ pushlist tomes '0x408189A3'
 # Fishing
 # pushlist tomes '0x486C12B7'
 
+##################################
+# SCRIPT VARIABLES
+##################################
+
+if findtype 'storage shelf' ground 'any' 'any' 2 as myshelf
+    sysmsg 'Saving shelf...'
+    @setvar shelf  myshelf
+endif
+
+
 removelist buttons
 createlist buttons
 
@@ -56,8 +130,46 @@ pushlist buttons '16'
 pushlist buttons '17'
 pushlist buttons '18'
 
+
+#################################
+# SET TOMES CONTAINER
+#################################
+
+if inlist 'tomes_location' 'ground' or inlist 'tomes_location' 'master_container'
+    @setvar tomes_container_location 'ground'
+elseif inlist 'tomes_location' 'subcontainer'
+    @setvar tomes_container_location main_unload_container
+else
+    @setvar tomes_container_location 'ground'
+endif
+
+if inlist 'tomes_location' 'subcontainer' or inlist 'tomes_location' 'master_container'
+    if not varexist tomes_container or not find tomes_container tomes_container_location any any 2
+        @unsetvar tomes_container
+        overhead 'select your tomes container' sysmsgs_color
+        sysmsg  '> Select Your Tomes Container' sysmsgs_color
+        @setvar tomes_container
+    endif
+endif
+
+if varexist tomes_container
+    sysmsg '> Opening Tomes Containes' sysmsgs_color
+    useobject tomes_container
+    wait action_delay_var
+endif
+
+
+# if findtype 'book' tomes_container_location 2618 1 2 as aspect_item_tome
+# endif
+
+
+#################################
+# CODE
+#################################
+
+
 foreach tome in tomes
-    if not find tome ground any any 2
+    if not find tome ground any any 2 and not find tome any any any 2
         sysmsg 'TOME NOT FOUND' 54
         overhead 'TOME NOT FOUND' 54
         break
