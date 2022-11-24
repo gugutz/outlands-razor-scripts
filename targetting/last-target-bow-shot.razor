@@ -1,0 +1,52 @@
+
+if not targetexists 'harmful'
+    overhead 'no target open' 41
+    stop
+endif
+
+overhead 'last target!' 39
+overhead 'targetting!' 39 lasttarget
+hotkey "Last Target"
+
+while targetexists 'harmful'
+    wait 50
+endwhile
+
+
+if findtype 'bow|heavy crossbow' backpack as weap
+    if noto lasttarget == hostile
+        overhead 'attacking!' 41 'last'
+        overhead 'attacking lasttarget!' 41
+        hotkey 'Attack Last Target'
+    endif
+    overhead 'equipping bow' 74
+
+    if targetexists
+        sysmsg 'LIFT'
+        hotkey 'Drop What You Are Currently Holding'
+        lift weap 1
+        wait action_delay
+        drop 'self' LeftHand
+    else
+        sysmsg 'DCLICK'
+        dclick weap
+    endif
+elseif findtype 'crossbow' backpack as weap
+    if noto lasttarget == hostile
+        overhead 'attacking!' 41 'last'
+        overhead 'attacking lasttarget!' 41
+        hotkey 'Attack Last Target'
+    endif
+    overhead 'equipping katana' 74
+
+    if targetexists
+        sysmsg 'LIFT'
+        hotkey 'Drop What You Are Currently Holding'
+        lift weap 1
+        wait action_delay
+        drop 'self' RightHand
+    else
+        sysmsg 'DCLICK'
+        dclick weap
+    endif
+endif

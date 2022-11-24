@@ -1,36 +1,54 @@
-# Treasure Chest Unlocker and Looter
-# v0.0.2
-# by gugutz
+sysmsg '#########################' 90
+sysmsg '>>> T-Chest Unlocker and Looter' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.0.3' 31
+sysmsg '########################' 90
 #
 #################################
-# CHANGELOG
+# DESCRIPTION
 #################################
-#
-# v0.0.2
-# - Adds clearsysmsg at the beginning of the macro to avoid detecting sysmsgs from previous executions
-#
-# v0.0.1
-# - Initial release
-
 #
 # This script will search for treasure chests in the ground within 2 tiles of the char, and if it finds any
 # it will remove traps, unlock and then loot the chests
 #
-#
-#
-sysmsg '#########################' 90
-sysmsg '>>> T-Chest Unlocker and Looter' 55
-sysmsg 'by gugutz' 45
-sysmsg 'version 0.0.1' 31
-sysmsg '########################' 90
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 600
+setvar! use_tools_instead_of_chest_gump 1
+setvar! loot_chest 1
+setvar! auto_hide 1
+setvar! only_start_chest_if_hidden 1
 
 
-#################################
-# SCRIPT VARIABLES
-#################################
+################################
+# NON-CONFIG RELATED VARIABLES
+################################
 
-@setvar action_delay_var 600
-@setvar locked_chest_gump 736038070
+setvar! unlock_chest 1
+if not varexist locked_chest_gump
+    @setvar locked_chest_gump 736038070
+endif
+
+
+###################################
+# TIMERS
+###################################
+
+sysmsg 'Creating timers...'
+
+createlist 'open_and_loot_tchests_script_timers'
+pushlist 'open_and_loot_tchests_script_timers' 'wait_for_progress'
+pushlist 'open_and_loot_tchests_script_timers' 'char_heavy_warning_msg_timer'
+
+foreach timer in 'open_and_loot_tchests_script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 0
+    endif
+endfor
 
 
 #################################
@@ -48,20 +66,20 @@ if not listexists 'rares'
     sysmsg 'Creating rares list...' 51
     createlist 'rares'
     # mastery chain links
+    # rare cloth
+    pushlist 'rares' 'folded cloth'
+    pushlist 'rares' 'aspect core'
+    pushlist 'rares' 'map'
+    # spell hue deeds
+    pushlist 'rares' 5359
     # skill orb
     pushlist 'rares' 22336
     # # mcd (this goes into the resource stockpile)
     pushlist 'rares' 17087
     # research material
-    pushlist 'rares' 29348
-    # spell hue deeds
-    pushlist 'rares' 5359
-    # rare cloth
-    pushlist 'rares' 'folded cloth'
-    pushlist 'rares' 'map'
+    pushlist 'rares' 'research materials'
     # skill scrolls
     pushlist 'rares' 'scroll of calling'
-    pushlist 'rares' 'aspect core'
     # aspect extract
     pushlist 'rares' 3836
     pushlist 'rares' 'phylactery'
@@ -105,12 +123,14 @@ if not listexists 'tchest_items'
     sysmsg 'Creating regular tchest items list...' 51
     createlist 'tchest_items'
 
+    # arcane scrolls
+    pushlist 'tchest_items' 'blank scroll%s%'
+    # plant chemicals
+    pushlist 'tchest_items' 29030
     pushlist 'tchest_items' 'gold coin'
     pushlist 'tchest_items' 'bow'
     pushlist 'tchest_items' 'seed of renewal'
     pushlist 'tchest_items' 'bag of seeds'
-    # arcane scrolls
-    pushlist 'tchest_items' 'blank scroll%s%'
 
 
     # gems
@@ -136,24 +156,33 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'heavy crossbow'
 
     # SWORDS WEAPONS
+    pushlist 'tchest_items' 'cutlass'
     pushlist 'tchest_items' 'katana'
     pushlist 'tchest_items' 'viking sword'
     pushlist 'tchest_items' 'broadsword'
     pushlist 'tchest_items' 'longsword'
-    pushlist 'tchest_items' 'war mace'
-    pushlist 'tchest_items' 'club'
     pushlist 'tchest_items' 'double axe'
-    pushlist 'tchest_items' 'large battle axe'
+    pushlist 'tchest_items' 'two handed axe'
+    pushlist 'tchest_items' 'battle axe'
     pushlist 'tchest_items' 'bardiche'
     pushlist 'tchest_items' 'halberd'
+    pushlist 'tchest_items' "executioner's axe"
 
     # MACING WEAPONS
     pushlist 'tchest_items' 'club'
+    pushlist 'tchest_items' 'mace'
     pushlist 'tchest_items' 'war mace'
     pushlist 'tchest_items' 'war axe'
     pushlist 'tchest_items' 'hammer pick'
     pushlist 'tchest_items' 'black staff'
     pushlist 'tchest_items' 'gnarled staff'
+    pushlist 'tchest_items' 'quarter staff'
+    # war hammer (doenst work with just name, need ID)
+    pushlist 'tchest_items' 'war hammer'
+    pushlist 'tchest_items' 5177
+    pushlist 'tchest_items' 'maul'
+    # sheps crook
+    pushlist 'tchest_items' 3713
 
     # FENCING WEAPONS
     pushlist 'tchest_items' 'kryss'
@@ -164,10 +193,13 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'bladed staff'
 
     # SHIELDs
+    # buckler (doenst work with only name)
+    pushlist 'tchest_items' 7027
     pushlist 'tchest_items' 'buckler'
     pushlist 'tchest_items' 'wooden shield'
     pushlist 'tchest_items' 'metal shield'
-    pushlist 'tchest_items' 'bronze shield'
+    # bronze shield (for some reason doenst work with name, only graphic number)
+    pushlist 'tchest_items' 7026
     # kite shield (for some reason doenst work with name, only graphic number)
     pushlist 'tchest_items' 7033
     # metal kite shield
@@ -176,7 +208,6 @@ if not listexists 'tchest_items'
 
     # HATS
     pushlist 'tchest_items' "wizard's hat"
-    pushlist 'tchest_items' 'bone helmet'
 
     # BONE SET
     pushlist 'tchest_items' 'bone armor'
@@ -194,12 +225,17 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'leather leggings'
     pushlist 'tchest_items' 'leather skirt'
     pushlist 'tchest_items' 'leather bustier'
+    pushlist 'tchest_items' 'leather shorts'
+    pushlist 'tchest_items' 'leather armor'
 
 
     # STUDDED SET
     pushlist 'tchest_items' 'studded tunic'
+    # studded armor (doenst work with only name)
+    pushlist 'tchest_items' 7170
+    pushlist 'tchest_items' 'studded armor'
     pushlist 'tchest_items' 'studded sleeves'
-    pushlist 'tchest_items' 'studded legs'
+    pushlist 'tchest_items' 'studded leggings'
     pushlist 'tchest_items' 'studded gorget'
     pushlist 'tchest_items' 'studded gloves'
     pushlist 'tchest_items' 'studded bustier'
@@ -207,15 +243,22 @@ if not listexists 'tchest_items'
     # HELMETS
     pushlist 'tchest_items' 'helmet'
     pushlist 'tchest_items' 'norse helm'
+    pushlist 'tchest_items' 'close helm'
+    # bascinet doenst work with name appearantly
+    pushlist 'tchest_items' 5135
+    pushlist 'tchest_items' 'bascinet'
+    pushlist 'tchest_items' 'bone helmet'
+    pushlist 'tchest_items' 'plate helm'
 
     # PLATEMAIL SET
-    pushlist 'tchest_items' 'platemail chest'
+    pushlist 'tchest_items' 'platemail'
     pushlist 'tchest_items' 'platemail arms'
     pushlist 'tchest_items' 'platemail legs'
     pushlist 'tchest_items' 'platemail gorget'
     pushlist 'tchest_items' 'platemail gloves'
 
     # CHAINMAIL SET
+    pushlist 'tchest_items' 'chainmail coif'
     pushlist 'tchest_items' 'chainmail tunic'
     pushlist 'tchest_items' 'chainmail arms'
     pushlist 'tchest_items' 'chainmail leggings'
@@ -224,7 +267,9 @@ if not listexists 'tchest_items'
 
     # CHAINMAIL SET
     pushlist 'tchest_items' 'ringmail tunic'
-    pushlist 'tchest_items' 'ringmail arms'
+    # sleeves
+    pushlist 'tchest_items' 'ringmail sleeves'
+    pushlist 'tchest_items' 5103
     pushlist 'tchest_items' 'ringmail leggings'
     pushlist 'tchest_items' 'ringmail gorget'
     pushlist 'tchest_items' 'ringmail gloves'
@@ -232,13 +277,18 @@ if not listexists 'tchest_items'
     # INSTRUMENTS
     pushlist 'tchest_items' 'bamboo flute'
     pushlist 'tchest_items' 'lute'
-    pushlist 'tchest_items' 'drums'
+    pushlist 'tchest_items' 'drum'
+    # tambourine doenst work with name appearantly
+    pushlist 'tchest_items' 3742
+    pushlist 'tchest_items' 'tambourine'
     pushlist 'tchest_items' 'lap harp'
 
     # MISC & MAGERY SCROLLS
     pushlist 'tchest_items' 'clean bandage%s%'
     pushlist 'tchest_items' 'arrow'
-    pushlist 'tchest_items' 'bolt'
+    # bolt doenst work with name appearantly
+    pushlist 'tchest_items' 7163
+    pushlist 'tchest_items' 'crossbow bolt'
 
 
     # REAGENTS
@@ -256,50 +306,50 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'ManaDrain Scroll'
     pushlist 'tchest_items' 'Greater Heal Scroll'
     pushlist 'tchest_items' 'Lightning Scroll'
-    pushlist 'tchest_items' 'Lightning Scroll'
 endif
 
-
-
-###################################
-# TIMERS
-###################################
-
-sysmsg 'Creating timers...'
-
-createlist 'open_and_loot_tchests_script_timers'
-pushlist 'open_and_loot_tchests_script_timers' 'wait_for_progress'
-
-foreach timer in 'open_and_loot_tchests_script_timers'
-    if not timerexists timer
-        createtimer timer
-        settimer timer 0
-    endif
-endfor
 
 
 ###################################
 # SEARCH FOR CHESTS IN GROUND
 ###################################
 
-# check if chest nearby is already opened
-if findtype 29089 ground any any 2 or findtype 29076 ground any any 2
-    overhead 'found opened chest'
-    sysmsg 'CHEST ON GROUND IS ALREADY OPENED!'
-    stop
-endif
-
-
-# search for tchests in the ground to start the whole process
 unsetvar chest
 
-if findtype 'metal chest' ground any any 2 as tchest
-    setvar chest tchest
-elseif findtype 'wooden chest' ground any any 2 as tchest
-    setvar chest tchest
-else
-    overhead 'NO CHESTS NEARBY!' 43
-    sysmsg 'Cant find any Treasure Chest nearby!' 43
+# check if chest nearby is already opened
+if findtype 29087 ground any any 2 as open_chest
+    setvar! chest open_chest
+    setvar! found_open_chest true
+elseif findtype 29089 ground any any 2 as open_chest
+    setvar! chest open_chest
+    setvar! found_open_chest true
+elseif findtype 29076 ground any any 2 as open_chest
+    setvar! chest open_chest
+    setvar! found_open_chest true
+endif
+
+if varexist found_open_chest
+    unsetvar! found_open_chest
+    overhead 'FOUND OPEN CHEST!' 90
+    sysmsg 'CHEST ON GROUND IS ALREADY OPENED!'
+
+    # set script to not try to unlock chest, only loot it
+    unsetvar! unlock_chest
+endif
+
+# search for tchests in the ground to start the whole process
+if not varexist chest
+
+    if findtype 'metal chest' ground any any 2 as tchest
+        setvar! chest tchest
+    elseif findtype 'wooden chest' ground any any 2 as tchest
+        setvar! chest tchest
+    else
+        overhead 'NO CHESTS NEARBY!' 43
+        sysmsg 'Cant find any Treasure Chest nearby!' 43
+        sto
+    endif
+
 endif
 
 
@@ -310,68 +360,98 @@ endif
 clearsysmsg
 
 if varexist chest
+    if unlock_chest == 1
 
-    while not gumpexists locked_chest_gump
-        sysmsg 'Opening chest first time...' 53
-        dclick chest
-        waitforgump locked_chest_gump 600
-        wait action_delay_var
-    endwhile
+        while not gumpexists locked_chest_gump
+            sysmsg 'Opening chest first time...' 53
+            dclick chest
+            waitforgump locked_chest_gump 600
+            wait action_delay
+        endwhile
 
-    #################################
-    # REMOVE CHEST TRAPS
-    #################################
+        #################################
+        # REMOVE CHEST TRAPS
+        #################################
 
 
-    while not dead and not insysmsg 'You have successfully cleared it of traps'
+        while not dead and not insysmsg 'You have successfully cleared it of traps'
 
-        if skill 'hiding' >= 70
-            while not hidden
-                useskill 'hiding'
-                wait 1000
-            endwhile
-        elseif skill 'magery' >= 75
-            while not hidden
-                cast 'invisibility'
-                wft 3500
-                if targetexists 'neutral'
-                    target 'self'
+            if auto_hide == 1
+                if only_start_chest_if_hidden == 1
+                    while not hidden
+                        if skill 'hiding' >= 70
+                            useskill 'hiding'
+                            wait 1000
+                        elseif skill 'magery' >= 75
+                            cast 'invisibility'
+                            wft 3500
+                            if targetexists 'neutral'
+                                target 'self'
+                            endif
+                            wait action_delay
+                        endif
+                    endwhile
+                else
+                    if not hidden
+                        if skill 'hiding' >= 70
+                            useskill 'hiding'
+                            wait 1000
+                        elseif skill 'magery' >= 75
+                            cast 'invisibility'
+                            wft 3500
+                            if targetexists 'neutral'
+                                target 'self'
+                            endif
+                            wait action_delay
+                        endif
+                    endif
                 endif
-                wait action_delay_var
-            endwhile
-        endif
+            endif
 
 
-        # Skip ahead if devoid of traps
-        if insysmsg 'You have successfully cleared it of traps'
-            overhead '* TRAPS CLEARED * ' 59
-            break
-        endif
+            # Skip ahead if devoid of traps
+            if insysmsg 'You have successfully cleared it of traps'
+                overhead '* TRAPS CLEARED * ' 72
+                break
+            endif
 
-        # # Skip ahead if chest already open
-        # if findtype 29076 ground any any 2 true or findtype 29089 ground any any 2
-        #     overhead '* ALREADY OPEN * ' 59
-        #     break
-        # endif
 
-        # Remove traps
-        #
-        if findtype drill as tool
-            if not gumpexists locked_chest_gump
-                sysmsg 'Clicking chest to open gump...'
-                dclick chest
-                waitforgump locked_chest_gump 1000
-            else
+            if findtype drill as tool
+                # unlock using tool instead of using the chest gump (this allows the char to remain hidden)
+                if use_tools_instead_of_chest_gump == 1
+                    sysmsg 'Removing Chest Traps...' 54
+                    dclick tool
+                    waitfortarget action_delay
+                    target chest
+
+                    wait action_delay
+
+                # unlock using the chest gump instead of directly clicking tool
+                elseif use_tools_instead_of_chest_gump == 0
+                    if not gumpexists locked_chest_gump
+                        sysmsg 'Clicking chest to open gump...'
+                        dclick chest
+                        waitforgump locked_chest_gump action_delay
+                    else
+                        gumpresponse 7 736038070
+                        wait action_delay
+                    endif
+                endif
+
                 if ingump 'Cleared of Traps' 736038070 or insysmsg 'appears to be devoid'
                     sysmsg 'CHEST ALREADY CLARED OF TRAPS....'
                     break
                 endif
 
-                gumpresponse 7
-                wait action_delay_var
+
                 if insysmsg 'You do not have any trap tools of that material on hand'
-                    gumpresponse 5
-                    waitforgump locked_chest_gump 1000
+                    if use_tools_instead_of_chest_gump == 1
+                        overhead 'NO MORE DRILLS' 55
+                        stop
+                    elseif use_tools_instead_of_chest_gump == 0
+                        sysmsg '> Switching Tool Material Color...' 54
+                        gumpresponse 5 736038070
+                        waitforgump locked_chest_gump action_delay
                 else
                     while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
                         wait 100
@@ -381,33 +461,51 @@ if varexist chest
                         endif
                     endwhile
                 endif
-            endif
-        else
-            overhead 'NO MORE DRILLS' 55
-            stop
-        endif
-
-
-    endwhile
-
-
-    #################################
-    # LOCKPICK CHEST
-    #################################
-
-    while not dead and not insysmsg 'You successfully pick the lock.'
-        #
-        if findtype 'lockpicks' as tool
-            if not gumpexists locked_chest_gump
-                sysmsg 'Clicking chest to open gump...'
-                dclick chest
-                waitforgump locked_chest_gump 1000
             else
-                gumpresponse 4
-                wait action_delay_var
+                overhead 'NO MORE DRILLS' 37
+                stop
+            endif
+
+
+        endwhile
+
+        #################################
+        # LOCKPICK CHEST
+        #################################
+
+        while not dead and not insysmsg 'You successfully pick the lock.'
+            #
+            if findtype 'lockpicks' as tool
+
+                # unlock using tool instead of using the chest gump (this allows the char to remain hidden)
+                if use_tools_instead_of_chest_gump == 1
+                    sysmsg 'Lockpicking Chest...'
+                    dclick tool
+                    waitfortarget action_delay
+                    target chest
+
+                    wait action_delay
+
+                # unlock using the chest gump instead of directly clicking tool
+                elseif use_tools_instead_of_chest_gump == 0
+                    if not gumpexists locked_chest_gump
+                        sysmsg 'Clicking chest to open gump...'
+                        dclick chest
+                        waitforgump locked_chest_gump action_delay
+                    else
+                        gumpresponse 4 736038070
+                        wait action_delay
+                    endif
+                endif
+
                 if insysmsg 'You do not have any lockpicks of that material on hand'
-                    gumpresponse 2
-                    waitforgump locked_chest_gump 1000
+                    if use_tools_instead_of_chest_gump == 1
+                        overhead 'NO MORE LOCKPICKS' 55
+                        stop
+                    elseif use_tools_instead_of_chest_gump == 0
+                        sysmsg '> Switching Tool Material Color...' 54
+                        gumpresponse 2 736038070
+                        waitforgump locked_chest_gump 1000
                 else
                     settimer 'wait_for_progress' 0
                     while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
@@ -418,24 +516,25 @@ if varexist chest
                         endif
                     endwhile
                 endif
+
+            else
+                overhead 'NO MORE LOCKPICKS' 37
+                stop
             endif
+
+            if findtype 29076 ground any any 2 or findtype  29089 ground any any 2
+                break
+            endif
+
+        endwhile
+
+        if insysmsg 'You successfully pick the lock' or findtype 29076 ground any any 2 or findtype  29089 ground any any 2
+            overhead 'chest opened!' 54
+            sysmsg '>>> Chest Opened!' 54
         else
-            overhead 'NO MORE LOCKPICKS' 55
+            sysmsg 'Couldnt confirm if chest really opened. Stopping...' 54
             stop
         endif
-
-        if findtype 29076 ground any any 2 or findtype  29089 ground any any 2
-            break
-        endif
-
-    endwhile
-
-    if insysmsg 'You successfully pick the lock' or findtype 29076 ground any any 2 or findtype  29089 ground any any 2
-        overhead 'chest opened!' 54
-        sysmsg '>>> Chest Opened!' 54
-    else
-        sysmsg 'Couldnt confirm if chest really opened. Stopping...' 54
-        stop
     endif
 
 
@@ -444,60 +543,187 @@ if varexist chest
     # LOOT THE CHEST
     #################################
 
-    sysmsg 'Starting Looting Chest...'
-    foreach item in 'links'
-        while findtype item chest any any as item_to_unload
-            sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
-            overhead 'found a link!' 51 'self'
+    if varexist loot_chest
+        # if script is set to not open this chest, we might need to dclick it,
+        # it could be an already open chest the player wants to loot
+        if not varexist unlock_chest
+            dclick chest
+            wait action_delay
+        endif
 
-            lift item_to_unload 1
-            wait action_delay_var
-            drop backpack
-            wait action_delay_var
-        endwhile
-    endfor
+        foreach item in 'links'
+            while findtype item chest any any as item_to_unload
+                sysmsg '>>> FOUND A LINK! LOOTING IT...' 53
 
-    foreach item in 'rares'
-        while findtype item chest any any as item_to_unload
-            overhead item 51 'self'
-            sysmsg item 52
+                getlabel item_to_unload link_label
+                overhead 'found a link: {{link_label}}' 51 'self'
+                sysmsg 'FOUND A LINK: {{link_label}}' 51 'self'
 
-            lift item_to_unload 60000
-            wait action_delay_var
-            drop backpack
-            wait action_delay_var
-        endwhile
-    endfor
+                if listexists 'char_loot_pouch'
+                    if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                        lift item_to_unload 9999
+                        wait action_delay
+                        drop char_loot_pouch
+                        wait action_delay
+                    endif
+                else
+                    hotkey 'Grab Item'
+                    wft 600
+                    target item_to_unload
+                    wait action_delay
+                endif
 
-    foreach item in 'arcane_runes'
-        while findtype item chest any any as item_to_unload
-            overhead item 51 'self'
-            sysmsg item 52
+                # check char container limit
+                if insysmsg 'That container cannot hold more weight'
+                    if timer 'char_heavy_warning_msg_timer' >= 5000
+                        overhead 'BACKPACK FULL! UNLOAD!' 37
+                        settimer 'char_heavy_warning_msg_timer' 0
+                    endif
+                endif
 
-            lift item_to_unload 60000
-            wait action_delay_var
-            drop backpack
-            wait action_delay_var
-        endwhile
-    endfor
+            endwhile
+        endfor
 
-    foreach item in 'tchest_items'
-        while findtype item chest any any as item_to_unload
-            overhead item 51 'self'
-            sysmsg item 52
+        foreach item in 'rares'
+            while findtype item chest any any as item_to_unload
+                overhead item 51 'self'
+                sysmsg item 52
 
-            lift item_to_unload 60000
-            wait action_delay_var
-            drop backpack
-            wait action_delay_var
-        endwhile
-    endfor
+                if listexists 'char_loot_pouch'
+                    if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                        lift item_to_unload 9999
+                        wait action_delay
+                        drop char_loot_pouch
+                        wait action_delay
+                    endif
+                else
+                    hotkey 'Grab Item'
+                    wft 600
+                    target item_to_unload
+                    wait action_delay
+                endif
 
+                # check char container limit
+                if insysmsg 'That container cannot hold more weight'
+                    if timer 'char_heavy_warning_msg_timer' >= 5000
+                        overhead 'BACKPACK FULL! UNLOAD!' 37
+                        settimer 'char_heavy_warning_msg_timer' 0
+                    endif
+                endif
+            endwhile
+        endfor
 
-    sysmsg 'LOOT CHEST FINISHED'
+        foreach item in 'arcane_runes'
+            while findtype item chest any any as item_to_unload
+                overhead item 51 'self'
+                sysmsg item 52
+
+                if listexists 'char_loot_pouch'
+                    if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                        lift item_to_unload 9999
+                        wait action_delay
+                        drop char_loot_pouch
+                        wait action_delay
+                    endif
+                else
+                    hotkey 'Grab Item'
+                    wft 600
+                    target item_to_unload
+                    wait action_delay
+                endif
+
+                # check char container limit
+                if insysmsg 'That container cannot hold more weight'
+                    if timer 'char_heavy_warning_msg_timer' >= 5000
+                        overhead 'BACKPACK FULL! UNLOAD!' 37
+                        settimer 'char_heavy_warning_msg_timer' 0
+                    endif
+                endif
+
+            endwhile
+        endfor
+
+        foreach item in 'tchest_items'
+            while findtype item chest any any as item_to_unload
+                overhead item 51 'self'
+                sysmsg item 52
+
+                if varexist char_loot_pouch
+                    lift item_to_unload 60000
+                    wait action_delay
+                    drop char_loot_pouch
+                    wait action_delay
+                else
+                    hotkey 'Grab Item'
+                    wft 600
+                    target item_to_unload
+                    wait action_delay
+                endif
+
+                # check char container limit
+                if insysmsg 'That container cannot hold more weight'
+                    if timer 'char_heavy_warning_msg_timer' >= 5000
+                        overhead 'BACKPACK FULL! UNLOAD!' 37
+                        settimer 'char_heavy_warning_msg_timer' 0
+                    endif
+                endif
+            endwhile
+        endfor
+
+        sysmsg 'LOOT CHEST FINISHED'
+        overhead '*exploding chest*' 90
+        menu chest 1
+
+    endif
 
     @clearignore
     @clearsysmsg
 
-    sysmsg '>>> Open Locked Chests Script finished!' 53
 endif
+
+while findtype 'map' backpack 0 any as tmap
+    getlabel tmap tmap_label
+    if "completed by" in tmap_label
+        lift tmap 1
+        wait action_delay
+        overhead "dropping completed map"
+        if findtype 'barrel' ground 0 1 2 as trashcan
+            sysmsg "Dropping Completed Map On Trash Barrel" sysmsgs_color
+            drop trashcan -1 -1 0
+        else
+            sysmsg "Dropping Completed Map On The Ground" sysmsgs_color
+            droprelloc 0 0
+        endif
+    endif
+endwhile
+
+sysmsg '>>> Open Locked Chests Script finished!' 53
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# (unreleased)
+# - Switches list config to setvar! variables
+#
+# v0.0.3
+# - Removes the hiding part so it doenst stop char from starting
+# - Checks if char has trap_loot_pouch and if so use it to hide the chest loot
+# - In case no trap_loot_pouch is found, use 'Grab' hotkey + wft to get chest items
+# - Handles cases when backpack too full to loot
+# - Adds gump serial to all gumpresponse calls
+# - Adds SEVERAL missing item types from items list
+# - Loots opened chests if finds one on ground
+# - Explodes chest when finishes looting
+# - Fixed gold lift amount (was 1, changed to 60000)
+# - Reorganized rares list to priorize cloth > cores > skill scrolls
+# - Fixed wrong variable name for action_delay that was resulting in lift and drop actions happening at the same time
+#
+# v0.0.2
+# - Adds clearsysmsg at the beginning of the macro to avoid detecting sysmsgs from previous executions
+#
+# v0.0.1
+# - Initial release
+#
+#

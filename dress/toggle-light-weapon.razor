@@ -1,55 +1,58 @@
 
 #################################
-# CREATE ALL LISTS FOR CONFIG
-#
+# SCRIPT CONFIGURATION
+#################################
 
-if not listexists 'config_lists'
-    createlist 'config_lists'
-else
-    clearlist 'config_lists'
+setvar! action_delay 400
+
+if not varexist toggle_light_weapon_first_run_done
+    setvar dont_unequip_if_already_equiped 0
+
+    ################################
+    # CREATE ALL TIMERS
+    ################################
+
+    if not timerexists 'waiting_dress_timer'
+        createtimer 'waiting_dress_timer'
+        settimer 'waiting_dress_timer' 0
+    endif
+
+    setvar! toggle_light_weapon_first_run_done 1
 endif
 
-pushlist 'config_lists' 'dont_unequip_if_already_equiped'
-
-foreach list in 'config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
-pushlist 'dont_unequip_if_already_equiped' 'no'
 
 #################################
 # SCRIPT CONFIGURATION
 #
 
 
-if not listexists 'disturb_weapons_1'
-    createlist 'disturb_weapons_1'
+if not listexists 'light_weapons'
+    createlist 'light_weapons'
     if skill 'archery' >= 50
-        pushlist 'disturb_weapons_1' 'bow'
+        pushlist 'light_weapons' 'bow'
     elseif skill 'fencing' >= 50
-        pushlist 'disturb_weapons_1' 'short spear'
-        pushlist 'disturb_weapons_1' 'war fork'
+        pushlist 'light_weapons' 'short spear'
+        pushlist 'light_weapons' 'war fork'
     elseif skill 'mace fighting' >= 50
-        pushlist 'disturb_weapons_1' 'war mace'
+        pushlist 'light_weapons' 'war mace'
     elseif skill 'swordsmanship' >= 50 or findtype 'viking sword' backpack or findtype 'longsword' backpack
-        pushlist 'disturb_weapons_1' 'viking sword'
-        pushlist 'disturb_weapons_1' 'longsword'
+        pushlist 'light_weapons' 'viking sword'
+        pushlist 'light_weapons' 'longsword'
     else
         overhead 'char has no weapon skill'
     endif
 endif
 
-if list 'disturb_weapons_1' == 0
-    overhead 'no disturb_weapons_1 in list'
+if list 'light_weapons' == 0
+    overhead 'no light_weapons in list'
 endif
 
-foreach weapon in 'disturb_weapons_1'
+sysmsg '[DEBUG] BEFORE FOR'
+foreach weapon in 'light_weapons'
+    sysmsg '[DEBUG] {{weapon}}'
     if findtype weapon lefthand
-        if inlist 'dont_unequip_if_already_equiped' 'yes'
+        sysmsg '[DEBUG] {{weapon}} 1'
+        if dont_unequip_if_already_equiped == 1
             overhead 'equiped on left hand' 54
             break
         else
@@ -58,10 +61,13 @@ foreach weapon in 'disturb_weapons_1'
             break
         endif
     elseif findtype weapon righthand
-        if inlist 'dont_unequip_if_already_equiped' 'yes'
+
+        sysmsg '[DEBUG] {{weapon}} 2'
+        if dont_unequip_if_already_equiped == 1
             overhead 'equiped on right hand' 54
             break
         else
+            sysmsg '[DEBUG] {{weapon}} 22'
             hotkey 'Toggle Peace Only'
             hotkey 'Undress Right Hand'
             break
@@ -70,42 +76,43 @@ foreach weapon in 'disturb_weapons_1'
         if not rhandempty
             if targetexists 'any'
                 # overhead '*undressing right hand*'
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Right Hand'
 
                 # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                hotkey 'Toggle Peace Only'
-
-                hotkey 'Undress Right Hand'
                 wait 200
             endif
         elseif not lhandempty
             if targetexists 'any'
                 # overhead '*undressing left hand*'
 
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
                 hotkey 'Toggle Peace Only'
-
                 hotkey 'Undress Left Hand'
+
                 wait 200
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
             endif
         endif
 
         if findtype weapon backpack as weap
-            # overhead 'equiping weapon' 48
-            if targetexists
-                hotkey 'Drop What You Are Currently Holding'
-                lift weap 1
-                # wait 100
-                drop 'self' LeftHand
-            else
-                dclick weap
-            endif
-
-
+            sysmsg '000000'
+            # EQUIP THE WEAPON
             settimer 'waiting_dress_timer' 0
-            while lhandempty and rhandempty
-                wait 10
+            while not findtype weapon lefthand and not findtype weapon righthand
 
-                sysmsg 'waiting to equip weapon...'
+                if targetexists
+                    sysmsg 'LIFT'
+                    hotkey 'Drop What You Are Currently Holding'
+                    lift weap 1
+                    wait action_delay
+                    drop 'self' LeftHand
+                else
+                    sysmsg 'DCLICK'
+                    dclick weap
+                endif
+
+                wait action_delay
+
                 if timer 'waiting_dress_timer' >= 400
                     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
                     break
@@ -113,15 +120,18 @@ foreach weapon in 'disturb_weapons_1'
             endwhile
 
             if not lhandempty or not rhandempty
-                overhead 'attacking!' 41 'last'
-                hotkey 'Attack Last Target'
+                overhead 'WEAPON EQUIPED!' 52
+                if noto lasttarget == hostile
+                    overhead 'ATTACKING!' 41 'last'
+                    overhead 'attacking lasttarget!' 41
+                    hotkey 'Attack Last Target'
+                endif
                 break
             else
-                hotkey 'Toggle War Only'
                 hotkey 'Toggle Peace Only'
             endif
-
-
         endif
     endif
 endfor
+
+sysmsg '[DEBUG] after for'

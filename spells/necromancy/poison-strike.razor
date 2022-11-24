@@ -1,15 +1,144 @@
-say '[poisonstrike'
-wft 500
+#################################
+# SMART POISON STRIKE
+# v0.0.1
+# by gugutz
+#
+#################################
+
+setvar! action_delay 550
+
+if not timerexists 'not_ready_yet_warning_msg'
+    createtimer 'not_ready_yet_warning_msg'
+endif
+
+if not timerexists 'tick_left_warning_msg_timer'
+    createtimer 'tick_left_warning_msg_timer'
+endif
+settimer 'tick_left_warning_msg_timer' 2000
+
+
+
+while not targetexists 'neutral'
+    say '[poisonstrike'
+    wft action_delay
+endwhile
+
 if targetexists 'neutral'
-    overhead 'poison strike'
+    # reset the timer before the loop so the message gets imeadietly printed the first time
+    settimer 'not_ready_yet_warning_msg' 0
+
+    if not dead lasttarget and targetexists 'neutral'
+        overhead '*last target dead or null*'
+        wait action_delay
+    endif
+
+    # while not dead lasttarget and targetexists 'neutral'
     while targetexists 'neutral'
+        unsetvar! lethal_poison_ticks
+        unsetvar! deadly_poison_ticks
+
+        getlabel lasttarget last_label
+
+        # check level of poison in target
+        # if 'Lethal' in last_label
+        #     setvar! lethal_ticks 1
+        #     overhead '*LETHAL POISONED TARGET*' 52 lasttarget
+        #     overhead '*LETHAL POISONED*' 52 lasttarget
+        # elseif 'deadly' in last_label
+        #     overhead '*DEADLY POISONED TARGET*' 52 lasttarget
+        #     overhead '*DEADLY POISONED*' 52 lasttarget
+        #     setvar! deadly_ticks 1
+        # else
+        #     overhead 'NOT LETHALED POISONED!' 52
+        # endif
+
+        if '10 Lethal' in last_label
+            setvar! lethal_poison_ticks 10
+        elseif '9 Lethal' in last_label
+            setvar! lethal_poison_ticks 9
+        elseif '8 Lethal' in last_label
+            setvar! lethal_poison_ticks 8
+        elseif '7 Lethal' in last_label
+            setvar! lethal_poison_ticks 7
+        elseif '6 Lethal' in last_label
+            setvar! lethal_poison_ticks 6
+        elseif '5 Lethal' in last_label
+            setvar! lethal_poison_ticks 5
+        elseif '4 Lethal' in last_label
+            setvar! lethal_poison_ticks 4
+        elseif '3 Lethal' in last_label
+            setvar! lethal_poison_ticks 3
+        elseif '2 Lethal' in last_label
+            setvar! lethal_poison_ticks 2
+        elseif '1 Lethal' in last_label
+            setvar! lethal_poison_ticks 1
+        elseif '10 Deadly' in last_label
+            setvar! lethal_poison_ticks 10
+        # DEADLY TICKS
+        elseif '9 Deadly' in last_label
+            setvar! deadly_poison_ticks 9
+        elseif '8 Deadly' in last_label
+            setvar! deadly_poison_ticks 8
+        elseif '7 Deadly' in last_label
+            setvar! deadly_poison_ticks 7
+        elseif '6 Deadly' in last_label
+            setvar! deadly_poison_ticks 6
+        elseif '5 Deadly' in last_label
+            setvar! deadly_poison_ticks 5
+        elseif '4 Deadly' in last_label
+            setvar! deadly_poison_ticks 4
+        elseif '3 Deadly' in last_label
+            setvar! deadly_poison_ticks 3
+        elseif '2 Deadly' in last_label
+            setvar! deadly_poison_ticks 2
+        elseif '1 Deadly' in last_label
+            setvar! deadly_poison_ticks 1
+
+        if varexists lethal_poison_ticks
+            if timer 'tick_left_warning_msg_timer' > 1000
+                overhead '{{lethal_poison_ticks}} TICKS LEFT!'
+            endif
+
+            if lethal_poison_ticks <= 4
+                overhead '[LETHAL] POISON STRIKE NOW!' 54
+                overhead '[LETHAL] POISON STRIKE NOW!' 54 lasttarget
+                sysmsg 'MOB READY TO BE POISON STRIKED: {{last_label}}' 54
+            endif
+        elseif varexists deadly_poison_ticks
+            if timer 'tick_left_warning_msg_timer' > 1000
+                overhead '{{deadly_poison_ticks}} TICKS LEFT!'
+            endif
+
+            if deadly_poison_ticks <= 4
+                overhead '[DEADLY] POISON STRIKE NOW!' 54
+                overhead '[DEADLY] POISON STRIKE NOW!' 54 lasttarget
+                sysmsg 'MOB READY TO BE POISON STRIKED: {{last_label}}' 54
+            endif
+        endif
+
+        # elseif varexist deadly_ticks
+        #     if '7 Deadly' in last_label or '6 Deadly' in last_label
+        #         if timer 'not_ready_yet_warning_msg' > 1000
+        #             settimer 'not_ready_yet_warning_msg' 0
+        #             overhead '*not ready to poison strike yet*' 54 lasttarget
+        #         endif
+        #     elseif '5 Deadly' in last_label or '4 Deadly' in last_label
+        #         overhead 'can be poison striked (deadly)!' 54 lasttarget
+        #         sysmsg 'MOB CAN BE POISON STRIKED (DEADLY): {{last_label}}' 54
+        #     elseif '3 Deadly' in last_label or '2 Deadly' in last_label or '1 Deadly' in last_label
+        #         overhead 'can be poison striked (deadly)!' 54 lasttarget
+        #         sysmsg 'MOB CAN BE POISON STRIKED (DEADLY): {{last_label}}' 54
+        #     endif
+        # endif
+
         wait 10
     endwhile
+
+    wait action_delay
+
     clearsysmsg
-    wait 100
     if insysmsg 'symbols remaining'
-        overhead 'poison striked enemy' 71
-        overhead 'pegou poison strike msg' 18 'last'
-        clearsysmsg
+        overhead 'poison striked enemy' 73
+        overhead '*POISON STRIKED*' 73 'last'
     endif
 endif

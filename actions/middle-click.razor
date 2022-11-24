@@ -3,7 +3,8 @@ if not targetexists 'any'
     target clear
     hotkey 'Toggle Peace Only'
 else
-    if not dead 'last'
+    if not dead lasttarget
+        overhead '*ATTACKING*' 90 lasttarget
         attack 'last'
     endif
 endif

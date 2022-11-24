@@ -22,131 +22,20 @@
 # CREDITS :)
 #################################
 
+
 # 33% chance of printing credits, so we dont spam it
-random 3
-if insysmsg 'Random: 1'
-    sysmsg '♥ SMART RECALL by gugutz ♥' 91
-endif
+sysmsg '♥ SMART RECALL by gugutz ♥' 91
 clearsysmsg
 
-
 #################################
-# CHANGELOG
-#################################
-#
-# v0.0.1
-# - Initial release
-
-
-#################################
-# CREATE ALL LISTS FOR CONFIG
+# CONFIGURATIOn
 #################################
 
-if not listexists 'config_lists_smart_recall'
-    createlist 'config_lists_smart_recall'
-else
-    clearlist 'config_lists_smart_recall'
-endif
-
-pushlist 'config_lists_smart_recall' 'use_scrolls'
-
-
-foreach list in 'config_lists_smart_recall'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
+setvar! warning_msg_color 54
 
 ##################################
-# CONFIGURATION
+# TARGET RUNEBOOKS IF TARGET IS OPEN
 ##################################
-
-
-
-##################################
-# CHECK IF PLAYER IS FORGETTING
-# SOMETHING BEFORE RECALLING
-##################################
-
-if not findtype 'tray' backpack
-    overhead 'NO DELECTABLE' 40
-endif
-
-# check if all potions are in
-if not findtype 'yellow potion'
-    overhead '!NO HEAL POTS!' 43
-    sysmsg '!NO HEAL POTS!' 43
-endif
-
-if not findtype 'red potion'
-    overhead '!NO REFRESH POTS!' 43
-    sysmsg '!NO REFRESH POTS!' 43
-endif
-
-# if herder, check for sheps crook
-if skill 'herding' > 0 and not findtype 3713 backpack
-    overhead "NO SHEPERD'S CROOK!" 43
-    sysmsg "NO SHEPERD'S CROOK!" 43
-endif
-
-# if skinner, check for skinning knife
-if skill 'forensic' > 0 and not findtype 'elven spellblade' backpack
-    overhead 'NO SKINNING KNIFE!' 43
-    sysmsg 'NO SKINNING KNIFE!' 43
-endif
-
-# if has camping, check for kindling
-if skill 'camping' > 0 and not findtype 'kindling' backpack
-    overhead 'NO KINDLING!' 43
-    sysmsg 'NO KINDLING!' 43
-endif
-
-# if bard, check for magical (exceedingly or supremely) instruments
-if skill 'musicianship' > 0
-    if not listexists 'instruments'
-        createlist 'instruments'
-        pushlist 'instruments' 'lute'
-        pushlist 'instruments' 'drum'
-        pushlist 'instruments' 'tambourine'
-        pushlist 'instruments' 'lap harp'
-    endif
-
-
-    foreach type in 'instruments'
-        # find all instruments and see if any of them are magical
-        while findtype type backpack as instrument and list 'char_instrument' == 0
-            getlabel instrument instrument_label
-
-            if exceedingly in instrument_label or supremely in instrument_label
-                pushlist 'char_instrument' instrument
-                break
-            endif
-            @ignore instrument
-        endwhile
-
-        @clearignore
-
-        if list 'char_instrument' > 0
-            break
-        endif
-    endfor
-
-    if list 'char_instrument' == 0
-        overhead 'CANT FIND INSTRUMENT!' 43
-        sysmsg 'CANT FIND INSTRUMENT!' 43
-    endif
-endif
-
-
-
-
-################################
-# THE RECALL PART :)
-################################
-
 
 
 if targetexists 'neutral'
@@ -162,25 +51,147 @@ if targetexists 'neutral'
 endif
 
 
+################################
+# RECALL
+################################
+
+
+if skill 'chivalry' >= 20
+    say '[sacredjourney'
+    wait 200
+    stop
+endif
+
 
 # check of char has reagents
-if counttype "Black Pearl%s%" backpack == 0 or counttype "Blood Moss" backpack == 0 or counttype "Mandrake Root%s%" backpack == 0
+if counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "Mandrake Root%s%" == 0
+
     if counttype "Recall" backpack == 0
-        overhead 'no ways to recall' 41
+        overhead 'no ways to recall' warning_msg_color
+
+        if findtype 'bag' backpack as restock_bag
+            overhead 'try to open reg bag' 58
+            dclick restock_bag
+            wait action_delay
+        endif
+
+        if findtype 'reagent satchel' as satchel
+            overhead 'try to open satchel' 58
+            dclick satchel
+            wait action_delay
+        endif
+
         stop
     endif
 
     overhead 'no regs. trying scroll...'
-    pushlist 'use_scroll' 'yes'
+    setvar! use_scroll true
 endif
 
-if inlist 'use_scrolls' 'yes'
+if varexist use_scrolls
     sysmsg '>> Recall Scroll...' 56
     overhead '*using recall scroll*' 56
     usetype 'Recall'
-    stop
 endif
 
 sysmsg '>> Recalling...' 56
 overhead '*recalling*' 56
 hotkey 'Recall'
+
+if followers > 0
+    say 'all follow me'
+endif
+
+##################################
+# CHECK IF PLAYER IS FORGETTING
+# SOMETHING WHILE RECALL IS BEING CAST
+##################################
+
+if not findtype 'tray' backpack
+    sysmsg 'NO DELECTABLE' warning_msg_color
+    overhead 'NO DELECTABLE' warning_msg_color
+endif
+
+# check if all potions are in
+if not findtype 'yellow potion'
+    overhead '!NO HEAL POTS!' warning_msg_color
+    sysmsg '!NO HEAL POTS!' warning_msg_color
+endif
+
+if not findtype 'red potion'
+    overhead '!NO REFRESH POTS!' warning_msg_color
+    sysmsg '!NO REFRESH POTS!' warning_msg_color
+endif
+
+# if herder, check for sheps crook
+if skill 'herding' > 0 and not findtype 3713 backpack
+    overhead "NO SHEPERD'S CROOK!" warning_msg_color
+    sysmsg "NO SHEPERD'S CROOK!" warning_msg_color
+endif
+
+# if skinner, check for skinning knife
+if skill 'forensic' > 0 and not findtype 'elven spellblade' backpack
+    overhead 'NO SKINNING KNIFE!' warning_msg_color
+    sysmsg 'NO SKINNING KNIFE!' warning_msg_color
+endif
+
+# if archer, check for arrows and bolts
+if skill 'archery' > 0 and not findtype 'arrow' and not findtype 'crossbow bolt'
+    overhead 'NO ARROWS OR BOLTS!' warning_msg_color
+    sysmsg 'NO ARROWS OR BOLTS!' warning_msg_color
+endif
+
+# if has camping, check for kindling
+if skill 'camping' > 0 and not findtype 'kindling' backpack
+    overhead 'NO KINDLING!' warning_msg_color
+    sysmsg 'NO KINDLING!' warning_msg_color
+endif
+
+# if bard, check for magical (exceedingly or supremely) instruments
+if skill 'musicianship' > 0
+    if not listexists 'instruments'
+        createlist 'instruments'
+        pushlist 'instruments' 'lute'
+        pushlist 'instruments' 'drum'
+        pushlist 'instruments' 'bamboo flute'
+        pushlist 'instruments' 'tambourine'
+        pushlist 'instruments' 'lap harp'
+    endif
+
+
+
+    foreach type in 'instruments'
+        # find all instruments and see if any of them are magical
+        while findtype type backpack as instrument and not varexist char_instrument
+            getlabel instrument instrument_label
+
+            if exceedingly in instrument_label or supremely in instrument_label
+                setvar! char_instrument instrument
+                break
+            endif
+            @ignore instrument
+        endwhile
+
+        @clearignore
+
+        if varexist char_instrument
+            break
+        endif
+    endfor
+
+    if not varexist char_instrument
+        overhead 'CANT FIND INSTRUMENT!' warning_msg_color
+        sysmsg 'CANT FIND INSTRUMENT!' warning_msg_color
+    endif
+endif
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Adds arrows and bolts for archers (tkx Friendly Foe!)
+#
+# v0.0.1
+# - Initial release

@@ -24,167 +24,105 @@ sysmsg '♥ SURVIVAL LOOP by gugutz ♥' 91
 
 
 #################################
-# CREATE ALL LISTS FOR CONFIG
-#################################
-
-
-if not listexists 'survival_config_lists'
-    createlist 'survival_config_lists'
-else
-    clearlist 'survival_config_lists'
-endif
-
-pushlist 'survival_config_lists' 'unequip_hands_to_drink_potion'
-pushlist 'survival_config_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
-
-# routine-related lists
-pushlist 'survival_config_lists' 'action_delay'
-pushlist 'survival_config_lists' 'packies'
-pushlist 'survival_config_lists' 'beta_client'
-pushlist 'survival_config_lists' 'reset_last_sysmsg_timer'
-pushlist 'survival_config_lists' 'warn_when_items_amount_is_bellow'
-
-pushlist 'survival_config_lists' 'monitor_items_amounts'
-pushlist 'survival_config_lists' 'monitor_items_warning_delays'
-
-pushlist 'survival_config_lists' 'use_charges'
-pushlist 'survival_config_lists' 'use_recall_scroll'
-
-pushlist 'survival_config_lists' 'drink_refresh_potion'
-pushlist 'survival_config_lists' 'drink_heal_potion'
-pushlist 'survival_config_lists' 'drink_cure_potion'
-pushlist 'survival_config_lists' 'bandage_delay'
-
-pushlist 'survival_config_lists' 'max_diffhits_before_healing_with_potion'
-pushlist 'survival_config_lists' 'max_diffhits_before_healing_with_bandages'
-pushlist 'survival_config_lists' 'max_diffhits_before_healing_with_magery'
-pushlist 'survival_config_lists' 'max_diffweight_before_unloading'
-pushlist 'survival_config_lists' 'monitor_items_warning_delay'
-pushlist 'survival_config_lists' 'lhand_item'
-
-foreach list in 'survival_config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
-
-#################################
 # CREATE ALL TIMERS
 #################################
 
-createlist 'survival_script_timers'
-pushlist 'survival_script_timers' 'loop_on_warning_msg'
-pushlist 'survival_script_timers' 'waiting_save'
-pushlist 'survival_script_timers' 'last_sysmsg_timer'
-pushlist 'survival_script_timers' 'out_of_item_warning_msg'
-pushlist 'survival_script_timers' 'bandage_timer'
-pushlist 'survival_script_timers' 'waiting_dress_timer'
+if not varexist survival_first_run_done
+    createlist 'survival_script_timers'
+    pushlist 'survival_script_timers' 'loop_on_warning_msg'
+    pushlist 'survival_script_timers' 'waiting_save'
+    pushlist 'survival_script_timers' 'last_sysmsg_timer'
+    pushlist 'survival_script_timers' 'out_of_item_warning_msg'
+    pushlist 'survival_script_timers' 'waiting_dress_timer'
 
 
 
-foreach timer in 'survival_script_timers'
-    if not timerexists timer
-        createtimer timer
-        settimer timer 99999
-    endif
-endfor
-
-
-################################
-# SCRIPT CONFIGURATION
-################################
-
-# if char is dexxer we want to undress and re-arm our main weaopn
-# if mage its probably a pvp char so we want to switch to 1 hand (if no target)
-if dex == 100
-    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-else
-    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-endif
-
-pushlist 'unequip_hands_to_drink_potion' 'yes'
-pushlist 'monitor_items_amounts' 'yes'
-pushlist 'beta_client' 'yes'
-
-pushlist 'warn_when_items_amount_is_bellow' 5
-pushlist 'action_delay' 600
-pushlist 'max_diffhits_before_healing_with_potion' 20
-pushlist 'max_diffhits_before_healing_with_bandages' 10
-pushlist 'max_diffhits_before_healing_with_magery' 20
-pushlist 'max_diffweight_before_unloading' 50
-pushlist 'monitor_items_warning_delay' 5000
-
-# set bandage_delay based on char dex
-if skill 'healing' >= 40
-    if dex >= 100
-        pushlist 'bandage_delay' 10000
-    elseif dex <= 80
-        pushlist 'bandage_delay' 15000
-    endif
-endif
-
-#################################
-# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
-if atlist 'action_delay' 0 as action_delay
-if atlist 'bandage_delay' 0 as bandage_delay
-if atlist 'warn_when_items_amount_is_bellow' 0 as amount
-if atlist 'max_diffhits_before_healing_with_potion' 0 as max_diffhits_before_healing_with_potion
-if atlist 'max_diffhits_before_healing_with_bandages' 0 as max_diffhits_before_healing_with_bandages
-if atlist 'max_diffhits_before_healing_with_magery' 0 as max_diffhits_before_healing_with_magery
-if atlist 'max_diffweight_before_unloading' 0 as max_diffweight_before_unloading
-if atlist 'monitor_items_warning_delay' 0 as monitor_items_warning_delay
-
-
-
-################################
-# CODE
-################################
-
-# SEED SOME LISTS BASED ON SCRIPT CONFIGURATION
-
-if inlist 'monitor_items_amounts' 'yes'
-    if not listexists 'items_to_monitor'
-        createlist 'items_to_monitor'
-        if skill 'healing' >= 50
-            pushlist 'items_to_monitor' 'clean bandage%s%'
-            pushlist 'items_to_monitor' 'Yellow Potion'
-            pushlist 'items_to_monitor' 'Orange Potion'
-            pushlist 'items_to_monitor' 'Red Potion'
-            pushlist 'items_to_monitor' 'Black Potion'
-            pushlist 'items_to_monitor' 'Purple Potion'
-            pushlist 'items_to_monitor' 'White Potion'
-            pushlist 'items_to_monitor' 'Blue Potion'
+    foreach timer in 'survival_script_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
         endif
+    endfor
 
-        if skill 'magery' >= 20
-            pushlist 'items_to_monitor' 'Blood Moss'
-            pushlist 'items_to_monitor' 'Black Pearl%s%'
-            pushlist 'items_to_monitor' 'Garlic'
-            pushlist 'items_to_monitor' 'Mandrake Root%s%'
-            pushlist 'items_to_monitor' 'Ginseng'
-            pushlist 'items_to_monitor' 'Nightshade'
-            pushlist 'items_to_monitor' 'Sulfurous Ash'
-            pushlist 'items_to_monitor' "Spider's Silk"
-        endif
 
-        if skill 'archery' >= 20
-            pushlist 'items_to_monitor' 'arrow'
-            pushlist 'items_to_monitor' 'crossbow bolt'
+    ################################
+    # SCRIPT CONFIGURATION
+    ################################
+
+    # if char is dexxer we want to undress and re-arm our main weaopn
+    # if mage its probably a pvp char so we want to switch to 1 hand (if no target)
+    if dex == 100
+        setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping 1
+    else
+        setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping 0
+    endif
+
+    setvar! unequip_hands_to_drink_potion 1
+    setvar! monitor_items_amounts 0
+    setvar! warn_when_items_amount_is_bellow 5
+    setvar! action_delay 600
+    setvar! max_diffhits_before_healing_with_bandages 0
+    setvar! max_diffhits_before_healing_with_magery 20
+    setvar! max_diffhits_before_healing_with_potion 40
+    setvar! max_diffhits_before_healing_with_chivalry 40
+    setvar! max_diffweight_before_unloading 50
+    setvar! monitor_items_warning_delay 6000
+    setvar! use_razor_native_undress_hands_for_potions 1
+
+    setvar! chivalry_gump_id 1387930325
+
+    # sysmsg '[DEBUG] 1'
+
+
+    ################################
+    # CODE
+    ################################
+
+    # SEED SOME LISTS BASED ON SCRIPT CONFIGURATION
+
+    if monitor_items_amounts == 0
+        if not listexists 'items_to_monitor'
+            createlist 'items_to_monitor'
+            if skill 'healing' >= 50
+                pushlist 'items_to_monitor' 'clean bandage%s%'
+                pushlist 'items_to_monitor' 'Yellow Potion'
+                pushlist 'items_to_monitor' 'Orange Potion'
+                pushlist 'items_to_monitor' 'Red Potion'
+                pushlist 'items_to_monitor' 'Black Potion'
+                pushlist 'items_to_monitor' 'Purple Potion'
+                pushlist 'items_to_monitor' 'White Potion'
+                pushlist 'items_to_monitor' 'Blue Potion'
+            endif
+
+            if skill 'magery' >= 20
+                pushlist 'items_to_monitor' 'Blood Moss'
+                pushlist 'items_to_monitor' 'Black Pearl%s%'
+                pushlist 'items_to_monitor' 'Garlic'
+                pushlist 'items_to_monitor' 'Mandrake Root%s%'
+                pushlist 'items_to_monitor' 'Ginseng'
+                pushlist 'items_to_monitor' 'Nightshade'
+                pushlist 'items_to_monitor' 'Sulfurous Ash'
+                pushlist 'items_to_monitor' "Spider's Silk"
+            endif
+
+            if skill 'archery' >= 20
+                pushlist 'items_to_monitor' 'arrow'
+                pushlist 'items_to_monitor' 'crossbow bolt'
+            endif
         endif
     endif
-endif
 
-if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-    # this list  is created separatedely cause we also seed it with values
-    if not listexists 'one_handed_weapons'
-        createlist 'one_handed_weapons'
-        pushlist 'one_handed_weapons' 'katana'
-        pushlist 'one_handed_weapons' 'viking sword'
-        pushlist 'one_handed_weapons' 'broadsword'
-        pushlist 'one_handed_weapons' 'longsword'
+    if prefer_switching_to_1hand_weapon_instead_of_unequiping == 1
+        # this list  is created separatedely cause we also seed it with values
+        if not listexists 'one_handed_weapons'
+            createlist 'one_handed_weapons'
+            pushlist 'one_handed_weapons' 'kryss'
+            pushlist 'one_handed_weapons' 'war fork'
+            pushlist 'one_handed_weapons' 'katana'
+            pushlist 'one_handed_weapons' 'viking sword'
+            pushlist 'one_handed_weapons' 'broadsword'
+            pushlist 'one_handed_weapons' 'longsword'
+        endif
     endif
 endif
 
@@ -192,6 +130,13 @@ endif
 
 
 while not dead 'self'
+
+    # open chivarly hotbar on start
+    
+    if skill 'chivalry' > 0 and not gumpexists chivalry_gump_id
+        sysmsg 'Opening chivalry Hotbar...' 100
+        say '[chivalryhotbar'
+    endif
 
     # remember player the loop is active every 5s
     if timer 'loop_on_warning_msg' >= 5000
@@ -202,33 +147,26 @@ while not dead 'self'
 
 
     ####################################
-    # MONITOR ITEM AMMOUNTS AND WARN PLAYER WHEN LOW OR OUT
+    # MONITOR ITEM AMMOUNTS AND WARN PLAYER WHEN LOW OR OUT (ONLY WHEN NOT IN DANGER - LOW HP)
 
-    if inlist 'monitor_items_amounts' 'yes'
+    if monitor_items_amounts  == 1 and diffhits == 0
         if timer 'out_of_item_warning_msg' >= monitor_items_warning_delay
+            sysmsg '##############################' 92
+            sysmsg 'Scanning item ammounts...' 92
+
             # first we reset the warning msg timer
             if timer 'out_of_item_warning_msg' >= 5000
                 settimer 'out_of_item_warning_msg' 0
             endif
 
             # foreach amount in 'warn_when_items_amount_is_bellow'
-            if atlist 'warn_when_items_amount_is_bellow' 0 as amount
-                foreach item in 'items_to_monitor'
-                    if not findtype item backpack any
-                        if inlist 'beta_client' 'yes'
-                            sysmsg 'WARNING: Out of {{item}}!' 41
-                        else
-                            sysmsg 'ITEM AMMOUNT 0' 37
-                        endif
-                    elseif counttype item backpack <= amount
-                        if inlist 'beta_client' 'yes'
-                            sysmsg 'WARNING: {{item}} LOW AMMOUNT!' 45
-                        else
-                            sysmsg 'ITEM AMMOUNT LOW' 39
-                        endif
-                    endif
-                endfor
-            endif
+            foreach item in 'items_to_monitor'
+                if not findtype item backpack any
+                    sysmsg 'WARNING: Out of {{item}}!' 41
+                elseif counttype item backpack <= warn_when_items_amount_is_bellow
+                    sysmsg 'WARNING: {{item}} LOW AMMOUNT!' 45
+                endif
+            endfor
             # endfor
         endif
     endif
@@ -241,10 +179,41 @@ while not dead 'self'
     if paralyzed
         if findtype pouch backpack 38 as trap_pouch
             sysmsg '>>> Using Trapped Pouch!'
+            overhead 'TRAP POUCH' 54
             useobject trap_pouch
         else
-            overhead 'no trap pouches!' 37
+            overhead '!! NO TRAP POUCHES !!' 37
         endif
+    endif
+
+
+    ####################################
+    # CHIVALRY HOLY LIGHT
+    ####################################
+
+    if skill 'chivalry' > 10 and diffhits > max_diffhits_before_healing_with_chivalry
+        overhead 'HOLY LIGHT' 89
+        whisper '[holylight'
+    endif
+
+    ####################################
+    # BANDAGE SEFL
+    ####################################
+
+    if counttype 'clean bandage%s%' == 0
+        overhead '!!☠ NO BANDAGES ☠!!' 39
+    endif
+
+    if skill 'healing' > 10 and diffhits > max_diffhits_before_healing_with_bandages
+        # heal with healing
+        if counttype 'clean bandage%s%' > 0
+            if not bandaging
+                overhead 'START BANDAGING' 91
+                hotkey 'Bandage Self'
+                wait action_delay
+            endif
+        endif
+
     endif
 
 
@@ -255,56 +224,61 @@ while not dead 'self'
 
     # decide first which potion char needs to use this iteration
     if not targetexists 'any'
+        # CURE POISONS BEFORE ANYTHING
         if poisoned
-            pushlist 'drink_cure_potion' 'yes'
-        # restore stamina (pot or food)
-        elseif stam == 0
-            pushlist 'drink_refresh_potion' 'yes'
-            sysmsg 'PREFERRING STAM 0...'
-        elseif diffstam > 0
-        # elseif diffstam > 0 and diffhits < 10
-            sysmsg 'PREFERRING STAM 1...'
-            pushlist 'drink_refresh_potion' 'yes'
-        elseif diffstam > 0 and diffhits < 30
-            pushlist 'drink_heal_potion' 'yes'
-            sysmsg 'PREFERRING HEAL 0...'
-        elseif diffhits > 0
-            pushlist 'drink_heal_potion' 'yes'
+            setvar drink_cure_potion 1
+        # if have to choose between stam and hits, depends on the diffs
+        elseif diffhits > max_diffhits_before_healing_with_potion
             sysmsg 'HEAL 1: ONLY DIFFHITS'
+            setvar! drink_heal_potion 1
+        # IF STAM IS 0, CHAR IS LOCKED, SO UNLESS CHAR IS ALMOST DYING,
+        # USE STAM SO CHAR CAN MOVE AGAIN
+        elseif stam == 0
+            sysmsg 'PREFERRING STAM 111111...'
+            setvar! drink_refresh_potion 1
+        elseif diffstam >= 10
+            sysmsg 'PREFERRING STAM 222222...'
+            setvar! drink_refresh_potion 1
         endif
     endif
 
     ####################################
     # UNDRESS HANDS FOR POTIONS
+    ####################################
 
-    if not targetexists 'any'
-    if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes' or inlist 'drink_refresh_potion' 'yes'
-        if not lhandempty
-            if findlayer self lefthand as lhanditem
-                pushlist 'lhand_item' lhanditem
-            endif
-
-            if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-                foreach weapon in 'one_handed_weapons'
-                    if findtype weapon backpack as weap
-                        overhead "*switching to 1-handed*"
-                        dclick weap
-                        wait 400
-                        break
+    if use_razor_native_undress_hands_for_potions == 0
+        if not targetexists 'any'
+            if drink_cure_potion == 1 or drink_heal_potion == 1 or drink_refresh_potion == 1
+                if not lhandempty
+                    if findlayer self lefthand as lhanditem
+                        setvar! lhand_item lhanditem
                     endif
-                endfor
-            elseif inlist 'unequip_hands_to_drink_potion' 'yes'
-                hotkey "Undress Left Hand"
-                wait 400
+
+                    if prefer_switching_to_1hand_weapon_instead_of_unequiping == 1
+                        foreach weapon in 'one_handed_weapons'
+                            if findtype weapon backpack as weap
+                                overhead "*switching to 1-handed*"
+                                dclick weap
+                                wait 400
+                                break
+                            endif
+                        endfor
+                    elseif unequip_hands_to_drink_potion == 1
+                        hotkey "Undress Left Hand"
+                        wait 400
+                    endif
+                endif
             endif
         endif
     endif
 
     ####################################
     # CURE POTS
+    ####################################
+
     if not targetexists 'any'
-        if inlist 'drink_cure_potion' 'yes'
-            clearlist 'drink_cure_potion'
+        if drink_cure_potion == 1
+            unsetvar drink_cure_potion
             if findtype 'orange potion' as pot
                 overhead 'cure pot' 56
                 useobject pot
@@ -328,9 +302,8 @@ while not dead 'self'
             #     endif
 
             elseif healing >= 50 and counttype 'clean bandage%s%' > 0
-                if timer 'bandage_timer' >= bandage_delay
+                if not bandaging
                     sysmsg 'Curing poison with healing...' 90
-                    settimer 'bandage_timer' 0
                     hotkey 'Bandage Self'
                     wait action_delay
                 endif
@@ -340,9 +313,11 @@ while not dead 'self'
 
     ####################################
     # REFRESH POTS
+    ####################################
+
     if not targetexists 'any'
-        if inlist 'drink_refresh_potion' 'yes'
-            clearlist 'drink_refresh_potion'
+        if drink_refresh_potion == 1
+            unsetvar drink_refresh_potion
             if findtype 'red potion' backpack
                 sysmsg 'Refresh Potion...' 90
                 hotkey 'Drink Refresh'
@@ -353,13 +328,26 @@ while not dead 'self'
 
     ####################################
     # HEAL POTS
+    ####################################
+
     if not targetexists 'any'
-        if inlist 'drink_heal_potion' 'yes'
-            clearlist 'drink_heal_potion'
-            if findtype 'yellow potion' backpack
-                sysmsg 'Heal Potion...' 90
-                hotkey 'Drink Heal'
-                wait action_delay
+        if drink_heal_potion == 1
+            unsetvar drink_heal_potion
+            if findtype 'yellow potion' backpack as pot
+
+                getlabel heal_pot heal_pot_label
+                if 'next usable in' in heal_pot_label
+                    sysmsg '> Heal Pot Cooldown!' 53
+                    overhead '! heal pot cooldown !' 53
+                else
+                    clearsysmsg
+                    sysmsg 'Heal Potion...' 90
+                    hotkey 'Drink Heal'
+                    wait action_delay
+                    if not insysmsg 'You must wait'
+                        cooldown "Heal Potion"
+                    endif
+                endif
             endif
         endif
     endif
@@ -370,49 +358,63 @@ while not dead 'self'
 
     if not targetexists 'any'
         if diffhits > 0
-            # heal with healing
-            if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= 50 and counttype 'clean bandage%s%' > 0
-                if timer 'bandage_timer' >= bandage_delay
-                    settimer 'bandage_timer' 0
-                    hotkey 'Bandage Self'
-                    wait action_delay
-                endif
+            # # heal with magery
+            # if diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+            #     cast 'greater heal'
 
-            # heal with magery
-            elseif diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
-                cast 'greater heal'
+            #     @settimer 'waiting_target_timer' 0
+            #     while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+            #         wait 100
+            #         if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+            #             sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+            #             break
+            #         endif
+            #     endwhile
 
-                @settimer 'waiting_target_timer' 0
-                while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
-                    wait 100
-                    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
-                        sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
-                        break
-                    endif
-                endwhile
-
-                if targetexists 'beneficial'
-                    hotkey 'Target Self'
-                    wait action_delay
-                endif
+            #     if targetexists 'beneficial'
+            #         hotkey 'Target Self'
+            #         wait action_delay
+            #     endif
             endif
         endif
     endif
 
+    if not targetexists 'any'
+        if str <= 100 and counttype 'White Potion' > 2
+            hotkey 'Drink Strength'
+        endif
+    endif
+
+    if not targetexists 'any'
+        if skill 'chivalry' > 20 or skill 'fencing' > 20 or skill 'archery' > 20 or skill 'swordsmanship' > 20 or skill 'mace fightning' > 20
+            if dex <= 100 and counttype 'Blue Potion' > 1
+                hotkey 'Drink Agility'
+            endif
+        endif
+    endif
+
+    if not targetexists 'any'
+        if skill 'chivalry' > 20 or dex == 100
+            if not findbuff 'Magic Resist Potion' and findtype 'Black Potion' backpack as mrpot
+                dclick mrpot
+                wait action_delay
+            endif
+        endif
+    endif
 
     ####################################
     # RE-EQUIP LEFT HAND ITEM (IF CHAR HAD TO CAST OR DRINK POTION)
     ####################################
 
-    if atlist 'lhand_item' 0 as lhanditem
+    if varexist lhand_item
         while lhandempty
 
             if targetexists
                 hotkey 'Drop What You Are Currently Holding'
-                lift lhanditem 1
+                lift lhand_item 1
                 drop 'self' LeftHand
             else
-                dclick lhanditem
+                dclick lhand_item
             endif
 
             wait 100
@@ -425,7 +427,7 @@ while not dead 'self'
         endwhile
 
         if not lhandempty
-            clearlist 'lhand_item'
+            unsetvar lhand_item
         endif
 
     endif
@@ -446,18 +448,31 @@ while not dead 'self'
 
         if insysmsg 'World save complete'
             overhead '*save complete!*' 90
-            pushlist 'reset_last_sysmsg_timer' 'yes'
+            setvar! reset_last_sysmsg_timer 1
         endif
     endif
 
-endwhile
 
-# closing the ifs that initialized the config variables on top of tile
-endif
-endif
-endif
-endif
-endif
-endif
-endif
-endif
+    # check if we got any sysmsg that should reset the timer in each iteration
+    if varexist reset_last_sysmsg_timer
+        if debug == 1
+            sysmsg '[DEBUG]: RESETTING LAST SYSMSG TIMER' debug_msg_color
+        endif
+        unsetvar! reset_last_sysmsg_timer
+        # RESET THE TIMER
+        settimer 'last_sysmsg_timer' 0
+
+        clearsysmsg
+    elseif varexist entered_combat_mode
+        unsetvar! entered_combat_mode
+
+        if debug == 1
+            sysmsg '[DEBUG]: RESETING SYSMSG TIMER AFTER FLAGING COMBAT MODE' debug_msg_color
+        endif
+        sysmsg 'Reseting sysmsg timer after flaging combat mode...' 52
+        settimer 'last_sysmsg_timer' 0
+
+        clearsysmsg
+    endif
+
+endwhile

@@ -12,6 +12,10 @@ sysmsg '########################' 90
 
 while skill "magery" < 100 and not dead
 
+    if maxmana <= 10
+        overhead 'TOO LOW MANA. RAISE YOUR MANA TO START'
+    endif
+
     if skill "magery" < 60
         @setvar mana_needed 11
     elseif skill "magery" < 80

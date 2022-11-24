@@ -1,81 +1,84 @@
-**super-home-restock-ressuply**
+**super-restock-ressuply v1.5.0**
+
+**CHANGES v1.5.0**
+
+```md
+- Uses new 'Adds all from backpack' option on all tomes
+- Only dump focis, oils and bundles into misc container if they are not fully charges or cant find a aspect items tome
+- Adds check on deposit safe for 'locked in' money, that was droped inside by scripting bug, and takes it out
+- Adds while loop to force target generation on recycler dump items button when recycler gump is already open (gump has a bug where first click wont open target)
+- Simplifies a little logic behind getting bard instrument back from recycler and closing recycler gump
+- Improves shelf re-use throughout scripts and removes related setvars (improves performance a bit)
+- Moves garden shelf restock to before stockpile restock so plant chemicals go into garden shelf first
+- Fix bug where script would only move 1 stack of misc items of the same type and leave other stacks
+- Adds suport to restock shelf using a container (bag/pouch/backpack) instead of using 'self'
+- Switches list configs to non-persistent variables (simplifies code maintenance and greatly improve performance)
+```
 
 This script will execute the following actions, in the following order:
 
 ```md
-1. Use Detecting Hidden, and only continue if no hidden players are found
-2. Unload misc items (items that dont have a shelf for it)
-3. Drop the following items in their respective Tome:
-   - tmaps
-   - resource maps (all types)
-   - Drop skill scrolls in the Skill Scroll Tome
-   - Aspect Items (cores, extracts, destils and philacteries)
+1. Use Detect Hidden (default: off)
+2. Unload misc items: skill orbs, RMs, spell hue deeds...)
+3. Drop the following items in their respective Tomes:
+   - Links
+   - Treasure Maps
+   - All Resource Maps
+   - All Aspect Items
+   - Skill Scrolls
    - Rare Cloths
-   - All types of dyes
-   - Inscription Runes
+   - All Types Of Dyes
+   - Arcane Runes
+   - Magery Scrolls
 4. Use a repair bench if there is one nearby
-5. Drop gold in the Bank Deposit Box / Personal Container
-6. Deposit gold from all char pack animals
-7. Restock Storage Shelf using self
-8. Restock Storage Shelf using all pack animals
-9. Restock Resource Stockpile using self
-10. Restock Resource Stockpile using all pack animals
-11. Restock Garden Shelf using self
-12. Dump magic items in the Recycler
-13. Shelf Ressuply
+5. Deposit gold and doublons from char and all pack animals
+6. Smelt all ores in pack animals
+7. Make boards from logs in pack animals
+8. Restock Storage Shelf from char and all packies
+9. Restock Resource Stockpile from char and all packies
+10. Restock Garden Shelf from char
+11. Dump magic items in Recycler
+12. Pull following items back from recycler
+    - barding instruments (magic props controled by a editable list)
+    - hatchets
+    - pickaxes
+13. Dump completed tmaps on trashcan or ground
+14. Shelf Ressuply
 ```
 
 **SETUPS**
 
 **Ground Setup (Default/Recommended Setup)**
 
-All destinations (shelfs, stockpiles, tomes...) secured/locked down in the ground, within 2 tiles of the char.
+All shelfs and tomes secured/locked down in the ground within 2 tiles of the char.
 
-**Containers/Subcontainers Setup**
+**Custom Setup**
 
-This is manly for people who dont have enough secures/lockdowns to use the recommended setup.
-In this setup the script searches for your Tomes inside a container instead of directly on the ground
-It can also be set to not deposit gold on the vault if you preffer to store your gold in a container on the house.
-If you dont have enough secures/lockdowns to use the recommended setup, you can set the destination for all items yourself, by setting one of each following options:
+You can change where the script will search for tomes/unload containers by changing the following options:
 
-- **unload_misc_items_ground_container** OR **unload_misc_items_in_subcontainer**
-- **use_gold_deposit_ground_container** OR **use_gold_deposit_subcontainer**
-- **use_tomes_ground_container** OR **use_tomes_subcontainer**
+- **unload_misc_items_container_location**
+- **gold_container_location**
+- **tomes_location**
 
-For any of the **subcontainers** options, you will also need to set your **main_unload_container**, witch it will use to search for all the subcontainers. The script will only ask you to select any container again if it cant find it within 2 tiles.
+The possible values for the above options are:
 
-**OTHER OPTIONS**:
+- `ground`: if unload destination (tome/container) is located directly in the ground
+- `subcontainer`: if should unload to a subcontainer inside the `Master Unload Container`
+- `master_container`: if should unload inside the `Master Unload Container`
+- `ground_container` (TOMES ONLY!): if tomes are inside their own container in the ground
 
-- **object_delay**
-  Delay for all actions
+If you use **master container** or **subcontainer** in any option, the script will ask you once for the **Master Unload Container**.
+On first run it should also ask for the Misc Items container
+
+The script will only ask you to select any container again if its not within 2 tiles.
+
+**OTHER SCRIPT SETTINGS:**
+
+- **verbose_mode**
+  Toggle informative msgs
 - **unload_misc_items**
   If should also unload misc items (skill orbs, RMs...)
-
-**PS: All options are available at the top of the file**
-
-#####################################################################################
-
-# PT_BR
-
-Este script vai executar as seguintes ações, na seguinte ordem:
-
-```md
-1. Jogar todos os mapas da bag em seus respectivos tomes
-2. Jogar Skill Scrolls no tome de scroll
-3. Jogar Itens de Aspecto (cores, extratos, phylacteries) no tome de aspecto
-4. Jogar tecido no Rare Cloth Tome
-5. Jogar tintas (cabelo, fortuniture, carpet) no Dyes Tome
-6. Usar a repair bench se encontrar uma perto
-7. Jogar ouro no cofre se encontrar ouro na bag e o cofre no chao
-8. Restocar a shelf pra jogar os regs do char nela
-9. Restocka a shelf com todos os pack animals que encontrar perto do char
-10. Restocar a shelf de recurso se encontrar uma perto
-11. Restocka a shelf de recurso com todos os pack animals que encontrar perto do char
-12. Restocar a shelf de jardin se encontrar uma perto
-13. Por fim, dar ressuply na shelf pra reabastecer o char
-```
-
-A intenção é permitir que o player chegue em casa do farm e guarde tudo e reabasteça novamente com apenas 1 clique.
-Apesar de realizar varias ações, tudo acontece bem rapido, cerca de 1 segundo para executar o script todo.
-
-Para isto funcionar, voce deve deixar todos os containers a até 2 tiles do char
+- **action_delay**
+  Delay for all actions (default 350ms)
+- **sysmsgs_color**
+  Color for all sysmsgs

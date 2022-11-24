@@ -37,32 +37,33 @@ sysmsg '########################' 90
 #
 sysmsg 'Creating script lists'
 
-if not listexists 'config_lists'
-    createlist 'config_lists'
+if not listexists 'lumber_state_lists'
+    createlist 'lumber_state_lists'
 else
-    clearlist 'config_lists'
+    clearlist 'lumber_state_lists'
 endif
 
-pushlist 'config_lists' 'auto_walk_randomly'
-pushlist 'config_lists' 'packies'
-pushlist 'config_lists' 'recall_to_escape_pks'
-pushlist 'config_lists' 'pack_heavy'
-pushlist 'config_lists' 'full_packies'
-pushlist 'config_lists' 'auto_walk_to_direction'
-pushlist 'config_lists' 'direction_to_walk'
-pushlist 'config_lists' 'reset_last_sysmsg_timer'
-pushlist 'config_lists' 'use_charges'
-pushlist 'config_lists' 'use_recall_scroll'
-pushlist 'config_lists' 'swords_weapons'
-pushlist 'config_lists' 'macing_weapons'
-pushlist 'config_lists' 'found_weapon'
-pushlist 'config_lists' 'runebook_rune_recall_btn_numbers'
+pushlist 'lumber_state_lists' 'auto_walk_randomly'
+pushlist 'lumber_state_lists' 'packies'
+pushlist 'lumber_state_lists' 'recall_to_escape_pks'
+pushlist 'lumber_state_lists' 'pack_heavy'
+pushlist 'lumber_state_lists' 'full_packies'
+pushlist 'lumber_state_lists' 'auto_walk_to_direction'
+pushlist 'lumber_state_lists' 'direction_to_walk'
+pushlist 'lumber_state_lists' 'reset_last_sysmsg_timer'
+pushlist 'lumber_state_lists' 'use_charges'
+pushlist 'lumber_state_lists' 'use_recall_scroll'
+pushlist 'lumber_state_lists' 'swords_weapons'
+pushlist 'lumber_state_lists' 'macing_weapons'
+pushlist 'lumber_state_lists' 'found_weapon'
+pushlist 'lumber_state_lists' 'runebook_rune_recall_btn_numbers'
+pushlist 'lumber_state_lists' 'tracking_gump_id'
 
 
 
 
 
-foreach list in 'config_lists'
+foreach list in 'lumber_state_lists'
     if not listexists list
         createlist list
     else
@@ -91,6 +92,8 @@ sysmsg 'Applying configuration...'
 @setvar runetome_rune_position 100
 @setvar runebook_rune_position 2
 
+pushlist 'tracking_gump_id' 4267467659
+
 # set bandage_delay based on char dex
 if skill 'healing' >= 50
     if dex >= 100
@@ -104,6 +107,13 @@ pushlist 'auto_walk_randomly' 'no'
 pushlist 'auto_walk_to_direction' 'no'
 pushlist 'direction_to_walk' 'right'
 pushlist 'recall_to_escape_pks' 'yes'
+
+
+
+#################################
+# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+#################################
+if atlist 'tracking_gump_id' 0 as tracking_gump_id
 
 
 ###################################
@@ -949,3 +959,9 @@ while not dead 'self'
 
 
 endwhile
+
+
+################################
+# CLOSE CONFIG 'if atlist' STATEMENTS
+################################
+endif

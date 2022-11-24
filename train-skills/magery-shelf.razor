@@ -24,6 +24,17 @@ if varexist shelf
     while find shelf ground any any 2
         while skill "magery" < 100 and not dead
 
+            if not findbuff 'food satisfaction'
+                if findtype 'tray' as delectable
+                    overhead '*eating deletable*'
+                    dclick delectable
+                endif
+            endif
+
+            if maxmana <= 10
+                overhead 'TOO LOW MANA. RAISE YOUR MANA TO START'
+            endif
+
             if skill "magery" < 60
                 @setvar mana_needed 11
             elseif skill "magery" < 80

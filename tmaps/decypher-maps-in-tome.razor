@@ -1,5 +1,6 @@
 # Treasure Map Tome Decypher
-# v0.0.2
+#
+# v0.0.3
 # by gugutz
 #
 ###################################
@@ -8,6 +9,8 @@
 # CHANGELOG
 #################################
 #
+# v0.0.3
+# - Changes approach to define list of tomes from hardcoded serial values to a loop that asks the player to select multiple tomes
 #
 # v0.0.2
 # - Makes search for tomes in any place, not just ground
@@ -20,17 +23,17 @@
 # CREATE ALL LISTS FOR CONFIG
 #################################
 
-if not listexists 'config_lists_smart_recall'
-    createlist 'config_lists_smart_recall'
+if not listexists 'config_lists_decypher_maps_in_tome'
+    createlist 'config_lists_decypher_maps_in_tome'
 else
-    clearlist 'config_lists_smart_recall'
+    clearlist 'config_lists_decypher_maps_in_tome'
 endif
 
-pushlist 'config_lists_decypher_maps_in_tome' 'use_scrolls'
 pushlist 'config_lists_decypher_maps_in_tome' 'tomes_location'
 
 
-foreach list in 'config_lists_smart_recall'
+
+foreach list in 'config_lists_decypher_maps_in_tome'
     if not listexists list
         createlist list
     else
@@ -40,43 +43,83 @@ endfor
 
 
 ##################################
+# TIMERS
+##################################
+
+if not timerexists 'waiting_for_tome_msg_timer'
+    createtimer 'waiting_for_tome_msg_timer'
+    settimer 'waiting_for_tome_msg_timer' 4000
+endif
+
+
+##################################
 # CONFIGURATION
 ##################################
+
+setvar! action_delay 600
 
 pushlist 'tomes_location' 'ground'
 
 
-
-
-
-
 if inlist 'tomes_location' 'subcontainer'
     if not varexist tomes_container or not find main_unload_container ground any any 2
-        overhead 'select master unload container' sysmsgs_color
-        sysmsg  '> Select Your Master Unload Container' sysmsgs_color
+        overhead 'select tomes parent container' sysmsgs_color
+        sysmsg  '> Select the tomes parent container' sysmsgs_color
         @setvar main_unload_container
     endif
 endif
 
-removelist tomes
-createlist tomes
+
+removelist 'tomes'
+createlist 'tomes'
 clearsysmsg
 
-setvar new_tome
-wft 1000
 
-if targetexists 'neutral'
-    while targetexists 'neutral'
-        wait 100
-        if varexist new_tome
-            pushlist 'tomes' new_tome
-            sysmsg "Added {{new_tome}} to tomes list"
-        endif
+unsetvar keep_asking_for_tomes
+setvar! keep_asking_for_tomes 1
+# unsetvar new_tome
+# setvar! new_tome
 
-        unsetvar new_tome
-        setvar new_tome
-    endwhile
+
+while varexist keep_asking_for_tomes
+    unsetvar new_tome
+    overhead 'select a new tome to decode (PRESS ESC WHEN DONE)' 54
+    sysmsg 'Select A New Tome To Decode (PRESS ESC WHEN DONE)...' 54
+    @setvar! new_tome
+
+    if varexist new_tome
+        pushlist 'tomes' new_tome
+        sysmsg "Added {{new_tome}} to tomes list!" 90
+        overhead "*added {{new_tome}} to tomes*" 90
+    else
+        unsetvar! keep_asking_for_tomes
+    endif
+endwhile
+
+
+if list 'tomes' > 0
+   overhead 'SAVED TOMES FOR DECODING' 54
 endif
+
+# if targetexists 'neutral'
+#     while targetexists 'neutral'
+#         if timer 'waiting_for_tome_msg_timer' >= 4000
+#             overhead 'select a tome to decypher its maps'
+#             settimer 'waiting_for_tome_msg_timer' 0
+#         endif
+
+#         wait 100
+#         if varexist new_tome
+#             pushlist 'tomes' new_tome
+#             sysmsg "Added {{new_tome}} to tomes list"
+#         endif
+
+#         unsetvar new_tome
+#         setvar new_tome
+#         wft 600
+#     endwhile
+# endif
+
 # Set tome serials
 # Add as little or as many
 # different types of map
@@ -85,22 +128,36 @@ endif
 # the serial, and add it
 # below like the two examples
 
-@setvar cartography_map_gump 1520869851
+if not varexist tresure_map_gump
+endif
+
+# map tomes gumps
+setvar! treasure_map_tome_gump 1863945839
+setvar! ore_map_tome_gump 1667380559
+setvar! lumber_map_tome_gump 3576069391
+setvar! skinning_map_tome_gump 4027121519
+setvar! fishing_map_tome_gump 3561255175
+
+
+# maps gumps
+    setvar! tresure_map_gump 1520869851
+setvar! lumber_resource_map_gump 1332805401
+
 #gump oremap
-//3367641484
+# 3367641484
 #gump lumbermap
-//1332805401
+# 1332805401
 #gump skinningmap
-//3473029237
+# 3473029237
 #gump fishingmap
-//2589357942
+# 2589357942
 
 # Tmap
-pushlist tomes '0x4339E3CB'
+# pushlist tomes '0x4339E3CB'
 # Ore
 # pushlist tomes '0x486C10D8'
 # Lumber
-pushlist tomes '0x408189A3'
+# pushlist tomes '0x408189A3'
 # Skinning
 # pushlist tomes '0x40AF4677'
 # Fishing
@@ -118,6 +175,7 @@ endif
 
 removelist buttons
 createlist buttons
+clearlist buttons
 
 #Set buttons
 pushlist buttons '10'
@@ -155,7 +213,7 @@ endif
 if varexist tomes_container
     sysmsg '> Opening Tomes Containes' sysmsgs_color
     useobject tomes_container
-    wait action_delay_var
+    wait action_delay
 endif
 
 
@@ -167,34 +225,96 @@ endif
 # CODE
 #################################
 
+setvar! tome_gump treasure_map_tome_gump
 
-foreach tome in tomes
-    if not find tome ground any any 2 and not find tome any any any 2
-        sysmsg 'TOME NOT FOUND' 54
-        overhead 'TOME NOT FOUND' 54
-        break
+foreach tome in 'tomes'
+    # treasure maps
+    if hue tome == 2990
+        sysmsg '[DEBUG] Book is TMAPS Book' 40
+        setvar! tome_gump treasure_map_tome_gump
+    # ore maps
+    elseif hue tome == 2796
+        sysmsg '[DEBUG] Book is ORE MAPS Book' 40
+        setvar! tome_gump ore_map_tome_gump
+    # lumber maps
+    elseif hue tome == 2799
+        sysmsg '[DEBUG] Book is LUMBER MAPS Book' 40
+        setvar! tome_gump lumber_map_tome_gump
+    # skinning maps
+    elseif hue tome == 2651
+        sysmsg '[DEBUG] Book is SKINNING MAPS Book' 40
+        setvar! tome_gump skinning_map_tome_gump
+    # fishing maps
+    elseif hue tome == 2085
+        sysmsg '[DEBUG] Book is FISHING MAPS Book' 40
+        setvar! tome_gump fishing_map_tome_gump
     endif
 
+    # if not find tome ground any any 2 and not find tome any any any 2
+    #     sysmsg 'TOME NOT FOUND' 54
+    #     overhead 'TOME NOT FOUND' 54
+    #     break
+    # endif
+
     dclick tome
-    waitforgump any
+    waitforgump tome_gump action_delay
     foreach button in buttons
-        while not insysmsg 'No map of that type is currently being stored'
-            sysmsg 'Picking map to decypher' 55
-            gumpresponse button
-            wait 1500
-            while findtype map backpack
-                sysmsg 'Starting decoding map...' 55
-                if findtype map backpack as mapx
-                    while not insysmsg 'You have reached the maximum accuracy'
-                        sysmsg 'Decoding map' 55
+        # unsetvar! break_parent_loop
+
+        while not findtype map backpack and not insysmsg 'No map of that type is currently being stored'
+            sysmsg 'Picking map (button: {{button}} to decypher' 55
+            gumpresponse button tome_gump
+            waitforgump tome_gump action_delay
+            wait 20
+
+            # if insysmsg 'No map of that type is currently being stored'
+            #     sysmsg '[NO MAP FOR SELECTED LEVEL!]' 40
+            #     setvar! break_parent_loop 1
+            #     break
+            # endif
+        endwhile
+
+        if varexist break_parent_loop
+            sysmsg 'BREAKING TO NEXT BUTTON...' 40
+            continue
+        #     unsetvar break_parent_loop
+        #     break
+        endif
+
+        while findtype map backpack
+            sysmsg 'Starting decoding map...' 55
+            if findtype map backpack as mapx
+                getlabel mapx map_label
+
+                # this while breaks and crashes the script
+                # while not '100.0% estimated accuracy' in map_label
+                while not insysmsg 'You have reached the maximum accuracy'
+                    if '100.0%' in map_label
+                        sysmsg 'Detected 100% in map label!' 72
+                        break
+                    else
+
                         if findtype spyglass backpack as tool
-                            if not ingump 'Cartography'
+                            if not ingump 'Cartography' 1520869851 and not ingump 'Cartography' 3367641484 and not ingump 'Cartography' 1332805401
                                 sysmsg 'Opening map gump first time'
                                 dclicktype spyglass backpack
                                 wft 600
                                 target mapx
                                 waitforgump 'any' 1000
-                            elseif ingump 'Cartography'
+                            elseif ingump 'Cartography' 1520869851
+                                sysmsg 'Decoding Treasure map' 57
+                                gumpresponse 4
+                                wait 1500
+
+                            # ore maps
+                            elseif ingump 'Cartography' 3367641484
+                                sysmsg 'Decoding Ore Resource map' 58
+                                gumpresponse 4
+                                wait 1500
+
+                            # lumber maps
+                            elseif ingump 'Cartography' 1332805401
+                                sysmsg 'Decoding Lumber Resource map' 58
                                 gumpresponse 4
                                 wait 1500
                             else
@@ -209,24 +329,29 @@ foreach tome in tomes
                                 # stop
                             endif
                         endif
-                    endwhile
-                    sysmsg 'Putting map back on tome' 55
-                    lift mapx
-                    pause 500
-                    drop tome 0 0 0
-                    pause 600
-                endif
+                    endif
 
-                dclick tome
-                waitforgump any
-                gumpresponse button
-                waitforgump any
-                wait 700
-            endwhile
+                    # re-read the label to see if we got to 100%
+                    getlabel mapx map_label
+                endwhile
+
+                sysmsg 'Putting map back on tome' 55
+                lift mapx
+                pause 500
+                drop tome 0 0 0
+                pause 600
+            endif
+
+            dclick tome
+            waitforgump any
+            gumpresponse button
+            waitforgump any
+            wait 700
         endwhile
 
         sysmsg 'SKIPPING TO NEXT MAP LEVEL IN TOME'
 
     endfor
+    sysmsg 'Passed through all buttons for book {{tome}}'
     gumpclose
 endfor

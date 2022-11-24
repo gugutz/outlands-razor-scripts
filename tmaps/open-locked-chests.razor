@@ -14,7 +14,7 @@ settimer 'wait_for_progress' 5000
 
 
 @unsetvar chest
-@setvar chest
+setvar! chest
 wft 500
 while targetexists 'neutral'
     if timer 'waiting_tchest_msg_timer' >= 1500
@@ -31,8 +31,8 @@ if not varexist chest
 endif
 
 
-@setvar action_delay_var 600
-@setvar locked_chest_gump 736038070
+setvar! action_delay 600
+setvar! locked_chest_gump 736038070
 
 # # Open Metal Chest
 # if findtype 29076 true
@@ -70,7 +70,7 @@ while not dead and not insysmsg 'You have successfully cleared it of traps'
             if targetexists 'neutral'
                 target 'self'
             endif
-            wait action_delay_var
+            wait action_delay
         endwhile
     endif
 
@@ -101,7 +101,7 @@ while not dead and not insysmsg 'You have successfully cleared it of traps'
             endif
 
             gumpresponse 7
-            wait action_delay_var
+            wait action_delay
             if insysmsg 'You do not have any trap tools of that material on hand'
                 gumpresponse 5
                 waitforgump locked_chest_gump 1000
@@ -137,7 +137,7 @@ while not dead and not insysmsg 'You successfully pick the lock.'
             waitforgump locked_chest_gump 1000
         else
             gumpresponse 4
-            wait action_delay_var
+            wait action_delay
             if insysmsg 'You do not have any lockpicks of that material on hand'
                 gumpresponse 2
                 waitforgump locked_chest_gump 1000

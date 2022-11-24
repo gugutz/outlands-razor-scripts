@@ -1,65 +1,16 @@
 #################################
 # BANDAGE SELF
-# v0.0.1
+# v0.0.2
 # by gugutz
 #
 #################################
-
-
-#################################
-# CREATE SCRIPT LISTS
-#################################
-if not listexists 'bandage_self_config_lists'
-    createlist 'bandage_self_config_lists'
-else
-    clearlist 'bandage_self_config_lists'
-endif
-
-
-# routine-related lists
-pushlist 'bandage_self_config_lists' 'action_delay'
-pushlist 'bandage_self_config_lists' 'bandage_delay'
-
-foreach list in 'bandage_self_config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
-#################################
-# CREATE ALL TIMERS
-#################################
-
-if not timerexists 'bandage_timer'
-    createtimer 'bandage_timer'
-    settimer 'bandage_timer' 99999
-endif
-
 
 ################################
 # SCRIPT CONFIGURATION
 ################################
 
-pushlist 'action_delay' 550
-
-
-# set bandage_delay based on char dex
-if skill 'healing' >= 20
-    if dex >= 100
-        pushlist 'bandage_delay' 10000
-    elseif dex <= 80
-        pushlist 'bandage_delay' 15000
-    endif
-endif
-
-
-#################################
-# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
-
-if atlist 'action_delay' 0 as action_delay
-if atlist 'bandage_delay' 0 as bandage_delay
+setvar! action_delay 550
+setvar! bandage_delay 15000
 
 
 #################################
@@ -77,30 +28,33 @@ if diffhits == 0
     stop
 endif
 
-# cure poison
+# use bandage
 if healing >= 20
     if diffhits > 0
-        if timer 'bandage_timer' < bandage_delay
-            overhead '*already applying bandages*' 53
-            stop
-        endif
 
-        if timer 'bandage_timer' >= bandage_delay
-            settimer 'bandage_timer' 0
+        if bandaging == 0
+            overhead '*applying bandages*' 65
             hotkey 'Bandage Self'
 
             wait action_delay
-
-            if insysmsg 'begin applying'
-                settimer 'bandagetimer' 0
-                # USE RAZOR OVERHEAD MESSAGE HERE
-                # overhead '*applying bandages*' 65
-            endif
+        elseif bandaging > 10
+            overhead '10+ secs till next bandage!' 52
+        elseif bandaging > 5
+            overhead '5+ secs till next bandage!' 52
+        else
+            overhead 'less than 5 secs till next bandage!' 52
         endif
+
     endif
 endif
 
 
-# closing the ifs that initialized the config variables on top of tile
-endif
-endif
+#################################
+# CHANGELOG
+#
+# v0.0.2
+# - Replaces timers and delays with new 'bandaging' command
+#
+# v0.0.1
+# - Initial release
+#

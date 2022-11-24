@@ -1,81 +1,161 @@
+#################################
 # enter-moongate
 # by gugutz
-# v0.0.2
-#
+# v0.0.3
+#################################
+
+
+#################################
+# CONFIG
+#################################
+
+if not varexist enter_moongate_first_run
+    setvar! action_delay 300
+
+    #################################
+    # SCRIPT VARIABLES
+    #################################
+
+    # moongate gump ids
+    setvar! public_moongate_gump 3773199800
+    setvar! magery_moongate_gump 3773199800
+    setvar! omni_moongate_gump 687547349
+    setvar! event_moongate_gump 3405811775
+
+    # moongate btns
+    setvar! corpse_creek_moongate_btn 17
+    setvar! regular_moongate_confirm_btn 2
+    setvar! omni_moongate_confirm_btn 10
+
+    setvar! omni_moongate_graphic 27754
+    # moongate graphics and colors
+    setvar! chivalry_moongate_graphic 27754
+    setvar! chivalry_moongate_hue 2091
+
+    setvar! enter_moongate_first_run 1
+endif
+
+
+####################################
+# CODE
+####################################
+
+unsetvar! moongate_gump_id
+unsetvar! moongate_confirm_btn
+
+# enter omni gate
+if gumpexists omni_moongate_gump
+    overhead '*entering omni moongate*' 70
+    setvar! moongate_gump_id omni_moongate_gump
+    setvar! moongate_confirm_btn omni_moongate_confirm_btn
+
+
+# public moongates
+elseif gumpexists public_moongate_gump
+    setvar! moongate_gump_id public_moongate_gump
+    setvar! moongate_confirm_btn regular_moongate_confirm_btn
+    overhead '*entering moongate*' 70
+
+elseif gumpexists magery_moongate_gump
+    setvar! moongate_gump_id public_moongate_gump
+    setvar! moongate_confirm_btn regular_moongate_confirm_btn
+    overhead '*entering player moongate*' 70
+
+# events moongates, like town struggles
+elseif gumpexists event_moongate_gump
+    setvar! moongate_gump_id event_moongate_gump
+    setvar! moongate_confirm_btn regular_moongate_confirm_btn
+    overhead '*entering event moongate*' 70
+endif
+
+# see if we found any gump open, and enter it
+if varexist moongate_gump_id
+    if noto self == hostile
+        sysmsg 'CLICKING CORPSE CREEK...'
+        gumpresponse corpse_creek_moongate_btn moongate_gump_id
+        waitforgump moongate_gump_id action_delay
+    endif
+
+    while gumpexists moongate_gump_id
+        gumpresponse moongate_confirm_btn moongate_gump_id
+        waitforgump moongate_gump_id action_delay
+    endwhile
+endif
+
+#####################################
+# IN CASE WE DIDNT FIND ANY GUMP OPEN, WE SEARCH FOR MOONGATES TO CLICK AND TRY TO OPEN ITS GUMP
+
+unsetvar! moongate_serial
+
+# search for regular blue moongates (color 0) that is opened by players
+if findtype 'blue moongate' ground 0 any 2 as mg
+    setvar! moongate_gump_id public_moongate_gump
+    setvar! moongate_confirm_btn regular_moongate_confirm_btn
+    setvar! moongate_serial mg
+
+# public moongates
+elseif findtype 'blue moongate' ground any any 2 as mg
+    setvar! moongate_gump_id public_moongate_gump
+    setvar! moongate_confirm_btn regular_moongate_confirm_btn
+    setvar! moongate_serial mg
+
+# chivarly moongate
+elseif findtype 27754 ground 2091 any 2 as mg
+    setvar! moongate_serial mg
+    setvar! moongate_confirm_btn omni_moongate_confirm_btn
+
+# enter omni realm moongate
+elseif findtype 27754 ground 2260 any 2 as mg
+    setvar! moongate_gump_id omni_moongate_gump
+    setvar! moongate_confirm_btn omni_moongate_confirm_btn
+    setvar! moongate_serial mg
+
+# leave omni realm moongate
+elseif findtype 27754 ground 2821 any 2 as mg
+    setvar! moongate_gump_id public_moongate_gump
+    setvar! moongate_confirm_btn omni_moongate_confirm_btn
+    setvar! moongate_serial mg
+
+else
+    overhead '*no moongates nearby' 56
+endif
+
+
+if varexist moongate_serial
+    while not gumpexists moongate_gump_id and find moongate_serial ground any any 5
+        overhead '*clicking player moongate*' 70
+        useobject moongate_serial
+        waitforgump moongate_gump_id action_delay
+    endwhile
+
+
+    if gumpexists moongate_gump_id
+        overhead '*entering moongate*' 70
+
+        if noto self == hostile
+            sysmsg 'CLICKING CORPSE CREEK...'
+            gumpresponse 17 moongate_gump_id
+            waitforgump moongate_gump_id action_delay
+        endif
+
+        while gumpexists moongate_gump_id
+            gumpresponse moongate_confirm_btn moongate_gump_id
+        endwhile
+
+        # waitforgump magery_moongate_gump 250
+    endif
+endif
 
 #################################
 # CHANGELOG
 #################################
+#
+# v0.0.3
+# - Fixed open gumps detection to avoid clicking the moongate when gump is already open
+# - Improved logic and code re-use
 #
 # v0.0.2
 # - Specifies which gump to press the buttons to avoid conflicting with the Necro Gump
 #
 # v0.0.1
 # - Initial release
-
-
-#################################
-# CODE
-#################################
-
-# @setvar public_moongate_gump_id 3773199800
-# @setvar magery_moongate_gump_id 3773199800
-
-# @setvar chivalry_moongate_graphic 27754
-# @setvar chivalry_moongate_hue 2091
-
-# player enter gate confirmation gump 3899019871
-# check for regular moongates
-# this includes public moongates and magery moongates
-#
-# omni gates
-#
-# gates inside the omni room
-# if gumpexists 3773199800
-#     overhead '*entering omni moongate*' 70
-#     gumpresponse 10 3773199800
-# enter omni gate
-if gumpexists 687547349
-    overhead '*entering omni moongate*' 70
-    gumpresponse 10 687547349
-# public moongates
-elseif gumpexists 3773199800
-    overhead '*entering public moongate*' 70
-    gumpresponse 2 3773199800
-elseif gumpexists  3899019871
-    overhead '*entering player moongate*' 70
-    gumpresponse 2 3899019871
-
-# search for regular blue moongates (color 0) that is opened by players
-elseif findtype 'blue moongate' ground 0 any 2 as mg
-    useobject mg
-    overhead '*clicking player moongate*' 70
-
-    waitforgump 3899019871 1000
-    if gumpexists  3899019871
-        overhead '*entering player moongate*' 70
-        gumpresponse 2 3899019871
-    endif
-
-# search for custom color blue moongates (any color), usually public moongates
-elseif findtype 'blue moongate' ground any any 2 as mg
-    useobject mg
-    waitforgump 3773199800 500
-    if gumpexists 3773199800
-        overhead '*entering public moongate*' 70
-        gumpresponse 2 3773199800
-    endif
-
-# if we get here, check for chivarly moongate type on the ground
-# chivarly moongate type - 27754
-# chivarly moongate hue - 2091
-elseif findtype 27754 ground 2091 any 2 as mg
-    useobject mg
-    waitforgump 3773199800 600
-    if gumpexists 3773199800
-        overhead '*entering chiv gate*' 70
-        gumpresponse 2 3773199800
-    endif
-else
-    overhead '*no moongates nearby' 56
-endif

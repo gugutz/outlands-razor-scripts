@@ -1,0 +1,130 @@
+#################################
+# TINKER TRAINER WITH GEMS
+# by gugutz
+# version 0.0.2
+#################################
+#
+# THIS SCRIPT WILL ONLY WORK IN THE FOLLOWING CITIES:
+# - Anchors Rest
+# - Horseshoe Bay
+# - Cambria
+# - Outpost
+#
+#################################
+
+sysmsg '♥ TINKER TRAINER by gugutz ♥' 91
+
+#################################
+# CONFIGURATION
+#################################
+
+setvar! action_delay 600
+setvar! min_beads_before_selling 25
+
+#################################
+# NPCs SERIALS
+#################################
+
+removelist 'npc_jeweler_serials'
+createlist 'npc_jeweler_serials'
+# anchors rest jeweler
+pushlist 'npc_jeweler_serials' 0x2EE
+# horseshoe bay jeweler
+pushlist 'npc_jeweler_serials' 0x814
+# cambria jeweler Thurston
+pushlist 'npc_jeweler_serials' 0x2484
+# outpost jeweler Caitlin
+pushlist 'npc_jeweler_serials' 0x3E5
+
+
+#################################
+# TIMERS
+#################################
+
+if not timerexists 'loop_on_warning_msg'
+    createtimer 'loop_on_warning_msg'
+else
+    settimer 'loop_on_warning_msg' 0
+endif
+
+
+if not timerexists 'waiting_to_sell_timer'
+    createtimer 'waiting_to_sell_timer'
+else
+    settimer 'waiting_to_sell_timer' 10000
+endif
+
+#################################
+# CODE
+#################################
+
+# OPEN BACKPACK
+if findlayer self backpack as bpack
+    overhead 'opening backpack...' 56
+    dclick bpack
+    wait action_delay
+    if insysmsg 'you must wait'
+        while insysmsg 'You must wait'
+            clearsysmsg
+            dclick bpack
+            wait action_delay
+        endwhile
+    endif
+endif
+
+# OPEN BANK
+overhead 'opening bank...'
+say 'bank'
+wait 1000
+
+
+
+# KEEP MONITORING BEADS AND TRYING TO SELL THEM
+while not dead 'self'
+
+    # remember player the loop is active every 60s
+    if timer 'loop_on_warning_msg' >= 60000
+        settimer 'loop_on_warning_msg' 0
+        sysmsg 'Tinker Trainer Running...' 89
+    endif
+
+    if insysmsg 'skill reached'
+        overhead 'CRAFTING QUEUE STOPED!' 40
+    endif
+
+    if timer 'waiting_to_sell_timer' >= 5000
+        overhead 'waiting to sell beads...' 90
+        settimer 'waiting_to_sell_timer' 0
+    endif
+
+    if counttype 'necklace' >= min_beads_before_selling
+        foreach vendor in 'npc_jeweler_serials'
+            overhead 'selling beads...' 19
+            menu vendor 2
+        endfor
+        wait 1000
+        hotkey 'Organizer Agent-01'
+    endif
+
+    # buy tinker tools if needed
+    if counttype 'tool kit' < 2
+
+        foreach vendor in 'npc_jeweler_serials'
+            overhead 'buying tinker tools..' 19
+            menu vendor 1
+            wait 1000
+        endfor
+
+    endif
+endwhile
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Adds outpost NPC serial
+#
+# v0.0.1
+# - Initial release

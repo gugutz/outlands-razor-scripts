@@ -1,26 +1,163 @@
 
 
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+#
+if not listexists 'idoc_looter_state_lists'
+    createlist 'idoc_looter_state_lists'
+    pushlist 'idoc_looter_state_lists' 'action_delay'
+    pushlist 'idoc_looter_state_lists' 'house_sign_serial'
 
-# tomes
-pushlist 'items' 29104
-
-pushlist 'items' 'storage shelf'
-# resource stockpile
-pushlist 'items' 23034
-# magic item recycler
-pushlist 'items' 11761
-pushlist 'items' 'bank deposit safe'
+# else
+#     clearlist 'idoc_looter_state_lists'
+endif
 
 
+foreach list in 'idoc_looter_state_lists'
+    if not listexists list
+        createlist list
+    endif
+endfor
+
+#################################
+# TIMERS
+#################################
+
+if not timerexists 'loop_on_warning_msg'
+    createtimer 'loop_on_warning_msg'
+    settimer 'loop_on_warning_msg' 10000
+endif
+
+if not timerexists 'waiting_house_to_fall_warning_msg'
+    createtimer 'waiting_house_to_fall_warning_msg'
+    settimer 'waiting_house_to_fall_warning_msg' 10000
+endif
+
+
+
+#################################
+# CONFIGURATION
+#################################
+pushlist 'action_delay' 250
+pushlist 'house_sign_serial' '0x4541536B'
+
+# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+if atlist 'action_delay' 0 as action_delay
+
+
+###################################
+# IDOC ITEMS LIST
+###################################
+
+if not listexists 'idoc_items'
+    createlist 'idoc_items'
+    # tomes
+    pushlist 'idoc_items' 29104
+    pushlist 'idoc_items' 'storage shelf'
+    # resource stockpile
+    pushlist 'idoc_items' 23034
+    # magic item recycler
+    pushlist 'idoc_items' 11761
+    pushlist 'idoc_items' 'bank deposit safe'
+    pushlist 'idoc_items' 'metal chest'
+    # runetomes
+    pushlist 'idoc_items' 29104
+endif
+
+
+
+
+###################################
+# PACK ANIMALS
+###################################
+
+sysmsg 'Searching for pack animals...' 87
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        # dclick packie
+        # wait action_delay_var
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        # dclick packie
+        # wait action_delay_var
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+
+###################################
+# MAIN ROUTINE
+###################################
 
 while not dead 'self'
-    foreach item in 'items'
-        if findtype item_graphic
-            hotkey 'Grab'
-            wft 600
-            if targetexists 'neutral'
-                target item
-            endif
+overhead 'not dead'
+
+    # KEEP INFORMING THAT THE LOOP IS ON
+    if timer 'loop_on_warning_msg' >= 10000
+        settimer 'loop_on_warning_msg' 0
+
+        sysmsg '>>> IDOC Looter running...'
+    endif
+
+    # TRY TO KEEP CHAR HIDDEN
+    if not hidden
+        sysmsg '>>> Hiding' 50
+        if skill 'hiding' >= 50
+            useskill 'hiding'
+        elseif skill 'magery' >= 60
+            cast 'invisibility'
+            wft 3500
+            hotkey 'Target Self'
+            wait action_delay
         endif
-    endfor
+    endif
+
+
+    if atlist 'house_sign_serial' 0 as house_sign
+
+        foreach item_type in 'idoc_items'
+            overhead 'searching for {{item_type}}'
+            if findtype item_type ground any any 2 as item_serial
+                getlabel item_serial item_label
+
+                while 'secure' in item_label or 'locked down' in item_label
+                    if timer 'waiting_house_to_fall_warning_msg' >= 10000
+                        settimer 'waiting_house_to_fall_warning_msg' 0
+
+                        overhead 'waiting to fall..' 53
+                        sysmsg 'waiting to fall..' 53
+                    endif
+                    getlabel item_serial item_label
+                endwhile
+
+                while find item_serial ground and not find item_serial backpack
+                    overhead 'looting {{item_label}}'
+
+                    hotkey 'Grab Item'
+                    wft action_delay
+                    if targetexists 'neutral'
+                        target item_serial
+                    endif
+                    wait action_delay
+                endwhile
+            endif
+        endfor
+    endif
 endwhile
+
+
+################################
+# CLOSE CONFIG 'if atlist' STATEMENTS
+################################
+endif

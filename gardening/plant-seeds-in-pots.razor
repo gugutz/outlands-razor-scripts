@@ -1,0 +1,311 @@
+setvar! action_delay 600
+setvar! apply_soil_to_plants 1
+setvar! apply_water_to_plants 1
+setvar! apply_fertilizer_to_plants 1
+setvar! apply_growth_serum_to_plants 1
+setvar! apply_farmers_almanac_to_plants 1
+setvar! apply_fungicide_to_plants 1
+setvar! apply_heat_filter_to_plants 1
+setvar! sysmsgs_color 49
+setvar! sysmsgs_warning_color 54
+
+if not listexists 'plant_bowl'
+    createlist 'plant_bowl'
+    pushlist 'plant_bowl' 6328
+    pushlist 'plant_bowl' 6330
+    pushlist 'plant_bowl' 4551
+    pushlist 'plant_bowl' 6327
+    pushlist 'plant_bowl' 4550
+endif
+
+setvar! SOIL 2323
+setvar! WATER 20501
+setvar! PLANT_FERTILIZER 4154
+setvar! PLANT_FUNGICIDE 6193
+setvar! FARMERS_ALMANAC 29343
+setvar! GROWTH_SERUM 20498
+
+# gumps
+setvar! ADD_SOIL_GUMP 4024474571
+
+
+
+
+@clearignore
+
+clearsysmsg
+# there are no active fungal effects in this plant bowl
+
+while not dead self
+    foreach bowl in 'plant_bowl'
+        if findtype bowl ground any any 2 as bowl_serial
+            getlabel bowl_serial bowl_label
+            if 'grown' in bowl_label
+                sysmsg 'Bowl {{bowl_serial}} already used...'
+
+                # apply soil to the vases
+                if apply_soil_to_plants == 1
+
+                    if not findtype SOIL backpack
+                        sysmsg 'No soil in backpack!' sysmsgs_warning_color
+                        overhead '*no soil in backpack*'
+                    else
+                        sysmsg 'Adding soil to vase...' sysmsgs_color
+                        while not gumpexists 3224608375
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "That plant soil is no longer available"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype SOIL backpack as soil_serial
+                                    overhead "*applying water*" 54
+                                    target soil_serial
+                                    waitforgump ADD_SOIL_GUMP action_delay
+                                    if gumpexists ADD_SOIL_GUMP
+                                        gumpresponse 2 ADD_SOIL_GUMP
+                                    endif
+
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                # apply water to the plants
+                if apply_water_to_plants == 1
+                    if not findtype WATER backpack
+                        sysmsg 'No water in backpack!' sysmsgs_warning_color
+                    else
+                        sysmsg 'Adding water to vase...'
+                        while not gumpexists 3224608375
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "That plant bowl already has a water purifier installed"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype WATER backpack as basic_purifier_water
+                                    overhead "*applying water*" 54
+                                    target basic_purifier_water
+                                    wait action_delay
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                # apply fertilizer to the plants
+                if apply_fertilizer_to_plants == 1
+                    if not findtype PLANT_FERTILIZER backpack
+                        sysmsg 'No fertilizer in backpack!' sysmsgs_warning_color
+                    else
+                        sysmsg 'Adding fertilizer to plant...' sysmsgs_color
+
+                        while not gumpexists 3224608375
+                        sysmsg 'clicking to add fertilizer'
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "That plant bowl already has an active fertilizer"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype PLANT_FERTILIZER backpack as basic_fertilizer
+                                    overhead "*applying fertilizer*" 54
+                                    target basic_fertilizer
+                                    wait action_delay
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                # apply growth serum to the plants
+                if apply_growth_serum_to_plants == 1
+
+                    if not findtype GROWTH_SERUM backpack
+                        sysmsg 'No growth serums in backpack!' sysmsgs_warning_color
+                    else
+                        sysmsg 'Adding growth serum to plant...' sysmsgs_color
+
+                        while not gumpexists 3224608375
+                        sysmsg 'clicking to growth'
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "That plant bowl already has an active growth serum"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype GROWTH_SERUM backpack as growth_serum
+                                    overhead "*applying growth serum*" 54
+                                    target growth_serum
+                                    wait action_delay
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                # apply fungicide to the plants
+                if apply_fungicide_to_plants == 1
+
+                    if not findtype PLANT_FUNGICIDE backpack
+                        sysmsg 'No fungicides in backpack!' sysmsgs_warning_color
+                    else
+                        sysmsg 'Adding fungicide to plant...' sysmsgs_color
+
+                        while not gumpexists 3224608375
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "There are no active fungal effects in this plant bowl"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype PLANT_FUNGICIDE backpack as fungicide_serial
+                                    overhead "*applying fungicide*" 54
+                                    target fungicide_serial
+                                    wait action_delay
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                # apply farmers almanac to the plants
+                if apply_farmers_almanac_to_plants == 1
+                    if not findtype FARMERS_ALMANAC backpack
+                        sysmsg 'No farmers almanac in backpack!' sysmsgs_warning_color
+                    else
+                        sysmsg 'Adding farmers almanac to plant...' sysmsgs_color
+                        while not gumpexists 3224608375
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "There are no active creature effects in this plant bowl"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype FARMERS_ALMANAC backpack as farmers_almanac
+                                    overhead "*applying farmers almanac*" 54
+                                    target farmers_almanac
+                                    wait action_delay
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                # apply farmers almanac to the plants
+                if apply_heat_filter_to_plants == 1
+                    if not findtype 28741 backpack
+                        sysmsg 'No heat filters in backpack!' sysmsgs_warning_color
+                    else
+                        sysmsg 'Adding heat filter to plant...' sysmsgs_color
+
+                        while not gumpexists 3224608375
+                            dclick bowl_serial
+                            waitforgump 3224608375 action_delay
+                        endwhile
+
+                        if gumpexists 3224608375
+                            while not insysmsg "That plant bowl already has a heat filter installed"
+                                gumpresponse 2 3224608375
+                                # waitforgump 3224608375 action_delay
+                                waitfortarget action_delay
+
+                                if findtype 28741 backpack as heat_filters
+                                    overhead "*applying heat filter*" 54
+                                    target heat_filters
+                                    wait action_delay
+                                endif
+                            endwhile
+                        endif
+                    endif
+                endif
+
+                @ignore bowl_serial
+
+            else
+                sysmsg 'Clicking plant in bowl {{bowl_serial}}...' 54
+                dclick bowl_serial
+                waitforgump 3224608375 action_delay
+                gumpresponse 2 3224608375
+                waitfortarget action_delay
+                waitforgump 3224608375 action_delay
+                if findtype 22326 backpack as seeds
+                    sysmsg 'Targetting seed..' 54
+                    target seeds
+                else
+                    overhead 'NO SEEDS IN BACKPACK!' 37
+                endif
+                waitforgump 3224608375
+                gumpclose 3224608375
+
+                getlabel bowl_serial bowl_label
+                if 'grown' in bowl_label
+                    overhead '*planted successfully*'
+                endif
+            endif
+        else
+            overhead 'NO PLANT BOWLS NEARBY!' 37
+        endif
+    endfor
+endwhile
+
+# APLICAR AREIA
+# dclick '0x4D87953A'
+# waitforgump 3224608375
+# gumpresponse 5
+# waitforgump 3224608375
+# gumpresponse 2
+# waitfortarget
+# waitforgump 3224608375
+# target 0x4C61580F
+# waitforgump 3224608375
+# waitforgump 4024474571
+# gumpresponse 2
+# waitforgump 3224608375
+# waitforgump 4024474571
+# gumpclose
+# gumpclose
+
+
+# APLICAR AREIA
+# dclick '0x53F4E3EB'
+# waitforgump 3224608375
+# gumpresponse 4
+# waitforgump 3224608375
+# gumpresponse 2
+# waitfortarget
+# waitforgump 3224608375
+# target 0x4ECFE1C2
+# waitforgump 3224608375
+# waitforgump 3929333591
+# gumpresponse 2
+# waitforgump 3224608375
+# waitforgump 3929333591
+# gumpclose
+# gumpclose

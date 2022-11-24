@@ -17,6 +17,8 @@ if list 'untrapped_pouches' == 0
 endif
 
 if list 'untrapped_pouches' > 0
+    overhead '*trapping pouches' 53
+
     foreach untrapped_pouch in 'untrapped_pouches'
         # first try to use scrolls
         if findtype 0x1F39 as magic_trap_scroll

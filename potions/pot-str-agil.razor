@@ -1,59 +1,76 @@
-if not listexists 'str_agil_script_lists'
-    createlist 'str_agil_script_lists'
-    pushlist 'str_agil_script_lists' 'unequip_hands_to_drink_potion'
-    pushlist 'str_agil_script_lists' 'drink_agility_potion'
-    pushlist 'str_agil_script_lists' 'drink_refresh_potion'
-    pushlist 'str_agil_script_lists' 'drink_str_potion'
-    pushlist 'str_agil_script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
-    foreach list in 'str_agil_script_lists'
-        if not listexists list
-            createlist list
-        else
-            clearlist list
-        endif
-    endfor
+
+################################
+# CONFIG
+################################
+
+if not varexist str_agil_script_first_run_done
+    setvar! str_agil_script_first_run_done 1
+
+    setvar! action_delay 350
+    setvar! unequip_hands_to_drink_potion 1
+    setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping 1
 
     # this list  is created separatedely cause we also seed it with values
     if not listexists 'one_handed_weapons'
         createlist 'one_handed_weapons'
-        pushlist 'one_handed_weapons' 'katana'
-        pushlist 'one_handed_weapons' 'viking sword'
-        pushlist 'one_handed_weapons' 'broadsword'
-        pushlist 'one_handed_weapons' 'longsword'
+        if skill 'swordsmanship' >= 20
+            pushlist 'one_handed_weapons' 'katana'
+            pushlist 'one_handed_weapons' 'viking sword'
+            pushlist 'one_handed_weapons' 'broadsword'
+            pushlist 'one_handed_weapons' 'longsword'
+        elseif skill 'archery' >= 20
+            pushlist 'one_handed_weapons' 'crossbow'
+        elseif skill 'mace fighting' >= 20
+            pushlist 'one_handed_weapons' 'war mace'
+            pushlist 'one_handed_weapons' 'maul'
+            pushlist 'one_handed_weapons' 'mace'
+            pushlist 'one_handed_weapons' 'club'
+        elseif skill 'fencing' >= 20
+            pushlist 'one_handed_weapons' 'kryss'
+            pushlist 'one_handed_weapons' 'war fork'
+        endif
     endif
 
-    # CONFIG
-    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-    pushlist 'unequip_hands_to_drink_potion' 'yes'
+
+    # ###############################
+    # TIMERS
+    # ###############################
+
+    if not timerexists 'heal_pot_cooldown_warning_msg_timer'
+        createtimer 'heal_pot_cooldown_warning_msg_timer'
+        settimer 'heal_pot_cooldown_warning_msg_timer' 10000
+    endif
+
 endif
 
 
 
+
+unsetvar! drink_str_potion
+unsetvar! drink_agility_potion
+
+################################
+# DECISION FLOW
 ################################
 
-
-clearlist 'drink_str_potion'
-clearlist 'drink_agility_potion'
-
-# DECISION FLOW
 if str < 120 or not findbuff 'Strength'
-    pushlist 'drink_str_potion' 'yes'
+    setvar! drink_str_potion 1
 endif
 
 
 # mage chars drink agil with 25 or less stam
 if skill 'magery' >= 80 and dex <= 25
-    pushlist 'drink_agility_potion' 'yes'
+    setvar! drink_agility_potion 1
 elseif dex <= 100
-    pushlist 'drink_agility_potion' 'yes'
+    setvar! drink_agility_potion 1
 endif
 
 
 ################################
 # if we have to drhink a potion, check if left hand has a weapon first
-if inlist 'drink_str_potion' 'yes' or inlist 'drink_agility_potion' 'yes' or inlist 'drink_refresh_potion' 'yes'
+if varexist drink_str_potion or varexist drink_agility_potion or varexist drink_refresh_potion
     if not lhandempty
-        if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+        if prefer_switching_to_1hand_weapon_instead_of_unequiping == 1
             foreach weapon in 'one_handed_weapons'
                 if findtype weapon backpack as weap
                     overhead "*switching to 1-handed*"
@@ -62,7 +79,7 @@ if inlist 'drink_str_potion' 'yes' or inlist 'drink_agility_potion' 'yes' or inl
                     break
                 endif
             endfor
-        elseif inlist 'unequip_hands_to_drink_potion' 'yes'
+        elseif unequip_hands_to_drink_potion == 1
             hotkey "Undress Left Hand"
             wait action_delay
         endif
@@ -71,18 +88,24 @@ endif
 
 
 # str pots
-if inlist 'drink_str_potion' 'yes'
+if varexist drink_str_potion
     if not findtype 'white potion' 'backpack'
         overhead 'no str pots!' 39
     else
-        overhead '✩ str potion ✩' 91
+        settimer 'waiting_timer' 0
         potion 'strength' 91
+        while timer 'waiting_timer' < action_delay
+            if findbuff 'strength'
+                overhead '✩ 11str potion ✩' 91
+                break
+            endif
+        endwhile
         stop
     endif
 endif
 
 # agil pots
-if inlist 'drink_agility_potion' 'yes'
+if varexist drink_agility_potion
     if not findtype 'blue potion' 'backpack'
         overhead 'no agil pots!' 39
     else

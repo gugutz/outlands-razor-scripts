@@ -1,10 +1,130 @@
-# ELDRICH_PROC = 0x54a4
-# ELDRICH_PROC_COLOR = 0x0a39
 
-if mana > 40
-    cast 'flamestrike'
-elseif findtype 0x54A4 ground any any 4
-    cast 'flamestrike'
-else
-    script 'items\magic-mushroom'
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+if not varexist flamestrike_pvm_first_run_done
+    setvar! flamestrike_pvm_first_run_done 1
+
+
+    setvar! action_delay 600
+    setvar! auto_meditate_when_on_mushroom_timer true
+    setvar! min_mana_before_using_mushroom 40
+    setvar! use_mushroom_delay 60000
+
+    #################################
+    # CREATE ALL TIMERS
+    #################################
+
+
+    if not listexists 'flamestrike_pvm_timers'
+        createlist 'flamestrike_pvm_timers'
+        pushlist 'flamestrike_pvm_timers' 'use_mushroom_timer'
+        pushlist 'flamestrike_pvm_timers' 'medit_msg_warning_timer'
+
+        foreach timer in 'flamestrike_pvm_timers'
+            if not timerexists timer
+                createtimer timer
+                settimer timer 99999
+            endif
+        endfor
+    endif
+
 endif
+
+
+#################################
+#
+# CODE
+#
+#################################
+
+if targetexists 'harmful'
+    target 'last'
+endif
+
+if mana < min_mana_before_using_mushroom
+    if timer 'use_mushroom_timer' >= use_mushroom_delay
+        if not findtype 'mushroom' 'backpack'
+            overhead 'no mushrooms!' 37
+            while counttype 'mushroom' < 5 and mana > 11
+                cast 'create food'
+            endwhile
+        endif
+
+        usetype 'mushroom' backpack
+        wait action_delay
+
+        if insysmsg 'you consume'
+            sysmsg '>>> Used mushroom! Resetting timer...' 55
+            settimer 'use_mushroom_timer' 0
+            clearsysmsg
+        endif
+    endif
+
+    if timer 'use_mushroom_timer' < use_mushroom_delay
+        if not varexist auto_meditate_when_on_mushroom_timer
+            overhead '! mushroom cooldown !' 55
+            stop
+        else
+            overhead '!mushroom cooldown! meditating...' 53
+            if findbuff 'actively meditating'
+                overhead '*already meditating*' 55
+            endif
+
+            while mana < min_mana_before_using_mushroom and not findbuff 'actively meditating'
+                skill 'meditation'
+                wait action_delay
+            endwhile
+
+            if findbuff 'actively meditating'
+
+                overhead '*begin meditating*' 90
+                settimer 'medit_msg_warning_timer' 0
+
+                while findbuff 'actively meditating'
+                    if timer 'medit_msg_warning_timer' > 2000
+                        settimer 'medit_msg_warning_timer' 0
+                        overhead 'meditating...' 55
+                    endif
+
+                    if timer 'use_mushroom_timer' >= 60000
+                        if not findtype 'mushroom' 'backpack'
+                            overhead 'no mushrooms!' 37
+                            while counttype 'mushroom' < 5 and mana > 11
+                                cast 'create food'
+                            endwhile
+                        else
+                            usetype 'mushroom' backpack
+                            wait action_delay
+
+                            if insysmsg 'you consume'
+                                sysmsg '>>> Used mushroom! Resetting timer...' 55
+                                settimer 'use_mushroom_timer' 0
+                                clearsysmsg
+                            endif
+                        endif
+                    endif
+                endwhile
+            endif
+        endif
+
+
+    endif
+
+
+endif
+
+
+
+if followers < 5
+    overhead '*not max followers*' 43
+endif
+
+
+if findtype '0x54A4' ground any any 4
+    overhead '*using eldrich mana whell*' 19
+endif
+
+cast 'flamestrike'

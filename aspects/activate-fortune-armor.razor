@@ -1,0 +1,122 @@
+##########################
+# ACTIVATE ASPECT ON ARMOR
+# by gugutz
+# version 0.0.1
+#################################
+
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+
+if not listexists 'activate_void_config_lists'
+    createlist 'activate_void_config_lists'
+else
+    clearlist 'activate_void_config_lists'
+endif
+
+# routine-related lists
+pushlist 'activate_void_config_lists' 'action_delay'
+
+pushlist 'activate_void_config_lists' 'aspect_color'
+pushlist 'activate_void_config_lists' 'aspect_name'
+pushlist 'activate_void_config_lists' 'aspect_unique_text'
+
+pushlist 'activate_void_config_lists' 'switch_aspect_btn_number'
+pushlist 'activate_void_config_lists' 'activate_aspect_btn_number'
+
+foreach list in 'activate_void_config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+pushlist 'aspect_color' 2843
+pushlist 'aspect_name' 'fortune'
+# pushlist 'aspect_unique_text' 'Auto Stats Restoration'
+
+pushlist 'action_delay' 600
+pushlist 'switch_aspect_btn_number' 15
+pushlist 'activate_aspect_btn_number' 17
+
+
+
+# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+if atlist 'action_delay' 0 as action_delay
+if atlist 'aspect_color' 0 as aspect_color
+if atlist 'switch_aspect_btn_number' 0 as switch_aspect_btn_number
+if atlist 'activate_aspect_btn_number' 0 as activate_aspect_btn_number
+
+# if atlist 'aspect_name' 0 as aspect_name
+# if atlist 'aspect_unique_text' 0 as aspect_unique_text
+#
+foreach aspect_name in 'aspect_name'
+# foreach aspect_unique_text in 'aspect_unique_text'
+
+
+################################
+# CODE
+################################
+
+# IF ASPECT IS ALREADY ACTIVE ON ARMOR, STOP SCRIPT
+if findlayer 'self' innertorso as tunic
+    if hue tunic == aspect_color
+        overhead "{{aspect_name}} already active on armor!" 48
+        stop
+    endif
+endif
+
+
+# OPEN ASPECT GUMP
+while not gumpexists 2424293173
+    sysmsg 'Opening Aspect Gump'
+    say '[aspects'
+    waitforgump aspect_gump action_delay
+endwhile
+
+# CHANGE ARMOR ASPECT TO CORRECT ASPECT
+if not ingump 'Gold and Loot Item Chance Bonus' 2424293173
+    overhead "Changing aspect to {{aspect_name}}"
+    # while not ingump aspect_unique_text 2424293173
+    while not ingump 'Gold and Loot Item Chance Bonus' 2424293173
+        gumpresponse switch_aspect_btn_number 2424293173
+    endwhile
+endif
+
+
+# ACTIVATE ASPECT ON ARMOR
+waitforgump 2424293173 action_delay
+gumpresponse activate_aspect_btn_number 2424293173
+waitforgump 2424293173 action_delay
+gumpresponse activate_aspect_btn_number 2424293173
+waitforgump 2424293173 action_delay
+
+
+# CHECK IF ASPECT IN FACT ACTIVATED
+if findlayer 'self' innertorso as tunic
+    if hue tunic == aspect_color
+        overhead "activated {{aspect_name}} on armor!" 48
+        sysmsg "Activated {{aspect_name}} On Armor!" 48
+        stop
+    endif
+endif
+
+
+################################
+# CLOSE CONFIG 'if atlist' STATEMENTS
+################################
+
+# endfor
+endfor
+
+endif
+endif
+endif
+endif

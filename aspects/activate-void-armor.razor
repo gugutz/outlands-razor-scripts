@@ -1,5 +1,5 @@
 ##########################
-# ACTIVATE VOID ASPECT ON ARMOR
+# ACTIVATE ASPECT ON ARMOR
 # by gugutz
 # version 0.0.1
 #################################
@@ -15,9 +15,9 @@ else
     clearlist 'activate_void_config_lists'
 endif
 
-# routine-related lists
-pushlist 'activate_void_config_lists' 'action_delay'
-pushlist 'activate_void_config_lists' 'aspect_color'
+
+pushlist 'activate_void_config_lists' 'aspect_name'
+pushlist 'activate_void_config_lists' 'aspect_unique_text'
 
 
 foreach list in 'activate_void_config_lists'
@@ -33,65 +33,78 @@ endfor
 # SCRIPT CONFIGURATION
 ################################
 
-pushlist 'action_delay' 600
-
-# void color
-pushlist 'aspect_color' 2599
+setvar! action_delay 600
 
 
-# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
-if atlist 'action_delay' 0 as action_delay
-if atlist 'aspect_color' 0 as aspect_color
+setvar! aspect_color 2599
+pushlist 'aspect_name' 'void'
+pushlist 'aspect_unique_text' 'Auto Stats Restoration'
+setvar! switch_aspect_btn_number 15
+setvar! activate_aspect_btn_number 17
+
+################################
+# GLOBAL VARIABLES
+################################
+
+if not varexist aspect_gump_id
+    @setvar aspect_gump_id 2424293173
+endif
 
 ################################
 # CODE
 ################################
 
-# IF ASPECT IS ALREADY ACTIVE ON ARMOR, STOP SCRIPT
-if findlayer 'self' innertorso as tunic
-    if hue tunic == aspect_color
-        overhead "void already active on armor!" 48
-        stop
-    endif
-endif
+foreach aspect_name in 'aspect_name'
+    foreach aspect_unique_text in 'aspect_unique_text'
+
+        # IF ASPECT IS ALREADY ACTIVE ON ARMOR, STOP SCRIPT
+        if findlayer 'self' innertorso as tunic
+            if hue tunic == aspect_color
+                overhead "{{aspect_name}} already active on armor!" 48
+                stop
+            endif
+        endif
 
 
-# OPEN ASPECT GUMP
-while not gumpexists 2424293173
-    sysmsg 'Opening Aspect Gump'
-    say '[aspects'
-    waitforgump aspect_gump action_delay
-endwhile
+        # OPEN ASPECT GUMP
+        while not gumpexists aspect_gump_id
+            sysmsg 'Opening Aspect Gump'
+            say '[aspects'
+            waitforgump aspect_gump_id action_delay
+        endwhile
 
-# CHANGE ARMOR ASPECT TO CORRECT ASPECT
-if not ingump 'Auto Stats Restoration' 2424293173
-    overhead "Changing aspect to Void"
-    while not ingump 'Auto Stats Restoration' 2424293173
-        gumpresponse 15 2424293173
-    endwhile
-endif
-
-
-# ACTIVATE ASPECT ON ARMOR
-waitforgump 2424293173 action_delay
-gumpresponse 17 2424293173
-waitforgump 2424293173 action_delay
-gumpresponse 17 2424293173
-waitforgump 2424293173 action_delay
+        # CHANGE ARMOR ASPECT TO CORRECT ASPECT
+        if not ingump 'Auto Stats Restoration' 2424293173
+            overhead "Changing aspect to {{aspect_name}}"
+            # while not ingump aspect_unique_text 2424293173
+            while not ingump 'Auto Stats Restoration' 2424293173
+                gumpresponse switch_aspect_btn_number aspect_gump_id
+                waitforgump aspect_gump_id action_delay
+            endwhile
+        endif
 
 
-# CHECK IF ASPECT IN FACT ACTIVATED
-if findlayer 'self' innertorso as tunic
-    if hue tunic == aspect_color
-        overhead "activated void on armor!" 48
-        sysmsg "Activated Void On Armor!" 48
-        stop
-    endif
-endif
+        # ACTIVATE ASPECT ON ARMOR
+        waitforgump aspect_gump_id action_delay
+        gumpresponse activate_aspect_btn_number aspect_gump_id
+        waitforgump aspect_gump_id action_delay
+        gumpresponse activate_aspect_btn_number aspect_gump_id
+        waitforgump aspect_gump_id action_delay
 
 
-################################
-# CLOSE CONFIG 'if atlist' STATEMENTS
-################################
-endif
-endif
+        # CHECK IF ASPECT IN FACT ACTIVATED
+        if findlayer 'self' innertorso as tunic
+            if hue tunic == aspect_color
+                overhead "activated {{aspect_name}} on armor!" 48
+                sysmsg "Activated {{aspect_name}} On Armor!" 48
+                stop
+            endif
+        endif
+
+
+        ################################
+        # CLOSE CONFIG 'if atlist' STATEMENTS
+        ################################
+
+    endfor
+endfor

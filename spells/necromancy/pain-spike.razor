@@ -1,5 +1,9 @@
-say '[painspike'
-wft 600
+
+while not targetexists 'neutral'
+    say '[painspike'
+    wft 600
+endwhile
+
 if targetexists 'neutral'
     overhead 'explode which corpse?' 20
     while targetexists 'neutral'

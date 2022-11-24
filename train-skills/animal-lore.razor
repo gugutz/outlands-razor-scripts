@@ -1,12 +1,12 @@
 if insysmsg 'The world will save'
-    wait 27000
+    wait 5000
 endif
 
 if skill 'animallore' < 100
     skill 'animallore'
     waitfortarget
     hotkey 'Target Closest Friendly Monster'
-    pause 10000
+    pause 1000
 else
     sysmsg 'You have reached skill level 100 in Animal Lore' 44
     stop

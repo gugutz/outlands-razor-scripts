@@ -4,8 +4,14 @@
 #
 ###################################
 
-@setvar default_hue 0
-@setvar cartography_map_gump 1520869851
+setvar! action_delay 600
+
+if not varexist default_hue
+    @setvar default_hue 0
+endif
+if not varexist cartography_map_gump
+    @setvar cartography_map_gump 1520869851
+endif
 
 removelist 'maps'
 createlist 'maps'
@@ -39,11 +45,14 @@ if list 'maps' > 0
         sysmsg 'Picking map to decypher' 55
         # lifttype 5356 1 tmap_chest default_hue
         lift mapx
-        pause 550
+        pause action_delay
         drop backpack
-        pause 550
+        pause action_delay
         clearsysmsg
-        while not insysmsg 'You have reached the maximum accuracy'
+
+        getlabel mapx map_label
+        while not "100.0" in map_label
+        # while not insysmsg 'You have reached the maximum accuracy'
             if not findtype spyglass
                 overhead 'NO MORE SPYGLASSES' 55
                 stop
@@ -51,7 +60,7 @@ if list 'maps' > 0
                 if not gumpexists cartography_map_gump
                     sysmsg 'Opening map gump first time'
                     dclicktype spyglass backpack
-                    wft 600
+                    wft action_delay
                     target mapx
                     waitforgump cartography_map_gump
                 else
@@ -59,12 +68,16 @@ if list 'maps' > 0
                     waitforsysmsg 'You improve' 2000
                 endif
             endif
+
+            # re-read the label to see if we got to 100%
+            getlabel mapx map_label
         endwhile
+
         sysmsg 'Putting map back on chest' 55
         lift mapx
-        pause 550
+        pause action_delay
         drop tmap_chest 0 0 0
-        pause 550
+        pause action_delay
         gumpclose
     endfor
 sysmsg "ALL MAPS DECYPHERED!" 55

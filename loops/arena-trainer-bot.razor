@@ -4,91 +4,89 @@ sysmsg 'by gugutz' 45
 sysmsg 'version 0.0.1' 31
 sysmsg '########################' 90
 
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping true
+setvar! unequip_hands_to_drink_potion true
+setvar! auto_walk_randomly true
+
+setvar! action_delay 600
+setvar! spell_recovery_delay_var 200
+
+# HEALING SETTINGS
+setvar! min_hp_before_miniheal 22
+setvar! min_hp_before_gheal 70
+
+setvar! min_mana_before_curing_poison 6
+setvar! min_mana_before_miniheal 4
+setvar! min_mana_before_gheal 11
+
+setvar! min_stam_before_refresh_pot 12
+setvar! max_diffhits_before_healing_with_bandages 10
+
+
+# hp limit so bot keeps performing offensive actions
+setvar! min_hp_for_offense 40
+
+setvar! min_mana_before_debuffing_enemy 40
+setvar! min_mana_before_disrupt_chains 70
+setvar! min_mana_before_meditating 15
+
+setvar! min_mana_before_smallspells 40
+setvar! min_mana_before_bigspells 70
+setvar! min_mana_before_exp_eb_poison_combo 80
+
+setvar! debuff_interval 120000
+setvar! smallspell_interval 10000
+setvar! bigspell_interval 30000
+setvar! combo_exp_eb_poison_interval 45000
+setvar! disrupt_chain_interval 20000
+
+
 #################################
-# BOOTSTRAPING
+# CREATE ALL TIMERS
 #################################
 
 # CREATE ALL LISTS FOR CONFIG
 
-if not listexists 'arena_heal_bot_config_lists'
-    createlist 'arena_heal_bot_config_lists'
-else
-    clearlist 'arena_heal_bot_config_lists'
+if not varexist arena_heal_bot_first_run_done
+    setvar! arena_heal_bot_first_run_done
+
+    createlist 'arena_heal_bot_script_timers'
+    pushlist 'arena_heal_bot_script_timers' 'loop_on_warning_msg'
+    pushlist 'arena_heal_bot_script_timers' 'waiting_save'
+    pushlist 'arena_heal_bot_script_timers' 'last_sysmsg_timer'
+    pushlist 'arena_heal_bot_script_timers' 'waiting_target_timer'
+    pushlist 'arena_heal_bot_script_timers' 'waiting_spell_timer'
+    pushlist 'arena_heal_bot_script_timers' 'bandage_timer'
+    pushlist 'arena_heal_bot_script_timers' 'refresh_pot_timer'
+
+    pushlist 'arena_heal_bot_script_timers' 'debuff_enemy_timer'
+    pushlist 'arena_heal_bot_script_timers' 'attack_enemy_timer'
+    pushlist 'arena_heal_bot_script_timers' 'combo_exp_eb_poison_timer'
+    pushlist 'arena_heal_bot_script_timers' 'disrupt_chain_timer'
+    pushlist 'arena_heal_bot_script_timers' 'walk_timer'
+    pushlist 'arena_heal_bot_script_timers' 'meditating_msg_warning_timer'
+    pushlist 'arena_heal_bot_script_timers' 'match_duration_print_timer'
+
+    pushlist 'arena_heal_bot_script_timers' 'bigspells_timer'
+    pushlist 'arena_heal_bot_script_timers' 'smallspells_timer'
+
+    pushlist 'arena_heal_bot_script_timers' 'cancel_current_match_timer'
+
+    pushlist 'arena_heal_bot_script_timers' 'print_match_stats_timer'
+
+
+    foreach timer in 'arena_heal_bot_script_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 0
+        endif
+    endfor
 endif
 
-pushlist 'arena_heal_bot_config_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
-
-# routine-related lists
-pushlist 'arena_heal_bot_config_lists' 'reset_last_sysmsg_timer'
-pushlist 'arena_heal_bot_config_lists' 'drink_refresh_potion'
-pushlist 'arena_heal_bot_config_lists' 'drink_heal_potion'
-pushlist 'arena_heal_bot_config_lists' 'drink_cure_potion'
-pushlist 'arena_heal_bot_config_lists' 'unequip_hands_to_drink_potion'
-pushlist 'arena_heal_bot_config_lists' 'dont_unequip_if_already_equiped'
-pushlist 'arena_heal_bot_config_lists' 'auto_walk_randomly'
-
-pushlist 'arena_heal_bot_config_lists' 'bigspells'
-pushlist 'arena_heal_bot_config_lists' 'smallspells'
-
-pushlist 'arena_heal_bot_config_lists' 'current_hp'
-pushlist 'arena_heal_bot_config_lists' 'current_max_hp'
-
-pushlist 'arena_heal_bot_config_lists' 'ready_match'
-pushlist 'arena_heal_bot_config_lists' 'cancel_current_match'
-pushlist 'arena_heal_bot_config_lists' 'first_run_done'
-pushlist 'arena_heal_bot_config_lists' 'last_max_hp'
-pushlist 'arena_heal_bot_config_lists' 'harmful_spell_queue'
-pushlist 'arena_heal_bot_config_lists' 'beneficial_spell_queue'
-pushlist 'arena_heal_bot_config_lists' 'heal_until'
-pushlist 'arena_heal_bot_config_lists' 'stop_at_index'
-
-
-
-
-foreach list in 'arena_heal_bot_config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
-
-################################
-# CREATE ALL TIMERS
-################################
-
-createlist 'arena_heal_bot_script_timers'
-pushlist 'arena_heal_bot_script_timers' 'loop_on_warning_msg'
-pushlist 'arena_heal_bot_script_timers' 'waiting_save'
-pushlist 'arena_heal_bot_script_timers' 'last_sysmsg_timer'
-pushlist 'arena_heal_bot_script_timers' 'waiting_target_timer'
-pushlist 'arena_heal_bot_script_timers' 'waiting_spell_timer'
-pushlist 'arena_heal_bot_script_timers' 'bandage_timer'
-pushlist 'arena_heal_bot_script_timers' 'refresh_pot_timer'
-
-pushlist 'arena_heal_bot_script_timers' 'debuff_enemy_timer'
-pushlist 'arena_heal_bot_script_timers' 'attack_enemy_timer'
-pushlist 'arena_heal_bot_script_timers' 'combo_exp_eb_poison_timer'
-pushlist 'arena_heal_bot_script_timers' 'disrupt_chain_timer'
-pushlist 'arena_heal_bot_script_timers' 'walk_timer'
-pushlist 'arena_heal_bot_script_timers' 'meditating_msg_warning_timer'
-pushlist 'arena_heal_bot_script_timers' 'match_duration_print_timer'
-
-pushlist 'arena_heal_bot_script_timers' 'bigspells_timer'
-pushlist 'arena_heal_bot_script_timers' 'smallspells_timer'
-
-pushlist 'arena_heal_bot_script_timers' 'cancel_current_match_timer'
-
-pushlist 'arena_heal_bot_script_timers' 'print_match_stats_timer'
-
-
-foreach timer in 'arena_heal_bot_script_timers'
-    if not timerexists timer
-        createtimer timer
-        settimer timer 0
-    endif
-endfor
 
 # advance some timers so their related function runs immediately the first time
 settimer 'loop_on_warning_msg' 99999
@@ -97,56 +95,15 @@ settimer 'debuff_enemy_timer' 99999
 settimer 'disrupt_chain_timer' 1000
 
 
-################################
-# SCRIPT CONFIGURATION
-################################
-
-pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-pushlist 'unequip_hands_to_drink_potion' 'yes'
-pushlist 'auto_walk_randomly' 'yes'
-
-@setvar action_delay_var 600
-@setvar spell_recovery_delay_var 200
-
-# HEALING SETTINGS
-@setvar min_hp_before_miniheal 22
-@setvar min_hp_before_gheal 70
-
-@setvar min_mana_before_curing_poison 6
-@setvar min_mana_before_miniheal 4
-@setvar min_mana_before_gheal 11
-
-@setvar min_stam_before_refresh_pot 12
-@setvar max_diffhits_before_healing_with_bandages 10
-
-
-# hp limit so bot keeps performing offensive actions
-@setvar min_hp_for_offense 40
-
-@setvar min_mana_before_debuffing_enemy 40
-@setvar min_mana_before_disrupt_chains 70
-@setvar min_mana_before_meditating 15
-
-@setvar min_mana_before_smallspells 40
-@setvar min_mana_before_bigspells 70
-@setvar min_mana_before_exp_eb_poison_combo 80
-
-@setvar debuff_interval 120000
-@setvar smallspell_interval 10000
-@setvar bigspell_interval 30000
-@setvar combo_exp_eb_poison_interval 45000
-@setvar disrupt_chain_interval 20000
-
 
 ###################################
-# SCRIPT (NON CONFIG RELATED) LISTS AND VARIABLES
+# ROUTINE RELATED LISTS AND VARIABLES
 ###################################
 
-pushlist 'last_max_hp' 100
-
-@setvar arena_stone_serial '0x40000ECB'
-@setvar arena_stone_gump_id 4264910157
-@setvar arena_match_results_gump_id 838769207
+setvar! last_max_hp 100
+setvar! arena_stone_serial '0x40000ECB'
+setvar! arena_stone_gump_id 4264910157
+setvar! arena_match_results_gump_id 838769207
 
 if not listexists 'heal_bot_weapons'
     createlist 'heal_bot_weapons'
@@ -224,13 +181,13 @@ endfor
 while not dead 'self' or dead 'self'
 
 
-    if diffhits < 10 and not inlist 'first_run_done' 'yes'
+    if diffhits < 10 and not varexist first_run_done
         clearsysmsg
 
-        pushlist 'cancel_current_match' 'yes'
+        setvar! cancel_current_match true
 
         overhead 'FIRST RUN FINISHED' 91
-        pushlist 'first_run_done' 'yes'
+        setvar! first_run_done true
     endif
 
 
@@ -256,7 +213,7 @@ while not dead 'self' or dead 'self'
         while find arena_stone_serial ground any any 10 and not gumpexists arena_stone_gump_id
             sysmsg 'Opening Arena Stone Gump'
             dclick arena_stone_serial
-            waitforgump arena_stone_gump action_delay_var
+            waitforgump arena_stone_gump action_delay
         endwhile
 
 
@@ -271,14 +228,14 @@ while not dead 'self' or dead 'self'
             endwhile
 
             # cancel current match when needed (like oponent going AFK...)
-            if inlist 'cancel_current_match' 'yes'
-                clearlist 'cancel_current_match'
-
+            if varexist cancel_current_match
                 if ingump 'Cancel Current Match' 4264910157
                     sysmsg 'Canceling current match...'
                     gumpresponse 12 4264910157
                     waitforgump 4264910157 600
                 endif
+
+                unsetvar cancel_current_match
             endif
 
             # if name of char is not in gump, match is not created
@@ -311,13 +268,13 @@ while not dead 'self' or dead 'self'
                 gumpresponse 12 4264910157
                 waitforgump 4264910157 600
 
-                pushlist 'ready_match' 'yes'
+                setvar! set_match_as_ready true
             endif
 
             # click 'Ready' btn on new matches or when a match ends
-            if inlist 'ready_match' 'yes'
+            if varexist set_match_as_ready true
                 sysmsg 'READYING MATCH...'
-                clearlist 'ready_match'
+                unsetvar! set_match_as_ready
                 gumpresponse 20 4264910157
                 waitforgump 4264910157 600
             endif
@@ -336,7 +293,7 @@ while not dead 'self' or dead 'self'
         if timer 'cancel_current_match_timer' >= 120000
             say 'Cancelling currrent match due to innactivity... (2 min afk)'
             settimer 'cancel_current_match_timer' 0
-            pushlist 'cancel_current_match' 'yes'
+            setvar! cancel_current_match true
         endif
     endwhile
 
@@ -347,6 +304,15 @@ while not dead 'self' or dead 'self'
     removetimer 'match_duration_timer'
 
     while not dead 'self' and not find arena_stone_serial ground any any 10
+
+        if not listexists 'beneficial_spell_queue'
+            createlist 'beneficial_spell_queue'
+        endif
+
+        if not listexists 'harmful_spell_queue'
+            createlist 'harmful_spell_queue'
+        endif
+
         sysmsg 'INMATCH {{index}} LOOP' 56
 
 
@@ -440,56 +406,53 @@ while not dead 'self' or dead 'self'
 
             foreach beneficial_spell in 'beneficial_spell_queue'
                 sysmsg 'BENEFICIAL QUEUE: PROCESSING {{index}} SPELL: {{beneficial_spell}}...' 99
-            # if atlist 'beneficial_spell_queue' 0 as spell
-                clearlist 'heal_until'
+                unsetvar! heal_until
                 if beneficial_spell == 'heal'
-                    pushlist 'heal_until' min_hp_before_miniheal
+                    setvar! heal_until min_hp_before_miniheal
                 elseif beneficial_spell == 'greater heal'
-                    pushlist 'heal_until' min_hp_before_gheal
+                    setvar! heal_until min_hp_before_gheal
                 elseif beneficial_spell == 'cure'
-                    pushlist 'heal_until' 0
+                    setvar! heal_until 0
                 endif
 
-                if atlist 'heal_until' 0 as heal_until_hp
-                    sysmsg 'ENTROU LISTA HEAL_UNTIL' 99
+                sysmsg 'ENTROU LISTA HEAL_UNTIL' 99
 
-                    if hp >= heal_until_hp
-                        overhead "PRESO AQUI" 81
-                    endif
+                if hp >= heal_until_hp
+                    overhead "PRESO AQUI" 81
+                endif
 
-                    while not dead 'self' and hp < heal_until_hp
-                        overhead "still not {{heal_until_hp}} hp!" 96
-                        sysmsg "STILL NOT {{heal_until_hp}} HP!" 96
-                        sysmsg 'BENEFICIAL QUEUE: CASTING {{spell}}...' 100
-                        @settimer 'waiting_spell_timer' 0
-                        clearall
+                while not dead 'self' and hp < heal_until_hp
+                    overhead "still not {{heal_until_hp}} hp!" 96
+                    sysmsg "STILL NOT {{heal_until_hp}} HP!" 96
+                    sysmsg 'BENEFICIAL QUEUE: CASTING {{spell}}...' 100
+                    @settimer 'waiting_spell_timer' 0
+                    clearall
 
-                        cast beneficial_spell
+                    cast beneficial_spell
 
-                        while not targetexists 'beneficial' and timer 'waiting_spell_timer' < 3500
-                            if beneficial_spell != 'heal' and hp <= min_hp_before_miniheal
-                                sysmsg 'BREAKING TO SWITCHING GH TO MINIHEAL NOW' 26
-                                # clearlist 'beneficial_spell_queue'
-                                # pushlist 'beneficial_spell_queue' 'heal'
-                                break
-                            endif
-
-                            wait 10
-                            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
-                                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
-                                wait spell_recovery_delay_var
-                                break
-                            endif
-                        endwhile
-
-                        if targetexists 'beneficial'
-                            sysmsg '>> TARGETING SELF' 90
-                            target 'self'
-                            wait spell_recovery_delay_var
+                    while not targetexists 'beneficial' and timer 'waiting_spell_timer' < 3500
+                        if beneficial_spell != 'heal' and hp <= min_hp_before_miniheal
+                            sysmsg 'BREAKING TO SWITCHING GH TO MINIHEAL NOW' 26
+                            # clearlist 'beneficial_spell_queue'
+                            # pushlist 'beneficial_spell_queue' 'heal'
+                            break
                         endif
 
+                        wait 10
+                        if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                            sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                            wait spell_recovery_delay_var
+                            break
+                        endif
                     endwhile
-                endif
+
+                    if targetexists 'beneficial'
+                        sysmsg '>> TARGETING SELF' 90
+                        target 'self'
+                        wait spell_recovery_delay_var
+                    endif
+
+                endwhile
 
             # else
             #     overhead "FUCK!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -559,10 +522,10 @@ while not dead 'self' or dead 'self'
                                         lift weap 1
                                         wait 300
                                         drop 'self' LeftHand
-                                        wait action_delay_var
+                                        wait action_delay
                                     else
                                         dclick weap
-                                        wait action_delay_var
+                                        wait action_delay
                                     endif
 
                                     if not lhandempty or not rhandempty
@@ -662,6 +625,11 @@ while not dead 'self' or dead 'self'
         # determine which bigspell the bot is gonna use (33% being exp, 66% for EB)
         if hp > min_hp_for_offense
             if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
+
+                if not listexists 'smallspells'
+                    createlist 'smallspells'
+                endif
+
                 clearlist 'smallspells'
 
                 clearsysmsg
@@ -795,6 +763,11 @@ while not dead 'self' or dead 'self'
         if hp > min_hp_for_offense
             if list 'harmful_spell_queue' == 0 and list 'beneficial_spell_queue' == 0
                 sysmsg 'CHECKING IF WILL CAST BIGSPELL' 9
+
+                if not listexists 'bigspells'
+                    createlist 'bigspells'
+                endif
+
                 clearlist 'bigspells'
                 random 3
                 if insysmsg 'Random: 1'
@@ -862,25 +835,25 @@ while not dead 'self' or dead 'self'
                     clearall
                     cast harmful_spell
 
-                    clearlist 'stop_at_index'
+                    unsetvar! stop_at_index
                     if list 'harmful_spell_queue' == 5
                         overhead '5' 33
-                        pushlist 'stop_at_index' 4
+                        setvar! stop_at_index 4
                     elseif list 'harmful_spell_queue' == 4
                         overhead '4' 33
-                        pushlist 'stop_at_index' 3
+                        setvar! stop_at_index 3
                     elseif list 'harmful_spell_queue' == 3
                         overhead '3' 33
-                        pushlist 'stop_at_index' 2
+                        setvar! stop_at_index 2
                     elseif list 'harmful_spell_queue' == 2
                         overhead '2' 33
-                        pushlist 'stop_at_index' 1
+                        setvar! stop_at_index 1
                     elseif list 'harmful_spell_queue' == 1
                         overhead '1' 33
-                        pushlist 'stop_at_index' 0
+                        setvar! stop_at_index 0
                     elseif list 'harmful_spell_queue' == 0
                         overhead '0' 33
-                        pushlist 'stop_at_index' 0
+                        setvar! stop_at_index 0
                     endif
 
                     if not targetexists 'harmful' and timer 'waiting_spell_timer' < 3500
@@ -1003,21 +976,15 @@ while not dead 'self' or dead 'self'
         # PRINT BOT STATS
         ##################################
 
-        clearlist 'current_max_hp'
+        unsetvar! current_max_hp
         if maxhp == 89
-            pushlist 'current_max_hp' 89
+            setvar! current_max_hp 89
         elseif maxhp == 100
-            pushlist 'current_max_hp' 100
+            setvar! current_max_hp 100
         elseif maxhp == 111
-            pushlist 'current_max_hp' 111
+            setvar! current_max_hp 111
         endif
 
-        ##########################
-        # initialize list variables (no indentation on purpose)
-        if atlist 'last_max_hp' 0 as last_maxhp
-        sysmsg 'INSIDE LASTMAXHP'
-        if atlist 'current_max_hp' 0 as current_maxhp
-        sysmsg 'INSIDE CURRENTMAXHP'
 
 
         # PRINT STATUS CHANGES
@@ -1051,9 +1018,6 @@ while not dead 'self' or dead 'self'
             settimer 'print_match_stats_timer' 0
         endif
 
-        # close 'atlist' variables initialized above
-        endif
-        endif
         ##########################
 
 
@@ -1107,7 +1071,7 @@ while not dead 'self' or dead 'self'
         settimer 'match_duration_timer' 0
 
         # set to ready the match as soon as char is back from pit
-        pushlist 'ready_match' 'yes'
+        setvar! set_match_as_ready true
 
         # if ingump 'learning arena' 838769207 or ingump 'Emacs' 838769207
         #     sysmsg 'FOUND CHAR NAME IN GUMP'

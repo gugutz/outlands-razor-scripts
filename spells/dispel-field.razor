@@ -20,11 +20,20 @@ else
     if findtype 'blue moongate' ground 0 any 12 as field
         overhead '*dispelling gate*' 56
         target field
-    elseif findtype 128 ground any any 12 as field
+    elseif findtype 128 ground any any 12 as field or findtype 1872 ground 945 any 12 as field
         overhead '*dispelling wall*' 56
         target field
     elseif findtype 'field of energy' ground any any 12 as field
         overhead '*dispelling energy field*' 56
+        target field
+    # when set to static square fields, energy field is like this
+    elseif findtype 'goza mat' ground any any 293 as field
+        overhead '*dispelling energy field*' 56
+        target field
+
+    # when set to static square fields, paralyze field is like this
+    elseif findtype 'goza mat' ground any any 218 as field
+        overhead '*dispelling paralyze field*' 56
         target field
     elseif findtype 'field of paralysis' ground any any 12 as field
         overhead '*dispelling paralyze field*' 56

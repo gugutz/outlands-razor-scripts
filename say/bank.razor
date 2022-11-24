@@ -1,6 +1,7 @@
-if findtype 'hatch' ground any any 10 as boat_box
+if findtype 'hatch' ground any any 12 as boat_box
     overhead 'openning boat hatch' 65
     dclick boat_box
+    say 'dock'
 else
     if noto 'self' == hostile or noto 'self' == murderer
         say 'bank i ban thee dock'

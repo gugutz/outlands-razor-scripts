@@ -1,0 +1,117 @@
+    clearignore
+    overhead 'Selecione a mochila'
+    setvar 'mochila'
+    if varexist mochila
+        dclick mochila
+    endif
+
+    if not listexists 'bags'
+        createlist 'bags'
+    endif
+
+    if not listexists 'pouchs'
+        createlist 'pouchs'
+    endif
+
+    if not listexists 'bolsas'
+        createlist 'bolsas'
+    endif
+
+    wait 1800
+
+    while findtype 3702 mochila as bag
+        #overhead 'Achei uma bag!'
+        pushlist 'bags' bag
+        dclick bag 'mochila'
+        wait 1300
+        @ignore bag
+    endwhile
+
+    while findtype 3701 mochila as bolsa
+        pushlist 'bolsas' bolsa
+        if bolsa != mochila
+            #overhead 'Achei uma mochila!'
+            dclick bolsa 'mochila'
+            wait 1300
+        endif
+        @ignore bolsa
+    endwhile
+
+    while findtype 3705 mochila as pouch
+        #overhead 'Achei uma pouch!'
+        pushlist 'pouchs' pouch
+        dclick pouch 'mochila'
+        wait 1300
+
+        if hits < 100
+            dclick pouch 'mochila'
+            wait 1300
+        endif
+
+        @ignore pouch
+    endwhile
+    #######################
+    while findtype 3702 mochila as bag
+        #overhead 'Achei uma bag!'
+        pushlist 'bags' bag
+        dclick bag 'mochila'
+        wait 1300
+        @ignore bag
+    endwhile
+
+    while findtype 3701 mochila as bolsa
+        pushlist 'bolsas' bolsa
+        if bolsa != mochila
+            #overhead 'Achei uma mochila!'
+            dclick bolsa 'mochila'
+            wait 1300
+        endif
+        @ignore bolsa
+    endwhile
+
+    while findtype 3705 mochila as pouch
+        #overhead 'Achei uma pouch!'
+        pushlist 'pouchs' pouch
+        dclick pouch 'mochila'
+        wait 1300
+
+        if hits < 100
+            dclick pouch 'mochila'
+            wait 1300
+        endif
+
+        @ignore pouch
+    endwhile
+
+    ######################
+    while findtype 3702 mochila as bag
+        #overhead 'Achei uma bag!'
+        pushlist 'bags' bag
+        dclick bag 'mochila'
+        wait 1300
+        @ignore bag
+    endwhile
+
+    while findtype 3701 mochila as bolsa
+        pushlist 'bolsas' bolsa
+        if bolsa != mochila
+            #overhead 'Achei uma mochila!'
+            dclick bolsa 'mochila'
+            wait 1300
+        endif
+        @ignore bolsa
+    endwhile
+
+    while findtype 3705 mochila as pouch
+        #overhead 'Achei uma pouch!'
+        pushlist 'pouchs' pouch
+        dclick pouch 'mochila'
+        wait 1300
+
+        if hits < 100
+            dclick pouch 'mochila'
+            wait 1300
+        endif
+
+        @ignore pouch
+    endwhile

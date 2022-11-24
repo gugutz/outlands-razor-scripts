@@ -3,6 +3,7 @@ if findtype 'vault' backpack any any 2 as deposit_box]
     while findtype 3821 deposit_box any as gold_found
         sysmsg 'found gold'
         lift gold_found 60000
+        pause 750
         drop ground
         pause 750
     endwhile

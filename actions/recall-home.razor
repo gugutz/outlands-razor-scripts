@@ -1,22 +1,10 @@
+##################################
 # Recall Home
-# v0.1
+# v0.2
 # by gugutz
+##################################
 #
-# ################################
-#
-# DESCRICAO
-#
-# Este script ajuda a recallar pra casa, usando algumas regras:
-#
-#  1. Sempre procura primeiro por um runetome, se nao encontrar procura um runebook
-#  2. Se voce tem regs na bag, ele casta a spell Recall e da target no book
-#  3. Se você não tem regs na bag, ele abre o runetome/runebook e recall usando carga aa primeira runa.
-#
-# **OBS: LEMBRE-SE DE DEIXAR A RUNA DA CASA COMO PRIMEIRA RUNA DO TOME/BOOK**
-#
-# ################################
-#
-# DESCRICAO
+# DESCRIPTION
 #
 # This script will help you recall to your home, by following a few rules:
 #
@@ -25,83 +13,213 @@
 #   3- If you dont have recall regs on your backpack, it will open the runetome/runebook and use a charge to recall to the first rune
 #
 # PS: MAKE SURE YOUR HOME RUNE IS THE FIRST RUNE OF YOUR RUNETOME/RUNEBOOK
-#
-#
-# ################################
-# CREATE ALL LISTS FOR CONFIG
-
-
-if not listexists 'config_lists_recall_home'
-    createlist 'config_lists_recall_home'
-else
-    clearlist 'config_lists_recall_home'
-endif
-
-pushlist 'config_lists_recall_home' 'use_charges'
-pushlist 'config_lists_recall_home' 'use_recall_scrolls'
-
-# routine-related lists
-pushlist 'config_lists_recall_home' 'use_charges'
-pushlist 'config_lists_recall_home' 'use_recall_scrolls'
-pushlist 'config_lists_recall_home' 'runetome_rune_btn_number'
-pushlist 'config_lists_recall_home' 'runebook_rune_btn_number'
-
-
-foreach list in 'config_lists_recall_home'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
+##################################
 
 
 ##################################
 # CONFIGURATION
-pushlist 'runetome_rune_btn_number' 101
-pushlist 'runebook_rune_btn_number' 30
+##################################
+
+setvar! runetome_rune_btn_number 100
+setvar! runebook_rune_btn_number 2
 
 
 ##################################
+# SCRIPT VARIABLES
+##################################
+
+setvar! runetome_gump_id 167090027
+setvar! runebook_gump_id 1551740969
+
+setvar! recall_travel_time 2800
+unsetvar! use_scroll
+unsetvar! use_charges
+
+
+if not timerexists 'medit_msg_warning_timer'
+    createtimer 'medit_msg_warning_timer'
+endif
+
+
+if not timerexists 'waiting_spell_timer'
+    createtimer 'waiting_spell_timer'
+    settimer 'waiting_spell_timer'  0
+endif
+
+###################################
+# PACK ANIMALS
+###################################
+
+
+if not listexists 'packies'
+    createlist 'packies'
+endif
+clearlist 'packies'
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+##################################
 # CODE
+##################################
 
-sysmsg '>> Recalling Home...' 56
 
-overhead '*going home*' 56
 
-foreach runetome_rune_btn in 'runetome_rune_btn_number'
-    foreach runebook_rune_btn in 'runebook_rune_btn_number'
 
-        if counttype "Black Pearl%s%" backpack == 0 or counttype "Blood Moss" backpack == 0 or counttype "Mandrake Root%s%" backpack == 0
-            if counttype "Recall" backpack
-                overhead 'no regs. trying scroll...'
-                pushlist 'use_scroll' 'yes'
-            else
-                overhead 'no regs. trying charges...'
-                pushlist 'use_charges' 'yes'
+
+if followers > 0
+    say 'all follow me'
+endif
+
+if mana < 11
+    overhead '*no mana for recall*' 37
+
+
+    while mana < 11 and not findbuff 'actively meditating'
+        skill 'meditation'
+        wait action_delay
+    endwhile
+
+    if mana < 11 and findbuff 'actively meditating'
+
+        overhead '*begin meditating*' 90
+        settimer 'medit_msg_warning_timer' 0
+
+        while mana < 11 and findbuff 'actively meditating'
+            if timer 'medit_msg_warning_timer' > 2000
+                settimer 'medit_msg_warning_timer' 0
+                overhead 'meditating...' 55
             endif
+        endwhile
+    endif
+
+endif
+
+if counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "Mandrake Root%s%" == 0
+    if counttype "Recall" backpack
+        overhead 'no regs. trying scroll...'
+        setvar! use_scroll 1
+    else
+        overhead 'no regs. trying charges...'
+        setvar! use_charges 1
+    endif
+endif
+
+# pick which book should script recall to
+if findtype 'runetome' backpack as rtome
+    setvar! recall_book rtome
+    setvar! recall_book_gump_id 167090027
+    # setvar! recall_by_charge_btn_number runetome_rune_position
+    setvar! recall_by_charge_btn_number 100
+elseif findtype 'runebook' backpack as rbook
+    setvar! recall_book rbook
+    setvar! recall_book_gump_id 1551740969
+    # setvar! recall_by_charge_btn_number runebook_rune_position
+    setvar! recall_by_charge_btn_number 2
+endif
+
+
+if use_charges == 1 and gumpexists recall_book_gump_id
+    # waitforgump recall_book_gump_id action_delay
+    gumpresponse recall_by_charge_btn_number recall_book_gump_id
+    stop
+endif
+
+if varexist recall_book
+    if not varexist use_charges
+        sysmsg '>> Recalling Home via Spell...' 56
+        overhead '*going home using spell*' 56
+        unsetvar! use_charges
+        hotkey 'Recall'
+
+        @settimer 'waiting_spell_timer' 0
+        while not targetexists 'neutral' and timer 'waiting_spell_timer' < 3500
+            wait 100
+
+            if insysmsg 'You have recently committed an aggressive action and must wait'
+                overhead "AGGRESSION CD! REPLAYING..." 54
+                replay
+            endif
+
+            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                sysmsg 'BREAKING WHILE WAITING FOR SPELL'
+                wait 150
+                break
+            endif
+
+            if targetexists 'harmful'
+                # sysmsg 'reseting spell timer 1...'
+                settimer spell 0
+                break
+            endif
+        endwhile
+
+        target recall_book
+    else
+        sysmsg '>> Recalling Home via Charges...' 56
+        overhead '*going home using charges*' 56
+        dclick recall_book
+        waitforgump recall_book_gump_id action_delay
+
+        if insysmsg 'You have recently committed an aggressive action and must wait'
+            overhead "AGGRESSION CD! REPLAYING..." 54
+            replay
         endif
 
-        if findtype 'runetome' backpack as rtome
-            if not inlist 'use_charges' 'yes'
-                hotkey 'Recall'
-                waitfortarget
-                target rtome
-            elseif inlist 'use_charges' 'yes'
-                dclick rtome
-                waitforgump 167090027 600
-                gumpresponse 100
-            endif
-        elseif findtype 'runebook' backpack as rbook
-            if not inlist 'use_charges' 'yes'
-                hotkey 'Recall'
-                waitfortarget
-                target rbook
-            elseif inlist 'use_charges' 'yes'
-                dclick rbook
-                waitforgump 167090027 600
-                gumpresponse 20
-            endif
+        gumpresponse recall_by_charge_btn_number recall_book_gump_id
+    endif
+
+    unsetvar! recall_book
+    wait recall_travel_time
+    sysmsg 'FINISHED RECALLING...' 54
+endif
+
+
+#################################
+# RESTOCK RESOURCE STOCKPILE AFTER RECALLING
+#################################
+
+if findtype 'resource container' ground any any 2 as stockpile
+    menu stockpile 0
+    wft action_delay
+    if targetexists 'neutral'
+        if verbose_mode  == 1
+            sysmsg '> Restocking Resource Stockpile...' sysmsgs_color
         endif
-    endfor
-endfor
+
+        target 'self'
+    endif
+
+    # restock stockpile from packies
+    if list 'packies' > 0
+        foreach packanimal in 'packies'
+            if noto packanimal = noto 'self'
+                if verbose_mode  == 1
+                    sysmsg '> Restocking Stockpile From Pack Animal...' sysmsgs_color
+                endif
+
+                menu stockpile 0
+                wft 600
+                if targetexists 'neutral'
+                    overhead "unloading on stockpile" 56 packanimal
+                    target packanimal
+                endif
+            endif
+        endfor
+    endif
+    if gumpexists 1859005118
+        gumpclose 1859005118
+    endif
+endif

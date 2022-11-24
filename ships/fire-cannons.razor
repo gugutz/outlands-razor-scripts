@@ -1,6 +1,22 @@
-say '[firecannons'
-wft 600
+setvar! action_delay 400
+
+if not varexist ship_cannon_targeting_mode_gump
+    @setvar ship_cannon_targeting_mode_gump 3329337894
+endif
+
+while not gumpexists ship_cannon_targeting_mode_gump
+    say '[TargetingMode'
+    waitforgump ship_cannon_targeting_mode_gump action_delay
+endwhile
+
+sysmsg "FIREING CANNONS!" 84
+say '[FireCannons'
+
+wft action_delay
 if targetexists 'harmful'
-if findtype 'Light Cannon (West)' as target_ship or findtype 'Light Cannon (East)'
     overhead 'which ship to shoot?' 54
+    if findtype 'Light Cannon (West)' as target_ship or findtype 'Light Cannon (East)' as target_ship
+        overhead '!FOUND TARGET SHIP!'
+        overhead '!FOUND TARGET SHIP!'
+    endif
 endif

@@ -1,1 +1,113 @@
+# ###############################
+# HAMSTRING
+# v0.0.1
+# by gugutz
+# ###############################
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 600
+
+
+#################################
+# CREATE ALL TIMERS
+#################################
+
+if not listexists 'hamstring_timers'
+    createlist 'hamstring_timers'
+    pushlist 'hamstring_timers' 'loop_on_warning_msg'
+    pushlist 'hamstring_timers' 'waiting_hamstring_journal_sysmsg'
+    pushlist 'hamstring_timers' 'hamstring_target_warning_timer'
+    pushlist 'hamstring_timers' 'hamstring_off_warning_timer'
+    pushlist 'hamstring_timers' 'hamstring_active_warning_timer'
+
+
+
+    foreach timer in 'hamstring_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
+        endif
+    endfor
+endif
+
+
+
+################################
+# CODE
+################################
+
+# if archer mage, we need to undress to hamstring using wrestle
+if skill 'archery' == 100 and skill 'wrestling' == 100
+    sysmsg 'Undressing hands to hamstring using wrestling...' 53
+    while not lhandempty and not rhandempty
+        hotkey 'Undress Both Hands'
+        wait action_delay
+    endwhile
+endif
+
 say '[hamstring'
+# wait action_delay
+
+while timer 'waiting_hamstring_journal_sysmsg' < action_delay
+    if insysmsg 'You will now attempt to hamstring your opponents'
+        # overhead '*HAMSTRING ON*' 88
+        settimer 'hamstring_active_warning_timer' 0
+        # while not insysmsg 'Your attack hamstrings your' and not insysmsg 'you fail to hamstring your'
+        while not dead self
+
+            # keep warning about hamstring target and that were waiting
+            if timer 'hamstring_active_warning_timer' >= 2000
+                settimer 'hamstring_active_warning_timer' 0
+                if not dead lasttarget
+                    # attack lasttarget
+                    overhead '*ATTEMPTING TO HAMSTRING*' 90
+                    overhead '*ATTEMPTING TO HAMSTRING*' 90 lasttarget
+                else
+                    overhead '*HAMSTRING ON [NO TARGET!]*' 88
+                endif
+
+            elseif insysmsg 'Your attack hamstrings your'
+                clearsysmsg
+                guild 'HAMSTRUNG TARGET !! DROP NOW !!'
+                overhead '!! HAMSTRUNG TARGET !!' 73
+                overhead '!! HAMSTRUNG !!' 73 lasttarget
+                overhead '!! HAMSTRUNG !!' 73 lasttarget
+                break
+
+            elseif insysmsg 'you fail to hamstring your'
+                clearsysmsg
+                overhead '!FAILED TO HAMSTRING!' 39
+                overhead '!HAMSTRING FAILED!' 39 lasttarget
+                break
+            endif
+
+        endwhile
+
+        wait action_delay
+
+
+    elseif insysmsg 'You refrain from making hamstring attempts'
+        clearsysmsg
+        settimer 'hamstring_off_warning_timer' 0
+
+        # while not insysmsg 'You will now attempt to hamstring your opponents' and not insysmsg 'you fail to hamstring'
+        while not dead self
+            wait 100
+
+            # keep warning about hamstring target and that were waiting
+            if timer 'hamstring_off_warning_timer' >= 3000
+                settimer 'hamstring_off_warning_timer' 0
+                overhead '! HAMSTRING OFF !' 54
+            endif
+        endwhile
+
+    elseif insysmsg 'may not be hamstrung for another'
+        overhead '! hamstring cooldown !' 53
+        overhead '! hamstring cooldown !' 53 lasttarget
+        replay
+    endif
+endwhile

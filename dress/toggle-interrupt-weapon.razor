@@ -1,71 +1,71 @@
-
-#################################
-# CREATE ALL LISTS FOR CONFIG
-#
-
-if not listexists 'config_lists'
-    createlist 'config_lists'
-else
-    clearlist 'config_lists'
-endif
-
-pushlist 'config_lists' 'dont_unequip_if_already_equiped'
-
-foreach list in 'config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
-pushlist 'dont_unequip_if_already_equiped' 'no'
-
-
 #################################
 # SCRIPT CONFIGURATION
+#################################
 
-if listexists 'disturb_weapons_2'
-    if list 'disturb_weapons_2' == 0
-        clearlist 'disturb_weapons_2'
+setvar! action_delay 400
+
+if not varexist toggle_interrupt_weapon_first_run_done
+    setvar dont_unequip_if_already_equiped 0
+
+    ################################
+    # CREATE ALL TIMERS
+    ################################
+
+    if not timerexists 'waiting_dress_timer'
+        createtimer 'waiting_dress_timer'
+        settimer 'waiting_dress_timer' 0
+    endif
+
+    setvar! toggle_interrupt_weapon_first_run_done 1
+endif
+
+
+#################################
+# CODE
+
+if listexists 'disturb_weapons'
+    if list 'disturb_weapons' == 0
+        clearlist 'disturb_weapons'
     endif
 endif
 
-if not listexists 'disturb_weapons_2'
-    createlist 'disturb_weapons_2'
-    # PS: ARCHERY DONT HAVE INTERRUPT WEAPON
-    if skill 'fencing' >= 50 or findtype 'kryss' backpack
+if not listexists 'disturb_weapons'
+    createlist 'disturb_weapons'
+    # PS: ARCHERY DONT HAVE INTERRUPT WEAPON, SO WE USE THE BOW AGAIN
+    if skill 'archery' >= 50
+        pushlist 'disturb_weapons' 'bow'
+    elseif skill 'fencing' >= 50 or findtype 'kryss' backpack
         if findtype 'kryss' backpack
-            pushlist 'disturb_weapons_2' 'kryss'
+            pushlist 'disturb_weapons' 'kryss'
         endif
     elseif skill 'mace fighting' >= 50 or findtype 'club' backpack or findtype 'hammer pick' backpack or findtype 'war axe' backpack
         if findtype 'club' backpack
-            pushlist 'disturb_weapons_2' 'club'
+            pushlist 'disturb_weapons' 'club'
         elseif findtype 'hammer pick' backpack
-            pushlist 'disturb_weapons_2' 'Hammer Pick'
+            pushlist 'disturb_weapons' 'Hammer Pick'
         elseif findtype 'war axe' backpack
-            pushlist 'disturb_weapons_2' 'war axe'
+            pushlist 'disturb_weapons' 'war axe'
         endif
     elseif skill 'swordsmanship' >= 50 or findtype 'katana' backpack or findtype 'cutlass' backpack or findtype 'scimitar' backpack
         if findtype 'katana' backpack
-            pushlist 'disturb_weapons_2' 'katana'
+            pushlist 'disturb_weapons' 'katana'
         elseif findtype 'cutlass' backpack
-            pushlist 'disturb_weapons_2' 'cutlass'
+            pushlist 'disturb_weapons' 'cutlass'
         elseif findtype 'scimitar' backpack
-            pushlist 'disturb_weapons_2' 'scimitar'
+            pushlist 'disturb_weapons' 'scimitar'
         endif
     else
         overhead 'char has no weapon skill'
     endif
 endif
 
-if list 'disturb_weapons_2' == 0
+if list 'disturb_weapons' == 0
     overhead 'no disturb weapons in list'
 endif
 
-foreach weapon in 'disturb_weapons_2'
+foreach weapon in 'disturb_weapons'
     if findtype weapon lefthand
-        if inlist 'dont_unequip_if_already_equiped' 'yes'
+        if dont_unequip_if_already_equiped == 1
             overhead 'equiped on left hand' 54
             break
         else
@@ -74,7 +74,7 @@ foreach weapon in 'disturb_weapons_2'
             break
         endif
     elseif findtype weapon righthand
-        if inlist 'dont_unequip_if_already_equiped' 'yes'
+        if dont_unequip_if_already_equiped == 1
             overhead 'equiped on right hand' 54
             break
         else
@@ -85,45 +85,44 @@ foreach weapon in 'disturb_weapons_2'
     else
         if not rhandempty
             if targetexists 'any'
-                overhead '*undressing right hand*'
+                # overhead '*undressing right hand*'
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Right Hand'
 
                 # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                hotkey 'Toggle Peace Only'
-
-                hotkey 'Undress Right Hand'
                 wait 200
             endif
         elseif not lhandempty
             if targetexists 'any'
-                overhead '*undressing left hand*'
+                # overhead '*undressing left hand*'
 
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
                 hotkey 'Toggle Peace Only'
-
                 hotkey 'Undress Left Hand'
+
                 wait 200
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
             endif
         endif
 
         if findtype weapon backpack as weap
-            # overhead 'equiping weapon' 48
-            if targetexists
-                hotkey 'Drop What You Are Currently Holding'
-                lift weap 1
-                wait 100
-                drop 'self' LeftHand
-                # tab out, good for duels
-            else
-                dclick weap
-                # tab out, good for duels
-            endif
-
-
+            sysmsg '000000'
+            # EQUIP THE WEAPON
             settimer 'waiting_dress_timer' 0
-            while lhandempty and rhandempty
-                wait 10
+            while not findtype weapon lefthand and not findtype weapon righthand
 
-                sysmsg 'waiting to equip weapon...'
+                if targetexists
+                    sysmsg 'LIFT'
+                    hotkey 'Drop What You Are Currently Holding'
+                    lift weap 1
+                    wait action_delay
+                    drop 'self' LeftHand
+                else
+                    sysmsg 'DCLICK'
+                    dclick weap
+                endif
+
+                wait action_delay
+
                 if timer 'waiting_dress_timer' >= 400
                     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
                     break
@@ -131,15 +130,16 @@ foreach weapon in 'disturb_weapons_2'
             endwhile
 
             if not lhandempty or not rhandempty
-                overhead 'attacking!' 41 'last'
-                hotkey 'Attack Last Target'
+                overhead 'WEAPON EQUIPED!' 52
+                if noto lasttarget == hostile
+                    overhead 'ATTACKING!' 41 'last'
+                    overhead 'attacking lasttarget!' 41
+                    hotkey 'Attack Last Target'
+                endif
                 break
             else
-                hotkey 'Toggle War Only'
                 hotkey 'Toggle Peace Only'
             endif
-
-
         endif
     endif
 endfor

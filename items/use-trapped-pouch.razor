@@ -3,21 +3,14 @@
 
 # pouch graphic = 0x0e79
 
-
-# warn if there are no pouches
-if not findtype pouch backpack 38
-    settimer 'no_trap_pouches_warning_msg' 0
+# if findtype pouch backpack 38 as trap_pouch
+if findtype pouch backpack 38
+    # sysmsg '>>> Using Trapped Pouch!' 70
+    overhead '*trap pouch!*' 70
+    yell '[pouch'
+else
     overhead 'no trap pouches!' 41
 endif
-
-if paralyzed
-    if findtype pouch backpack 38 as trap_pouch
-        sysmsg '>>> Using Trapped Pouch!' 70
-        sysmsg '*trap pouch!*' 70
-        useobject trap_pouch
-    else
-        overhead 'no trap pouches!' 41
-    endif
-else
-    overhead 'not paralyzed' 56
-endif
+# else
+#     overhead 'not paralyzed' 56
+# endif

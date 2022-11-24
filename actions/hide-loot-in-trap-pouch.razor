@@ -1,0 +1,714 @@
+#################################
+# HIDE ITEMS IN TRAP POUCH
+# v0.0.5
+# by gugutz
+#
+#################################
+# CHANGELOG
+#
+# v0.0.5
+# - Nest pouches inside one another instead of hiding one under each other
+# - Replaces find items loops with new findtypelist command
+# - Reestructure main code blocks to a more logical sequence (first handle loadout bag, then loot pouch, etc...)
+#
+# v0.0.4
+# - Adds bold and arrow bundle to items list
+#
+# v0.0.3
+# - Adds missing 'bamboo flute' instrument to instruments list
+#
+# v0.0.2
+# - Prints all items hidden in pouch
+# - Prints item names while moving to pouch
+#
+# v0.0.2
+# - Improve main logic behind finding items to hide
+# - Adds support to hide barding instruments
+#
+# v0.0.1
+# - Initial release
+#
+
+#################################
+# CONFIGURATION
+#################################
+
+setvar! action_delay 500
+setvar! spell_recovery_delay 200
+setvar! prefer_nesting_over_superimposing 1
+setvar! hide_sheps_crook 1
+
+
+if name == 'C A R O L'
+    setvar! hide_sheps_crook 0
+endif
+#################################
+# SETUP SOME NEEDED LISTS
+#################################
+
+if not listexists 'instruments'
+    createlist 'instruments'
+    pushlist 'instruments' 'lute'
+    pushlist 'instruments' 'drum'
+    pushlist 'instruments' 'bamboo flute'
+    pushlist 'instruments' 'tambourine'
+    pushlist 'instruments' 'lap harp'
+endif
+
+if not listexists 'magical_instruments_types'
+    createlist 'magical_instruments_types'
+    pushlist 'magical_instruments_types' 'eminently'
+    pushlist 'magical_instruments_types' 'exceedingly'
+    pushlist 'magical_instruments_types' 'supremely'
+endif
+
+
+#################################
+#
+# CODE
+#
+#################################
+
+# ITEMS LIST
+if not listexists 'loot_items'
+    createlist 'loot_items'
+    pushlist 'loot_items' 'chain link'
+    pushlist 'loot_items' 'map'
+    # focis
+    pushlist 'loot_items' 48261
+    # bolt and arrow bundle
+    pushlist 'loot_items' 'bold and arrow keg'
+    # skill balls
+    pushlist 'loot_items' 'void orb'
+    pushlist 'loot_items' 'research materials'
+    # skill scroll
+    pushlist 'loot_items' 'scroll of calling'
+
+    pushlist 'loot_items' 22336
+    # # mcd (this goes into the resource stockpile)
+    pushlist 'loot_items' 'Book of Truth'
+    # spell hue deeds
+    pushlist 'loot_items' 5359
+    # rare cloth
+    pushlist 'loot_items' 'folded cloth'
+    # skill scrolls
+    pushlist 'loot_items' 'aspect core'
+    # aspect extract
+    pushlist 'loot_items' 3836
+    # destils
+    pushlist 'loot_items' 17686
+
+    # collectable cards
+    pushlist 'loot_items' 'parchment'
+    pushlist 'loot_items' 'carpet'
+    # greater paragon chests
+    pushlist 'loot_items' 29833
+
+    # runebook dye
+    pushlist 'loot_items' 3838
+    # backpack dye
+    pushlist 'loot_items' 3839
+    # headwear dye
+    pushlist 'loot_items' 3842
+    # facial hair dye
+    pushlist 'loot_items' 3843
+    # hair, shield and quiver dye
+    pushlist 'loot_items' 3843
+    # fortuniture dye
+    pushlist 'loot_items' 29025
+    # carpet dye
+    pushlist 'loot_items' 29036
+
+    # arcane scroll
+    pushlist 'loot_items' 'blank scroll%s%'
+
+    # plant chemicals
+    pushlist 'loot_items' 29030
+
+    # magic mushrooms
+    pushlist 'loot_items' 'mushroom'
+
+    # adventurers rope (any rope really, but the intetion is to hide my adventurers rope)
+    pushlist 'loot_items' 'rope'
+
+    # adventurers rope (any rope really, but the intetion is to hide my adventurers rope)
+    pushlist 'loot_items' 'elven spellblade'
+endif
+
+####################################
+# RE-DEFINE THE LOADOUT BAG WHEN NEEDED
+####################################
+
+unsetvar! reset_loadout_bag
+if varexist loadout_bag
+    # sysmsg 'debug loadout_bag defined at start'
+    # if findlayer 'self' backpack as char_backpack_serial
+    if loadout_bag == backpack
+        overhead 'loadout bag is backpack!' 38
+        sysmsg 'Loadout bag is backpack! Gonna try to pick another' 38
+        setvar! reset_loadout_bag 1
+    elseif not find loadout_bag backpack
+        overhead 'cant find saved loadout bag!' 38
+        sysmsg 'Cant Find Loadout Bag! Gonna pick another' 38
+        setvar! reset_loadout_bag 1
+    endif
+    # endif
+else
+    overhead '! loadout bag not set !' 53
+    sysmsg 'Loadout bag not set! Gonna pick another' 70
+    setvar! reset_loadout_bag 1
+endif
+
+
+if varexist reset_loadout_bag
+    unsetvar! reset_loadout_bag
+    unsetvar! loadout_bag
+
+    overhead '*redefining loadout bag*' 54
+    sysmsg 'REDEFINING LOADOUT BAG...' 54
+
+    if findtype 'bag' backpack as loadout_bag_serial
+        sysmsg 'FOUND LOADOUT BAG INSIDE BACKPACk' 53
+        setvar! loadout_bag loadout_bag_serial
+    else
+        sysmsg 'COULDNT FIND LOADOUT BAG, USING BACKPACk INSTEAD' 53
+        setvar! loadout_bag backpack
+    endif
+
+    # if loadout_bag != backpack
+    #     sysmsg 'LOADOUT IS DIFFERENT THAN BACKPACK' 40
+    #     if not find loadout_bag backpack
+    #         overhead 'cant find loadout bag!'
+    #         sysmsg 'Cant Find Loadout Bag! Gonna pick another'
+
+    #     endif
+    # endif
+endif
+
+
+####################################
+# RETRAP ALL SAVED POUCHES IF ANY IS NOT TRAPPED
+####################################
+
+if not listexists 'all_pouches'
+    createlist 'all_pouches'
+endif
+clearlist 'all_pouches'
+
+if list 'all_pouches' = 0
+    if findtypelist 'all_pouches' 'pouch' backpack
+        # overhead 'found bags' 71
+    endif
+endif
+
+if list 'all_pouches' > 0
+    unsetvar! retrapped_pouches
+    foreach saved_pouch in 'all_pouches'
+        if hue saved_pouch == 0
+            overhead '*re-trapping pouch {{saved_pouch}}' 53
+
+            # first try to use scrolls
+            if findtype 0x1F39 as magic_trap_scroll
+                useobject magic_trap_scroll
+                wft 1800
+                if targetexists 'neutral'
+                    target saved_pouch
+                endif
+                wait spell_recovery_delay
+            # if there are no scrolls in backpack, try with magery if char has the skill
+            elseif skill 'magery' > 50
+                cast 'magic trap'
+                wft 1800
+                if targetexists 'neutral'
+                    target saved_pouch
+                endif
+                wait spell_recovery_delay
+            else
+                overhead '*no ways to trap pouch*' 48 'self'
+            endif
+
+            # flag to re-organize pouches
+            setvar! retrapped_pouches 1
+
+        endif
+    endfor
+
+    if varexist retrapped_pouches
+        unsetvar! pouches_organized
+    endif
+endif
+
+
+####################################
+# RE-DEFINE LOOT TRAP POUCH WHEN NEEDED
+####################################
+
+unsetvar! redefine_char_loot_pouch
+
+if not varexist char_loot_pouch
+    sysmsg 'DEBUG 1' 67
+    setvar! redefine_char_loot_pouch 1
+elseif varexist char_loot_pouch and not find char_loot_pouch backpack
+    sysmsg 'DEBUG 2' 67
+    setvar! redefine_char_loot_pouch 1
+endif
+
+if varexist redefine_char_loot_pouch
+    unsetvar! redefine_char_loot_pouch
+    unsetvar! char_loot_pouch
+    setvar! redefine_char_loot_pouch 1
+
+    if not listexists 'trapped_pouches'
+        createlist 'trapped_pouches'
+    endif
+    clearlist 'trapped_pouches'
+
+    # if not findtypelist 'trapped_pouches' 'pouch' loadout_bag 38
+    # changed back to backpack instead of loadout pouch cause script would miss pouches inside backpack if they werent inside the loadout bag
+    if not findtypelist 'trapped_pouches' 'pouch' backpack 38
+        overhead '*no trap pouches found*' 39
+        stop
+    endif
+
+    overhead '*redefining loot pouch*' 54
+    sysmsg 'REDEFINING CHAR LOOT POUCH...' 54
+
+    if varexist loadout_bag
+
+        # first get all the traped pouches char has in backpack
+        @clearignore
+
+        if findtypelist 'trapped_pouches' 'pouch' backpack 38
+        endif
+
+        if list 'trapped_pouches' == 0
+        else
+            # @clearignore
+
+            foreach pouch_serial in 'trapped_pouches'
+                getlabel pouch_serial pouch_label
+
+                # go through each traped pouch to see if any of them already has itens in it
+                if '0 items' in pouch_label
+                else
+                    overhead 'found pouch with items!' 70
+                    sysmsg 'Found Pouch With Items {{pouch_serial}}. Assuming Its Char Loot Pouch' 70
+                    setvar! char_loot_pouch pouch_serial
+
+                    # WE IGNORE IT HERE JUST TO BE ABLEW TO PUT ALL OTHER ON TOP OF IT
+                    # THEN WE CLEAR IGNOE LIST (DOWN BELLOW)
+                    # @ignore pouch_serial
+                    break
+                endif
+
+                # if we get here and still didnt define a pouch, its probably because they are still all empty
+                # might be first execution of the script, so we need to pick an empty one anyways
+                if not varexist char_loot_pouch and counttype 'pouch' 38 == index
+                    sysmsg 'Scanned all pouches and couldnt find loot pouch. Using {{index}}th Pouch Scanned...' 52
+                    setvar! char_loot_pouch pouch_serial
+                    # @ignore pouch_serial
+                    break
+                endif
+            endfor
+        endif
+    endif
+endif
+
+####################################
+# RE-TRAP LOOT TRAP POUCH WHEN NEEDED
+####################################
+# make sure we still have the saved trap pouch in backpack
+if varexist char_loot_pouch and find char_loot_pouch backpack
+    while hue char_loot_pouch == 0
+        sysmsg 'RE-TRAPING LOOT POUCH' 90
+        overhead '*re-traping loot pouch*' 90
+
+        cast 'magic trap'
+        wft 1500
+        target char_loot_pouch
+        wait action_delay
+
+        # unsetvar! pouches_organized
+    endwhile
+endif
+
+
+
+
+
+
+
+#############################
+# CHECK IF ALL POUCHES FOUND ARE STILL IN BACKPACK
+# IF NOT, THIS COULD MEAN CHAR RESSUPLIED AND POUCHES ARE
+# NOT ORGANIZED, SO WE NEED TO ORGANIZE THEM AGAIN
+#############################
+
+# recreate 'trapped_pouches' list with the new pouches
+if not listexists 'current_trapped_pouches'
+    createlist 'current_trapped_pouches'
+endif
+clearlist 'current_trapped_pouches'
+
+
+if findtypelist 'current_trapped_pouches' 'pouch' backpack 38
+endif
+
+if list 'trapped_pouches' > 0
+    foreach pouch in 'trapped_pouches'
+        if not inlist 'current_trapped_pouches' pouch
+            sysmsg "COULDNT FIND SAVED POUCH {{pouch}}. REORGANIZING POUCHES" 45
+            # flag the need for reorganizing the pouches
+            unsetvar! pouches_organized
+            break
+        endif
+    endfor
+endif
+
+
+#############################
+# ORGANIZE POUCHES. THERES 2 METHODS
+# NESTING: PUT ONE INSIDE THE OTHER
+# SUPERIMPOSITION: PUT ONE ON TOP OF EACH OTHER
+#############################
+
+if not varexist pouches_organized
+
+    clearlist 'trapped_pouches'
+
+    if findtypelist 'trapped_pouches' 'pouch' backpack 38
+    endif
+
+    # IF SET TO NESTING, we need to put all pouches in main backpack again,
+    # or else every pouch can be considered as the main loot pouch since all of them will
+    # have at least 1 item inside, which is another pouch
+    if prefer_nesting_over_superimposing == 1
+        sysmsg 'Setting Razor Grab Hotbag to Char Main Backpack...' 52
+        hotkey "Set Grab Item HotBag"
+        wft 600
+        target backpack
+
+        foreach pouch in 'trapped_pouches'
+            hotkey 'Grab Item'
+            wft action_delay
+            target pouch
+            # wait action_delay
+        endfor
+    endif
+
+    if varexist loadout_bag
+        if varexist char_loot_pouch
+
+            clearsysmsg
+            if not find char_loot_pouch backpack and not find char_loot_pouch loadout_bag
+                overhead 'Cant Find Loot Pouch In Either Backpack Or Loadout Bag!' 39
+                unsetvar! char_loot_pouch
+                replay
+            endif
+
+
+            sysmsg 'Organizing pouches on top of each other...' 70
+            overhead '*organizing pouches*' 70
+
+
+            # IF SET TO NESTING...
+            if prefer_nesting_over_superimposing == 1
+                for 15
+                    if list 'trapped_pouches' == index
+                        sysmsg 'Trap Pouches List Size: {{index}}' 54
+                        setvar! list_size index
+                    endif
+                endfor
+
+                foreach trap_pouch in 'trapped_pouches'
+                    if list_size == index
+                        unsetvar! next_pouch_position
+                    elseif index == 0
+                        setvar! next_pouch_position 1
+                    elseif index == 1
+                        setvar! next_pouch_position 2
+                    elseif index == 2
+                        setvar! next_pouch_position 3
+                    elseif index == 3
+                        setvar! next_pouch_position 4
+                    elseif index == 4
+                        setvar! next_pouch_position 5
+                    elseif index == 5
+                        setvar! next_pouch_position 6
+                    elseif index == 6
+                        setvar! next_pouch_position 7
+                    elseif index == 7
+                        setvar! next_pouch_position 8
+                    elseif index == 8
+                        setvar! next_pouch_position 9
+                    elseif index == 9
+                        setvar! next_pouch_position 10
+                    endif
+                    sysmsg 'Organizing pouch {{trap_pouch}}...' 75
+
+                    clearsysmsg
+                    if index == 1
+                        lift char_loot_pouch
+                    else
+                        lift trap_pouch
+                    endif
+                    pause action_delay
+
+                    if varexist next_pouch_position and atlist 'trapped_pouches' next_pouch_position as next_pouch
+                        drop next_pouch 0 0
+                    else
+                        drop loadout_bag 0 0
+                    endif
+
+                    pause action_delay
+                    if insysmsg 'You must wait to perform another action'
+                        while insysmsg 'You must wait to perform another action'
+                            if index == 1
+                                lift char_loot_pouch
+                            else
+                                lift trap_pouch
+                            endif
+                            pause action_delay
+
+                            if varexist next_pouch_position and atlist 'trapped_pouches' next_pouch_position as next_pouch
+                                drop next_pouch 0 0
+                            else
+                                drop loadout_bag 0 0
+                            endif
+                        endwhile
+                    endif
+
+                    # if this is the last pouch being iterated, and were using nesting, make sure to move it inside the loadout bag if there is one
+                    if counttype 'pouch' == next_pouch_position
+                        sysmsg 'REACHED LAST POUCH ON REORGANIZE' 54
+                        while not find trap_pouch loadout_bag
+                            sysmsg 'Moving last pouch into loadout bag...' 54
+                            lift trap_pouch
+                            pause action_delay
+                            drop loadout_bag 0 0
+                        endwhile
+                    endif
+
+                endfor
+
+            # IF SET TO SUPERIMPOSE POUCHES INSTEAD OF NESTING
+            else
+                lift char_loot_pouch
+                pause action_delay
+                drop loadout_bag 0 0
+                pause action_delay
+                if insysmsg 'You must wait to perform another action'
+                    while insysmsg 'You must wait to perform another action'
+                        clearsysmsg
+                        lift char_loot_pouch
+                        pause action_delay
+                        drop loadout_bag 0 0
+                        pause action_delay
+                        @ignore char_loot_pouch
+                    endwhile
+                endif
+                @ignore char_loot_pouch
+
+                sysmsg 'Organizing pouches on top of each other...' 70
+                overhead '*organizing pouches*' 70
+                foreach trap_pouch in 'trapped_pouches'
+                    sysmsg 'Organizing pouch {{trap_pouch}}...' 75
+
+                    clearsysmsg
+                    lift trap_pouch
+                    pause action_delay
+                    drop loadout_bag 0 0
+                    pause action_delay
+                    if insysmsg 'You must wait to perform another action'
+                        while insysmsg 'You must wait to perform another action'
+                            clearsysmsg
+                            lift trap_pouch
+                            pause action_delay
+                            drop loadout_bag 0 0
+                            pause action_delay
+                        endwhile
+                    endif
+
+                    # fill each pouch with 1 mushroom to fool thiefs
+                    # THIS IS IMPORTANT in superimposing mode since only pouches with items
+                    # will pop when thieves try to open, so they can identify which ones hold your loot
+                    if not findtype 'mushroom' pouch
+                        if findtype 'mushroom' backpack as mush
+                            sysmsg 'Putting 1 mushroom in pouch {{pouch}}'
+                            lift mush 1
+                            pause action_delay
+                            drop pouch -1 -1 0
+                            pause action_delay
+                        endif
+                    endif
+                endfor
+            endif
+
+
+            sysmsg 'Pouches Organized!' 70
+            overhead '! pouches organized !' 70
+
+            unsetvar! pouches_organized
+            setvar! pouches_organized true
+
+            # IMPORTANT: clear ignoe here to remove our main pouch from ignore list
+            @clearignore
+        else
+            overhead 'NO CHAR LOOT POUCH ON REORGANIZE' 33
+            sysmsg  '[ERROR] NO CHAR LOOT POUCH ON REORGANIZE' 33
+        endif
+    else
+        overhead 'NO LOADOUT BAG ON REORGANIZE' 33
+        sysmsg  '[ERROR] NO LOADOUT BAG ON REORGANIZE' 33
+    endif
+endif
+
+
+
+#############################
+# HIDE ITENS IN CHOOSEN POUCH
+#############################
+
+if varexist char_loot_pouch
+
+    @clearignore
+    unsetvar! found_something_to_hide_in_pouch
+
+    ##################################
+    # CHAR SHEPS CROOK
+
+    sysmsg "****************************" 90
+    sysmsg "> LOOT POUCH SECURED ITEMS:" 90
+
+    # hide char sheps crook is char has one (thiefs love to steal sheps crook)
+    if hide_sheps_crook == 1
+        if findtype 3713 backpack as crook
+
+            getlabel crook crook_label
+            if find crook char_loot_pouch
+                sysmsg " > {{crook_label}}!" 52
+            endif
+
+            # make sure were not just finding the crook inside the loot_pouch already
+            if not find crook char_loot_pouch
+                # lets assume here crook is with aspect activated so the recycler doenst pull it it
+                if hue crook != 0
+                    overhead '*hiding crook in loot pouch!' 63
+                    sysmsg '> Hiding {{crook_label}}' 63
+                    lift crook 1
+                    wait action_delay
+                    drop char_loot_pouch -1 -1 0
+                    wait action_delay
+                    setvar! found_something_to_hide_in_pouch true
+                endif
+            endif
+        endif
+    endif
+
+    ##################################
+    # CHAR INSTRUMENT
+
+    # check if there is a saved instrument already, and if its still in char's backpack
+    if skill 'musicianship' > 0
+        if varexist char_instrument
+            if not find char_instrument backpack
+                overhead '! cant find saved instrument !' 39
+                unsetvar! char_instrument
+            endif
+        endif
+
+
+        # FIND AND SAVE CHAR INSTRUMENT IF NEEDED
+        if not varexist char_instrument
+            foreach instrument_type in 'instruments'
+                if findtype instrument_type backpack as instrument
+                    getlabel instrument instrument_label
+
+                    unsetvar! found_char_instrument
+                    foreach magical_instrument_type in 'magical_instruments_types'
+                        if magical_instrument_type in instrument_label
+                            setvar! found_something_to_hide_in_pouch true
+                            setvar! found_char_instrument true
+                            setvar! char_instrument instrument
+                            break
+                        endif
+                    endfor
+                endif
+
+                if varexist found_char_instrument
+                    break
+                endif
+            endfor
+        endif
+
+        if varexist char_instrument
+            getlabel char_instrument instrument_label
+
+            if find char_instrument char_loot_pouch
+                sysmsg " > {{instrument_label}} Secured In Pouch!" 52
+                @ignore char_instrument
+            endif
+
+            while find char_instrument backpack and not find char_instrument char_loot_pouch
+
+                # razor will always find the item in backpack, even if its already on loot pouch
+                # so we make sure we dont try to move it again if its already in the pouch
+                # overhead 'hiding {{instrument_label}} in trap pouch' 51 'self'
+                overhead '*hiding instrument*' 91 'self'
+                sysmsg '> Hiding {{instrument_label}}' 91
+
+                setvar! found_something_to_hide_in_pouch true
+
+                lift char_instrument 9999
+                wait action_delay
+                drop char_loot_pouch -1 -1 0
+                wait action_delay
+
+            endwhile
+        endif
+    endif
+
+
+    ##################################
+    # HIDE GENERAL LOOT ITEMS
+    foreach item in 'loot_items'
+        while findtype item backpack any any as item_to_unload
+            getlabel item_to_unload item_label
+
+            if find item_to_unload char_loot_pouch
+                sysmsg " > {{item_label}} Secured In Pouch!" 54
+            endif
+
+            while find item_to_unload backpack and not find item_to_unload char_loot_pouch
+
+                # razor will always find the item in backpack, even if its already on loot pouch
+                # so we make sure we dont try to move it again if its already in the pouch
+                sysmsg 'Hiding {{item_label}}' 54 'self'
+                overhead 'hiding {{item_label}}' 91 'self'
+
+                setvar! found_something_to_hide_in_pouch true
+
+                lift item_to_unload 9999
+                wait action_delay
+                drop char_loot_pouch -1 -1 0
+                wait action_delay
+
+            endwhile
+
+            # ignore so we dont circle back to this item again
+            @ignore item_to_unload
+        endwhile
+    endfor
+
+    # clear all ignored items so we can find them again on next script execution
+    @clearignore
+
+    sysmsg "***************************" 90
+
+    if varexist found_something_to_hide_in_pouch
+        unsetvar! found_something_to_hide_in_pouch
+        overhead 'secured all items found!' 73
+    else
+        overhead 'found nothing to hide in pouch!' 54
+    endif
+endif

@@ -1,0 +1,453 @@
+#################################
+# SETUP ALCHEMY SOCIETIES
+# v0.0.2
+# by gugutz
+#
+#################################
+# CREDITS :)
+#
+sysmsg '♥ SETUP ALCHEMY SOCEITIES by gugutz ♥' 57
+#
+
+setvar! action_delay 600
+setvar! crafting_queue_gump_id 453554062
+setvar! societies_gump_id 1554294796
+setvar! alchemy_gump_id 949095101
+setvar! stockpile_gump_id 1859005118
+setvar! artificers_enclave_society_gump_btn_number 12
+setvar! stockpile_mortar_and_pestle_btn_number 100
+
+
+
+if not listexists 'society_gump_pages'
+    createlist 'society_gump_pages'
+    pushlist 'society_gump_pages' 1
+    pushlist 'society_gump_pages' 2
+endif
+
+
+######################################
+# OPEN ALCHEMY CRAFTING GUMP
+######################################
+while not gumpexists alchemy_gump_id
+    if findtype 'resource container' ground any any 2 as stockpile
+        sysmsg 'OPENING ALCHEMY CRAFTING GUMP USING STOCKPILE...' 56
+        while not gumpexists stockpile_gump_id
+            sysmsg 'Clicking stockpile'
+            dclick stockpile
+            wait action_delay
+        endwhile
+
+        waitforgump stockpile_gump_id
+        gumpresponse 7 stockpile_gump_id
+        waitforgump stockpile_gump_id
+        gumpresponse stockpile_mortar_and_pestle_btn_number stockpile_gump_id
+        waitforgump alchemy_gump_id
+    elseif findtype 'mortar and pestle' backpack as tool
+        sysmsg 'OPENING ALCHEMY CRAFTING GUMP USING MORTAR AND PESTLE IN BACKPACK...' 56
+        dclick tool
+        waitforgump alchemy_gump_id
+    endif
+endwhile
+
+# wait action_delay
+
+######################################
+# OPEN CRAFTING QUEUE GUMP
+######################################
+
+while not gumpexists crafting_queue_gump_id
+    sysmsg 'OPENING CRAFTING QUEUE GUMP...' 56
+    say '[craftingqueue'
+    waitforgump crafting_queue_gump_id action_delay
+endwhile
+
+
+while ingump 'Greater' 453554062 or ingump 'Lesser' 453554062 or ingump 'Heal' 453554062 or ingump 'Cure' 453554062 or ingump 'Refresh' 453554062 or ingump 'Strength' 453554062 or ingump 'Agility' 453554062 or ingump 'Explosion' 453554062 or ingump 'Poison' 453554062 or ingump 'Serum' 453554062 or ingump 'Magic Resist' 453554062
+    sysmsg "Deleting all items in crafting queue" 49
+    gumpresponse 100 crafting_queue_gump_id
+    waitforgump crafting_queue_gump_id action_delay
+endwhile
+
+
+######################################
+# OPEN SOCIETIES GUMP
+######################################
+while not gumpexists societies_gump_id
+    sysmsg 'OPENING SOCIETIES GUMP...' 56
+    say '[society'
+    waitforgump societies_gump_id action_delay
+
+endwhile
+
+
+######################################
+# OPEN ORDER OF ARMORERS SOCIETIES
+######################################
+
+while gumpexists societies_gump_id and not ingump 'Next Society' 1554294796
+    sysmsg 'ENTERING ORDER OF ARMORERS SOCIETIES...' 56
+    gumpresponse artificers_enclave_society_gump_btn_number societies_gump_id
+    waitforgump societies_gump_id action_delay
+endwhile
+
+
+foreach page in 'society_gump_pages'
+    sysmsg 'SCANNIGN SOCIETIES PÀGE {{page}}'
+
+    # # make sure we're on the correct society gump page
+    if page == 1
+        while gumpexists societies_gump_id and not ingump '1/2' 1554294796
+            sysmsg 'SWITCHING TO FIRST SOCEITIES PAGE'
+            gumpresponse 3 societies_gump_id
+            waitforgump societies_gump_id action_delay
+        endwhile
+    elseif page == 2
+        while gumpexists societies_gump_id and not ingump '2/2' 1554294796
+            sysmsg 'SWITCHING TO SECOND SOCEITIES PAGE'
+            gumpresponse 4 societies_gump_id
+            waitforgump societies_gump_id action_delay
+        endwhile
+    endif
+
+
+    ######################################
+    #-------------------------------------
+    # PAGE 1 OF ALCHEMY MENU
+    #-------------------------------------
+    ######################################
+    sysmsg 'SWITHING PAGE ON ALCHEMY GUMP' 52
+    gumpresponse 8 alchemy_gump_id
+    waitforgump alchemy_gump_id action_delay
+
+
+    ######################################
+    # HEAL POTIONS
+    ######################################
+
+    if ingump 'Heal Potion' 1554294796
+    # if ingump 'Bone' societies_gump_id
+        sysmsg 'FOUND HEAL POTION IN SOCIETY GUMP' 52
+
+        # while not ingump 'Bone Gorget' 949095101
+        sysmsg 'SWITCHING TO BONE ARMOR CATEGORY' 52
+        gumpresponse 100 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endwhile
+
+        if ingump 'Greater Heal Potion' 1554294796
+            gumpresponse 402 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Lesser Heal Potion' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Heal Potion' 1554294796 and not ingump 'Greater Heal' 1554294796 and not ingump 'Lesser Heal' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+
+    endif
+
+    ######################################
+    # LEATHER ARMORS
+    ######################################
+
+    if ingump 'Cure Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND CURE POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO CURE POTION CATEGORY' 52
+        gumpresponse 101 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Greater Cure Potion' 1554294796
+            gumpresponse 402 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Lesser Cure Potion' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Cure Potion' 1554294796 and not ingump 'Greater Heal' 1554294796 and not ingump 'Lesser Cure' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+
+    endif
+
+
+    ######################################
+    # REFRESH POTIONS
+    ######################################
+
+    if ingump 'Refresh Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND REFRESH POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO REFRESH POTION CATEGORY' 52
+        gumpresponse 102 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Greater Refresh Potion' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Refresh Potion' 1554294796 and not ingump 'Greater Refresh' 1554294796 and not ingump 'Lesser Refresh' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+    ######################################
+    # STRENGTH POTIONS
+    ######################################
+
+    if ingump 'Strength Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND STRENGTH POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO STRENGTH POTION CATEGORY' 52
+        gumpresponse 103 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Greater Strength Potion' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Strength Potion' 1554294796 and not ingump 'Greater Strength' 1554294796 and not ingump 'Lesser Strength' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+    ######################################
+    # AGILITY POTIONS
+    ######################################
+
+    if ingump 'Agility Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND AGILITY POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO AGILITY POTION CATEGORY' 52
+        gumpresponse 104 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Greater Agility Potion' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Agility Potion' 1554294796 and not ingump 'Greater Agility' 1554294796 and not ingump 'Lesser Agility' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+    ######################################
+    # MAGIC RESISTT POTIONS
+    ######################################
+
+    if ingump 'Magic Resist Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND MAGIC RESIST POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO MAGIC RESIST POTION CATEGORY' 52
+        gumpresponse 105 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Greater Magic Resist Potion' 1554294796
+            gumpresponse 402 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Lesser Magic Resist Potion' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Magic Resist Potion' 1554294796 and not ingump 'Greater Magic Resist' 1554294796 and not ingump 'Lesser Magic Resist' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+    ######################################
+    # POISON POTIONS
+    ######################################
+
+    if ingump 'Poison Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND POISON POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO POISON POTION CATEGORY' 52
+        gumpresponse 106 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Lethal Poison Potion' 1554294796
+            gumpresponse 404 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+
+        elseif ingump 'Deadly Poison Potion' 1554294796
+            gumpresponse 403 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+
+        elseif ingump 'Greater Poison Potion' 1554294796
+            gumpresponse 402 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+
+        elseif ingump 'Lesser Poison Potion' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+
+        elseif ingump 'Poison Potion' 1554294796 and not ingump 'Greater Poison' 1554294796 and not ingump 'Lesser Poison' 1554294796 and not ingump 'Deadly Poison' 1554294796 and not ingump 'Lethal Poison' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+
+    ######################################
+    # EXPLOSION POTIONS
+    ######################################
+
+    if ingump 'Explosion Potion' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND EXPLOSION POTION IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO EXPLOSION POTION CATEGORY' 52
+        gumpresponse 107 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Greater Explosion Potion' 1554294796
+            gumpresponse 402 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Lesser Explosion Potion' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Explosion Potion' 1554294796 and not ingump 'Greater Explosion' 1554294796 and not ingump 'Lesser Explosion' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+
+    ######################################
+    # PLANT ITEMS
+    ######################################
+
+    if ingump 'Fungicide' 1554294796 or ingump 'Growth Serum' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND PLANT ITEMS IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO PLANT ITEMS CATEGORY' 52
+        gumpresponse 109 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Fungicide' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+        if ingump 'Superior Growth Serum' 1554294796
+            gumpresponse 401 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+
+    endif
+
+    ######################################
+    #-------------------------------------
+    # PAGE 2 OF ALCHEMY MENU
+    #-------------------------------------
+    ######################################
+
+    sysmsg 'SWITHING PAGE ON ALCHEMY GUMP' 52
+    gumpresponse 9 alchemy_gump_id
+    waitforgump alchemy_gump_id action_delay
+
+
+    ######################################
+    # PLANT ITEMS
+    ######################################
+
+    if ingump 'Fertility Serum' 1554294796
+    # if ingump 'Leather' societies_gump_id
+        sysmsg 'FOUND MOUNT BREEDING ITEMS IN SOCIETY GUMP' 52
+
+        # if ingump 'Leather Gorget' 949095101
+        # else
+        sysmsg 'SWITCHING TO MOUNT BREEDING CATEGORY' 52
+        gumpresponse 100 alchemy_gump_id
+        waitforgump alchemy_gump_id action_delay
+        # endif
+
+        if ingump 'Superior Fertility Serum' 1554294796
+            gumpresponse 400 alchemy_gump_id
+            waitforgump alchemy_gump_id action_delay
+        endif
+
+    endif
+
+
+
+endfor
+
+gumpclose stockpile_gump_id
+gumpclose alchemy_gump_id
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Fix bug where different grades of the same potion werent being added (would only add greater OR lesser OR regular)
+# - Adds check for 'regular' poisons to only be added if no other versions of the same potion (greater, lesser) present in societies gump to avoid duplication, which means if there are 2 societies of the same potion on the same gump page, but one is regular, the regular version will have to be added mannually
+#
+# v0.0.1
+# - Initial release

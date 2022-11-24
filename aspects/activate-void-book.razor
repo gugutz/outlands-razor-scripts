@@ -1,0 +1,106 @@
+##########################
+# ACTIVATE ASPECT ON ARMOR
+# by gugutz
+# version 0.0.1
+#################################
+
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+
+if not listexists 'activate_void_config_lists'
+    createlist 'activate_void_config_lists'
+else
+    clearlist 'activate_void_config_lists'
+endif
+
+# routine-related lists
+
+pushlist 'activate_void_config_lists' 'aspect_name'
+pushlist 'activate_void_config_lists' 'aspect_unique_text'
+
+
+foreach list in 'activate_void_config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 600
+
+
+setvar! aspect_color 2599
+pushlist 'aspect_name' 'void'
+pushlist 'aspect_unique_text' 'Doom Dragon'
+setvar! switch_aspect_btn_number 10
+setvar! activate_aspect_btn_number 13
+
+
+################################
+# GLOBAL VARIABLES
+################################
+
+if not varexist
+    @setvar aspect_gump_id 2424293173
+endif
+
+################################
+# CODE
+################################
+
+foreach aspect_name in 'aspect_name'
+    foreach aspect_unique_text in 'aspect_unique_text'
+
+        # IF ASPECT IS ALREADY ACTIVE ON ARMOR, STOP SCRIPT
+        if findlayer 'self' righthand as book
+            if hue book == aspect_color
+                overhead "{{aspect_name}} already active on book!" 48
+                stop
+            endif
+        endif
+
+
+        # OPEN ASPECT GUMP
+        while not gumpexists aspect_gump_id
+            sysmsg 'Opening Aspect Gump'
+            say '[aspects'
+            waitforgump aspect_gump action_delay
+        endwhile
+
+        # CHANGE ARMOR ASPECT TO CORRECT ASPECT
+        if not ingump 'Doom Dragon' 2424293173
+            overhead "Changing aspect to {{aspect_name}}"
+            # while not ingump aspect_unique_text 2424293173
+            while not ingump 'Doom Dragon' 2424293173
+                gumpresponse switch_aspect_btn_number aspect_gump_id
+                waitforgump aspect_gump_id action_delay
+            endwhile
+        endif
+
+
+        # ACTIVATE ASPECT ON ARMOR
+        waitforgump aspect_gump_id action_delay
+        gumpresponse activate_aspect_btn_number aspect_gump_id
+        waitforgump aspect_gump_id action_delay
+        gumpresponse activate_aspect_btn_number aspect_gump_id
+        waitforgump aspect_gump_id action_delay
+
+
+        # CHECK IF ASPECT IN FACT ACTIVATED
+        if findlayer 'self' righthand as book
+            if hue book == aspect_color
+                overhead "activated {{aspect_name}} on book!" 48
+                sysmsg "Activated {{aspect_name}} On Book!" 48
+                stop
+            endif
+        endif
+    endfor
+endfor

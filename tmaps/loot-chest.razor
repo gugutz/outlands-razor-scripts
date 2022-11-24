@@ -8,6 +8,12 @@
 #
 # v0.0.4
 # - Makes lists creation happen only the first time the script runs instead of every time
+# - Checks if char has trap_loot_pouch and if so use it to hide the chest loot
+# - In case no trap_loot_pouch is found, use 'Grab' hotkey + wft to get chest items
+# - Handles cases when backpack too full to loot
+# - Adds gump serial to all gumpresponse calls
+# - Adds several missing item types from items list
+# - Explodes chest when finishes looting
 #
 # v0.0.3
 # - Splits single items list into separate lists to increase iteration performance on prioritized items
@@ -23,6 +29,13 @@
 # CREATE AND POPULATE ALL LISTS
 #################################
 
+# CREATE TIMERS
+if not timerexists 'char_heavy_warning_msg_timer'
+    createtimer 'char_heavy_warning_msg_timer'
+else
+    settimer 'char_heavy_warning_msg_timer' 5000
+endif
+
 # MASTERY CHAIN LINKS
 if not listexists 'links'
     createlist 'links'
@@ -34,20 +47,20 @@ if not listexists 'rares'
     sysmsg 'Creating rares list...' 51
     createlist 'rares'
     # mastery chain links
+    # rare cloth
+    pushlist 'rares' 'folded cloth'
+    pushlist 'rares' 'aspect core'
+    pushlist 'rares' 'map'
+    # spell hue deeds
+    pushlist 'rares' 5359
     # skill orb
     pushlist 'rares' 22336
     # # mcd (this goes into the resource stockpile)
     pushlist 'rares' 17087
     # research material
-    pushlist 'rares' 29348
-    # spell hue deeds
-    pushlist 'rares' 5359
-    # rare cloth
-    pushlist 'rares' 'folded cloth'
-    pushlist 'rares' 'map'
+    pushlist 'rares' 'research materials'
     # skill scrolls
     pushlist 'rares' 'scroll of calling'
-    pushlist 'rares' 'aspect core'
     # aspect extract
     pushlist 'rares' 3836
     pushlist 'rares' 'phylactery'
@@ -91,12 +104,16 @@ if not listexists 'tchest_items'
     sysmsg 'Creating regular tchest items list...' 51
     createlist 'tchest_items'
 
+    # arcane scrolls
+    pushlist 'tchest_items' 'blank scroll%s%'
+    # plant chemicals
+    pushlist 'tchest_items' 29030
+    # plant chemicals
+    pushlist 'tchest_items' 29030
     pushlist 'tchest_items' 'gold coin'
     pushlist 'tchest_items' 'bow'
     pushlist 'tchest_items' 'seed of renewal'
     pushlist 'tchest_items' 'bag of seeds'
-    # arcane scrolls
-    pushlist 'tchest_items' 'blank scroll%s%'
 
 
     # gems
@@ -127,12 +144,12 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'viking sword'
     pushlist 'tchest_items' 'broadsword'
     pushlist 'tchest_items' 'longsword'
-    pushlist 'tchest_items' 'war mace'
-    pushlist 'tchest_items' 'club'
     pushlist 'tchest_items' 'double axe'
-    pushlist 'tchest_items' 'large battle axe'
+    pushlist 'tchest_items' 'two handed axe'
+    pushlist 'tchest_items' 'battle axe'
     pushlist 'tchest_items' 'bardiche'
     pushlist 'tchest_items' 'halberd'
+    pushlist 'tchest_items' "executioner's axe"
 
     # MACING WEAPONS
     pushlist 'tchest_items' 'club'
@@ -142,6 +159,13 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'hammer pick'
     pushlist 'tchest_items' 'black staff'
     pushlist 'tchest_items' 'gnarled staff'
+    pushlist 'tchest_items' 'quarter staff'
+    # war hammer (doenst work with just name, need ID)
+    pushlist 'tchest_items' 'war hammer'
+    pushlist 'tchest_items' 5177
+    pushlist 'tchest_items' 'maul'
+    # sheps crook
+    pushlist 'tchest_items' 3713
 
     # FENCING WEAPONS
     pushlist 'tchest_items' 'kryss'
@@ -152,6 +176,8 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'bladed staff'
 
     # SHIELDs
+    # buckler (doenst work with only name)
+    pushlist 'tchest_items' 7027
     pushlist 'tchest_items' 'buckler'
     pushlist 'tchest_items' 'wooden shield'
     pushlist 'tchest_items' 'metal shield'
@@ -165,7 +191,6 @@ if not listexists 'tchest_items'
 
     # HATS
     pushlist 'tchest_items' "wizard's hat"
-    pushlist 'tchest_items' 'bone helmet'
 
     # BONE SET
     pushlist 'tchest_items' 'bone armor'
@@ -183,13 +208,17 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'leather leggings'
     pushlist 'tchest_items' 'leather skirt'
     pushlist 'tchest_items' 'leather bustier'
+    pushlist 'tchest_items' 'leather shorts'
+    pushlist 'tchest_items' 'leather armor'
 
 
     # STUDDED SET
     pushlist 'tchest_items' 'studded tunic'
+    # studded armor (doenst work with only name)
+    pushlist 'tchest_items' 7170
     pushlist 'tchest_items' 'studded armor'
     pushlist 'tchest_items' 'studded sleeves'
-    pushlist 'tchest_items' 'studded legs'
+    pushlist 'tchest_items' 'studded leggings'
     pushlist 'tchest_items' 'studded gorget'
     pushlist 'tchest_items' 'studded gloves'
     pushlist 'tchest_items' 'studded bustier'
@@ -198,7 +227,11 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'helmet'
     pushlist 'tchest_items' 'norse helm'
     pushlist 'tchest_items' 'close helm'
+    # bascinet doenst work with name appearantly
+    pushlist 'tchest_items' 5135
     pushlist 'tchest_items' 'bascinet'
+    pushlist 'tchest_items' 'bone helmet'
+    pushlist 'tchest_items' 'plate helm'
 
     # PLATEMAIL SET
     pushlist 'tchest_items' 'platemail'
@@ -217,7 +250,9 @@ if not listexists 'tchest_items'
 
     # CHAINMAIL SET
     pushlist 'tchest_items' 'ringmail tunic'
+    # sleeves
     pushlist 'tchest_items' 'ringmail sleeves'
+    pushlist 'tchest_items' 5103
     pushlist 'tchest_items' 'ringmail leggings'
     pushlist 'tchest_items' 'ringmail gorget'
     pushlist 'tchest_items' 'ringmail gloves'
@@ -226,13 +261,17 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'bamboo flute'
     pushlist 'tchest_items' 'lute'
     pushlist 'tchest_items' 'drum'
+    # tambourine doenst work with name appearantly
+    pushlist 'tchest_items' 3742
     pushlist 'tchest_items' 'tambourine'
     pushlist 'tchest_items' 'lap harp'
 
     # MISC & MAGERY SCROLLS
     pushlist 'tchest_items' 'clean bandage%s%'
     pushlist 'tchest_items' 'arrow'
-    pushlist 'tchest_items' 'bolt'
+    # bolt doenst work with name appearantly
+    pushlist 'tchest_items' 7163
+    pushlist 'tchest_items' 'crossbow bolt'
 
 
     # REAGENTS
@@ -250,7 +289,6 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'ManaDrain Scroll'
     pushlist 'tchest_items' 'Greater Heal Scroll'
     pushlist 'tchest_items' 'Lightning Scroll'
-    pushlist 'tchest_items' 'Lightning Scroll'
 endif
 
 #
@@ -263,7 +301,7 @@ settimer 'waiting_tchest_msg_timer' 1501
 #################################
 
 @unsetvar chest
-@setvar chest
+setvar! chest
 wft 500
 while targetexists 'neutral'
     if timer 'waiting_tchest_msg_timer' >= 1500
@@ -284,8 +322,8 @@ endif
 # CONFIGURATION
 #################################
 
-@setvar action_delay_var 300
-@setvar sysmsgs_color 50
+setvar! action_delay 300
+setvar! sysmsgs_color 50
 
 
 #################################
@@ -297,7 +335,7 @@ endif
 overhead 'opening chest' 53
 sysmsg 'Opening Chest To Loot' 53
 dclick chest
-wait action_delay_var
+wait action_delay
 
 
 
@@ -320,10 +358,28 @@ foreach item in 'links'
             sysmsg link_label 51 'self'
         endif
 
-        lift item_to_unload 1
-        wait action_delay_var
-        drop backpack
-        wait action_delay_var
+        if listexists 'char_loot_pouch'
+            if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                lift item_to_unload 60000
+                wait action_delay
+                drop char_loot_pouch
+                wait action_delay
+            endif
+        else
+            hotkey 'Grab Item'
+            wft 600
+            target item_to_unload
+            wait action_delay
+        endif
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
     endwhile
 endfor
 
@@ -332,10 +388,27 @@ foreach item in 'rares'
         overhead item 51 'self'
         sysmsg item 52
 
-        lift item_to_unload 60000
-        wait action_delay_var
-        drop backpack
-        wait action_delay_var
+        if listexists 'char_loot_pouch'
+            if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                lift item_to_unload 9999
+                wait action_delay
+                drop char_loot_pouch
+                wait action_delay
+            endif
+        else
+            hotkey 'Grab Item'
+            wft 600
+            target item_to_unload
+            wait action_delay
+        endif
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
     endwhile
 endfor
 
@@ -344,10 +417,28 @@ foreach item in 'arcane_runes'
         overhead item 51 'self'
         sysmsg item 52
 
-        lift item_to_unload 60000
-        wait action_delay_var
-        drop backpack
-        wait action_delay_var
+        if listexists 'char_loot_pouch'
+            if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                lift item_to_unload 9999
+                wait action_delay
+                drop char_loot_pouch
+                wait action_delay
+            endif
+        else
+            hotkey 'Grab Item'
+            wft 600
+            target item_to_unload
+            wait action_delay
+        endif
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
     endwhile
 endfor
 
@@ -356,14 +447,33 @@ foreach item in 'tchest_items'
         overhead item 51 'self'
         sysmsg item 52
 
-        lift item_to_unload 60000
-        wait action_delay_var
-        drop backpack
-        wait action_delay_var
+        if listexists 'char_loot_pouch'
+            if atlist 'char_loot_pouch' 0 as char_loot_pouch
+                lift item_to_unload 60000
+                wait action_delay
+                drop char_loot_pouch
+                wait action_delay
+            endif
+        else
+            hotkey 'Grab Item'
+            wft 600
+            target item_to_unload
+            wait action_delay
+        endif
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
     endwhile
 endfor
 
 sysmsg 'LOOT CHEST FINISHED'
+overhead '*exploding chest*' 90
+menu chest 1
 
 @clearignore
 @clearsysmsg
