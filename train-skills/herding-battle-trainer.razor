@@ -2,13 +2,15 @@ if followers == 0
     cast 'water elemental'
 endif
 
+setvar! battle_trainer 0x1EA646
+
 dclicktype '3713'
 waitfortarget 600
-target 0xC1A1B
+target battle_trainer
 wait 1000
 say 'all kill'
 waitfortarget 600
-target 0xC1A1B
+target battle_trainer
 wait 1000
 dclicktype '3763'
 wait 1000

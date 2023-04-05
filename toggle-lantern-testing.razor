@@ -1,3 +1,10 @@
-while not findtype 2594 ground any any 2
-    # hold until lantern on the ground is turned on
-endwhile
+setvar! test self
+if not timerexists test
+    createtimer test
+    settimer test 0
+endif
+
+wait 2000
+if timerexists test
+    sysmsg 'deu boa {{test}}'
+endif

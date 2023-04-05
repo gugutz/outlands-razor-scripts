@@ -13,10 +13,12 @@ say '[repairhull'
 clearsysmsg
 settimer 'waiting_sysmsg' 0
 while timer 'waiting_sysmsg' < action_delay
-    if insysmsg 'do not need to be repaired'
+    if insysmsg 'hull does not need to be repaired'
         overhead 'hull dont need reparing!' 54
         stop
     endif
 endwhile
 
 overhead 'reparing ship hull...' 54
+
+cooldown 'Repairing Ship' 10

@@ -87,14 +87,8 @@ endif
 
 unsetvar! moongate_serial
 
-# search for regular blue moongates (color 0) that is opened by players
-if findtype 'blue moongate' ground 0 any 2 as mg
-    setvar! moongate_gump_id public_moongate_gump
-    setvar! moongate_confirm_btn regular_moongate_confirm_btn
-    setvar! moongate_serial mg
-
-# public moongates
-elseif findtype 'blue moongate' ground any any 2 as mg
+# search for player and public moongates
+if findtype 'blue moongate' ground any any 2 as mg
     setvar! moongate_gump_id public_moongate_gump
     setvar! moongate_confirm_btn regular_moongate_confirm_btn
     setvar! moongate_serial mg

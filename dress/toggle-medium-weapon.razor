@@ -122,7 +122,11 @@ foreach weapon in 'dps_weapons'
                     dclick weap
                 endif
 
-                wait action_delay
+                wait 100
+                while queued
+                    sysmsg 'queued'
+                endwhile
+                # wait action_delay
 
                 if timer 'waiting_dress_timer' >= 400
                     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
@@ -144,3 +148,6 @@ foreach weapon in 'dps_weapons'
         endif
     endif
 endfor
+
+
+hotkey "Resynchronize Client"

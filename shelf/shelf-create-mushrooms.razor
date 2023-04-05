@@ -1,0 +1,74 @@
+
+if not timerexists 'meditating_msg_warning_timer'
+    createtimer 'meditating_msg_warning_timer'
+    settimer 'meditating_msg_warning_timer' 2001
+endif
+
+if findtype 'storage shelf' ground any any 2 as shelf_found
+   setvar shelf shelf_found
+else
+   overhead 'NO SHELFS FOUND!'
+   overhead 'get close to a shelf and try again'
+   stop
+endif
+
+if varexist shelf
+    while not dead 'self'
+        while not find shelf ground any any 2
+            overhead 'Get back closer to the shelf!'
+            wait 2000
+        endwhile
+    
+
+        while find shelf ground any any 2
+
+            while mana < 70
+                while not findbuff 'Actively Meditating'
+                    useskill 'meditation'
+                    wait 1000
+                endwhile
+
+                while findbuff 'Actively Meditating' and mana < maxmana
+                    wait 100
+
+                    if timer 'meditating_msg_warning_timer' >= 4000
+                        overhead 'meditating...' 89
+                        settimer 'meditating_msg_warning_timer' 0
+                    endif
+                endwhile
+            endwhile
+
+            if counttype "Garlic" backpack < 10 or counttype "Ginseng" backpack < 10 or counttype "Mandrake Root%s%" backpack < 10
+                sysmsg 'RESSUPLYING FOR REGS...' 55
+                menu shelf 1
+                waitforgump 3232825965 600
+
+                if gumpexists 3232825965
+                    gumpclose 3232825965
+                endif
+
+                wait 600
+
+            endif
+    
+    
+            for 30
+                if counttype "Garlic" backpack == 0 or counttype "Ginseng" backpack == 0 or counttype "Mandrake Root%s%" backpack == 0
+                    break
+                endif
+                cast 'create food'
+                wft 1100
+            endfor
+    
+            sysmsg 'RESTOCKING SELF...' 55
+            menu shelf 0
+            wft 600
+    
+            hotkey 'Target Self'
+    
+        endwhile
+    endwhile
+endif
+
+
+loop

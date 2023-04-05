@@ -1,19 +1,23 @@
-if insysmsg 'The world will save'
-    wait 27000
-endif
+setvar item_to_id
+wft 650
+while targetexists 'neutral'
+    wait 20
+endwhile
 
-if skill 'itemidentification' < 85
-    skill 'itemidentification'
-    waitfortarget
-    target 'ItemIDItem'
-    pause 10000
-elseif skill 'itemidentification' < 100
-    skill 'itemidentification'
-    waitfortarget
-    target 'ItemIDSign'
-    pause 10000
-else
-    sysmsg 'You have reached skill level 100 in Item Identification' 44
-    stop
-endif
-loop
+while not dead self
+    if skill 'itemidentification' < 85
+        skill 'itemidentification'
+        waitfortarget 600
+        target item_to_id
+        pause 1000
+    elseif skill 'itemidentification' < 100
+        skill 'itemidentification'
+    waitfortarget 600
+        target item_to_id
+        pause 1000
+    else
+        sysmsg 'You have reached skill level 100 in Item Identification' 44
+        stop
+    endif
+endwhile
+    

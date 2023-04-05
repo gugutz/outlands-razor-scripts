@@ -47,6 +47,7 @@ pushlist 'ContainerTypes' '0xE3C' //Wood_box
 pushlist 'ContainerTypes' '0xE3D' //Wood_box
 pushlist 'ContainerTypes' '0xE3E' //Wood_box
 pushlist 'ContainerTypes' '0xE3F' //Wood_box
+pushlist 'ContainerTypes' 'strong box'
 pushlist 'ContainerTypes' '0xE40'
 pushlist 'ContainerTypes' '0xE41'
 pushlist 'ContainerTypes' '0xE42'
@@ -64,23 +65,27 @@ pushlist 'ContainerTypes' '0x719f' //treasure_chest
 createlist 'BuyList'
 clearlist 'BuyList'
 
-unsetvar 'Vendor'
-setvar 'Vendor'
+unsetvar! vendor
+setvar! vendor
 
 
-dclick Vendor
+dclick vendor
 wait 1000
 foreach rare in rares
     while findtype rare Vendor any any any as found
         getlabel found label
         foreach word in words
-            if word in label
+            if word in label 
+or '999' in label
                 pushlist 'BuyList' found
             endif
         endfor
+        getlabel found label
         ignore found
+        sysmsg 'IGNORING {{label}}' 90
     endwhile
 endfor
+
 foreach container in ContainerTypes
     while findtype container Vendor any any any as cont
         dclick cont
@@ -89,7 +94,7 @@ foreach container in ContainerTypes
             while findtype rare cont any any any as found
                 getlabel found label
                 foreach word in words
-                    if word in label
+                    if word in label or '999' in label
                         pushlist 'BuyList' found
                     endif
                 endfor
@@ -108,3 +113,5 @@ if list 'BuyList' > 0
         endwhile
     endfor
 endif
+
+sysmsg 'FINISHED' 90

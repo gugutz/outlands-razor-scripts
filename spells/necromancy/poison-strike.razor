@@ -6,6 +6,7 @@
 #################################
 
 setvar! action_delay 550
+setvar! spell_recovery_delay 200
 
 if not timerexists 'not_ready_yet_warning_msg'
     createtimer 'not_ready_yet_warning_msg'
@@ -19,6 +20,7 @@ settimer 'tick_left_warning_msg_timer' 2000
 
 
 while not targetexists 'neutral'
+    clearsysmsg
     say '[poisonstrike'
     wft action_delay
 endwhile
@@ -27,9 +29,10 @@ if targetexists 'neutral'
     # reset the timer before the loop so the message gets imeadietly printed the first time
     settimer 'not_ready_yet_warning_msg' 0
 
+    overhead 'POISON STRIKE WHOM?' 90
+
     if not dead lasttarget and targetexists 'neutral'
         overhead '*last target dead or null*'
-        wait action_delay
     endif
 
     # while not dead lasttarget and targetexists 'neutral'
@@ -93,8 +96,9 @@ if targetexists 'neutral'
             setvar! deadly_poison_ticks 2
         elseif '1 Deadly' in last_label
             setvar! deadly_poison_ticks 1
+        endif
 
-        if varexists lethal_poison_ticks
+        if varexist lethal_poison_ticks
             if timer 'tick_left_warning_msg_timer' > 1000
                 overhead '{{lethal_poison_ticks}} TICKS LEFT!'
             endif
@@ -104,7 +108,7 @@ if targetexists 'neutral'
                 overhead '[LETHAL] POISON STRIKE NOW!' 54 lasttarget
                 sysmsg 'MOB READY TO BE POISON STRIKED: {{last_label}}' 54
             endif
-        elseif varexists deadly_poison_ticks
+        elseif varexist deadly_poison_ticks
             if timer 'tick_left_warning_msg_timer' > 1000
                 overhead '{{deadly_poison_ticks}} TICKS LEFT!'
             endif
@@ -136,9 +140,23 @@ if targetexists 'neutral'
 
     wait action_delay
 
-    clearsysmsg
+
+    if insysmsg 'Target cannot be seen'
+        sysmsg 'TARGET WASTED! REPLAYING PAIN SPIKE' 37
+        replay
+    endif
+
     if insysmsg 'symbols remaining'
         overhead 'poison striked enemy' 73
         overhead '*POISON STRIKED*' 73 'last'
+        cooldown 'POISON STRIKE' 30000
+
     endif
+#     if not insysmsg 'Target cannot be seen'
+#         if verbose == 1
+#             sysmsg '+++ RESETING CHAIN LIGHTNING TIMER' reset_timer_msg_color
+#         endif
+# 
+#         cooldown 'Pain Spike' 30
+#     endif
 endif

@@ -1,0 +1,41 @@
+
+if not listexists 'items_to_move_to_llama'
+    @createlist 'items_to_move_to_llama'
+
+    if move_gold == 1
+        @pushlist 'items_to_move_to_llama' 'gold coin'
+    endif
+
+    if move_resources == 1
+        @pushlist 'items_to_move_to_llama' 'cut up leather'
+        @pushlist 'items_to_move_to_llama' 'log%s'
+        @pushlist 'items_to_move_to_llama' 'board%s'
+        @pushlist 'items_to_move_to_llama' 'ingot%s'
+    endif
+
+    # gems
+    if move_gems == 1
+        @pushlist 'items_to_move_to_llama' 'rub%ies/y%'
+        @pushlist 'items_to_move_to_llama' 'tourmaline%s%'
+        @pushlist 'items_to_move_to_llama' 'emerald%s%'
+        @pushlist 'items_to_move_to_llama' 'diamond%s%'
+        @pushlist 'items_to_move_to_llama' 'piece%s% of amber'
+        @pushlist 'items_to_move_to_llama' 'amethyst%s%'
+        @pushlist 'items_to_move_to_llama' 'star sapphire%s%'
+        @pushlist 'items_to_move_to_llama' 'citrine%s%'
+        @pushlist 'items_to_move_to_llama' 'sapphire%s%'
+    endif
+    #
+    # foods
+    if move_food == 1
+        @pushlist 'items_to_move_to_llama' 'sliced ham'
+        @pushlist 'items_to_move_to_llama' 'raw chicken leg%s%'
+        @pushlist 'items_to_move_to_llama' 'raw leg%s% of lamb'
+        @pushlist 'items_to_move_to_llama' 'slab%s% of bacon'
+        @pushlist 'items_to_move_to_llama' 'sausage%s%'
+        @pushlist 'items_to_move_to_llama' 'ham%s%'
+        @pushlist 'items_to_move_to_llama' 'cut%s% of raw ribs'
+    endif
+    #
+    # foods
+endif

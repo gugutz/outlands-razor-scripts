@@ -1,0 +1,18 @@
+say '[help'
+waitforgump 3838850833 1200
+
+gumpresponse 29 3838850833
+sysmsg 'opened vendors gump'
+waitforgump 3881363727 1000
+sysmsg 'switching to renter'
+gumpresponse 3 3881363727
+waitforgump 3881363727 600
+
+sysmsg 'opening my vendor gump'
+gumpresponse 100 3881363727
+waitforgump 3881363727 600
+# my vendor gump id
+waitforgump 1957446601
+gumpclose 3838850833
+
+waitforgump 3881363727

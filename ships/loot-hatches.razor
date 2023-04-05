@@ -1,0 +1,353 @@
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 600
+
+
+
+# RARES
+if not listexists 'rares'
+    sysmsg 'Creating rares list...' 51
+    createlist 'rares'
+    pushlist 'rares' 'folded cloth' //rare_cloths
+    pushlist 'rares' 'aspect core'
+    pushlist 'rares' 'map'
+    pushlist 'rares' 5359 //spell_hue_deeds
+    pushlist 'rares' 22336 //skill_orbs
+    pushlist 'rares' 17087 //mcds
+    pushlist 'rares' 'research materials' //research_materials
+    pushlist 'rares' 'scroll of calling' //skill_scrolls
+    pushlist 'rares' 3836 //aspect_extract
+    pushlist 'rares' 'phylactery'
+    pushlist 'rares' 3838 //runebook_dye
+    pushlist 'rares' 3839 //backpack_dye
+    pushlist 'rares' 3842 //headwear_dye
+    pushlist 'rares' 3843 //facial_hair_dye
+    pushlist 'rares' 3843 //acessory_dye
+    pushlist 'rares' 29025 //fortuniture_dye
+    pushlist 'rares' 29036 //carpet_dye
+endif
+
+# ARCANE RUNES
+if not listexists 'arcane_runes'
+    sysmsg 'Creating arcane runes list...' 51
+    createlist 'arcane_runes'
+    pushlist 'arcane_runes' 39891
+    pushlist 'arcane_runes' 39892
+    pushlist 'arcane_runes' 39917
+    pushlist 'arcane_runes' 39909
+    pushlist 'arcane_runes' 39912
+    pushlist 'arcane_runes' 39905
+    pushlist 'arcane_runes' 39911
+    pushlist 'arcane_runes' 39897
+    pushlist 'arcane_runes' 39918
+    pushlist 'arcane_runes' 39889
+    pushlist 'arcane_runes' 39898
+    pushlist 'arcane_runes' 39896
+    pushlist 'arcane_runes' 39916
+endif
+
+# MISC HATCH ITEMS
+if not listexists 'hatch_items'
+    sysmsg 'Creating regular hatch items list...' 51
+    createlist 'hatch_items'
+
+    pushlist 'hatch_items' 'blank scroll%s%' //arcane_scrolls
+    pushlist 'hatch_items' 29030 //plant_chemicals
+    pushlist 'hatch_items' 'gold coin'
+    pushlist 'hatch_items' 'bow'
+    pushlist 'hatch_items' 'seed of renewal'
+    pushlist 'hatch_items' 'bag of seeds'
+
+
+    # gems
+    @pushlist 'hatch_items' 'rub%ies/y%'
+    @pushlist 'hatch_items' 'tourmaline%s%'
+    @pushlist 'hatch_items' 'emerald%s%'
+    @pushlist 'hatch_items' 'diamond%s%'
+    @pushlist 'hatch_items' 'piece%s% of amber'
+    @pushlist 'hatch_items' 'amethyst%s%'
+    @pushlist 'hatch_items' 'star sapphire%s%'
+    @pushlist 'hatch_items' 'citrine%s%'
+    @pushlist 'hatch_items' 'sapphire%s%'
+
+
+    pushlist 'hatch_items' 'spellbook'
+
+    pushlist 'hatch_items' 'martial arts scroll' //wrestle_martial_manual
+
+    # ARCHERY WEAPONS
+    pushlist 'hatch_items' 'bow'
+    pushlist 'hatch_items' 'crossbow'
+    pushlist 'hatch_items' 'heavy crossbow'
+
+    # SWORDS WEAPONS
+    pushlist 'hatch_items' 'cutlass'
+    pushlist 'hatch_items' 'katana'
+    pushlist 'hatch_items' 'viking sword'
+    pushlist 'hatch_items' 'broadsword'
+    pushlist 'hatch_items' 'longsword'
+    pushlist 'hatch_items' 'double axe'
+    pushlist 'hatch_items' 'two handed axe'
+    pushlist 'hatch_items' 'battle axe'
+    pushlist 'hatch_items' 'bardiche'
+    pushlist 'hatch_items' 'halberd'
+    pushlist 'hatch_items' "executioner's axe"
+
+    # MACING WEAPONS
+    pushlist 'hatch_items' 'club'
+    pushlist 'hatch_items' 'mace'
+    pushlist 'hatch_items' 'war mace'
+    pushlist 'hatch_items' 'war axe'
+    pushlist 'hatch_items' 'hammer pick'
+    pushlist 'hatch_items' 'black staff'
+    pushlist 'hatch_items' 'gnarled staff'
+    pushlist 'hatch_items' 'quarter staff'
+    pushlist 'hatch_items' 5177 //war_hammer
+    pushlist 'hatch_items' 'maul'
+    # sheps crook
+    pushlist 'hatch_items' 3713 //sheps_crook
+
+    # FENCING WEAPONS
+    pushlist 'hatch_items' 'kryss'
+    pushlist 'hatch_items' 'war fork'
+    pushlist 'hatch_items' 'short spear'
+    pushlist 'hatch_items' 'Long Spear'
+    pushlist 'hatch_items' 'pitchfork'
+    pushlist 'hatch_items' 'bladed staff'
+
+    # SHIELDs
+    pushlist 'hatch_items' 7027 //bucker
+    pushlist 'hatch_items' 'buckler'
+    pushlist 'hatch_items' 'wooden shield'
+    pushlist 'hatch_items' 'metal shield'
+    pushlist 'hatch_items' 7026 //bronze_shield
+    pushlist 'hatch_items' 7033 //kite_shield
+    pushlist 'hatch_items' 7029 //metal_kite_shield
+    pushlist 'hatch_items' 'heater shield'
+
+    # HATS
+    pushlist 'hatch_items' "wizard's hat"
+
+    # BONE SET
+    pushlist 'hatch_items' 'bone armor'
+    pushlist 'hatch_items' 'bone gorget'
+    pushlist 'hatch_items' 'bone arms'
+    pushlist 'hatch_items' 'bone gloves'
+    pushlist 'hatch_items' 'bone legs'
+
+    # LEATHER SET
+    pushlist 'hatch_items' 'leather cap'
+    pushlist 'hatch_items' 'leather tunic'
+    pushlist 'hatch_items' 'leather gorget'
+    pushlist 'hatch_items' 'leather sleeves'
+    pushlist 'hatch_items' 'leather gloves'
+    pushlist 'hatch_items' 'leather leggings'
+    pushlist 'hatch_items' 'leather skirt'
+    pushlist 'hatch_items' 'leather bustier'
+    pushlist 'hatch_items' 'leather shorts'
+    pushlist 'hatch_items' 'leather armor'
+
+
+    # STUDDED SET
+    pushlist 'hatch_items' 'studded tunic'
+    # studded armor (doenst work with only name)
+    pushlist 'hatch_items' 7170
+    pushlist 'hatch_items' 'studded armor'
+    pushlist 'hatch_items' 'studded sleeves'
+    pushlist 'hatch_items' 'studded leggings'
+    pushlist 'hatch_items' 'studded gorget'
+    pushlist 'hatch_items' 'studded gloves'
+    pushlist 'hatch_items' 'studded bustier'
+
+    # HELMETS
+    pushlist 'hatch_items' 'helmet'
+    pushlist 'hatch_items' 'norse helm'
+    pushlist 'hatch_items' 'close helm'
+    # bascinet doenst work with name appearantly
+    pushlist 'hatch_items' 5135
+    pushlist 'hatch_items' 'bascinet'
+    pushlist 'hatch_items' 'bone helmet'
+    pushlist 'hatch_items' 'plate helm'
+
+    # PLATEMAIL SET
+    pushlist 'hatch_items' 'platemail'
+    pushlist 'hatch_items' 'platemail arms'
+    pushlist 'hatch_items' 'platemail legs'
+    pushlist 'hatch_items' 'platemail gorget'
+    pushlist 'hatch_items' 'platemail gloves'
+
+    # CHAINMAIL SET
+    pushlist 'hatch_items' 'chainmail coif'
+    pushlist 'hatch_items' 'chainmail tunic'
+    pushlist 'hatch_items' 'chainmail arms'
+    pushlist 'hatch_items' 'chainmail leggings'
+    pushlist 'hatch_items' 'chainmail gorget'
+    pushlist 'hatch_items' 'chainmail gloves'
+
+    # CHAINMAIL SET
+    pushlist 'hatch_items' 'ringmail tunic'
+    # sleeves
+    pushlist 'hatch_items' 'ringmail sleeves'
+    pushlist 'hatch_items' 5103
+    pushlist 'hatch_items' 'ringmail leggings'
+    pushlist 'hatch_items' 'ringmail gorget'
+    pushlist 'hatch_items' 'ringmail gloves'
+
+    # INSTRUMENTS
+    pushlist 'hatch_items' 'bamboo flute'
+    pushlist 'hatch_items' 'lute'
+    pushlist 'hatch_items' 'drum'
+    # tambourine doenst work with name appearantly
+    pushlist 'hatch_items' 3742
+    pushlist 'hatch_items' 'tambourine'
+    pushlist 'hatch_items' 'lap harp'
+
+    # MISC & MAGERY SCROLLS
+    pushlist 'hatch_items' 'clean bandage%s%'
+    pushlist 'hatch_items' 'arrow'
+    # bolt doenst work with name appearantly
+    pushlist 'hatch_items' 7163
+    pushlist 'hatch_items' 'crossbow bolt'
+
+
+    # REAGENTS
+    pushlist 'hatch_items' 'Blood Moss'
+    pushlist 'hatch_items' 'Black Pearl%s%'
+    pushlist 'hatch_items' 'Garlic'
+    pushlist 'hatch_items' 'Mandrake Root%s%'
+    pushlist 'hatch_items' 'Ginseng'
+    pushlist 'hatch_items' 'Nightshade'
+    pushlist 'hatch_items' 'Sulfurous Ash'
+    pushlist 'hatch_items' "Spider's Silk"
+
+
+    pushlist 'hatch_items' 'Recall Scroll'
+    pushlist 'hatch_items' 'ManaDrain Scroll'
+    pushlist 'hatch_items' 'Greater Heal Scroll'
+    pushlist 'hatch_items' 'Lightning Scroll'
+endif
+
+
+
+
+
+
+###################################
+# SEARCH FOR HATCHS IN GROUND
+###################################
+
+unsetvar! hatch
+
+# check if hatch nearby is already opened
+if findtype 'hatch' ground any any 2 as found
+    sysmsg 'FOUND HATCH' 90
+    setvar! hatch found
+endif
+
+
+# search for hatchs in the ground to start the whole process
+if not varexist hatch
+    overhead 'NO HATCHES NEARBY!' 43
+    sysmsg 'Cant find any ship hatches nearby!' 43
+    stop
+endif
+
+
+###################################
+# START LOOTING HATCH
+###################################
+
+clearsysmsg
+
+sysmsg 'RECALLING BOARDING PARTY' 54
+say '[recallboardingparty'
+
+if findtype 15947|28116|15952|15947|15955|15950|14421 ground as enemyTiller
+    if enemyTiller = tillerguy
+        #overhead "Found my guy!"
+    elseif enemyTiller = shipStatusBar
+        #nothing
+    else
+        dclick enemyTiller
+        wait 100
+    endif
+    @ignore enemyTiller
+endif
+clearignore
+
+if varexist hatch
+    sysmsg 'Looting hatch...' 53
+
+    clearsysmsg
+    dclick hatch
+    wait action_delay
+
+    while insysmsg 'you must wait'
+        sysmsg 'Opening hatch...' 53
+        clearsysmsg
+        dclick hatch
+        wait action_delay
+    endwhile
+
+    restock 10
+    wft 550
+    target hatch
+
+
+    @clearignore
+    @clearsysmsg
+
+endif
+
+sysmsg '>>> LOOT HATCHES FINISHED!' 53
+
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+if boating_mode == 1
+    script 'ships\search-ships'
+endif
+
+
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# (unreleased)
+# - Switches list config to setvar! variables
+#
+# v0.0.3
+# - Removes the hiding part so it doenst stop char from starting
+# - Checks if char has trap_loot_pouch and if so use it to hide the hatch loot
+# - In case no trap_loot_pouch is found, use 'Grab' hotkey + wft to get hatch items
+# - Handles cases when backpack too full to loot
+# - Adds gump serial to all gumpresponse calls
+# - Adds SEVERAL missing item types from items list
+# - Loots opened hatchs if finds one on ground
+# - Explodes hatch when finishes looting
+# - Fixed gold lift amount (was 1, changed to 60000)
+# - Reorganized rares list to priorize cloth > cores > skill scrolls
+# - Fixed wrong variable name for action_delay that was resulting in lift and drop actions happening at the same time
+#
+# v0.0.2
+# - Adds clearsysmsg at the beginning of the macro to avoid detecting sysmsgs from previous executions
+#
+# v0.0.1
+# - Initial release
+#
+#

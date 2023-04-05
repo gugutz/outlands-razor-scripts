@@ -96,7 +96,10 @@ if not varexist 'dress_set_first_run_done'
     # --------------------
     # HEAD ITEMS
     pushlist 'head_items' "wizard's hat"
+    pushlist 'head_items' 'sorcerers hat'
     pushlist 'head_items' 'jester hat'
+    pushlist 'head_items' 'tricorne hat'
+
     # ranger's hood
     pushlist 'head_items' 'hood'
     pushlist 'head_items' 'closed helm'
@@ -155,13 +158,20 @@ if not varexist 'dress_set_first_run_done'
     pushlist 'pants_items' 'bone legs'
     pushlist 'pants_items' 'bone skirt'
 
+    # INNERLEGS (i think it might be pants and pant-like stuff)
+    pushlist 'innerlegs_items' 'accented trousers'
+    pushlist 'innerlegs_items' 'short pants'
+
     # OUTERLEGS (skirts, over-armor clothing)
     pushlist 'outerlegs_items' 'skirt'
     pushlist 'outerlegs_items' 'kilt'
 
 
+
     # ROBES AND OUTER TORSO
     # ------------------------
+    # fringed vest
+    pushlist 'outertorso_items' 'woven vest'
     # long overcoat - artisan clothing
     pushlist 'outertorso_items' 'long coat'
     pushlist 'outertorso_items' 'robe'
@@ -187,21 +197,23 @@ if not varexist 'dress_set_first_run_done'
     pushlist 'shoes_items' 'long boots'
     pushlist 'shoes_items' 'boots'
     pushlist 'shoes_items' 'shoes'
+    pushlist 'shoes_items' 'desert boots'
 
 
-    # EARRINGS (On outlands its used for lightsources like lanterns and torches)
+    # RINGS
     pushlist 'ring_items' 'ring'
 
-    # EARRINGS (On outlands its used for lightsources like lanterns and torches)
+    # BRACELETS
     pushlist 'bracelet_items' 'bracelet'
 
-    # EARRINGS (On outlands its used for lightsources like lanterns and torches)
+    # EARRINGS
     pushlist 'earrings_items' 'earrings'
 
     # LIGHTSOURCES (new custom outlands layer (march 2022)
     pushlist 'lightsource_items' 'yuletide candle'
     pushlist 'lightsource_items' 'torch%es%'
     pushlist 'lightsource_items' 'lantern'
+    pushlist 'lightsource_items' 'dungeon torch'
 
     # TALISMAN (Cavernam Torches, Mastery Chain, Fur Coat)
 
@@ -220,11 +232,18 @@ if not varexist 'dress_set_first_run_done'
     pushlist 'outerbody_items' 'suspenders'
     pushlist 'outerbody_items' 'leather satchel'
     pushlist 'outerbody_items' 'leather harness'
-    pushlist 'outerbody_items' 'reagent satchel'
+    if name == 'C A R O L' or name == 'TaylorSwifting'
+        sysmsg 'CLEARLING OUTERBODY ITEMS'
+        clearlist 'outerbody_items'
+    endif
 
 
     # UNDERARMS
-    pushlist 'underarms_items' 'reagent satchel'
+    if name == 'C A R O L' or name == 'TaylorSwifting'
+        sysmsg 'CLEARLING UNDERARM ITEMS'
+        # pushlist 'outerbody_items' 'reagent satchel'
+        clearlist 'underarms_items'
+    endif
 
     ######################################
     # EVENT EXCLUSIVE COLLECTIONS
@@ -234,6 +253,7 @@ if not varexist 'dress_set_first_run_done'
     pushlist 'head_items' 'fur hood'
     pushlist 'head_items' 'fur trimmed hood'
     pushlist 'shoes_items' 'overknee fur boots'
+    pushlist 'shoes_items' 'spiked boots'
     pushlist 'cloak_items' 'fur lined fur cloak'
     pushlist 'outertorso_items' 'fur coat'
     pushlist 'gloves_items' 'fur mittens'
@@ -305,9 +325,9 @@ if findlayer self outertorso
             sysmsg 'Removing Death Robe from Char First'
             while findtype robe outertorso as robe_serial
                 lift robe_serial 1
-                wait_action_delay
+                wait action_delay
                 drop backpack
-                wait_action_delay
+                wait action_delay
             endwhile
         endif
     endif
@@ -334,9 +354,9 @@ if not findlayer self righthand
             sysmsg 'Searching for One Handed Weapons...' searching_for_items_msg_color
         endif
         foreach type in 'righthand_items'
-            if findtype type backpack as item
+            if findtype type backpack as found
                 sysmsg 'Equipping One Handed Weapon!' equipping_items_msg_color
-                dclick item
+                dclick found
                 wait action_delay
                 break
             endif
@@ -353,12 +373,12 @@ if not findlayer self lefthand
             sysmsg 'Searching for Shields' searching_for_items_msg_color
         endif
         foreach type in 'shields'
-            if findtype type backpack as item
+            if findtype type backpack as found
                 if inform_when_equipping_items == 1
                     sysmsg 'Equipping Shield!' equipping_items_msg_color
                 endif
                 while not findlayer self lefthand
-                    dclick item
+                    dclick found
                 endwhile
                 wait action_delay
                 break
@@ -369,12 +389,12 @@ if not findlayer self lefthand
             sysmsg 'Searching for Two Handed Weapons' searching_for_items_msg_color
         endif
         foreach type in 'lefthand_items'
-            if findtype type backpack as item
+            if findtype type backpack as found
                 if inform_when_equipping_items == 1
                     sysmsg 'Equipping Left Hand!' equipping_items_msg_color
                 endif
                 while not findlayer self lefthand
-                    dclick item
+                    dclick found
                     wait action_delay
                 endwhile
                 break
@@ -392,12 +412,12 @@ if not findlayer self head
         sysmsg 'Searching for Head Items' searching_for_items_msg_color
     endif
     foreach type in 'head_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Head!' equipping_items_msg_color
             endif
             while not findlayer self head
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -411,12 +431,12 @@ endif
 if not findlayer self neck
     sysmsg 'Searching for Neck Items' searching_for_items_msg_color
     foreach type in 'neck_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Neck!' equipping_items_msg_color
             endif
             while not findlayer self neck
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -432,12 +452,12 @@ if not findlayer self innertorso
         sysmsg 'Searching for Inner Torso Items' searching_for_items_msg_color
     endif
     foreach type in 'innertorso_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Inner Torso!' equipping_items_msg_color
             endif
             while not findlayer self innertorso
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -453,12 +473,12 @@ if not findlayer self arms
         sysmsg 'Searching for Arms Items' searching_for_items_msg_color
     endif
     foreach type in 'arms_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Arms!' equipping_items_msg_color
             endif
             while not findlayer self arms
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -474,12 +494,12 @@ if not findlayer self gloves
         sysmsg 'Searching for Glove Items' searching_for_items_msg_color
     endif
     foreach type in 'gloves_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Gloves!' equipping_items_msg_color
             endif
             while not findlayer self gloves
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -495,12 +515,12 @@ if not findlayer self pants
         sysmsg 'Searching for Pants Items' searching_for_items_msg_color
     endif
     foreach type in 'pants_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Outer Legs!' equipping_items_msg_color
             endif
             while not findlayer self pants
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -510,17 +530,37 @@ else
     sysmsg 'Pants Already Equipped' layer_already_equipped_msg_color
 endif
 
+if not findlayer self innerlegs
+    if inform_when_searching_for_items == 1
+        sysmsg 'Searching for Inner Legs Items' searching_for_items_msg_color
+    endif
+    foreach type in 'innerlegs_items'
+        if findtype type backpack as found
+            if inform_when_equipping_items == 1
+                sysmsg 'Equipping Inner Legs!' equipping_items_msg_color
+            endif
+            while not findlayer self innerlegs
+                dclick found
+                wait action_delay
+            endwhile
+            break
+        endif
+    endfor
+else
+    sysmsg 'Inner Legs Already Equipped' layer_already_equipped_msg_color
+endif
+
 if not findlayer self outerlegs
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Outer Legs Items' searching_for_items_msg_color
     endif
     foreach type in 'outerlegs_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Outer Legs!' equipping_items_msg_color
             endif
             while not findlayer self outerlegs
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -536,12 +576,12 @@ if not findlayer self shoes
         sysmsg 'Searching for Shoes Items' searching_for_items_msg_color
     endif
     foreach type in 'shoes_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Shoes!' equipping_items_msg_color
             endif
             while not findlayer self shoes
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -558,12 +598,12 @@ if not findlayer self cloak
         sysmsg 'Searching for Cloak Items' searching_for_items_msg_color
     endif
     foreach type in 'cloak_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Cloak!' equipping_items_msg_color
             endif
             while not findlayer self cloak
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -579,12 +619,12 @@ if not findlayer self shirt
         sysmsg 'Searching for Shirt Items' searching_for_items_msg_color
     endif
     foreach type in 'shirt_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Shirt!' equipping_items_msg_color
             endif
             while not findlayer self shirt
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -602,12 +642,12 @@ if not findlayer self waist
         sysmsg 'Searching for Waist Items' searching_for_items_msg_color
     endif
     foreach type in 'waist_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Waist/Belt!' equipping_items_msg_color
             endif
             while not findlayer self waist
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -625,12 +665,12 @@ if not findlayer self middletorso
         sysmsg 'Searching for Middle Torso Items' searching_for_items_msg_color
     endif
     foreach type in 'middletorso_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Middle Torso!' equipping_items_msg_color
             endif
             while not findlayer self middletorso
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -646,12 +686,12 @@ if not findlayer self outertorso
         sysmsg 'Searching for Outer Torso Items' searching_for_items_msg_color
     endif
     foreach type in 'outertorso_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Outer Torso / Robe!' equipping_items_msg_color
             endif
             while not findlayer self outertorso
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -669,12 +709,12 @@ if not findlayer self ring
         sysmsg 'Searching for Ring Items' searching_for_items_msg_color
     endif
     foreach type in 'bracelet_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Bracelet!' equipping_items_msg_color
             endif
             while not findlayer self ring
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -690,12 +730,12 @@ if not findlayer self bracelet
         sysmsg 'Searching for Earrings Items' searching_for_items_msg_color
     endif
     foreach type in 'earrings_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping {{type}}!' equipping_items_msg_color
             endif
             while not findlayer self bracelet
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -712,20 +752,20 @@ if not findlayer self lightsource
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Lightsources' searching_for_items_msg_color
     endif
-    # if findtype 'lantern' backpack as item
+    # if findtype 'lantern' backpack as found
     #     sysmsg 'Equipping Lantern!' equipping_items_msg_color
     #     while not findlayer self lightsource
-    #         dclick item
+    #         dclick found
     #         wait action_delay
     #     endwhile
     # else
     foreach type in 'lightsource_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping {{type}}!' equipping_items_msg_color
             endif
             while not findlayer self lightsource
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -745,12 +785,12 @@ if not findlayer self talisman
         sysmsg 'Searching for Talisman Items' searching_for_items_msg_color
     endif
     foreach type in 'talisman_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Talisman!' equipping_items_msg_color
             endif
             while not findlayer self talisman
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -766,14 +806,14 @@ if not findlayer self onehandedsecondary
         sysmsg 'Searching for Pipes' searching_for_items_msg_color
     endif
     foreach type in 'onehandedsecondary_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             sysmsg 'Equipping Pipe!' equipping_items_msg_color
 
             while not findlayer self onehandedsecondary
                 hotkey "Drop What You Are Currently Holding"
                 hotkey "Clear Drag/Drop Queue"
 
-                lift item
+                lift found
                 wait action_delay
                 drop self onehandedsecondary
                 wait action_delay
@@ -832,7 +872,7 @@ if not findlayer self quiver
         sysmsg 'Searching for Quiver Items' searching_for_items_msg_color
     endif
     foreach type in 'quiver_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Quiver!' equipping_items_msg_color
             endif
@@ -840,7 +880,7 @@ if not findlayer self quiver
                 hotkey "Drop What You Are Currently Holding"
                 hotkey "Clear Drag/Drop Queue"
 
-                lift item
+                lift found
                 wait action_delay
                 drop self quiver
                 wait action_delay
@@ -863,7 +903,7 @@ if not findlayer self outerbody
         sysmsg 'Searching for Outer Body Items' searching_for_items_msg_color
     endif
     foreach type in 'outerbody_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Outerbody!' equipping_items_msg_color
             endif
@@ -872,12 +912,12 @@ if not findlayer self outerbody
                 hotkey "Clear Drag/Drop Queue"
                 hotkey "Drop What You Are Currently Holding"
 
-                lift item
+                lift found
                 wait action_delay
                 drop self outerbody
                 wait action_delay
             else
-                dclick item
+                dclick found
                 wait action_delay
             endif
             break
@@ -898,12 +938,12 @@ if not findlayer self shoulder
         sysmsg 'Searching for Shoulder Items' searching_for_items_msg_color
     endif
     foreach type in 'shoulder_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Shoulder!' equipping_items_msg_color
             endif
             while not findlayer self shoulder
-                dclick item
+                dclick found
                 wait action_delay
             endwhile
             break
@@ -924,7 +964,7 @@ if not findlayer self underarms
         sysmsg 'Searching for Under Arms Items' searching_for_items_msg_color
     endif
     foreach type in 'underarms_items'
-        if findtype type backpack as item
+        if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Underarms!' equipping_items_msg_color
             endif
@@ -933,12 +973,12 @@ if not findlayer self underarms
                 hotkey "Clear Drag/Drop Queue"
                 hotkey "Drop What You Are Currently Holding"
 
-                lift item
+                lift found
                 wait action_delay
                 drop self outerbody
                 wait action_delay
             else
-                dclick item
+                dclick found
                 wait action_delay
             endif
             break

@@ -1,7 +1,63 @@
-say '[dock'
-wft 600
-if targetexists 'neutral'
-    while targetexists 'neutral'
-      overhead 'choose where to dock'
-    endwhile
+setvar! success_msg_color 65
+setvar! warning_msg_color 54
+setvar! dockmaster_gump_id 3287496917
+setvar! action_delay 600
+
+if not listexists 'dockmasters_serials'
+    createlist 'dockmasters_serials'
+    clearlist 'dockmasters_serials'
+
+    # PUBLIC DOCKMASTERS
+    #
+    # shelter docks Uriah the Dockmaster
+    pushlist 'dockmasters_serials' 0x11A32F
+    # Horseshoe Bay Beaumont the Dockmaster
+    pushlist 'dockmasters_serials' 0x80600
+    # Prevalia Kisa the Dockmaster
+    pushlist 'dockmasters_serials' 0x80788
+    # Prevalia Vanda the Dockmaster
+    pushlist 'dockmasters_serials' 0x80786
+    # Prevalia Meta the Dockmaster
+    pushlist 'dockmasters_serials' 0x80782
+    # Ivar the Dockmaster (GH)
+    pushlist 'dockmasters_serials' 0x19E66B
+    # Calandra Granite Docks dockmaster
+    pushlist 'dockmasters_serials' 0x54B3
+    # Winona Terran Dockmaster
+    pushlist 'dockmasters_serials' 0x805EF
+    # Marvin Terran Dockmaster
+    pushlist 'dockmasters_serials' 0xA3F
+    # Winona Terran Dockmaster
+    pushlist 'dockmasters_serials' 0x805EF
+    # Keane Winter Harbor dockmaster
+    pushlist 'dockmasters_serials' 0x5A40
+    # a dockmaster from the void (NW corner of the map in a floating concrete platform)
+    pushlist 'dockmasters_serials' 0x26290
+
+    # FS DOCKMASTERS
+    #
+    # FS-00
+    pushlist 'dockmasters_serials' 0x20CE8
+
 endif
+
+
+
+foreach dockmaster in 'dockmasters_serials'
+    if find dockmaster ground any any 25
+        sysmsg '>> FOUND DOCKMASTER!' success_msg_color
+        overhead '* FOUND DOCKMASTER *' success_msg_color
+        menu dockmaster 1
+        waitforgump dockmaster_gump_id action_delay
+
+        if gumpexists dockmaster_gump_id
+            sysmsg '>>> DOCKING SHIP!' warning_msg_color
+            gumpresponse 7
+            waitforgump dockmaster_gump_id action_delay
+            waitforgump 4216593270
+            waitforgump dockmaster_gump_id action_delay
+        endif
+    endif
+endfor
+
+sysmsg 'COUNDNT FIND ANY KNOWN DOCKMASTER' 39

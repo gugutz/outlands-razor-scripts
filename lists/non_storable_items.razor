@@ -1,0 +1,36 @@
+# LIST USED FOR VALUABLE ITEMS THAT DONT GO IN SHELFS, STOCKPILES AND SUCH
+
+
+if not listexists 'non_storable_items'
+    createlist 'non_storable_items'
+    pushlist 'non_storable_items' 22336 //skill_orb
+    pushlist 'non_storable_items' 'research materials'
+    pushlist 'non_storable_items' 5359 //spell_hue_deeds
+    pushlist 'non_storable_items' 'sandals'
+    pushlist 'non_storable_items' 'parchment' //collectable_cards
+    pushlist 'non_storable_items' 'carpet'
+
+    if unload_links_in_misc_container == 1
+        pushlist 'non_storable_items' 'chain link'
+    endif
+
+    # outlands event cards, like kings faire tickets or st patricks game cards
+    pushlist 'non_storable_items' 'card'
+    pushlist 'non_storable_items' 3712
+    pushlist 'non_storable_items' 3648
+    # greater paragon chests
+    pushlist 'non_storable_items' 29833
+    pushlist 'non_storable_items' 42517
+    pushlist 'non_storable_items' 29040
+    pushlist 'non_storable_items' 52615
+    pushlist 'non_storable_items' 17083
+
+    # ASPECT OILS, FOCIS AND BUNDLES - will only get dump if they dont go to the aspect tome item before this point
+    pushlist 'non_storable_items' 45285 //weapon_oils
+    pushlist 'non_storable_items' 48261 //aspect_focis
+    pushlist 'non_storable_items' 39856 //arrow_bundles
+    pushlist 'non_storable_items' 15178 //battle_commendation
+
+    # SHIP STUFF
+    pushlist 'non_storable_items' 'bag of gems' //pirate_booty
+endif

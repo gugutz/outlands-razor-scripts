@@ -1,0 +1,52 @@
+setvar! spell_recovery_delay 200
+
+overhead '** ma **' 76
+cast 'magic arrow'
+wft 1200
+hotkey 'Last Target'
+
+say 'all kill'
+wft 1000
+hotkey 'Last Target'
+wait spell_recovery_delay
+
+overhead '** weaken **' 76
+for 3
+    cast 'weaken'
+    wft 1200
+    hotkey 'Last Target'
+    wait spell_recovery_delay
+endfor
+
+overhead '** telekinesis **' 76
+    cast 'telekinesis'
+    wft 3500
+    hotkey 'Last Target'
+    wait spell_recovery_delay
+
+overhead '** explosion **' 76
+cast 'explosion'
+wait spell_recovery_delay
+# wait action_delay
+
+# send exp potion before explosion spell target appear
+potion 'Explosion'
+wft 1000
+hotkey 'Last Target'
+
+# wait and release the explosion spell target
+wft 3000
+hotkey 'Last Target'
+wait spell_recovery_delay
+
+overhead '** flamestrike **' 76
+cast 'flamestrike'
+wft 4500
+hotkey 'Last Target'
+wait spell_recovery_delay
+
+overhead '** lightning **' 76
+cast 'lightning'
+wft 3000
+hotkey 'Last Target'
+wait spell_recovery_delay

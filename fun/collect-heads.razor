@@ -1,0 +1,89 @@
+
+#################################
+# COLLECT HEADS
+# by gugutz
+# version 0.0.1
+#################################
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release
+#
+
+
+
+#################################
+# CODE
+#################################
+clearsysmsg
+@clearignore
+
+# if there are already heads on the ground, grab them
+if findtype 'head' ground any any 2 as corpse_head
+    getlabel corpse_head corpse_head_label
+    overhead '*grabbing {{corpse_head_label}}*' 56 self
+    hotkey "Grab Item"
+    wft 600
+    target corpse_head
+    stop
+endif
+
+if not findtype 'dagger' backpack and not findtype 'elven spellblade' backpack
+    overhead '*NO KNIFE TO GUT*' 38
+    stop
+endif
+
+if not findtype 'corpse' ground any any 2
+    overhead 'no corpse nearby to gut!' 38
+    stop
+endif
+
+
+while not targetexists 'neutral'
+    if findtype 'dagger' backpack
+        usetype 'dagger' backpack
+    elseif findtype 'elven spellblade' backpack
+        usetype 'elven spellblade' backpack
+    endif
+
+    wft 600
+    if insysmsg 'must wait'
+        sysmsg '>>> SKILL COOLDOWN' 45
+        overhead 'skill cooldown' 45
+    endif
+
+    if insysmsg 'must wait a few moments before carving again'
+        sysmsg '>>> SKILL COOLDOWN (FORENSIC)' 45
+        overhead 'forensic cooldown' 45
+    endif
+endwhile
+
+
+if targetexists 'neutral'
+    # if not findtype 'corpse' ground any any 2
+    #     overhead '*no corpses to gut*' 52
+    #     stop
+    # endif
+
+    if findtype 'corpse' ground any any 2 as body
+        getlabel body body_label
+
+        overhead '*gutting {{body_label}}*' 56 'self'
+        sysmsg '>>> GUTTING {{body_label}}' 49
+        target body
+        wait 600
+
+        if findtype 'head' ground any any 2 as corpse_head
+            getlabel corpse_head corpse_head_label
+            overhead '*grabbing {{corpse_head_label}}*' 56 self
+            hotkey "Grab Item"
+            wft 600
+            target corpse_head
+        endif
+    endif
+
+endif

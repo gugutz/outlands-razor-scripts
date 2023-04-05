@@ -1,0 +1,36 @@
+
+
+createlist 'attacked_targets'
+clearlist 'attacked_targets'
+
+if not timerexists execution_timer
+    createtimer execution_timer
+endif
+
+settimer execution_timer 0
+
+hotkey "Next Enemy Player Target"
+
+while not dead self
+    sysmsg 'TRY {{index}}'
+    hotkey "Next Enemy Player Target"
+    if insysmsg 'New target'
+        setvar! targserial lasttarget
+
+        if not inlist 'attacked_targets' targserial
+            sysmsg 'PUSHING {{targserial}} TO LIST'
+            pushlist 'attacked_targets' targserial
+            hotkey 'Attack Last Target'
+        else
+            sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
+            break
+        endif
+    endif
+
+    if index >= 9
+        sysmsg 'STOPING ON 9TH ATTEMPT TO FIND TARGET' 54
+        stop
+    endif
+endwhile
+
+sysmsg 'FINISHED IN {{execution_timer}}'

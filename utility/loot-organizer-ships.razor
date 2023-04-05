@@ -1,0 +1,197 @@
+
+######################r ###########
+# HIDE ITEMS IN SHIP HATCH
+# v0.0.5
+# by gugutz
+#
+#################################
+# CHANGELOG
+#
+# v0.0.1
+# - Initial release
+#
+
+#################################
+# CONFIGURATION
+#################################
+if not timerexists 'hide_loot_execution_timer'
+    createtimer 'hide_loot_execution_timer'
+endif
+settimer 'hide_loot_execution_timer' 0
+
+setvar! debug 1
+setvar! action_delay 500
+setvar! spell_recovery_delay 200
+
+# nesting = 1
+# superimposting = 2
+# mix both methods = 3
+setvar! organize_method 3
+setvar! hide_sheps_crook 1
+setvar! add_mushroom_to_superimposed_pouches 1
+
+setvar! reorganized_pouches 0
+
+# loadout container set to 'bag' - 3702
+setvar! LOADOUT_CONTAINER_TYPE 3702
+
+#################################
+# SCRIPT VARIABLES (DONT MESS HERE!)
+#################################
+
+setvar! default_sysmsg_color 54
+setvar! default_overhead_color 54
+setvar! debug_sysmsg_color 120
+setvar! spell_msg_color 49
+setvar! buff_msg_color 92
+setvar! warning_msg_color 54
+setvar! alert_msg_color 40
+setvar! script_msg_color 21
+setvar! success_msg_color 75
+setvar! action_msg_color 79
+
+if name == 'C A R O L'
+    setvar! hide_sheps_crook 0
+endif
+#################################
+# SETUP SOME NEEDED LISTS
+#################################
+
+
+#################################
+#
+# CODE
+#
+#################################
+
+
+# ITEMS LIST
+if not listexists 'ship_loot_items'
+    createlist 'ship_loot_items'
+
+    pushlist 'ship_loot_items' 'gold coin'
+    pushlist 'ship_loot_items' 'muffins' //doubloons
+    pushlist 'ship_loot_items' 'bag of gems' //pirate_booty
+    pushlist 'ship_loot_items' 'spyglass' //pirate_booty
+endif
+
+
+########################################
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+########################################
+if findtype 2594|2598|2578|30580 self
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    setvar! boating_mode 0
+endif
+
+
+
+#############################
+# HIDE ITENS
+#############################
+
+hotkey "Resynchronize Client"
+
+if not varexist CHAR_BOAT_HATCH
+    sysmsg 'CHAR_BOAT_HATCH DOENST EXIST' 37
+    # stop
+elseif varexist CHAR_BOAT_HATCH and not find CHAR_BOAT_HATCH ground any any 2
+    sysmsg 'CANT FIND SAVED BOAT HATCH {{CHAR_BOAT_HATCH}} WITHIN 2 TILES' 39
+
+    # check if hatch nearby is already opened
+    if findtype 'hatch' ground any any 2 as found
+        sysmsg 'FOUND HATCH' 90
+        setvar! CHAR_BOAT_HATCH found
+    else
+        setvar CHAR_BOAT_HATCH
+    endif
+
+endif
+
+
+@clearignore
+setvar! found_something_to_hide_in_pouch 0
+
+
+
+##################################
+# HIDE GENERAL LOOT ITEMS
+
+
+dclick CHAR_BOAT_HATCH
+wait action_delay
+
+if not findtype 'backpack' CHAR_BOAT_HATCH
+    sysmsg 'CANT FIND BACKPACK IN HATCH!' 54
+    while findtype 'backpack' as found
+        getlabel found packlabel
+        if 'Hotbag' in packlabel or '0 items' in packlabel
+            sysmsg 'FOUND BACKPACK IN HATCH!' 54
+
+            lift found 1
+            wait 100
+            while queued
+            endwhile
+
+            drop CHAR_BOAT_HATCH
+            wait 100
+            while queued
+            endwhile
+        endif
+        @ignore found
+    endwhile
+
+    @clearignore
+endif
+
+while insysmsg 'you must wait'
+    sysmsg 'Opening hatch...' 53
+    clearsysmsg
+    dclick hatch
+    wait action_delay
+endwhile
+
+for 2
+    organizer 20
+    wait 100
+    
+    while queued
+        wait 100
+        sysmsg 'Unloading in hatch'
+    endwhile
+endfor
+
+setvar! destination_container CHAR_BOAT_HATCH
+
+
+# clear all ignored items so we can find them again on next script execution
+@clearignore
+
+sysmsg "***************************" 90
+
+
+
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+if boating_mode == 1
+    script 'ships\search-ships'
+endif
+
+
+
+
+setvar! hide_loot_first_run_done 1
+
+sysmsg 'FINISHED IN {{hide_loot_execution_timer}} ms' 49

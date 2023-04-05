@@ -1,0 +1,145 @@
+
+setvar! action_delay 600
+setvar! gate_spell_cast_time 6000
+setvar! pirate_booty_container 0x44BC9B2C
+
+if not varexist HOME_RUNETOME
+    sysmsg 'HOME_RUNETOME is not set!' 54
+    setvar HOME_RUNETOME
+elseif varexist HOME_RUNETOME and not find HOME_RUNETOME backpack
+    sysmsg 'HOME_RUNETOME cant be found!' 54
+    setvar HOME_RUNETOME
+endif
+
+
+# find and set the hatch backpack, that should be on ground after docking
+unsetvar! ship_loot_backpack
+if findtype 'backpack' ground any any 1 as found
+    sysmsg 'FOUND LOOT BACKPACK!' 70
+    setvar! ship_loot_backpack found
+else
+    sysmsg 'SHIP LOOT BACKPACK NOT FOUND!' 37
+    stop
+endif
+
+# make sure noone is hidden nearby
+cast 'Reveal'
+wft 5000
+hotkey 'Target Self'
+wait action_delay
+
+# open gate home
+hotkey 'Gate Travel'
+wft gate_spell_cast_time
+target HOME_RUNETOME
+wait action_delay
+
+# find and set the open moongate
+unsetvar! home_moongate
+if findtype 'blue moongate' ground any any 1 as found
+    sysmsg 'FOUND OPEN MOONGATE!' 70
+    setvar! home_moongate found
+else
+    sysmsg 'COULD NOT FIND OPEN MOONGATE!' 37
+    stop
+endif
+
+
+# lift the backpack and enter the gate without droping
+sysmsg 'Taking ship loot home' 90
+lift ship_loot_backpack 1
+wait action_delay
+dclick home_moongate
+waitforgump 3899019871 1000
+wait action_delay
+gumpresponse 2
+wait 2000
+
+
+# drop the backpack after entering the gate
+droprelloc 0 1
+wait 1000
+cast 'Dispel Field'
+wft 3500
+targettype 'blue moongate' ground
+wait action_delay
+
+# restock stockpile with backpack
+if findtype 'resource container' ground any any 2 as stockpile
+    sysmsg "> RESTOCKING STOCKPILE WITH SHIP'S LOOT" 49
+    menu stockpile 0
+    wft action_delay
+    target ship_loot_backpack
+endif
+
+# restock shelf
+if findtype 'storage shelf' ground any any 2 as shelf
+    sysmsg "> RESTOCKING SHELF WITH SHIP'S LOOT" 49
+    menu shelf 0
+    wft action_delay
+    target ship_loot_backpack
+    waitforgump 3232825965 action_delay
+    gumpclose
+endif
+
+# restock garden shelf
+if findtype 'garden shelf' ground any any 2 as gardenshelf
+    sysmsg "> RESTOCKING GARDEN SHELF WITH SHIP'S LOOT" 49
+    menu gardenshelf 0
+    wft action_delay
+    target ship_loot_backpack
+endif
+
+# recycle all items inside backpack
+if findtype 'ornate elven chest' ground any any 2 as recycler
+    sysmsg "> RECYCLING SHIP'S LOOT" 49
+    dclick recycler
+    waitforgump 4045111101
+    gumpresponse 3
+    wft action_delay
+    target ship_loot_backpack
+endif
+
+
+# open the backpack
+sysmsg "> OPENING SHIP'S LOOT TO DEPOSIT GOLD" 49
+dclick ship_loot_backpack
+wait action_delay
+
+# deposit gold and doubloons
+while findtype "gold coin|muffins" ship_loot_backpack as currency
+    if findtype 'bank deposit safe' gold_container_location_serial any any 2 as deposit_box
+        getlabel currency_from_packie currency_from_packie_label
+        overhead '*unloading {{currency_from_packie_label}}*' 49 packanimal
+        sysmsg '> Unloading {{currency_from_packie_label}} From SHIP BACKPACK' 49
+    
+        lift currency 60000
+        wait action_delay
+        # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
+        drop deposit_box -1 -1 0
+        wait action_delay
+    else
+        sysmsg 'COULDNT FIND BANK DEPOSIT SAFE IN GROUND' 37
+    endif
+endwhile
+
+# deposit gold
+while findtype 'a bag of gems' ship_loot_backpack as booty
+    sysmsg 'FOUND BOOTY TO UNLOAD' 90
+    if find pirate_booty_container ground any any 2
+        lift booty 60000
+        wait action_delay
+        drop pirate_booty_container -1 -1 0
+        wait action_delay
+    else
+        sysmsg 'COULDNT FIND PIRATE BOOTY CONTAINER IN GROUND' 37
+    endif
+endwhile
+
+# deposit pirate booty in specific chest
+lifttype 'bag of gems' ship_loot_backpack 2
+drop 0x492B36D3 -1 -1 0
+
+# put the ship loot backpack back in char backpack
+lift 0x403EB002 1
+drop 0x4803E76E 91 72 0

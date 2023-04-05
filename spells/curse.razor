@@ -1,0 +1,96 @@
+setvar! action_delay 550
+setvar! spell_recovery_delay 200
+setvar! curse_delay 60000
+setvar! mass_curse_delay 60000
+
+
+if not timerexists 'waiting_target_timer'
+    createtimer 'waiting_target_timer'
+endif
+
+
+if targetexists 'any'
+    sysmsg 'TARGET OPEN!' 54
+    overhead 'target open!' 54
+    stop
+endif
+
+
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+setvar! boating_mode 0
+if findtype 2578 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 3947 self
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+
+
+########################################
+# CURSE TARGET
+########################################
+
+clearsysmsg
+@settimer 'waiting_target_timer' 0
+
+setvar! cast_mass_curse 0
+if boating_mode == 1
+    sysmsg 'MASS CURSE! (BOATING MODE ON)' 91
+    setvar! cast_mass_curse 1
+elseif findtype 'hatch' ground any any 20 or findtype 'test' ground any any 20
+    sysmsg 'FOUND HATCH. ASSUMING BOATING MODE' 91
+    setvar! cast_mass_curse 1
+endif
+
+if cast_mass_curse == 1
+    sysmsg 'MASS CURSE!' 91
+    cast 'mass curse'
+else
+    sysmsg 'CURSE!' 90
+    cast 'curse'
+endif
+
+while not targetexists 'harmful' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 3500
+    wait 10
+
+    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell'
+        sysmsg 'BREAKING WHILE WAITING FOR CURSE TARGET' warning_msg_color
+
+        wait spell_recovery_delay
+        break
+    endif
+endwhile
+
+if targetexists 'harmful'
+    sysmsg 'SELECT CURSE TARGET' 54
+
+    clearsysmsg
+    while targetexists 'harmful'
+        wait 100
+    endwhile
+
+
+    if not insysmsg 'Target cannot be seen' and not insysmsg 'out of range'
+        sysmsg '+++ RESETING CURSE TIMER' reset_timer_msg_color
+        settimer 'curse_timer' 0
+
+        if cast_mass_curse == 1
+            cooldown 'MASS CURSE' mass_curse_delay
+        else
+            cooldown 'CURSE' curse_delay
+        endif
+
+        setvar! last_cursed_serial lasttarget
+    endif
+endif
+
+
+if boating_mode == 1
+    script 'ships\search-ships'
+endif

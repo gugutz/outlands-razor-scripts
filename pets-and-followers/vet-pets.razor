@@ -5,7 +5,7 @@
 
 # CONFIG
 
-@setvar find_pets_range 5
+setvar! find_pets_range 5
 
 # choose your summon combo here (use the name of the summons)
 @createlist 'pets'
@@ -26,11 +26,22 @@ endif
 j
 
 # use vet kit
-if findtype "wall shelf" true
-    dclicktype 'wall shelf' backpack
-else
-    dclicktype 'clean bandage%s%' backpack
+if not cooldown 'Bandage' and not targetexists 'any'
+  if findtype "veterinary supplies" backpack as found
+      dclick found
+      waitforsysmsg 'begin using veterinary supplies' action_delay
+
+      if insysmsg 'You do not have any living followers close'
+          sysmsg 'PETS FAR! CALLING THEM CLOSER...' 54
+          say 'all follow me'
+      endif
+
+  else
+      dclicktype 'clean bandage%s%' backpack
+  endif
 endif
+
+loop
 
 # foreach summon in 'pets'
 #     if summon = 'summ. creature'

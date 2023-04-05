@@ -1,0 +1,69 @@
+
+setvar! spell_recovery_delay 180
+
+createlist 'poison_targets'
+clearlist 'poison_targets'
+
+while not dead self
+    hotkey "Next Non-Friendly Monster Target"
+    if insysmsg 'New target'
+        setvar! targserial lasttarget
+        if not inlist 'poison_targets' targserial
+            sysmsg 'PUSHING {{targserial}} TO LIST'
+            pushlist 'poison_targets' targserial
+        else
+            sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
+            break
+        endif
+    endif
+endwhile
+
+foreach x in 'poison_targets'
+    sysmsg 'TARGET {{index}}: {{x}}'
+endif
+
+# if we are at the last list 'poison_targets', theres no next pouch to move
+if list 'poison_targets' == 0
+    setvar! list_size 1
+elseif list 'poison_targets' == 1
+    setvar! list_size 2
+elseif list 'poison_targets' == 2
+    setvar! list_size 3
+elseif list 'poison_targets' == 3
+    setvar! list_size 4
+elseif list 'poison_targets' == 4
+    setvar! list_size 5
+elseif list 'poison_targets' == 5
+    setvar! list_size 6
+elseif list 'poison_targets' == 6
+    setvar! list_size 7
+elseif list 'poison_targets' == 7
+    setvar! list_size 8
+elseif list 'poison_targets' == 8
+    setvar! list_size 9
+elseif list 'poison_targets' == 9
+    setvar! list_size 10
+elseif list 'poison_targets' == 10
+    setvar! list_size 11
+elseif list 'poison_targets' == 11
+    setvar! list_size 11
+elseif list 'poison_targets' == 12
+    setvar! list_size 13
+endif
+
+sysmsg 'LIST SIZE {{list_size}}'
+
+hotkey 'Clear Target Queue'
+hotkey 'Toggle Peace Only'
+
+foreach targ in 'poison_targets'
+    if not dead targ
+        cast 'poison'
+        wft 3000
+        target targ
+        wait spell_recovery_delay
+    else
+        sysmsg 'MOB {{mob}} ALREADY DEAD!' 54
+    endif
+endfor
+

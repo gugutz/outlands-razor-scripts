@@ -1,0 +1,527 @@
+#################################
+# Corpse Looter
+# v0.0.1
+# by gugutz
+#
+#################################
+# CHANGELOG
+#
+# v0.0.1
+# - Initial release
+#
+
+#################################
+# CONFIGURATION
+#################################
+
+setvar! loot_magical_instruments 1
+setvar! loot_colored_resources 1
+setvar! loot_colored_weapons 0
+setvar! loot_colored_shields 0
+setvar! loot_colored_armor 0
+setvar! loot_gems 1
+setvar! action_delay 600
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#
+if not listexists 'loot_corpses_state_lists'
+    createlist 'loot_corpses_state_lists'
+
+    pushlist 'loot_corpses_state_lists' 'all_corpse_pouches'
+    pushlist 'loot_corpses_state_lists' 'corpse_trapped_pouches'
+    pushlist 'loot_corpses_state_lists' 'containers_with_items'
+    pushlist 'loot_corpses_state_lists' 'serials_to_loot'
+    pushlist 'loot_corpses_state_lists' 'loot_this_item'
+
+
+
+
+    foreach list in 'loot_corpses_state_lists'
+        if not listexists list
+            createlist list
+        endif
+    endfor
+
+endif
+
+clearlist 'containers_with_items'
+
+
+
+#################################
+# Ask for which corpse to loot
+#
+createtimer 'waiting_tchest_msg_timer'
+settimer 'waiting_tchest_msg_timer' 1501
+
+unsetvar! container
+overhead 'select container to loot...' 52
+sysmsg 'Select Container To Loot...' 51
+setvar! container
+
+
+if not varexist container
+    overhead 'no container set'
+    stop
+endif
+
+pushlist 'containers_with_items' container
+
+
+
+#################################
+# CODE
+#################################
+
+# ------------------------------
+# ITEMS LIST
+if not listexists 'loot_items'
+    createlist 'loot_items'
+    pushlist 'loot_items' 'chain link'
+    # greater paragon chests
+    pushlist 'loot_items' 29833
+    pushlist 'loot_items' 42517
+    pushlist 'loot_items' 29040
+    pushlist 'loot_items' 52615
+    pushlist 'loot_items' 17083
+    pushlist 'loot_items' 'map'
+    pushlist 'loot_items' 48261 //aspect_focis
+    pushlist 'loot_items' 'bold and arrow keg' //bolt_and_arrow_bundle
+    pushlist 'loot_items' 'void orb' //skill_ball
+    pushlist 'loot_items' 'research materials'
+    pushlist 'loot_items' 'scroll of calling' //skill_scroll
+    pushlist 'loot_items' 22336
+    pushlist 'loot_items' 'Book of Truth' //mcd
+    pushlist 'loot_items' 5359 //spell_hue_deeds
+    pushlist 'loot_items' 'folded cloth' //rare_cloths
+    pushlist 'loot_items' 'sandals'
+    pushlist 'loot_items' 'aspect core'
+    pushlist 'loot_items' 3836 //aspect_extract
+    pushlist 'loot_items' 17686 //aspect_destil
+    pushlist 'loot_items' 'parchment' //collectable_cards
+    pushlist 'loot_items' 'carpet'
+    # runebook, backpack, hair, headwear, shield and quiver (and maybe more) dyes
+    # this single name unifies several dye types and replaces several of the graphics bellow
+    pushlist 'loot_items' 'bottle'
+    # pushlist 'loot_items' 3838 //runebook_dyes
+    # pushlist 'loot_items' 3839 //backpack_dyes
+    # pushlist 'loot_items' 3843 //acessory_dyes
+    # pushlist 'loot_items' 3842 //headwear_dyes
+    pushlist 'loot_items' 3843 //facial_dyes
+    pushlist 'loot_items' 29025 //fortuniture_dyes
+    pushlist 'loot_items' 29036 //carpet_dyes
+    pushlist 'loot_items' 'blank scroll%s%' //arcane_scrolls
+    pushlist 'loot_items' 29030 //plant_chemicals
+    # pushlist 'loot_items' 'mushroom' //magic_mushroom
+    # pushlist 'loot_items' 'rope' //adventurers_rope_and_boating_rope
+
+    # adventurers rope (any rope really, but the intetion is to hide my adventurers rope)
+    pushlist 'loot_items' 'elven spellblade'
+endif
+
+
+# ------------------------------
+# COMMON LOOTABLE ITEMS LIST
+
+
+# WHICH MATERIAL TO LOOT
+if not listexists 'common_items'
+    createlist 'common_items'
+
+    # sheps crook
+    # pushlist 'common_items' 3713
+    pushlist 'common_items' "shepherd's crook"
+    # skinning knife
+    pushlist 'common_items' 'elven spellblade'
+
+    # INSTRUMENTS
+    if varexist loot_magical_instruments == 1
+        pushlist 'common_items' 'bamboo flute'
+        pushlist 'common_items' 'lute'
+        pushlist 'common_items' 'drum'
+        # tambourine doenst work with name appearantly
+        pushlist 'common_items' 3742
+        pushlist 'common_items' 'tambourine'
+        pushlist 'common_items' 'lap harp'
+        pushlist 'common_items' 7956
+    endif
+
+    if loot_gems == 1
+        @pushlist 'common_items' 'rub%ies/y%'
+        @pushlist 'common_items' 'tourmaline%s%'
+        @pushlist 'common_items' 'emerald%s%'
+        @pushlist 'common_items' 'diamond%s%'
+        @pushlist 'common_items' 'piece%s% of amber'
+        @pushlist 'common_items' 'amethyst%s%'
+        @pushlist 'common_items' 'star sapphire%s%'
+        @pushlist 'common_items' 'citrine%s%'
+        @pushlist 'common_items' 'sapphire%s%'
+    endif
+
+
+    # colored resources
+    if varexist loot_colored_resources == 1
+        @pushlist 'common_items' 'cut up leather'
+        @pushlist 'common_items' 'log%s'
+        @pushlist 'common_items' 'board%s'
+        @pushlist 'common_items' 'ingot%s'
+    endif
+
+    pushlist 'common_items' 'spellbook'
+
+    # WRESTLE MARTIAL MANUAL
+    pushlist 'common_items' 'martial arts scroll'
+
+    if varexist loot_colored_weapons == 1
+      # ARCHERY WEAPONS
+        pushlist 'common_items' 'bow'
+        pushlist 'common_items' 'crossbow'
+        pushlist 'common_items' 'heavy crossbow'
+
+        # SWORDS WEAPONS
+        pushlist 'common_items' 'cutlass'
+        pushlist 'common_items' 'katana'
+        pushlist 'common_items' 'viking sword'
+        pushlist 'common_items' 'broadsword'
+        pushlist 'common_items' 'longsword'
+        pushlist 'common_items' 'double axe'
+        pushlist 'common_items' 'two handed axe'
+        pushlist 'common_items' 'battle axe'
+        pushlist 'common_items' 'bardiche'
+        pushlist 'common_items' 'halberd'
+        pushlist 'common_items' "executioner's axe"
+
+        # MACING WEAPONS
+        pushlist 'common_items' 'club'
+        pushlist 'common_items' 'mace'
+        pushlist 'common_items' 'war mace'
+        pushlist 'common_items' 'war axe'
+        pushlist 'common_items' 'hammer pick'
+        pushlist 'common_items' 'black staff'
+        pushlist 'common_items' 'gnarled staff'
+        pushlist 'common_items' 'quarter staff'
+        # war hammer (doenst work with just name, need ID)
+        pushlist 'common_items' 'war hammer'
+        pushlist 'common_items' 5177
+        pushlist 'common_items' 'maul'
+        # sheps crook
+        pushlist 'common_items' 3713
+
+        # FENCING WEAPONS
+        pushlist 'common_items' 'kryss'
+        pushlist 'common_items' 'war fork'
+        pushlist 'common_items' 'short spear'
+        pushlist 'common_items' 'Long Spear'
+        pushlist 'common_items' 'pitchfork'
+        pushlist 'common_items' 'bladed staff'
+
+    endif
+
+    if varexist loot_colored_shields == 1
+        # SHIELDs
+        # buckler (doenst work with only name)
+        pushlist 'common_items' 7027
+        pushlist 'common_items' 'buckler'
+        pushlist 'common_items' 'wooden shield'
+        pushlist 'common_items' 'metal shield'
+        # bronze shield (for some reason doenst work with name, only graphic number)
+        pushlist 'common_items' 7026
+        # kite shield (for some reason doenst work with name, only graphic number)
+        pushlist 'common_items' 7033
+        # metal kite shield
+        pushlist 'common_items' 7029
+        pushlist 'common_items' 'heater shield'
+    endif
+
+
+    if varexist loot_colored_armor == 1
+
+        # LIST OF COLORS OF MATERIALS TO LOOT
+        if not listexists 'materials_to_loot'
+            createlist 'materials_to_loot'
+            # pushlist 'materials_to_loot' 'avar'
+            # pushlist 'materials_to_loot' 'vale'
+            # pushlist 'materials_to_loot' 'ver'
+            pushlist 'materials_to_loot' 'avarhide'
+            pushlist 'materials_to_loot' 'avarwood'
+            pushlist 'materials_to_loot' 'avarite'
+            pushlist 'materials_to_loot' 'valehide'
+            pushlist 'materials_to_loot' 'valewood'
+            pushlist 'materials_to_loot' 'valorite'
+            pushlist 'materials_to_loot' 'verehide'
+            pushlist 'materials_to_loot' 'verewood'
+            pushlist 'materials_to_loot' 'verite'
+            pushlist 'materials_to_loot' 'agapite'
+            pushlist 'materials_to_loot' 'gold'
+        endif
+
+        # BONE SET
+        pushlist 'common_items' 'bone armor'
+        pushlist 'common_items' 'bone gorget'
+        pushlist 'common_items' 'bone arms'
+        pushlist 'common_items' 'bone gloves'
+        pushlist 'common_items' 'bone legs'
+
+        # LEATHER SET
+        pushlist 'common_items' 'leather cap'
+        pushlist 'common_items' 'leather tunic'
+        pushlist 'common_items' 'leather gorget'
+        pushlist 'common_items' 'leather sleeves'
+        pushlist 'common_items' 'leather gloves'
+        pushlist 'common_items' 'leather leggings'
+        pushlist 'common_items' 'leather skirt'
+        pushlist 'common_items' 'leather bustier'
+        pushlist 'common_items' 'leather shorts'
+        pushlist 'common_items' 'leather armor'
+
+
+        # STUDDED SET
+        pushlist 'common_items' 'studded tunic'
+        # studded armor (doenst work with only name)
+        pushlist 'common_items' 7170
+        pushlist 'common_items' 'studded armor'
+        pushlist 'common_items' 'studded sleeves'
+        pushlist 'common_items' 'studded leggings'
+        pushlist 'common_items' 'studded gorget'
+        pushlist 'common_items' 'studded gloves'
+        pushlist 'common_items' 'studded bustier'
+
+        # HELMETS
+        pushlist 'common_items' 'helmet'
+        pushlist 'common_items' 'norse helm'
+        pushlist 'common_items' 'close helm'
+        # bascinet doenst work with name appearantly
+        pushlist 'common_items' 5135
+        pushlist 'common_items' 'bascinet'
+        pushlist 'common_items' 'bone helmet'
+        pushlist 'common_items' 'plate helm'
+
+        # PLATEMAIL SET
+        pushlist 'common_items' 'platemail'
+        pushlist 'common_items' 'platemail arms'
+        pushlist 'common_items' 'platemail legs'
+        pushlist 'common_items' 'platemail gorget'
+        pushlist 'common_items' 'platemail gloves'
+
+        # CHAINMAIL SET
+        pushlist 'common_items' 'chainmail coif'
+        pushlist 'common_items' 'chainmail tunic'
+        pushlist 'common_items' 'chainmail arms'
+        pushlist 'common_items' 'chainmail leggings'
+        pushlist 'common_items' 'chainmail gorget'
+        pushlist 'common_items' 'chainmail gloves'
+
+        # CHAINMAIL SET
+        pushlist 'common_items' 'ringmail tunic'
+        # sleeves
+        pushlist 'common_items' 'ringmail sleeves'
+        pushlist 'common_items' 5103
+        pushlist 'common_items' 'ringmail leggings'
+        pushlist 'common_items' 'ringmail gorget'
+        pushlist 'common_items' 'ringmail gloves'
+    endif
+
+
+
+endif
+
+
+
+# WHICH MATERIAL TO LOOT
+if not listexists 'magical_properties_to_loot'
+    createlist 'magical_properties_to_loot'
+    pushlist 'magical_properties_to_loot' 'vanquishing'
+    pushlist 'magical_properties_to_loot' 'exceedingly'
+    pushlist 'magical_properties_to_loot' 'supremely'
+endif
+
+# first find all pouches in corpse
+@clearignore
+# clearlist 'corpse_trapped_pouches'
+# clearlist 'all_corpse_pouches'
+
+
+unsetvar! found_something_to_loot
+
+while findtype 'pouch' container any as pouch_serial
+    getlabel pouch_serial pouch_label
+
+    if '0 items' in pouch_label
+        # overhead '{{pouch_serial}} Has 0 Items.' 56
+    else
+        overhead 'found {{pouch_label}}!' 70
+        sysmsg 'FOUND {{pouch_label}}!' 70
+
+        pushlist 'containers_with_items' pouchx
+
+    endif
+    @ignore pouch_serial
+endwhile
+
+@clearignore
+
+
+
+foreach container in 'containers_with_items'
+    if hue container == 38
+        overhead '*popping trapped pouch with items*' 90
+
+        dclick container
+        wait action_delay
+        if insysmsg 'You must wait'
+            while insysmsg 'You must wait'
+                clearsysmsg
+                dclick container
+                wait action_delay
+            endwhile
+        endif
+    endif
+
+    dclick container
+    wait action_delay
+    if insysmsg 'You must wait'
+        while insysmsg 'You must wait'
+            clearsysmsg
+            dclick container
+            wait action_delay
+        endwhile
+    endif
+
+    sysmsg 'Scanning {{container}} for RARE items...' 52
+
+    while findtype "29833|42517|29040|52615|17083|map|48261|'bold and arrow keg'|'void orb'|'research materials'|'scroll of calling'|22336|'Book of Truth'|5359|'folded cloth'|sandals|'aspect core'|3836|17686|parchment|carpet|bottle|3838|3839|3843|3842|3843|29025|29036|'blank scroll%s%'|29030" container as found
+        getlabel found found_label
+        sysmsg '>>> LOOTING {{found_label}}' 90
+        overhead 'LOOTING {{found_label}}' 90
+
+        if varexist CHAR_LOOT_POUCH
+            lift found 999
+            wait 50
+            while queued
+            endwhile
+
+            drop CHAR_LOOT_POUCH
+            wait 50
+            while queued
+            endwhile
+        else
+            hotkey 'Grab Item'
+            wft action_delay
+            target found
+            wait 50
+            while queued
+            endwhile
+        endif
+
+    endwhile
+
+
+    foreach item in 'common_items'
+        # sysmsg 'Scanning for {{item}}' 52
+
+        clearlist 'loot_this_item'
+        if findtype item container any any as item_serial or findtype item container any any as item_serial
+            getlabel item_serial item_label
+            setvar! loot_this_item 0
+
+            # decide if item is worth taking
+            if 'exceedingly' in item_label or 'supremely' in item_label or 'invulnerability' in item_label
+                setvar! loot_this_item 1
+            elseif 'avar' in item_label or 'vale' in item_label or 'ver' in item_label or 'rosewood' in item_label or 'gold' in item_label
+                setvar! loot_this_item 1
+            endif
+
+
+            # if item is worth taking, loot it
+            if loot_this_item == 1
+
+                # flag once that we found something so we can print info at the end of execution
+                setvar! found_something_to_loot 1
+
+                # LOOT
+                if varexist CHAR_LOOT_POUCH
+                    if find CHAR_LOOT_POUCH backpack
+                        sysmsg 'LOOTING: {{item_label}} TO TRAP POUCH...' 70
+                        overhead 'looting {{item}} to trap pouch' 70 'self'
+                        lift item_serial 999
+                        wait action_delay
+                        drop char_loot_pouch
+                        wait action_delay
+                    endif
+                else
+                    sysmsg 'LOOTING: {{item_label}} TO TRAP POUCH...' 70
+                    overhead '*looting {{item}}*' 70 'self'
+                    hotkey 'Grab Item'
+                    wft action_delay
+                    target item_serial
+                    wait action_delay
+                endif
+            endif
+
+
+        endif
+
+    endfor
+endfor
+
+
+#
+
+
+
+if varexist found_something_to_loot
+    overhead "*finished looting all items*" 70
+else
+    overhead "found nothing to loot..." 55
+endif
+
+
+
+# if list 'serials_to_loot' > 0
+#     overhead 'found lootable items!' 65
+#     foreach pouch_serial in 'containers_with_items'
+
+#         foreach item_serial in 'serials_to_loot'
+#             getlabel item_serial item_label
+#             if find item_serial pouch_serial
+
+#                 if not find pouch_serial ground any any 2
+#                     overhead '*dropping pouch on ground*' 52
+#                     pause action_delay
+#                     lift pouch_serial
+#                     pause action_delay
+#                     droprelloc 0 1
+#                     pause action_delay
+#                 endif
+
+#                 # LOOT
+#                 if listexists 'char_loot_pouch'
+#                     if atlist 'char_loot_pouch' 0 as char_loot_pouch
+#                         if find char_loot_pouch backpack
+#                             sysmsg 'Securing {{item_label}} From Pouch...' 51
+#                             overhead 'securing {{item_label}}' 51 'self'
+#                             lift item_serial 999
+#                             wait action_delay
+#                             drop char_loot_pouch
+#                             wait action_delay
+#                         endif
+#                     endif
+#                 else
+#                     sysmsg 'Looting {{item_label}} From Pouch...' 51
+#                     overhead 'looting {{item_label}}' 51 'self'
+#                     hotkey 'Grab Item'
+#                     wft action_delay
+#                     target item_serial
+#                     wait action_delay
+#                 endif
+#             endif
+#         endfor
+#     endfor
+# endif
+
+
+################################
+# CLOSE CONFIG 'if atlist' STATEMENTS
+################################
+endif

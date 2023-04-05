@@ -1,0 +1,11 @@
+while findtype '28935|rowboat|18821|39434|28990|28820' ground any any 10 as spot
+    if findtype 'fishing net' backpack as net
+        dclick net
+        wft action_delay
+        target spot
+        wait 1000
+    else
+        sysmsg 'NO FISHING NETS!' 39
+    endif
+endwhile
+sysmsg 'FISHING SPOT COMPLETED!' 90

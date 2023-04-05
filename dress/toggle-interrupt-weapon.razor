@@ -121,7 +121,11 @@ foreach weapon in 'disturb_weapons'
                     dclick weap
                 endif
 
-                wait action_delay
+                wait 100
+                while queued
+                    sysmsg 'queued'
+                endwhile
+                # wait action_delay
 
                 if timer 'waiting_dress_timer' >= 400
                     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'

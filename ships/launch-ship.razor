@@ -1,0 +1,74 @@
+setvar! dockmaster_gump_id 3287496917
+setvar! ship_main_gump_id 4216593270
+
+if not listexists 'dockmasters_serials'
+    createlist 'dockmasters_serials'
+    clearlist 'dockmasters_serials'
+    # shelter docks Uriah the Dockmaster
+    pushlist 'dockmasters_serials' 0x11A32F
+    # Horseshoe Bay Beaumont the Dockmaster
+    pushlist 'dockmasters_serials' 0x80600
+    # Prevalia Kisa the Dockmaster
+    pushlist 'dockmasters_serials' 0x80788
+    # Prevalia Vanda the Dockmaster
+    pushlist 'dockmasters_serials' 0x80786
+    # Prevalia Meta the Dockmaster
+    pushlist 'dockmasters_serials' 0x80782
+    # Ivar the Dockmaster (GH)
+    pushlist 'dockmasters_serials' 0x19E66B
+    # Calandra Granite Docks dockmaster
+    pushlist 'dockmasters_serials' 0x54B3
+    # Winona Terran Dockmaster
+    pushlist 'dockmasters_serials' 0x805EF
+    # Marvin Terran Dockmaster
+    pushlist 'dockmasters_serials' 0xA3F
+    # Winona Terran Dockmaster
+    pushlist 'dockmasters_serials' 0x805EF
+    # Keane Winter Harbor dockmaster
+    pushlist 'dockmasters_serials' 0x5A40
+    # a dockmaster from the void (NW corner of the map in a floating concrete platform)
+    pushlist 'dockmasters_serials' 0x26290
+endif
+
+foreach dockmaster in 'dockmasters_serials'
+    if find dockmaster ground any any 8
+        sysmsg '>> FOUND DOCKMASTER!' success_msg_color
+        if not gumpexists dockmaster_gump_id
+            sysmsg 'OPENING DOCKMASTER GUMP' success_msg_color
+            menu dockmaster 1
+            waitforgump dockmaster_gump_id action_delay
+        endif
+
+        if gumpexists dockmaster_gump_id
+            sysmsg '>>> LAUNCHING SHIP!' warning_msg_color
+
+            # launch ship
+            gumpresponse 10 dockmaster_gump_id
+            waitfortarget 1000
+            if insysmsg 'you have traveled too recently and must wait another'
+                sysmsg 'LAUNCH SHIP TRAVEL COOLDOWN!' alert_msg_color
+                stop
+            endif
+
+            if targetexists 'any'
+                overhead 'where to place the ship?' 54
+
+                while targetexists 'neutral'
+                    wait 100
+                endwhile
+            endif
+
+            waitforgump ship_main_gump_id 1000
+            gumpresponse 21 ship_main_gump_id
+            waitforgump ship_main_gump_id
+            gumpresponse 29 ship_main_gump_id
+            waitforgump ship_main_gump_id
+            gumpresponse 20 ship_main_gump_id
+
+            sysmsg 'RELOADING CANNONS!' 54
+            dclicktype 'cannon ball'
+            waitforgump ship_main_gump_id 1000
+        endif
+    endif
+endfor
+

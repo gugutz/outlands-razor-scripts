@@ -293,6 +293,24 @@ endif
 overhead "last target not set!" 55
 
 
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+setvar! boating_mode 0
+if findtype 2578 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 3947 self
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+if boating_mode == 1
+    say '[firecannons'
+endif
+
 #################################
 # CHANGELOG
 #

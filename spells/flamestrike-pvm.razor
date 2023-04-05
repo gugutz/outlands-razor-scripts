@@ -5,7 +5,6 @@
 ################################
 
 if not varexist flamestrike_pvm_first_run_done
-    setvar! flamestrike_pvm_first_run_done 1
 
 
     setvar! action_delay 600
@@ -30,6 +29,8 @@ if not varexist flamestrike_pvm_first_run_done
             endif
         endfor
     endif
+
+    setvar! flamestrike_pvm_first_run_done 1
 
 endif
 
@@ -124,7 +125,7 @@ endif
 
 
 if findtype '0x54A4' ground any any 4
-    overhead '*using eldrich mana whell*' 19
+    overhead '*using eldrich mana well*' 19
 endif
 
 cast 'flamestrike'

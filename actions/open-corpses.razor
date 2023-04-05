@@ -1,20 +1,35 @@
 
+createlist 'open_corpses'
+clearlist 'open_corpses'
 
-if not findtype 'corpse' ground any any 2
-    overhead '*no corpses nearby*' 45
-    stop
+setvar! action_delay 600
+
+if findtypelist 'open_corpses' 'corpse' ground any any 2
+    sysmsg 'OPENING CORPSES' 73
+    foreach corpse in 'open_corpses'
+        dclick corpse
+        wait action_delay
+    endfor
+else
+    sysmsg 'NO CORPSES NEARBY!' 54
 endif
 
-if findtype 'corpse' ground any any 2 as corp
-    getlabel corp corpse_label
-    overhead '*opening {{corpse_label}}*'
-    dclick corp
-# this is the bones when the corpse is almost decaying
-elseif findtype 'bones' ground any any 2 as bons
-    getlabel bons bones_label
-    overhead '*opening {{bones_label}}*'
-    dclick corp
-endif
+
+# if not findtype 'corpse' ground any any 2
+#     overhead '*no corpses nearby*' 45
+#     stop
+# endif
+
+# if findtype 'corpse' ground any any 2 as corp
+#     getlabel corp corpse_label
+#     overhead '*opening {{corpse_label}}*'
+#     dclick corp
+# # this is the bones when the corpse is almost decaying
+# elseif findtype 'bones' ground any any 2 as bons
+#     getlabel bons bones_label
+#     overhead '*opening {{bones_label}}*'
+#     dclick corp
+# endif
 # elseif findtype 3792 ground any any 2 as corp
 #     overhead '*opening pile of bones 2*'
 #     dclick corp

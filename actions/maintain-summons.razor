@@ -4,11 +4,26 @@
 # v0.0.2
 ###################################################
 #
+########################################
+# ADD TOGGLEABLE INGAME FLAG FOR BOATING MODE BEHAVIOUR
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
 #
 #################################
 # CONFIGURATION
 #################################
 #
+setvar! spell_recovery_delay 120
+
 if not varexist maintain_summons_first_run_done
     setvar! maintain_summons_first_run_done true
 
@@ -22,9 +37,16 @@ if not varexist maintain_summons_first_run_done
     # SET CHAR SUMMONS
     if not listexists 'summons'
         createlist 'summons'
-        pushlist 'summons' 'an earth elemental'
-        pushlist 'summons' 'a water elemental'
-        pushlist 'summons' 'summ. creature'
+        if boating_mode == 1
+            pushlist 'summons' 'an earth elemental'
+            pushlist 'summons' 'a water elemental'
+            pushlist 'summons' 'summ. creature'
+        else
+            pushlist 'summons' 'an earth elemental'
+            pushlist 'summons' 'a fire elemental'
+            # pushlist 'summons' 'a water elemental'
+            pushlist 'summons' 'summ. creature'
+        endif
     endif
 
 endif
@@ -106,6 +128,26 @@ if skill 'spirit' > 0 and not listexists 'drained_corpses'
 endif
 
 
+
+
+
+########################################
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+########################################
+
+setvar! TORCH_ON_TYPE 2578
+setvar! TORCH_OFF_TYPE 3947
+
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+
+
 #####################################
 # SUMMON SUMMONS MAIN ROUTINE
 
@@ -160,14 +202,27 @@ if auto_summon == 1 and followers < summon_max_limit
         if use_undead_summons == 1
             if list 'undead_summons' > 0
                 if timer 'vengeful_spirit_timer' >= 30000
+                    clearsysmsg
                     sysmsg '>>> VENGEFUL SPIRIT...' 95
                     say '[vengefulspirit'
 
                     wait action_delay
+                    if insysmsg 'symbols remaining'
+                        settimer 'vengeful_spirit_timer' 0
+                        sysmsg 'VENGEFUL SPIRIT!' 90
+                        cooldown 'Vengeful Spirit' 30000
+                    endif
 
+
+                    clearsysmsg
                     sysmsg '>>> WITHER...' 95
                     say '[wither'
-                    settimer 'vengeful_spirit_timer' 0
+                    wait spell_recovery_delay
+                
+                    if insysmsg 'symbols remaining'
+                        sysmsg 'WITHER!' 90
+                        cooldown 'Wither' 30000
+                    endif
                 else
                     sysmsg 'Vengeful Spirit Cooldown..' 41
                 endif
@@ -287,6 +342,127 @@ if auto_summon == 1 and followers < summon_max_limit
 
 
                 endif
+
+
+                ########################################
+                # SEARCH SHIPS IN BETWEEN CASTING SUMMONS
+                ########################################
+
+                setvar! search_ships_gump 2890020940
+                setvar! search_ships_cooldown 6100
+
+                if not timerexists 'spyglass_cooldown_warning_msg_timer'
+                    createtimer 'spyglass_cooldown_warning_msg_timer'
+                    settimer 'spyglass_cooldown_warning_msg_timer' 2000
+                endif
+                
+                
+                if not timerexists 'spyglass_timer'
+                    createtimer 'spyglass_timer'
+                    settimer 'spyglass_timer' 7000
+                endif
+
+                if timer 'spyglass_timer' < search_ships_cooldown
+                    sysmsg 'SPLYGLASS COOLDOWN!' 54
+                else
+                    setvar! found_player_boat 0
+                    if findtype 'spyglass' backpack as tool
+                        gumpclose 2890020940
+                        dclick tool
+                        waitfortarget 600
+                        if targetexists 'neutral'
+                            hotkey 'Target Self'
+                            waitforgump search_ships_gump 600
+                            if gumpexists search_ships_gump
+                                sysmsg 'SEARCHING SHIPS...' 89
+                                overhead 'searching ships...' 89
+                                gumpresponse 4 search_ships_gump
+                                waitforgump search_ships_gump 600
+                            endif
+                    
+                            if insysmsg 'before you may make another ship search'
+                                gumpresponse 4 search_ships_gump
+                                waitforgump search_ships_gump 600
+                            endif
+                    
+                            # WARN ABOUT NPC BOATS NEARBY
+                            if ingump "a daemon" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC DAEMON BOAT NEARBY!'
+                            endif
+                
+                            if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC GALEON NEARBY!'
+                            endif
+                
+                            if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC CARRACK NEARBY!'
+                            endif
+                
+                            if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                            endif
+                
+                            # SEARCH PLAYER BOATS
+                            if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon ship" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                                setvar! found_player_boat 1
+                            else
+                                while ingump "Next" 2890020940
+                                    gumpresponse 3 2890020940
+                                    waitforgump search_ships_gump 600
+                    
+                                    # WARN ABOUT NPC BOATS NEARBY
+                                    if ingump "a daemon" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'NPC DAEMON BOAT NEARBY!'
+                                    endif
+                
+                                    if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'NPC GALEON NEARBY!'
+                                    endif
+                
+                                    if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'NPC CARRACK NEARBY!'
+                                    endif
+                
+                                    if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                                    endif
+                
+                                    if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                                        setvar! found_player_boat 1
+                                    endif
+                                endwhile
+                    
+                            endif
+                    
+                            if found_player_boat == 1
+                                overhead "FOUND PLAYER BOAT" 43
+                                overhead "FOUND PLAYER BOAT" 43
+                                overhead "FOUND PLAYER BOAT" 43
+                                sysmsg "FOUND PLAYER BOAT!" 43
+                                sysmsg "FOUND PLAYER BOAT!" 43
+                                sysmsg "FOUND PLAYER BOAT!" 43
+                                settimer 'spyglass_timer' 0
+                            else
+                                sysmsg 'NO PLAYER BOATS NEARBY!' 74
+                                overhead 'no player boats nearby!' 74
+                                overhead '*no ships nearby*' 54
+                                # gumpclose 2890020940
+                                settimer 'spyglass_timer' 0
+                            endif
+                    
+                    
+                        endif
+                    endif
+                endif
+
 
             endfor
         endif

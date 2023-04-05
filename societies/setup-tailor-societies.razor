@@ -1,50 +1,67 @@
 #################################
 # SETUP TAILORING SOCIETIES
-# v0.0.1
+# v0.0.3
 # by gugutz
 #
 #################################
-# CREDITS :)
 #
 sysmsg '♥ SETUP TAILORING SOCEITIES by gugutz ♥' 89
-#
 
 
 
+if not timerexists 'execution_timer'
+    createtimer 'execution_timer'
+endif
+settimer 'execution_timer' 0
 
+setvar! debug 1
 setvar! action_delay 600
 setvar! crafting_queue_gump_id 453554062
 setvar! societies_gump_id 1554294796
 setvar! tailoring_gump_id 949095101
 setvar! stockpile_gump_id 1859005118
+setvar! previous_material_color_btn 12
+setvar! next_material_color_btn 13
+
+setvar! regular_color 0
+setvar! dullhide_color 29
+setvar! shadowhide_color 1
+setvar! copperhide_color 45
+setvar! bronzehide_color 47
+setvar! goldenhide_color 54
+setvar! rosehide_color 20
+setvar! verehide_color 75
+setvar! valehide_color 90
+
+setvar! default_sysmsg_color 54
+setvar! default_overhead_color 54
+setvar! debug_sysmsg_color 120
+setvar! warning_msg_color 54
+setvar! alert_msg_color 38
+setvar! success_msg_color 69
+setvar! adding_to_queue_msg_color 79
 
 
 
-if not listexists 'society_gump_pages'
-    createlist 'society_gump_pages'
-    pushlist 'society_gump_pages' 1
-    pushlist 'society_gump_pages' 2
-endif
-
-# if not listexists 'gump_btns'
-#     createlist 'gump_btns'
-#     pushlist 'gump_btns' 100
-# endif
-
-# if not listexists 'leather_items'
-#     createlist 'leather_items'
-#     pushlist 'leather_items' 'Leather Cap'
-#     pushlist 'leather_items' 'Leather Chest'
-# endif
 
 
 
 ######################################
 # OPEN TAILORING CRAFTING GUMP
 ######################################
+
+
+sysmsg 'MAKE SURE YOUR TAILORING CRAFTING GUMP MATERIAL COLOR IS SET TO REGULAR LEATHER BEFORE STARTING THE SCRIPT!' alert_msg_color
+
+gumpclose stockpile_gump_id
+gumpclose tailoring_gump_id
+gumpclose societies_gump_id
+gumpclose crafting_queue_gump_id
+
 while not gumpexists tailoring_gump_id
     if findtype 'resource container' ground any any 2 as stockpile
         sysmsg 'OPENING TAILORING CRAFTING GUMP USING STOCKPILE...' 56
+
         while not gumpexists stockpile_gump_id
             sysmsg 'Clicking stockpile'
             dclick stockpile
@@ -63,7 +80,6 @@ while not gumpexists tailoring_gump_id
     endif
 endwhile
 
-# wait action_delay
 
 ######################################
 # OPEN CRAFTING QUEUE GUMP
@@ -74,24 +90,29 @@ while not gumpexists crafting_queue_gump_id
     waitforgump crafting_queue_gump_id action_delay
 endwhile
 
-# wait action_delay
+
+######################################
+# CLEAR CRAFTING QUEUE JOBS
+######################################
 
 # clean the currently selected crafting queue to make sure
 # we wont end up only appending more items and reaching this
 # queues max capacity
-    # while not ingump 'societies' 453554062
-    #     sysmsg "Searching for 'societies' crafting queue..." 49
-    #     gumpresponse 3 crafting_queue_gump_id
-    #     waitforgump crafting_queue_gump_id action_delay
-    # endwhile
 
-while ingump 'Bone' 453554062 or ingump 'Leather' 453554062 or ingump 'Studded' 453554062 or ingump 'Fishing' 453554062 or ingump 'Rope' 453554062
+# DELETE ALL TAILORING JOBS FROM THE QUEUE
+while ingump 'Bone' 453554062 or ingump 'Leather' 453554062 or ingump 'Studded' 453554062 or ingump 'Fishing' 453554062 or ingump 'Rope' 453554062 or ingump 'Quiver' 453554062 or ingump 'Satchel' 453554062
     sysmsg "Deleting all items in crafting queue" 49
     gumpresponse 100 crafting_queue_gump_id
     waitforgump crafting_queue_gump_id action_delay
 endwhile
 
-# wait action_delay
+# DELETE ALL ALCHEMY JOBS FROM THE QUEUE
+while ingump 'Greater' 453554062 or ingump 'Lesser' 453554062 or ingump 'Heal' 453554062 or ingump 'Cure' 453554062 or ingump 'Refresh' 453554062 or ingump 'Strength' 453554062 or ingump 'Agility' 453554062 or ingump 'Explosion' 453554062 or ingump 'Poison' 453554062 or ingump 'Serum' 453554062 or ingump 'Magic Resist' 453554062
+    sysmsg "Deleting all items in crafting queue" 49
+    gumpresponse 100 crafting_queue_gump_id
+    waitforgump crafting_queue_gump_id action_delay
+endwhile
+
 
 ######################################
 # OPEN SOCIETIES GUMP
@@ -100,12 +121,43 @@ while not gumpexists societies_gump_id
     sysmsg 'OPENING SOCIETIES GUMP...' 56
     say '[society'
     waitforgump societies_gump_id action_delay
-
-
 endwhile
 
 
-# wait action_delay
+######################################
+# CHECK HOW MANY PAGES THE SOCIETY GUMP HAS
+######################################
+
+if not listexists 'society_gump_pages'
+    createlist 'society_gump_pages'
+endif
+clearlist 'society_gump_pages'
+
+
+if gumpexists societies_gump_id
+    if ingump '1/2' 1554294796
+        pushlist 'society_gump_pages' 1
+        pushlist 'society_gump_pages' 2
+    elseif ingump '1/3' 1554294796
+        pushlist 'society_gump_pages' 1
+        pushlist 'society_gump_pages' 2
+        pushlist 'society_gump_pages' 3
+    elseif ingump '1/4' 1554294796
+        pushlist 'society_gump_pages' 1
+        pushlist 'society_gump_pages' 2
+        pushlist 'society_gump_pages' 3
+        pushlist 'society_gump_pages' 4
+    elseif ingump '1/5' 1554294796
+        pushlist 'society_gump_pages' 1
+        pushlist 'society_gump_pages' 2
+        pushlist 'society_gump_pages' 3
+        pushlist 'society_gump_pages' 4
+        pushlist 'society_gump_pages' 5
+    else
+        pushlist 'society_gump_pages' 1
+    endif
+endif
+
 
 ######################################
 # OPEN ORDER OF ARMORERS SOCIETIES
@@ -116,69 +168,75 @@ while gumpexists societies_gump_id and not ingump 'Next Society' 1554294796
     waitforgump societies_gump_id action_delay
 endwhile
 
-# wait action_delay
 
 foreach page in 'society_gump_pages'
-    sysmsg 'SCANNIGN SOCIETIES PÀGE {{page}}'
+    sysmsg 'SCANNING SOCIETIES GUMP PAGE {{page}}' 91
 
-    # # make sure we're on the correct society gump page
+    # make sure we are in the correct page and if not, switch to it
     if page == 1
-        while gumpexists societies_gump_id and not ingump '1/2' 1554294796
-            sysmsg 'SWITCHING TO FIRST SOCEITIES PAGE'
-            gumpresponse 3 societies_gump_id
-            waitforgump societies_gump_id action_delay
+        while gumpexists societies_gump_id and not ingump '1/' 1554294796
+            if ingump '2/' 1554294796 or ingump '3/' 1554294796 or ingump '4/' 1554294796 or ingump '5/' 1554294796
+                sysmsg 'SWITCHING BACKWARDS TO SOCIETIES PAGE 1'
+                gumpresponse 3 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            endif
         endwhile
     elseif page == 2
-        while gumpexists societies_gump_id and not ingump '2/2' 1554294796
-            sysmsg 'SWITCHING TO SECOND SOCEITIES PAGE'
-            gumpresponse 4 societies_gump_id
-            waitforgump societies_gump_id action_delay
+        while gumpexists societies_gump_id and not ingump '2/' 1554294796
+            if ingump '1/' 1554294796
+                sysmsg 'SWITCHING FORWARD TO SECOND SOCIETIES PAGE 2'
+                gumpresponse 4 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            elseif ingump '3/' 1554294796 or ingump '4/' 1554294796 or ingump '5/' 1554294796
+                sysmsg 'SWITCHING BACKWARDS TO SOCIETIES PAGE 2'
+                gumpresponse 3 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            endif
+        endwhile
+    elseif page == 3
+        while gumpexists societies_gump_id and not ingump '3/' 1554294796
+            if ingump '1/' 1554294796 or ingump '2/' 1554294796
+                sysmsg 'SWITCHING FORWARD TO SOCIETIES PAGE 3'
+                gumpresponse 4 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            elseif ingump '4/' 1554294796 or ingump '5/' 1554294796
+                sysmsg 'SWITCHING BACKWARDS TO SOCIETIES PAGE 3 '
+                gumpresponse 3 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            endif
+        endwhile
+    elseif page == 4
+        sysmsg 'debug 4'
+        while gumpexists societies_gump_id and not ingump '4/' 1554294796
+            if ingump '1/' 1554294796 or ingump '2/' 1554294796 or ingump '3/' 1554294796
+                sysmsg 'SWITCHING FORWARD TO SOCIETIES PAGE 4'
+                gumpresponse 4 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            elseif ingump '5/' 1554294796
+                sysmsg 'SWITCHING BACKWARDS TO SOCIETIES PAGE 4'
+                gumpresponse 3 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            endif
+        endwhile
+    elseif page == 5
+        sysmsg 'debug 5'
+        while gumpexists societies_gump_id and not ingump '5/' 1554294796
+            if ingump '1/' 1554294796 or ingump '2/' 1554294796 or ingump '4/' 1554294796
+                sysmsg 'SWITCHING FORWARD TO SOCIETIES PAGE 5'
+                gumpresponse 4 societies_gump_id
+                waitforgump societies_gump_id action_delay
+            endif
         endwhile
     endif
 
-    # while gumpexists societies_gump_id
-    #     foreach item_name in 'leather_items'
-    #         sysmsg '[DEBUG] searching for {{item_name}} ingump {{societies_gump_id}}'
-    #         if ingump '{{item_name}}' 1554294796
-    #             sysmsg '[DEBUG] FOUND {{item_name}} INGUMP {{societies_gump_id}}!!!' 90
-    #             setvar! found_leather_armor_item 1
-    #         endif
-    #     endfor
-
-    #     if varexist found_leather_armor_item
-    #         # go to first categories page
-    #         while not ingump '1/2' 949095101
-    #             gumpresponse 8 tailoring_gump_id
-    #             waitforgump tailoring_gump_id action_delay
-    #         endwhile
-
-    #         # switch to leather armor category
-    #         while not ingump 'Leather Armor' 949095101
-    #             gumpresponse 101 tailoring_gump_id
-    #             waitforgump tailoring_gump_id action_delay
-    #         endwhile
-
-    #         foreach item in 'leather_items'
-    #             if ingump item societies_gump_id
-    #                 sysmsg 'FOUND {{item}} IN SOCIETY GUMP!'
-    #                 if atlist 'gump_btns' index as item_crafting_queue_gump_btn
-    #                     sysmsg 'FOUND {{item_crafting_queue_gump_btn}} GUMP BTN TO PRES'
-    #                     gumpresponse item_crafting_queue_gump_btn tailoring_gump_id
-    #                     waitforgump tailoring_gump_id action_delay
-    #                 endif
-    #             endif
-    #         endfor
-    #     endif
-    # endwhile
-
 
     ######################################
     #-------------------------------------
-    # PAGE 2 OF TAILORING MENU
+    # PAGE 1 OF TAILORING MENU
     #-------------------------------------
     ######################################
-    sysmsg 'SWITHING PAGE ON TAILOR GUMP' 52
-    gumpresponse 8 tailoring_gump_id
+    sysmsg 'SWITCHING TAILOR GUMP PAGE TO 1' 87
+    gumpresponse 8 tailoring_gump_id 
     waitforgump tailoring_gump_id action_delay
 
 
@@ -187,14 +245,575 @@ foreach page in 'society_gump_pages'
     ######################################
 
     if ingump 'Bone Gorget ' 1554294796 or ingump 'Bone Gloves' 1554294796 or ingump 'Bone Helm' 1554294796 or ingump 'Bone Arms' 1554294796 or ingump 'Bone Legs' 1554294796 or ingump 'Bone Skirt' 1554294796 or ingump 'Bone Chest' 1554294796
-    # if ingump 'Bone' societies_gump_id
         sysmsg 'FOUND BONE ARMOR ITEM IN SOCIETY GUMP' 52
 
-        # while not ingump 'Bone Gorget' 949095101
         sysmsg 'SWITCHING TO BONE ARMOR CATEGORY' 52
         gumpresponse 100 tailoring_gump_id
         waitforgump tailoring_gump_id action_delay
-        # endwhile
+
+        #####################################
+        # AVARHIDE BONE ARMORS
+
+        if ingump 'Avarhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO AVARHIDE' 54
+            endif
+
+            gumpresponse previous_material_color_btn tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Gorget' 1554294796
+            sysmsg 'Adding Avarhide Bone Gorget to queue' avarhide_color
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Gloves' 1554294796
+            sysmsg 'Adding Avarhide Bone Gloves to queue' avarhide_color
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Helm' 1554294796
+            sysmsg 'Adding Avarhide Bone Gloves to queue' avarhide_color
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Avarhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endif
+        endif
+
+
+        #####################################
+        # VALEHIDE BONE ARMORS
+
+        if ingump 'Valehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO VALEHIDE' 54
+            endif
+
+            for 2
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Valehide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Valehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+            for 2
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # VEREHIDE BONE ARMORS
+
+        if ingump 'Verehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO VEREHIDE' 54
+            endif
+
+            for 3
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Verehide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Verehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+            for 3
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # ROSEHIDE BONE ARMORS
+
+        if ingump 'Rosehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO ROSEHIDE' rosehide_color
+            endif
+
+            for 4
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Rosehide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Rosehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 4
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # GOLDENHIDE BONE ARMORS
+
+        if ingump 'Goldenhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO GOLDENHIDE' rosehide_color
+            endif
+
+            for 5
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Goldenhide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Goldenhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 5
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # BRONZEHIDE BONE ARMORS
+
+        if ingump 'Bronzehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO BRONZEHIDE' rosehide_color
+            endif
+
+            for 6
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Bronzehide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Bronzehide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 6
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # COPPERHIDE BONE ARMORS
+
+        if ingump 'Copperhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO COPPERHIDE' rosehide_color
+            endif
+
+            for 7
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Copperhide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Copperhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 7
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # SHADOWHIDE BONE ARMORS
+
+        if ingump 'Shadowhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO SHADOWHIDE' rosehide_color
+            endif
+
+            for 8
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Shadowhide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Shadowhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 8
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # DULLHIDE BONE ARMORS
+
+        if ingump 'Dullhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO DULLHIDE' dullhide_color
+            endif
+
+            for 9
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Dullhide Bone Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Bone Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Bone Helm' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Bone Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Bone Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Bone Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Bone Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Dullhide Bone' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 9
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # REGULAR COLOR BONE ARMORS
 
         if ingump 'Bone Gorget' 1554294796
             gumpresponse 400 tailoring_gump_id
@@ -231,22 +850,713 @@ foreach page in 'society_gump_pages'
             waitforgump tailoring_gump_id action_delay
         endif
 
+
     endif
 
     ######################################
     # LEATHER ARMORS
     ######################################
 
-    if ingump 'Leather Gorget' 1554294796 or ingump 'Leather Gloves' 1554294796 or ingump 'Leather Cap' 1554294796 or ingump 'Leather Arms' 1554294796 or ingump 'Leather Legs' 1554294796 or ingump 'Leather Shorts' 1554294796 or ingump 'Leather Skirt' 1554294796 or ingump 'Leather Chest' 1554294796 or ingump 'Leather Bustier' 1554294796 or ingump 'Female Leather Chest' 1554294796
-    # if ingump 'Leather' societies_gump_id
+    if ingump 'Leather Gorget' 1554294796 or ingump 'Leather Gloves' 1554294796 or ingump 'Leather Cap' 1554294796 or ingump 'Leather Arms' 1554294796 or ingump 'Leather Leggings' 1554294796 or ingump 'Leather Shorts' 1554294796 or ingump 'Leather Skirt' 1554294796 or ingump 'Leather Chest' 1554294796 or ingump 'Leather Bustier' 1554294796 or ingump 'Female Leather Chest' 1554294796
         sysmsg 'FOUND LEATHER ARMOR ITEM IN SOCIETY GUMP' 52
 
-        # if ingump 'Leather Gorget' 949095101
-        # else
-            sysmsg 'SWITCHING TO LEATHER ARMOR CATEGORY' 52
-            gumpresponse 101 tailoring_gump_id
+        # waitforgump tailoring_gump_id action_delay
+        # while gumpexists tailoring_gump_id and not ingump 'Leather Gorget' 949095101
+        sysmsg 'SWITCHING TO LEATHER ARMOR CATEGORY' 52
+        gumpresponse 101 tailoring_gump_id
+        waitforgump tailoring_gump_id action_delay
+        # endwhile
+
+
+        #####################################
+        # AVARHIDE LEATHER ARMORS
+
+        if ingump 'Avarhide Leather' 1554294796
+            gumpresponse previous_material_color_btn tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
-        # endif
+        endif
+
+        if ingump 'Avarhide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Avarhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            gumpresponse next_material_color_btn tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+
+        #####################################
+        # VALEHIDE LEATHER ARMORS
+
+        if ingump 'Valehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO VALEHIDE' 54
+            endif
+
+            for 2
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Valehide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Valehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 2
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # VEREHIDE LEATHER ARMORS
+
+        if ingump 'Verehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO VEREHIDE' 54
+            endif
+
+            for 3
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Verehide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Verehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 3
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # ROSEHIDE LEATHER ARMORS
+
+        if ingump 'Rosehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO ROSEHIDE' rosehide_color
+            endif
+
+            for 4
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Rosehide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Rosehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 4
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # GOLDENHIDE LEATHER ARMORS
+
+        if ingump 'Goldenhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO GOLDENHIDE' goldenhide_color
+            endif
+
+            for 5
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Goldenhide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Goldenhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 5
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # BRONZEHIDE LEATHER ARMORS
+
+        if ingump 'Bronzehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO BRONZEHIDE' goldenhide_color
+            endif
+
+            for 6
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Bronzehide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Bronzehide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 6
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # COPPERHIDE LEATHER ARMORS
+
+        if ingump 'Copperhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO COPPERHIDE' goldenhide_color
+            endif
+
+            for 7
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+        if ingump 'Copperhide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Leather Bustier' 1554294796
+            sysmsg '> Adding Copperhide Leather Bustier' adding_to_queue_msg_color
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Copperhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 7
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # SHADOWHIDE LEATHER ARMORS
+
+        if ingump 'Shadowhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO SHADOWHIDE' shadowhide_color
+            endif
+
+            for 8
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Shadowhide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Shadowhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 8
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # DULLHIDE LEATHER ARMORS
+
+        if ingump 'Dullhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO DULLHIDE' dullhide_color
+            endif
+
+            for 9
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Dullhide Leather Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Shorts' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Skirt' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Chest' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Leather Bustier' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Female Leather Chest' 1554294796
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Dullhide Leather' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 9
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # REGULAR COLOR LEATHER ARMORS
 
         if ingump 'Leather Gorget' 1554294796
             gumpresponse 400 tailoring_gump_id
@@ -268,7 +1578,7 @@ foreach page in 'society_gump_pages'
             waitforgump tailoring_gump_id action_delay
         endif
 
-        if ingump 'Leather Legs' 1554294796
+        if ingump 'Leather Leggings' 1554294796
             gumpresponse 404 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
@@ -298,6 +1608,10 @@ foreach page in 'society_gump_pages'
             waitforgump tailoring_gump_id action_delay
         endif
 
+
+
+
+
     endif
 
 
@@ -311,10 +1625,656 @@ foreach page in 'society_gump_pages'
 
         # if ingump 'Leather Gorget' 949095101
         # else
-            sysmsg 'SWITCHING TO LEATHER ARMOR CATEGORY' 52
+            sysmsg 'SWITCHING TO STUDDED LEATHER ARMOR CATEGORY' 52
             gumpresponse 102 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         # endif
+
+
+        #####################################
+        # AVARHIDE STUDDED ARMORS
+
+        if ingump 'Avarhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO AVARHIDE' 54
+            endif
+            gumpresponse previous_material_color_btn tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Avarhide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Avarhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            gumpresponse next_material_color_btn tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+
+        #####################################
+        # VALEHIDE STUDDED ARMORS
+
+        if ingump 'Valehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO VALEHIDE' 54
+            endif
+
+            for 2
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Valehide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Valehide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Valehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 2
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # VEREHIDE STUDDED ARMORS
+
+        if ingump 'Verehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO VEREHIDE' verehide_color
+            endif
+
+            for 3
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Verehide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Verehide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Verehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 3
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # ROSEHIDE STUDDED ARMORS
+
+        if ingump 'Rosehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO ROSEHIDE' rosehide_color
+            endif
+
+            for 4
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+        if ingump 'Rosehide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Legs' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Rosehide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        # reset color back to regular
+        if ingump 'Rosehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 4
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+
+        #####################################
+        # GOLDENHIDE STUDDED ARMORS
+
+        if ingump 'Goldenhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO GOLDENHIDE' 54
+            endif
+
+            for 5
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+
+        endif
+
+
+        if ingump 'Goldenhide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Goldenhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 5
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # BRONZEHIDE STUDDED ARMORS
+
+        if ingump 'Bronzehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO Bronzehide' bronzehide_color
+            endif
+
+            for 6
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        if ingump 'Bronzehide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Bronzehide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 6
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # COPPERHIDE STUDDED ARMORS
+
+        if ingump 'Copperhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO Copperhide' copperhide_color
+            endif
+
+            for 7
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        if ingump 'Copperhide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Copperhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 7
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # SHADOWHIDE STUDDED ARMORS
+
+        if ingump 'Shadowhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 8
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        if ingump 'Shadowhide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Shadowhide Studded' 1554294796
+            for 8
+                sysmsg 'RESETTING MATERIAL TO LEATHER'
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # DULLHIDE STUDDED ARMORS
+
+        if ingump 'Dullhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'CHANGING MATERIAL TO Dullhide' dullhide_color
+            endif
+
+            for 9
+                gumpresponse previous_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        if ingump 'Dullhide Studded Gorget' 1554294796
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Gloves' 1554294796
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Cap' 1554294796
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Arms' 1554294796
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Leggings' 1554294796
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Skirt' 1554294796
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Chest' 1554294796
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded Bustier' 1554294796
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Female Studded Chest' 1554294796
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump 'Dullhide Studded' 1554294796
+            if debug == 1
+                sysmsg 'RESETTING MATERIAL TO LEATHER' 90
+            endif
+
+            for 9
+                gumpresponse next_material_color_btn tailoring_gump_id
+                waitforgump tailoring_gump_id action_delay
+            endfor
+        endif
+
+
+        #####################################
+        # REGULAR COLOR STUDDED ARMORS
 
         if ingump 'Studded Gorget' 1554294796
             gumpresponse 400 tailoring_gump_id
@@ -336,7 +2296,7 @@ foreach page in 'society_gump_pages'
             waitforgump tailoring_gump_id action_delay
         endif
 
-        if ingump 'Studded Legs' 1554294796
+        if ingump 'Studded Leggings' 1554294796
             gumpresponse 404 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
@@ -442,20 +2402,10 @@ foreach page in 'society_gump_pages'
     endif
 
     ######################################
-    #-------------------------------------
-    # PAGE 2 OF TAILORING MENU
-    #-------------------------------------
-    ######################################
-    sysmsg 'SWITHING PAGE ON TAILOR GUMP' 52
-    gumpresponse 9 tailoring_gump_id
-    waitforgump tailoring_gump_id action_delay
-
-
-    ######################################
-    # FISHING NETS
+    # SATCHELS
     ######################################
 
-    if ingump 'Fishing Net' 1554294796
+    if ingump 'Satchel' 1554294796
 
         # if ingump 'Fishing Items' 949095101
         # else
@@ -463,77 +2413,185 @@ foreach page in 'society_gump_pages'
 
         # if ingump 'Fishing Net' 949095101
         # else
-        sysmsg 'SWITCHING TO FISHING  ITEMS CATEGORY' 52
+        sysmsg 'SWITCHING TO SATCHELS CATEGORY' 52
+        gumpresponse 108 tailoring_gump_id
+        waitforgump tailoring_gump_id action_delay
+        # endif
+
+        if ingump "Dullhide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 401 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Shadowhide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 402 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Copperhide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 403 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Bronzehide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 404 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Goldenhide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 405 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Rosehide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 406 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Verehide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 407 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Valehide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 408 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Avarhide Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 409 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+
+        if ingump "Wizard's Satchel" 1554294796
+            waitforgump tailoring_gump_id action_delay
+            gumpresponse 400 tailoring_gump_id
+            waitforgump tailoring_gump_id action_delay
+        endif
+    endif
+
+
+    ######################################
+    #-------------------------------------
+    # PAGE 2 OF TAILORING MENU
+    #-------------------------------------
+    ######################################
+
+
+
+    if debug == 1
+        sysmsg 'SWITCHING TAILOR GUMP PAGE TO 2' 87
+    endif
+
+    gumpresponse 9 tailoring_gump_id
+    waitforgump tailoring_gump_id action_delay
+
+# press the fishing items category
+    # setvar! FISHING_ITEMS_CATEGORY_BTN 101
+    # gumpresponse FISHING_ITEMS_CATEGORY_BTN tailoring_gump_id
+    # waitforgump tailoring_gump_id action_delay
+
+
+    ######################################
+    # FISHING NETS
+    ######################################
+
+    if ingump 'Fishing Net' 1554294796
+        setvar! tailoring_gump_page 2
+
+
+        # if ingump 'Fishing Items' 949095101
+        # else
+        # endif
+
+        # if ingump 'Fishing Net' 949095101
+        # else
+        sysmsg 'SWITCHING TO FISHING ITEMS CATEGORY' 52
         gumpresponse 101 tailoring_gump_id
         waitforgump tailoring_gump_id action_delay
         # endif
 
 
         if ingump 'Dullhide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 401 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Shadowhide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 402 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Copperhide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 403 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Bronzehide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
+        sysmsg 'PEGOU FISNIHNG BRONZE AQUI'
             gumpresponse 404 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Goldenhide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 405 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Rosehide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 406 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Verehide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 407 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Valehide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 408 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Avarhide Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 409 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
         if ingump 'Fishing Net' 1554294796
-            waitforgump tailoring_gump_id action_delay
             gumpresponse 400 tailoring_gump_id
             waitforgump tailoring_gump_id action_delay
         endif
 
     endif
 
-
-
 endfor
 
-gumpclose stockpile_gump_id
-gumpclose tailoring_gump_id
+sysmsg '>>> FINISHED IN {{execution_timer}} ms' success_msg_color
+# gumpclose stockpile_gump_id
+# gumpclose tailoring_gump_id
+
+
+#################################
+# CHANGELOG
+#################################
+
+#
+# v0.0.3
+# - Adds satchels category
+# - Fix a bug where script would loop endlessly if societies gump only have 1 page
+#
+# v0.0.2
+# - fixes wrong button number for shadowhide studded pieces
+#
+# v0.0.1
+# - Initial release

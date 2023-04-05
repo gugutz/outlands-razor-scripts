@@ -1,0 +1,9 @@
+setvar! page_number 200
+setvar! rune_number_on_page 20
+
+setvar! runetome_gump_id 167090027
+dclicktype 'runetome' backpack
+waitforgump runetome_gump_id action_delay
+gumpresponse page_number runetome_gump_id
+waitforgump runetome_gump_id action_delay
+gumpresponse rune_number_on_page runetome_gump_id

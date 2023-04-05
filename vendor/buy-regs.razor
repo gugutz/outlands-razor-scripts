@@ -1,3 +1,4 @@
+
 sysmsg '#########################' 90
 sysmsg '>>> MAGE SHOP BUYER' 55
 sysmsg 'by gugutz' 45
@@ -27,6 +28,11 @@ sysmsg '########################' 90
 setvar! action_delay 600
 
 setvar! unload_regs_from_backpack 1
+
+if not timerexists 'execution_timer'
+    createtimer 'execution_timer'
+endif
+settimer 'execution_timer' 0
 
 #################################
 # CREATE ALL TIMERS
@@ -303,8 +309,10 @@ clearignore
 ###################################
 
 foreach vendor in 'vendors_serials'
-    overhead 'BUYING...' 90 vendor
-    menu vendor 1
+    if find vendor ground any any 25
+        overhead 'FOUND VENDOR {{vendor}}! BUYING...' 90 vendor
+        menu vendor 1
+    endif
 endfor
 
 if list 'packies' > 0
@@ -365,6 +373,7 @@ if list 'packies' > 0
             wait action_delay
 
             foreach reg in 'buy_list'
+                sysmsg 'SEARCHING {{reg}}' 90
                 # I HAD A BUG IN THIS LINE I DEF WANT TO REMEMBER
                 # WHILE THE <ammount> PARAMETER IS SET TO ANY
                 # THE SCRIPT WILL ACTUALLY FIND MORE THAN 999 REGS (ex: 3 stacks of 999)
@@ -375,38 +384,53 @@ if list 'packies' > 0
                 # THATS WHY I ONLY NEED TO USE 1 AS THE AMOUNT HERE
                 # THE SCRIPT ONLY NEEDS TO FIND ANY AMOUNT IN THE GROUND AND SET A SERIAL
                 # AND THEN I MOVE 999 OF THAT REG PER ONCE
-                while findtype reg ground 0 1 2 as reg_serial
+                # if findtype reg ground 0 any 2 as reg_serial
+                if findtype reg ground any any 1 as reg_serial
                     getlabel reg_serial reg_label
+                    sysmsg '>> FOUND {{reg_label}} AT GROUND!' 90
 
 
-                    if find reg_serial ground any any 2 and not find reg_serial packie any any
-                        hotkey 'Drop What You Are Currently Holding'
+                    while find reg_serial ground and not find reg_serial packie
+                    # while findtype reg ground any any 1 as reg_serial
+                    # while findtype reg ground any any 1 and not findtype reg packie
+                        getlabel reg_serial reg_label
+                        sysmsg '>> FOUND {{reg}} AT GROUND!' 90
+                        sysmsg '>> TRYING TO MOVE {{reg_label}} FROM GROUND TO PACKIE!' 90
+                        # hotkey 'Drop What You Are Currently Holding'
                         overhead 'dumping {{reg_label}}' 53 packie
 
-                        # lifttype reg 999 ground
-                        lift reg_serial 999
+                        lifttype reg 999 ground
+                        # lift reg_serial 100
                         wait action_delay
-                        drop packie -1 -1 0
-                        wait action_delay
+                        # drop packie -1 -1 0
+                        drop packie
+                        wait 50
 
-                    endif
+                        while queued
+                            sysmsg '>>> queued'
+                            wait 20
+                        endwhile
 
-                    if find reg_serial packie any any
-                        sysmsg 'Moved {{reg_label}}!' 63 packie
-                        break
-                        # put this animal to the end of the list so we use the next one next time
-                    endif
+                        if not find reg_serial ground
+                            sysmsg 'Moved {{reg_label}}!' 63 packie
+                            # ignore reg_serial
+                            break
+                            # put this animal to the end of the list so we use the next one next time
+                        endif
 
-                    # if find reg_serial ground any any 2 and not find reg_serial packie any any
-                    if find reg_serial ground and not find reg_serial packie
-                        overhead 'heavy?? found same reg serial on ground' 53 packie
-                        sysmsg 'Found reg serial char tried to unload in packie on ground. Pet is probably heavy... Moving To End Of List' 53
-                        pushlist 'full_packies' packie
-                    endif
+                    endwhile
 
-                    unsetvar reg_serial
 
-                endwhile
+                    # # if find reg_serial ground any any 2 and not find reg_serial packie any any
+                    # if find reg_serial ground and not find reg_serial packie
+                    #     overhead 'heavy?? found same reg serial on ground' 53 packie
+                    #     sysmsg 'Found reg serial char tried to unload in packie on ground. Pet is probably heavy... Moving To End Of List' 53
+                    #     pushlist 'full_packies' packie
+                    # endif
+
+                    # unsetvar reg_serial
+                endif
+
             endfor
 
             if unload_regs_from_backpack == 1
@@ -419,7 +443,7 @@ if list 'packies' > 0
                         while find reg_serial backpack and not find reg_serial packie any any
                             overhead "*unloading {{reg}} from backpack" 56 packie
 
-                            hotkey 'Drop What You Are Currently Holding'
+                            # hotkey 'Drop What You Are Currently Holding'
                             lift reg_serial 999
                             wait action_delay
                             drop packie -1 -1 0
@@ -435,3 +459,5 @@ if list 'packies' > 0
 
     endfor
 endif
+
+sysmsg 'FINISHED IN {{execution_timer}}' 90

@@ -65,38 +65,23 @@ endif
 if not listexists 'rares'
     sysmsg 'Creating rares list...' 51
     createlist 'rares'
-    # mastery chain links
-    # rare cloth
-    pushlist 'rares' 'folded cloth'
+    pushlist 'rares' 'folded cloth' //rare_cloths
     pushlist 'rares' 'aspect core'
     pushlist 'rares' 'map'
-    # spell hue deeds
-    pushlist 'rares' 5359
-    # skill orb
-    pushlist 'rares' 22336
-    # # mcd (this goes into the resource stockpile)
-    pushlist 'rares' 17087
-    # research material
-    pushlist 'rares' 'research materials'
-    # skill scrolls
-    pushlist 'rares' 'scroll of calling'
-    # aspect extract
-    pushlist 'rares' 3836
+    pushlist 'rares' 5359 //spell_hue_deeds
+    pushlist 'rares' 22336 //skill_orbs
+    pushlist 'rares' 17087 //mcds
+    pushlist 'rares' 'research materials' //research_materials
+    pushlist 'rares' 'scroll of calling' //skill_scrolls
+    pushlist 'rares' 3836 //aspect_extract
     pushlist 'rares' 'phylactery'
-    # runebook dye
-    pushlist 'rares' 3838
-    # backpack dye
-    pushlist 'rares' 3839
-    # headwear dye
-    pushlist 'rares' 3842
-    # facial hair dye
-    pushlist 'rares' 3843
-    # hair, shield and quiver dye
-    pushlist 'rares' 3843
-    # fortuniture dye
-    pushlist 'rares' 29025
-    # carpet dye
-    pushlist 'rares' 29036
+    pushlist 'rares' 3838 //runebook_dye
+    pushlist 'rares' 3839 //backpack_dye
+    pushlist 'rares' 3842 //headwear_dye
+    pushlist 'rares' 3843 //facial_hair_dye
+    pushlist 'rares' 3843 //acessory_dye
+    pushlist 'rares' 29025 //fortuniture_dye
+    pushlist 'rares' 29036 //carpet_dye
 endif
 
 # ARCANE RUNES
@@ -123,10 +108,8 @@ if not listexists 'tchest_items'
     sysmsg 'Creating regular tchest items list...' 51
     createlist 'tchest_items'
 
-    # arcane scrolls
-    pushlist 'tchest_items' 'blank scroll%s%'
-    # plant chemicals
-    pushlist 'tchest_items' 29030
+    pushlist 'tchest_items' 'blank scroll%s%' //arcane_scrolls
+    pushlist 'tchest_items' 29030 //plant_chemicals
     pushlist 'tchest_items' 'gold coin'
     pushlist 'tchest_items' 'bow'
     pushlist 'tchest_items' 'seed of renewal'
@@ -147,8 +130,7 @@ if not listexists 'tchest_items'
 
     pushlist 'tchest_items' 'spellbook'
 
-    # WRESTLE MARTIAL MANUAL
-    pushlist 'tchest_items' 'martial arts scroll'
+    pushlist 'tchest_items' 'martial arts scroll' //wrestle_martial_manual
 
     # ARCHERY WEAPONS
     pushlist 'tchest_items' 'bow'
@@ -177,12 +159,10 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'black staff'
     pushlist 'tchest_items' 'gnarled staff'
     pushlist 'tchest_items' 'quarter staff'
-    # war hammer (doenst work with just name, need ID)
-    pushlist 'tchest_items' 'war hammer'
-    pushlist 'tchest_items' 5177
+    pushlist 'tchest_items' 5177 //war_hammer
     pushlist 'tchest_items' 'maul'
     # sheps crook
-    pushlist 'tchest_items' 3713
+    pushlist 'tchest_items' 3713 //sheps_crook
 
     # FENCING WEAPONS
     pushlist 'tchest_items' 'kryss'
@@ -193,17 +173,13 @@ if not listexists 'tchest_items'
     pushlist 'tchest_items' 'bladed staff'
 
     # SHIELDs
-    # buckler (doenst work with only name)
-    pushlist 'tchest_items' 7027
+    pushlist 'tchest_items' 7027 //bucker
     pushlist 'tchest_items' 'buckler'
     pushlist 'tchest_items' 'wooden shield'
     pushlist 'tchest_items' 'metal shield'
-    # bronze shield (for some reason doenst work with name, only graphic number)
-    pushlist 'tchest_items' 7026
-    # kite shield (for some reason doenst work with name, only graphic number)
-    pushlist 'tchest_items' 7033
-    # metal kite shield
-    pushlist 'tchest_items' 7029
+    pushlist 'tchest_items' 7026 //bronze_shield
+    pushlist 'tchest_items' 7033 //kite_shield
+    pushlist 'tchest_items' 7029 //metal_kite_shield
     pushlist 'tchest_items' 'heater shield'
 
     # HATS
@@ -559,19 +535,25 @@ if varexist chest
                 overhead 'found a link: {{link_label}}' 51 'self'
                 sysmsg 'FOUND A LINK: {{link_label}}' 51 'self'
 
-                if listexists 'char_loot_pouch'
-                    if atlist 'char_loot_pouch' 0 as char_loot_pouch
-                        lift item_to_unload 9999
-                        wait action_delay
-                        drop char_loot_pouch
-                        wait action_delay
-                    endif
+                if varexist CHAR_LOOT_POUCH
+                    setvar! destination_container CHAR_LOOT_POUCH
                 else
-                    hotkey 'Grab Item'
-                    wft 600
-                    target item_to_unload
-                    wait action_delay
+                    setvar! destination_container backpack
                 endif
+
+                hotkey "Set Grab Item HotBag"
+                wft action_delay
+                target destination_container
+
+                hotkey 'Grab Item'
+                wft 600
+                target item_to_unload
+                wait 100
+
+                while queued
+                    sysmsg '>>> queued'
+                    wait 20
+                endwhile
 
                 # check char container limit
                 if insysmsg 'That container cannot hold more weight'
@@ -589,19 +571,25 @@ if varexist chest
                 overhead item 51 'self'
                 sysmsg item 52
 
-                if listexists 'char_loot_pouch'
-                    if atlist 'char_loot_pouch' 0 as char_loot_pouch
-                        lift item_to_unload 9999
-                        wait action_delay
-                        drop char_loot_pouch
-                        wait action_delay
-                    endif
+                if varexist CHAR_LOOT_POUCH
+                    setvar! destination_container CHAR_LOOT_POUCH
                 else
-                    hotkey 'Grab Item'
-                    wft 600
-                    target item_to_unload
-                    wait action_delay
+                    setvar! destination_container backpack
                 endif
+
+                hotkey "Set Grab Item HotBag"
+                wft action_delay
+                target destination_container
+
+                hotkey 'Grab Item'
+                wft 600
+                target item_to_unload
+                wait 100
+
+                while queued
+                    sysmsg '>>> queued'
+                    wait 20
+                endwhile
 
                 # check char container limit
                 if insysmsg 'That container cannot hold more weight'

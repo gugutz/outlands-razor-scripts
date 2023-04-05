@@ -1,5 +1,5 @@
 # Dispell Fields
-# v0.0.1
+# v0.0.2
 # by gugutz
 #
 # This script will dispel fields if a neutral target is opened
@@ -11,37 +11,49 @@
 # - poison fields
 #################################
 
-
-# @setvar find_field_max_range 12
-
 if not targetexists 'neutral'
     cast 'dispel field'
-else
-    if findtype 'blue moongate' ground 0 any 12 as field
-        overhead '*dispelling gate*' 56
-        target field
-    elseif findtype 128 ground any any 12 as field or findtype 1872 ground 945 any 12 as field
-        overhead '*dispelling wall*' 56
-        target field
-    elseif findtype 'field of energy' ground any any 12 as field
-        overhead '*dispelling energy field*' 56
-        target field
-    # when set to static square fields, energy field is like this
-    elseif findtype 'goza mat' ground any any 293 as field
-        overhead '*dispelling energy field*' 56
-        target field
-
-    # when set to static square fields, paralyze field is like this
-    elseif findtype 'goza mat' ground any any 218 as field
-        overhead '*dispelling paralyze field*' 56
-        target field
-    elseif findtype 'field of paralysis' ground any any 12 as field
-        overhead '*dispelling paralyze field*' 56
-        target field
-    elseif findtype 'Field of Poison' ground any any 12 as field
-        overhead '*dispelling poison field*' 56
-        target field
-    else
-        overhead '*no fields nearby*'
-    endif
+    stop
 endif
+
+if not timerexists 'dispel_field_execution_timer'
+    createtimer 'dispel_field_execution_timer'
+endif
+
+settimer 'dispel_field_execution_timer' 0
+
+unsetvar! field
+if findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 1 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 2 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 3 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 4 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 5 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 6 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 7 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 8 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 9 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 10 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 11 as found
+    setvar! field found
+elseif findtype 3948|19739|14662|10408|14695|14613|14678|14742 ground 0 any 12 as found
+    setvar! field found
+else
+    overhead '*no fields within 12 tiles*' 54
+endif
+
+if varexist field
+    overhead '*dispelling field*' 56
+    target field
+endif
+
+sysmsg 'FINISHED IN {{dispel_field_execution_timer}}' 90

@@ -1,0 +1,7 @@
+setvar! item
+wait 600
+while targetexists 'any'
+    wait 100
+endwhile
+
+sysmsg 'Items Serial: {{item}}'

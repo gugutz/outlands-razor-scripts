@@ -1,12 +1,27 @@
+setvar! action_delay 600
+setvar! spell_recovery_delay 200
 
 while not targetexists 'neutral'
+    clearsysmsg
     say '[painspike'
-    wft 600
+    wft action_delay
 endwhile
 
 if targetexists 'neutral'
-    overhead 'explode which corpse?' 20
+    overhead 'PAIN SPIKE WHERE?' 90
     while targetexists 'neutral'
         wait 100
     endwhile
+
+    wait spell_recovery_delay
+
+    if insysmsg 'Target cannot be seen'
+        sysmsg 'TARGET WASTED! REPLAYING PAIN SPIKE' 37
+        replay
+    endif
+
+    if insysmsg 'symbols remaining'
+        sysmsg 'PAIN SPIKED!' 90
+        cooldown 'PAIN SPIKE' 30000
+    endif
 endif

@@ -81,6 +81,11 @@ if varexist shelf
     
             if list 'untrapped_pouches' > 0
                 foreach untrapped_pouch in 'untrapped_pouches'
+                    if targetexists 'any'
+                        hotkey 'Cancel Current Target'
+                        wait 400
+                    endif
+
                     # first try to use scrolls
                     if findtype 0x1F39 as magic_trap_scroll
                         useobject magic_trap_scroll
@@ -92,7 +97,7 @@ if varexist shelf
                     # if there are no scrolls in backpack, try with magery if char has the skill
                     elseif skill 'magery' > 50
                         cast 'magic trap'
-                        wft 1800
+                        wft 2500
                         if targetexists 'neutral'
                             target untrapped_pouch
                         endif

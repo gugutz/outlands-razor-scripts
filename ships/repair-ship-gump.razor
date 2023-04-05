@@ -11,4 +11,27 @@ if not gumpexists 1271619955
 endif
 if gumpexists 1271619955
     overhead 'opened ship repair gump' 54
+    # while gumpexists 1271619955
+    #     wait 100
+    # endwhile
+
+endif
+
+
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+setvar! boating_mode 0
+if findtype 2578 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 3947 self
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+if boating_mode == 1
+    script 'ships\search-ships'
 endif
