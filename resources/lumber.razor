@@ -1,7 +1,7 @@
 sysmsg '#########################' 90
 sysmsg '>>> LUMBERJACKING BOT' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.2.1' 31
+sysmsg 'version 0.3.0-rc1' 31
 sysmsg '########################' 90
 
 #################################
@@ -24,21 +24,25 @@ cooldown LUMBER 10000
 if not cooldown LUMBER
     overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
     sysmsg "PLEASE SETUP A COOLDOWN NAMED:" 34
-    sysmsg "Mining" 88
+    sysmsg "LUMBER" 88
     sysmsg "." 88
     sysmsg "Add these triggers each with a 10 second cooldown:" 66
-    sysmsg "Type: sysmsg | Text: you hack"
-    sysmsg "Type: sysmsg | Text: You have recently traveled"
+    sysmsg "Type: sysmsg | Text: You hack"
+    sysmsg "Type: sysmsg | Text: You chop some"
     sysmsg "Type: sysmsg | Text: You have worn out your tool"
-    sysmsg "Type: sysmsg | Text: The world is saving"
     sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby"
-    sysmsg "Type: sysmsg | Text: loosen some rocks but fail"
-    sysmsg "Type: sysmsg | Text: You must wait to perform another action"
+    sysmsg "Type: sysmsg | Text: before you may begin harvesting"
     sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area"
+    sysmsg "Type: OverheadMessage | Text: You gather some"
+    sysmsg "Type: OverheadMessage | Text: Captcha successful"
     sysmsg "." 88
     stop
 endif
 
+
+# make sure no old var is fucking up the script
+unsetvar runebook
+unsetvar runetome
 
 ###################################
 # SCRIPT CONFIGURATION
@@ -49,7 +53,9 @@ sysmsg 'Applying configuration...'
 setvar! debug 1
 setvar! action_delay 600
 setvar! spell_recovery_delay 120
-setvar! resource_cooldown_value 10000
+
+# max ores a packie can have before being set as full
+setvar! max_boards_before_unloading 1000
 
 # set if char should escape home when tracking PKs
 setvar! recall_to_escape_pks 1
@@ -76,10 +82,6 @@ pushlist number_of_steps_per_walk 4
 pushlist number_of_steps_per_walk 5
 pushlist number_of_steps_per_walk 6
 
-# set if char uses a hotel room instead of a house
-setvar! use_hotel_room 1
-# set if characters should use own rooms or enter a friends room
-setvar! use_own_room 0
 
 setvar! auto_walk_to_direction 0
 # direction to walk to when 'auto_walk_to_direction' is ON!
@@ -92,6 +94,11 @@ setvar! use_strength 1
 setvar! max_diffhits_before_buffing 5
 
 setvar! use_void_aspect 0
+
+# set if char uses a hotel room instead of a house
+setvar! use_hotel_room 0
+# set if characters should use own rooms or enter a friends room
+setvar! use_own_room 0
 
 # ADD YOUR CHAR TO THIS LIST IF IT USES VOID ASPECT
 createlist 'void_characters'
@@ -106,11 +113,16 @@ pushlist 'void_characters' 'Nonires'
 createlist 'hotel_room_owners'
 clearlist 'hotel_room_owners'
 pushlist 'hotel_room_owners' 'Neron'
+pushlist 'hotel_room_owners' 'OTHER CHAR NAME'
+
 
 
 #############################
 # SET SCRIPT STUFF
 #############################
+
+# default cooldown value to set the lumber cooldown on script actions
+setvar! resource_cooldown_value 10000
 
 # set all characters that should use void
 foreach charname in 'void_characters'
@@ -134,13 +146,15 @@ endfor
 #############################
 
 # search runetomes first
+unsetvar! home_book
 while findtype 'runetome' backpack as found
     getlabel found rtome_label
     if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
-        sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
+        sysmsg 'FOUND HOME RUNETOME {{rtome_label}}' 54
         setvar! home_book rtome
         setvar! home_book_gump_id 167090027
         setvar! home_rune_btn_number runetome_rune_position
+        break
     endif
 
     @ignore found
@@ -149,13 +163,16 @@ endwhile
 
 # if we couldnt find a home runetome, search for a home runebook
 if not varexist home_book
+    sysmsg 'SEARCHING FOR HOME RUNEBOOK' 52
     while findtype 'runebook' backpack as found
+        sysmsg 'FOUND RUNEBOOK {{found}}' 52
         getlabel found rbook_label
         if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
-            sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
+            sysmsg 'FOUND HOME RUNEBOOK {{rbook_label}}' 54
             setvar! home_book rtome
             setvar! home_book_gump_id 167090027
             setvar! home_rune_btn_number runetome_rune_position
+            break
         endif
 
         @ignore found
@@ -208,7 +225,6 @@ setvar! debug_msg_color 56
 setvar! script_msg_color 2213
 setvar! default_sysmsg_color 1360
 setvar! default_overhead_color 1360
-
 setvar! spell_msg_color 49
 setvar! buff_msg_color 92
 setvar! warning_msg_color 1196
@@ -222,15 +238,12 @@ setvar! boating_msg_color 84
 
 # max time we should wait for hatchet target to open before reclicking it
 setvar! max_wait_for_hatchet_target 2000
-
 # delay between pickaxes uses
-setvar! max_wait_for_last_sysmsg_to_use_hatchet  1000
+# setvar! max_wait_for_last_sysmsg_to_use_hatchet  1000
 # delay before suspecting captcha gump
 setvar! max_wait_for_last_sysmsg_to_suspect_gump 7000
 # how oftect captcha gump usually pops up (default: 600000ms (10 minutes))
 setvar! average_captcha_gump_interval 600000
-# max ores a packie can have before being set as full
-setvar! max_ores_in_packie 380
 
 setvar! max_diffhits_before_starting_heal_routine 0
 setvar! max_diffhits_before_starting_defense_routine 2
@@ -776,7 +789,7 @@ if diffweight <= max_diffweight_before_unloading and findtype LOGS backpack
 endif
 sysmsg '8'
 
-if counttype LOGS >= 1000 or counttype BOARDS >= 1000
+if counttype LOGS >= max_boards_before_unloading or counttype BOARDS >= max_boards_before_unloading
     sysmsg 'OVER 1k LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
     setvar recall_home_now 1
 endif
@@ -1011,16 +1024,20 @@ if auto_summon == 1 and followers < summon_max_limit
                             endif
                         else
                             @settimer 'waiting_summon_timer' 0
-                            while timer 'waiting_summon_timer' < cast_summons_delay
+                            # TESTING ADDING CLEARSYSMSG HERE AND REMOVING SETTIMER 0
+                            clearsysmsg
+                            while timer 'waiting_summon_timer' < cast_summons_delay and not insysmsg 'disturbed'
                                 wait 10
                                 if insysmsg 'disturbed'
-                                    @settimer 'waiting_summon_timer' 0
+                                # TESTING REMOVING THIS
+                                    # @settimer 'waiting_summon_timer' 0
                                     if verbose == 1
                                         sysmsg 'BREAKING WHILE WAITING FOR SUMMONING {{summon}}' alert_msg_color
                                     endif
 
                                     wait spell_recovery_delay
-                                    break
+                                    # TESTING REMOVING THIS
+                                    # break
                                 endif
                             endwhile
 
@@ -1539,7 +1556,32 @@ foreach runebook in 'lumber_runebooks'
             # the timer will be reset and it will not detect a gump
 
             # if reset_last_sysmsg_timer == 0 and timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
-            if cooldown LUMBER
+
+            if is_detecter == 1
+                useskill 'detectinghidden'
+                wait action_delay
+                if targetexists 'neutral'
+                    target self
+                endif
+
+                if insysmsg 'you reveal what was hidden.'
+                    sysmsg '!FOUND HIDDEN PLAYER!' alert_msg_color
+                    sysmsg '> FOUND HIDDEN PLAYER! PROBABLY THIEF!' alert_msg_color
+                endif
+            endif
+
+            # this piece has to run after using detecting hiden to find the player revealed
+            if auto_escape_thiefs == 1
+                sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
+                hotkey 'Clear Target Queue'
+                hotkey 'Next Grey Player Target'
+                if insysmsg 'New target'
+                    sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
+                    setvar! recall_home_now 1
+                endif
+            endif
+
+            if cooldown LUMBER and recall_home_now != 1
 
                 if possible_captcha_detected == 1
                     setvar! possible_captcha_detected 0
@@ -1581,7 +1623,7 @@ foreach runebook in 'lumber_runebooks'
                 endif
     
                 # TESTING: REMOVING THIS WAIT
-                wait max_wait_for_last_sysmsg_to_use_hatchet
+                # wait max_wait_for_last_sysmsg_to_use_hatchet
                 # endif
         
     
@@ -1999,18 +2041,18 @@ foreach runebook in 'lumber_runebooks'
                 # DEFEND AGAINST MONSTERS ROUTINE
                 ########################################
         
-                sysmsg 'BEFORE DEFEN'
                 if diffhits > max_diffhits_before_starting_defense_routine
                     if not find 'last' ground any any 2 or not dead 'last' or noto 'last' != hostile
                         overhead 'searching for mobs to kill...' 52
                         hotkey 'Target Closest Non-Friendly Monster'
                         wait action_delay
         
+                        # TESTING REMOVING THIS
                         # if there is not a captcha present already, reset timer to make sure the script wont bug after killing the mob
-                        if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
-                            sysmsg 'Flaging to reset catpcha timer while searching for mobs...' 54
-                            setvar! reset_last_sysmsg_timer 1
-                        endif
+                        # if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
+                        #     sysmsg 'Flaging to reset catpcha timer while searching for mobs...' 54
+                        #     setvar! reset_last_sysmsg_timer 1
+                        # endif
         
                     endif
         
@@ -2249,6 +2291,7 @@ foreach runebook in 'lumber_runebooks'
             sysmsg 'BEFORE RECALL HOME'
             if recall_home_now == 1
     
+                setvar! use_charges 0
                 if skill 'magery' == 0 or counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "Mandrake Root%s%" == 0
                     if counttype "Recall"
                         overhead 'no regs. trying scroll...' 54
@@ -2276,7 +2319,7 @@ foreach runebook in 'lumber_runebooks'
                     target home_book
                 endif
 
-                unsetvar! recall_book
+                # unsetvar! recall_book
     
                 wait recall_travel_time
     

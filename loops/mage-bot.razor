@@ -148,7 +148,7 @@ if skill 'herding' >= 80
     setvar! auto_herd_mobs 1
 endif
 
-if skill 'detecthidden' >= 80
+if skill 'detectinghidden' >= 80
     sysmsg 'DETECTER DETECTED. OPTIMIZING...' script_msg_color
     setvar! is_detecter 1
 endif
@@ -2465,26 +2465,24 @@ while not dead 'self'
     endif
 
 
-    if auto_escape_thiefs == 1
-        if is_detecter == 1
-            useskill 'DetectHidden'
-            wait action_delay
+    if is_detecter == 1
+        useskill 'detectinghidden'
+        wait action_delay
 
-            if insysmsg 'you reveal what was hidden.'
-                sysmsg '!FOUND HIDDEN PLAYER!' alert_msg_color
-                sysmsg '> FOUND HIDDEN PLAYER! PROBABLY THIEF!' alert_msg_color
-                stop
-            endif
+        if insysmsg 'you reveal what was hidden.'
+            sysmsg '!FOUND HIDDEN PLAYER!' alert_msg_color
+            sysmsg '> FOUND HIDDEN PLAYER! PROBABLY THIEF!' alert_msg_color
         endif
+    endif
 
-        sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+    # this piece has to run after using detecting hiden to find the player revealed
+    if auto_escape_thiefs == 1
+        sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
         hotkey 'Clear Target Queue'
-        hotkey 'Next Non-Friendly Player Target'
+        hotkey 'Next Grey Player Target'
         if insysmsg 'New target'
             sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
-            cast 'recall'
-            wft 3500
-            target home_book
+            setvar! recall_home_now 1
         endif
     endif
 
@@ -2497,10 +2495,13 @@ while not dead 'self'
             sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
             sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
             sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
-            cast 'recall'
-            wft 3500
-            target home_book
 
+            overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+            overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+            overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+            overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+
+            cast 'recall'
 
             clearsysmsg
             @settimer 'waiting_target_timer' 0
@@ -2534,7 +2535,7 @@ while not dead 'self'
             endwhile
 
             if targetexists 'beneficial'
-                target crew_member
+                target home_book
                 wait spell_recovery_delay
             endif
 
