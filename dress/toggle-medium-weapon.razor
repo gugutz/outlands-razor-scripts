@@ -1,0 +1,153 @@
+#################################
+# SCRIPT CONFIGURATION
+#################################
+
+setvar! action_delay 400
+
+if not varexist toggle_medium_weapon_first_run_done
+    setvar dont_unequip_if_already_equiped 0
+
+    ################################
+    # CREATE ALL TIMERS
+    ################################
+
+    if not timerexists 'waiting_dress_timer'
+        createtimer 'waiting_dress_timer'
+        settimer 'waiting_dress_timer' 0
+    endif
+
+    setvar! toggle_medium_weapon_first_run_done 1
+endif
+
+
+
+#################################
+# CODE
+#################################
+
+
+if not listexists 'dps_weapons'
+    createlist 'dps_weapons'
+    if skill 'archery' >= 50 or findtype 'crossbow' backpack
+        pushlist 'dps_weapons' 'crossbow'
+    elseif skill 'fencing' >= 50 or findtype 'pitchfork' backpack or findtype 'short spear' backpack
+        pushlist 'dps_weapons' 'pitchfork'
+        pushlist 'dps_weapons' 'short spear'
+    elseif skill 'mace fighting' >= 50 or findtype 'black staff' or findtype 'gnarled staff' backpack or findtype 'quarter staff' backpack or findtype 3713 backpack
+        pushlist 'dps_weapons' 'black staff'
+        pushlist 'dps_weapons' 'gnarled staff'
+        pushlist 'dps_weapons' 'quarter staff'
+        # sheps crook
+        pushlist 'dps_weapons' 3713
+    elseif skill 'swordsmanship' >= 50 or findtype 'axe' backpack or findtype 'battle axe' backpack or findtype 'two handed axe' backpack or findtype 'large axe' backpackm or findtype "executioner's axe" backpack or findtype 'double axe' backpack
+        if findtype 'axe' backpack as weapon
+            pushlist 'dps_weapons' 'axe'
+        elseif findtype 'battle axe' backpack as weapon
+            pushlist 'dps_weapons' 'battle axe'
+        elseif findtype 'double axe' backpack as weapon
+            pushlist 'dps_weapons' 'double axe'
+        elseif findtype 'large battle axe' backpack as weapon
+            pushlist 'dps_weapons' 'large battle axe'
+        elseif findtype 'two handed axe' backpack as weapon
+            pushlist 'dps_weapons' 'two handed axe'
+        elseif findtype "executioner's axe" backpack as weapon
+            # pushlist 'dps_weapons' "executioner's axe"
+            pushlist 'dps_weapons' "executioner's axe"
+        endif
+    else
+        overhead 'char has no weapon skill'
+    endif
+endif
+
+
+if list 'dps_weapons' == 0
+    overhead 'no weapons in list'
+endif
+
+foreach weapon in 'dps_weapons'
+    if findtype weapon lefthand
+        if dont_unequip_if_already_equiped == 1
+            overhead 'equiped on left hand' 54
+            break
+        else
+            hotkey 'Toggle Peace Only'
+            hotkey 'Undress Left Hand'
+            break
+        endif
+    elseif findtype weapon righthand
+        if dont_unequip_if_already_equiped == 1
+            overhead 'equiped on right hand' 54
+            break
+        else
+            hotkey 'Toggle Peace Only'
+            hotkey 'Undress Right Hand'
+            break
+        endif
+    else
+        if not rhandempty
+            if targetexists 'any'
+                # overhead '*undressing right hand*'
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Right Hand'
+
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
+                wait 200
+            endif
+        elseif not lhandempty
+            if targetexists 'any'
+                # overhead '*undressing left hand*'
+
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Left Hand'
+
+                wait 200
+                # toggle war before undress to avoid wasting swings with punches (arena usefull)
+            endif
+        endif
+
+        if findtype weapon backpack as weap
+            sysmsg '000000'
+            # EQUIP THE WEAPON
+            settimer 'waiting_dress_timer' 0
+            while not findtype weapon lefthand and not findtype weapon righthand
+
+                if targetexists
+                    sysmsg 'LIFT'
+                    hotkey 'Drop What You Are Currently Holding'
+                    lift weap 1
+                    wait action_delay
+                    drop 'self' LeftHand
+                else
+                    sysmsg 'DCLICK'
+                    dclick weap
+                endif
+
+                wait 100
+                while queued
+                    sysmsg 'queued'
+                endwhile
+                # wait action_delay
+
+                if timer 'waiting_dress_timer' >= 400
+                    sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
+                    break
+                endif
+            endwhile
+
+            if not lhandempty or not rhandempty
+                overhead 'WEAPON EQUIPED!' 52
+                if noto lasttarget == hostile
+                    overhead 'ATTACKING!' 41 'last'
+                    overhead 'attacking lasttarget!' 41
+                    hotkey 'Attack Last Target'
+                endif
+                break
+            else
+                hotkey 'Toggle Peace Only'
+            endif
+        endif
+    endif
+endfor
+
+
+hotkey "Resynchronize Client"

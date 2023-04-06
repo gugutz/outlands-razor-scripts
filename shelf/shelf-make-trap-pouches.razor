@@ -1,0 +1,122 @@
+
+if not listexists 'untrapped_pouches'
+    createlist 'untrapped_pouches'
+else
+    clearlist 'untrapped_pouches'
+endif
+
+if not timerexists 'meditating_msg_warning_timer'
+    createtimer 'meditating_msg_warning_timer'
+    settimer 'meditating_msg_warning_timer' 2001
+endif
+
+if findtype 'storage shelf' ground any any 2 as shelf_found
+   setvar shelf shelf_found
+else
+   overhead 'NO SHELFS FOUND!'
+   overhead 'get close to a shelf and try again'
+   stop
+endif
+
+if varexist shelf
+    while not dead 'self'
+        while not find shelf ground any any 2
+            overhead 'Get back closer to the shelf!'
+            wait 2000
+        endwhile
+    
+
+        while find shelf ground any any 2
+
+            while mana < 50
+                while not findbuff 'Actively Meditating'
+                    useskill 'meditation'
+                    wait 1000
+                endwhile
+
+                while findbuff 'Actively Meditating' and mana < maxmana
+                    wait 100
+
+                    if timer 'meditating_msg_warning_timer' >= 4000
+                        overhead 'meditating...' 89
+                        settimer 'meditating_msg_warning_timer' 0
+                    endif
+                endwhile
+            endwhile
+
+            # if counttype "pouch" backpack 0 < 2
+            if not findtype "pouch" backpack 0
+                sysmsg 'RESSUPLYING...' 55
+                menu shelf 1
+                waitforgump 3232825965 600
+
+                if gumpexists 3232825965
+                    gumpclose 3232825965
+                endif
+
+                wait 600
+
+                if not findtype "pouch" backpack 0
+                    overhead 'NO POUCHES AFTER RESUUPLY' 39
+                    overhead 'SHELF IS PROBABLY OUT OF POUCHES' 39
+                    overhead 'STOPPING SCRIPT' 39
+                    stop
+                endif
+            endif
+    
+            # pouch graphic = 0x0e79
+            # magic trap scroll = 0x1f39
+    
+            while findtype 'pouch' backpack 0 as untrapped_pouch
+                pushlist 'untrapped_pouches' untrapped_pouch
+                @ignore untrapped_pouch
+            endwhile
+    
+            clearignore
+    
+            if list 'untrapped_pouches' == 0
+                overhead '*no untrapped pouches*' 55
+                stop
+            endif
+    
+            if list 'untrapped_pouches' > 0
+                foreach untrapped_pouch in 'untrapped_pouches'
+                    if targetexists 'any'
+                        hotkey 'Cancel Current Target'
+                        wait 400
+                    endif
+
+                    # first try to use scrolls
+                    if findtype 0x1F39 as magic_trap_scroll
+                        useobject magic_trap_scroll
+                        wft 1800
+                        if targetexists 'neutral'
+                            target untrapped_pouch
+                        endif
+                        wait 200
+                    # if there are no scrolls in backpack, try with magery if char has the skill
+                    elseif skill 'magery' > 50
+                        cast 'magic trap'
+                        wft 2500
+                        if targetexists 'neutral'
+                            target untrapped_pouch
+                        endif
+                        wait 200
+                    else
+                        overhead '*no ways to trap pouch*' 48 'self'
+                    endif
+                endfor
+            endif
+    
+            sysmsg 'RESTOCKING SELF...' 55
+            menu shelf 0
+            wft 600
+    
+            hotkey 'Target Self'
+    
+        endwhile
+    endwhile
+endif
+
+
+loop

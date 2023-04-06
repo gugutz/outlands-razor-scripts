@@ -1,0 +1,1353 @@
+#################################
+# SUPER RESTOCK & RESSUPLY
+# v1.4.0
+# by gugutz
+#
+#################################
+# CREDITS :)
+#
+sysmsg '♥ SUPER RESTOCK & RESSUPLY by gugutz ♥' 55
+#
+#
+
+# unsetvar! gold_container_location
+# unsetvar! tomes_container_location
+
+if not varexist super_restock_ressuply_first_run_done
+    setvar! super_restock_ressuply_first_run_done true
+
+    #################################
+    # GENERAL CONFIGURATION
+    #################################
+
+    # print (or dont) informative sysmsgs and overhead msgs
+    setvar! verbose_mode yes
+
+    # choose if you also want to unload misc items (skill orbs,, rms, etc...)
+    setvar! unload_misc_items yes
+
+    # this will pop open your trapped loot pouch (from the hide-loot-in-trap-pouch script)
+    setvar! open_loot_pouch_when_unloading no
+
+    # set if shelf restock should target the char himself or a specific bag
+    # set to 'self' to restock from char, or any other value to have the script
+    # ask for the bag/container to use
+    setvar! shelf_restock_container self
+
+    setvar! action_delay 300
+    setvar! sysmsgs_color 50
+    setvar! debug_msgs_color 43
+
+    #################################
+    # CREATE ALL LISTS FOR CONFIG
+    #################################
+
+    createlist 'super_restock_ressuply_config_lists'
+    pushlist 'super_restock_ressuply_config_lists' 'tomes_location'
+    pushlist 'super_restock_ressuply_config_lists' 'gold_container_location'
+    pushlist 'super_restock_ressuply_config_lists' 'unload_misc_items_container_location'
+
+    foreach list in 'super_restock_ressuply_config_lists'
+        if not listexists list
+            createlist list
+        endif
+    endfor
+
+    #################################
+    # CONTAINERS CONFIGURATION
+    #################################
+    #
+    # Possible Values:
+    # - 'ground', -> if resource is located directly in the ground
+    # - 'subcontainer' -> if resource should be placed in a container thats inside the master_container
+    # - 'master_container' -> if resource should be placed inside the common/shared 'master_container'
+    # - (TOMES ONLY!) 'ground_container' -> if resource is inside its own container in the ground
+    #
+    pushlist 'unload_misc_items_container_location' 'ground'
+    pushlist 'gold_container_location' 'ground'
+    pushlist 'tomes_location' 'ground'
+
+
+endif
+
+
+
+#################################
+# CODE
+#################################
+
+# SEARCH FOR EVERY PACKANIMAL NEARBY WHOS NOTO IS SAME AS CHAR, TO RESTOCK FROM THEM
+removelist 'packies'
+createlist 'packies'
+
+while findtype 292 ground any any 2 as packie
+    # if noto packie = noto 'self'
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        dclick packie
+        wait action_delay
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    # if noto packie = noto 'self'
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        dclick packie
+        wait action_delay
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+
+# IF PLAYER CHOSE TO USE ANY SUBCONTAINER
+# WE NEED TO ASK HIM FOR THE MAIN CONTAINER THAT
+# WILL HOLD THOSE SUBCONTAINERS, IF WE DIDNT ALREADY
+# OR CANT FIND THAT CONTAINER CLOSE
+
+if inlist 'unload_misc_items_container_location' 'subcontainer' or inlist 'gold_container_location' 'subcontainer' or inlist 'tomes_location' 'subcontainer' or inlist 'tomes_location' 'master_container' or inlist 'gold_container_location' 'master_container'
+   if not varexist main_unload_container_serial or not find main_unload_container_serial ground any any 2
+        overhead 'select master unload container' sysmsgs_color
+        sysmsg  '> Select Your Master Unload Container' sysmsgs_color
+        setvar! main_unload_container_serial
+    endif
+endif
+
+
+# if player did select a main unload container,
+# we open right now to find the other subcontainers player might use
+if varexist main_unload_container_serial
+    useobject main_unload_container_serial
+    wait action_delay_var
+endif
+
+
+
+#################################
+# SET SHELF RESTOCK CONTAINER
+#################################
+
+# if inlist 'shelf_restock_container' 'ground' or inlist 'shelf_restock_container' 'master_container'
+#     setvar! shelf_restock_container_serial
+# elseif inlist 'unload_misc_items_container_location' 'subcontainer'
+#     setvar! misc_items_container_location main_unload_container_serial
+# else
+#     setvar! misc_items_container_location 'ground'
+# endif
+
+if shelf_restock_container != self
+    # if player set the shelf restock to something else than 'self' and char backpack, we need to make sure
+    # we have it saved, or else we need to ask player for the container
+    if not varexist shelf_restock_container_serial
+        @unsetvar shelf_restock_container_serial
+        overhead 'select your shelf restock container' sysmsgs_color
+        sysmsg  '> Select Your Shelf restock Container' sysmsgs_color
+        setvar! shelf_restock_container_serial
+    elseif not find shelf_restock_container_serial backpack
+        @unsetvar shelf_restock_container_serial
+        overhead 'cant find shelf restock container. select it again...' sysmsgs_color
+        sysmsg  '> Shelf Restock Container Not Found In Backpack! Select It Again:' sysmsgs_color
+        setvar! shelf_restock_container_serial
+    endif
+endif
+
+
+#################################
+# SET MISC ITEMS UNLOAD CONTAINER
+#################################
+
+if inlist 'unload_misc_items_container_location' 'ground' or inlist 'unload_misc_items_container_location' 'master_container'
+    setvar! misc_items_container_location 'ground'
+elseif inlist 'unload_misc_items_container_location' 'subcontainer'
+    setvar! misc_items_container_location main_unload_container_serial
+else
+    setvar! misc_items_container_location 'ground'
+endif
+
+if inlist 'unload_misc_items_container_location' 'ground' or inlist 'unload_misc_items_container_location' 'subcontainer' or inlist 'unload_misc_items_container_location' 'master_container'
+    if not varexist misc_items_container
+        @unsetvar misc_items_container
+        overhead 'select your misc items container' sysmsgs_color
+        sysmsg  '> Select Your Misc Items Container' sysmsgs_color
+        setvar! misc_items_container
+    elseif not find misc_items_container misc_items_container_location any any 2
+        @unsetvar misc_items_container
+        overhead 'cant find misc items container. select it again...' sysmsgs_color
+        sysmsg  '> Misc Items Container Not Found Within 2 Tiles! Select It Again:' sysmsgs_color
+        setvar! misc_items_container
+    endif
+endif
+
+
+
+
+#################################
+# SET GOLD DEPOSIT CONTAINER IF NOT USING THE BANK DEPOSIT BOX
+#################################
+
+# first set the location of where the container should be
+if inlist 'gold_container_location' 'ground' or inlist 'gold_container_location' 'master_container'
+    setvar! gold_container_location_serial 'ground'
+elseif inlist 'gold_container_location' 'subcontainer'
+    setvar! gold_container_location_serial main_unload_container_serial
+else
+    setvar! gold_container_location_serial 'ground'
+endif
+
+
+# now we search for the gold deposit container where its location was settled in the above block
+if inlist 'gold_container_location' 'ground' or inlist 'gold_container_location' 'subcontainer' or inlist 'gold_container_location' 'master_container'
+    if not varexist gold_container
+        @unsetvar gold_container
+        overhead 'select your gold deposit container' sysmsgs_color
+        sysmsg  '> Select Your Gold Deposit container' sysmsgs_color
+        setvar! gold_container
+    elseif not find gold_container gold_container_location_serial any any 2
+        @unsetvar gold_container
+        overhead 'cant find gold unload container. select it again...' sysmsgs_color
+        sysmsg  '> Gold Unload Container Not Found Within 2 Tiles! Select It Again:' sysmsgs_color
+        setvar! gold_container
+    endif
+endif
+
+
+#################################
+# SET TOMES CONTAINER LOCATION VARIABLE
+#################################
+
+if inlist 'tomes_location' 'ground'
+    setvar! tomes_location_serial 'ground'
+
+elseif inlist 'tomes_location' 'master_container'
+        # setvar! tomes_container main_unload_container_serial
+    setvar! tomes_location_serial main_unload_container_serial
+
+    if varexist main_unload_container_serial and find main_unload_container_serial ground any any 2
+        sysmsg 'Opening Main Unload Container For Tomes...' 90
+        overhead 'Opening Main Unload Container For Tomes...' 90
+        useobject main_unload_container_serial
+        wait action_delay
+    else
+        overhead '[DEBUG] Couldnt find master container' 90
+    endif
+
+# if player chose subcontainer though, we still dont know were is the tomes_container
+# so we need to eventually ask the player
+elseif inlist 'tomes_location' 'ground_container'
+    if not varexist tomes_location_serial
+        # sysmsg '[DEBUG] tomes_location_serial variable doenst exist' debug_msgs_color
+        setvar! reset_tomes_container true
+    elseif not find tomes_location_serial ground any any 2
+        # sysmsg '[DEBUG] couldnt find tomes_location_serial in the ground' debug_msgs_color
+        setvar! reset_tomes_container true
+    endif
+elseif inlist 'tomes_location' 'subcontainer'
+
+    if not varexist tomes_location_serial
+        # sysmsg '[DEBUG] tomes_location_serial variable doenst exist' debug_msgs_color
+        setvar! reset_tomes_container true
+    elseif not find tomes_location_serial true
+        # sysmsg '[DEBUG] couldnt find tomes_location_serial in the ground' debug_msgs_color
+        setvar! reset_tomes_container true
+    endif
+
+    # always open the tomes container if its a subcontainer
+    if varexist tomes_location_serial
+        sysmsg 'Opening Tomes Container...'
+        useobject tomes_location_serial
+        wait action_delay
+    endif
+
+
+    # if atlist 'main_unload_container' 0 as main_unload_container_serial
+    #     setvar! tomes_location main_unload_container_serial
+    # endif
+endif
+
+if varexist reset_tomes_container
+    unsetvar! reset_tomes_container
+    sysmsg 'RESETING TOMES CONTAINER!' 43
+    overhead 'select your tomes container' sysmsgs_color
+    sysmsg  '> Select Your Tomes Container' sysmsgs_color
+    setvar! tomes_location_serial
+endif
+
+# SET THE TOMES CONTAINER
+# if inlist 'tomes_location' 'subcontainer' or inlist 'tomes_location' 'master_container'
+
+#     # if tomes are in the master_container, open the container
+#     if find main_unload_container_serial ground any any 2
+#         sysmsg 'Opening Main Unload Container For Tomes...'
+#         useobject main_unload_container_serial
+#         wait action_delay
+#     endif
+#     # if inlist 'tomes_location' 'subcontainer'
+#     # if not varexist tomes_container or not find tomes_container tomes_location any any 2
+#     if not varexist tomes_location
+#         overhead 'select your tomes container' sysmsgs_color
+#         sysmsg  '> Select Your Tomes Container' sysmsgs_color
+#         setvar! tomes_location
+#     endif
+# endif
+
+
+
+#################################
+# USE DETECT HIDDEN EVERY 50s
+#################################
+
+if not timerexists 'detect_hidden_timer'
+    settimer 'detect_hidden_timer' 50001
+endif
+
+clearsysmsg
+
+if timer 'detect_hidden_timer' >= 50000
+    sysmsg ">>> Detecting Hidden Thiefs..." sysmsgs_color
+    while not insysmsg 'You search the home and find no one hiding within' and not insysmsg 'You reveal what was hidden'
+        useskill 'detectinghidden'
+        wft action_delay
+        target 'self'
+        wait action_delay
+    endwhile
+    settimer 'detect_hidden_timer' 0
+endif
+
+
+#################################
+# SAVE BARDING INSTRUMENT TO GET IT FROM RECYCLER AFTER UNLOADING
+#################################
+
+if skill 'musicianship' > 50
+    # if not listexists 'char_instrument'
+    #     createlist 'char_instrument'
+    # endif
+
+    if not listexists 'instruments'
+        createlist 'instruments'
+        pushlist 'instruments' 'lute'
+        pushlist 'instruments' 'drum'
+        pushlist 'instruments' 'bamboo flute'
+        pushlist 'instruments' 'tambourine'
+        # pushlist 'instruments' 'lap harp'
+        pushlist 'instruments' 3762
+    endif
+
+    if not listexists 'magical_instruments_types'
+        createlist 'magical_instruments_types'
+        pushlist 'magical_instruments_types' 'eminently'
+        pushlist 'magical_instruments_types' 'exceedingly'
+        pushlist 'magical_instruments_types' 'supremely'
+    endif
+
+    # check if we still have a saved and locatable instrument
+    unsetvar! reset_char_instrument
+    if varexist char_instrument
+        if not find char_instrument backpack
+            unsetvar! char_instrument
+            # pushlist 'reset_char_instrument' 'yes'
+        endif
+    else
+        unsetvar! char_instrument
+        setvar! reset_char_instrument true
+    endif
+
+    if varexist reset_char_instrument
+        foreach instrument_type in 'instruments'
+
+            if findtype instrument_type backpack as instrument
+                getlabel instrument instrument_label
+
+                # unsetvar! found_char_instrument
+
+                foreach magical_instrument_type in 'magical_instruments_types'
+                    if magical_instrument_type in instrument_label
+                        sysmsg '> FOUND INSTRUMENT: {{instrument_label}}' 90
+                        overhead '*found and saved instrument*' 90
+
+                        setvar! char_instrument instrument
+                        break
+                    endif
+                endfor
+            endif
+
+            if varexist char_instrument
+                break
+            endif
+        endfor
+    endif
+endif
+
+
+#################################
+# POP TRAPPED LOOT POUCH OPEN IF OPTION IS SET TO 'yes'
+#################################
+
+if open_loot_pouch_when_unloading == yes
+    if listexists 'char_loot_pouch'
+        if atlist 'char_loot_pouch' 0 as loot_pouch
+            sysmsg 'OPENING TRAPPED LOOT POUCH' sysmsgs_color
+            dclick loot_pouch
+            wait action_delay
+
+            dclick loot_pouch
+            wait action_delay
+        endif
+    endif
+endif
+
+
+#################################
+# MISC ITEMS (ITEMS WITHOUT SHELF/TOME ORGANIZER FOR THEM
+#################################
+
+#
+if unload_misc_items == yes
+    if not listexists 'misc_items'
+        createlist 'misc_items'
+        # skill orb
+        pushlist 'misc_items' 22336
+        pushlist 'misc_items' 'research materials'
+        # spell hue deeds
+        pushlist 'misc_items' 5359
+        # pushlist 'misc_items' 'bag of seeds'
+        # pushlist 'misc_items' 'seed of renewal'
+
+        # collectable cards
+        pushlist 'misc_items' 'parchment'
+        pushlist 'misc_items' 'carpet'
+        pushlist 'misc_items' 'chain link'
+        # outlands event cards, like kings faire tickets or st patricks game cards
+        pushlist 'misc_items' 'card'
+        pushlist 'misc_items' 3712
+        pushlist 'misc_items' 3648
+        # greater paragon chests
+        pushlist 'misc_items' 29833
+        pushlist 'misc_items' 42517
+        pushlist 'misc_items' 29040
+        pushlist 'misc_items' 52615
+        pushlist 'misc_items' 17083
+        pushlist 'misc_items' 45285
+
+    endif
+
+    if inlist 'unload_misc_items_container_location' 'ground' or inlist 'unload_misc_items_container_location' 'subcontainer'
+        if not varexist misc_items_container
+            overhead 'misc items container is not set!' 41
+            sysmsg '> Misc Items Container Is Not Set!' 41
+        elseif not find misc_items_container misc_items_container_location any any 2
+            overhead 'cant find misc items container nearby' 41
+            sysmsg '> Cant Find Misc Items Container Nearby!' 41
+        else
+            foreach item in 'misc_items'
+                if findtype item backpack any any as item_to_unload
+                    while findtype item backpack any any as item_to_unload
+                        getlabel item_to_unload item_label
+                        overhead '*unloading {{item_label}}*' 90
+                        lift item_to_unload 999
+                        wait action_delay
+                        drop misc_items_container -1 -1 0
+                        wait action_delay
+                    endwhile
+                endif
+            endfor
+        endif
+    endif
+endif
+
+
+
+#################################
+# UNLOAD GOLD
+#################################
+
+if not listexists 'currency_types'
+    createlist 'currency_types'
+    pushlist 'currency_types' 'gold coin'
+    # doublons
+    pushlist 'currency_types' 'muffins'
+endif
+
+foreach currency_type in 'currency_types'
+    while findtype currency_type backpack as currency
+        getlabel currency currency_label
+
+        if not varexist gold_container or not find gold_container gold_container_location_serial any any 2
+            if findtype 'bank deposit safe' gold_container_location_serial any any 2 as deposit_box
+                sysmsg '> Setting vault as gold deposit container' sysmsgs_color
+                setvar! gold_container deposit_box
+
+                while findtype 3821 deposit_box any as gold_found
+                    getlabel gold_found gold_found_label
+                    sysmsg 'FOUND {{gold_found_label}} INSIDE THE VAULT! GONNA TAKE IT OFF AND DEPOSIT IT PROPERLY!' 52
+                    lift gold_found 60000
+                    wait action_delay
+                    drop ground
+                    wait action_delay
+                endwhile
+            endif
+        endif
+
+        # finally, if either player did set a container to store gold, or we found a vault on ground, we use that to drop gold on it
+        if not find gold_container gold_container_location_serial any any 2
+            overhead 'cant find gold deposit container to unload char' 41
+            sysmsg '> Cant Find gold deposit Container To Unload Char' sysmsgs_color
+        elseif varexist gold_container and find gold_container gold_container_location_serial any any 2
+            if verbose_mode == yes
+                overhead '*depositing {{currency_label}}*' 49
+                sysmsg 'Deposited {{currency_label}} in vault!' 49
+            endif
+
+            lift currency 60000
+            wait action_delay
+            # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
+            drop gold_container -1 -1 0
+            wait action_delay
+
+            if verbose_mode == yes
+                if insysmsg 'You deposit'
+                    overhead '*deposited {{currency_label}}*' 70
+                    sysmsg 'Deposited {{currency_label}} in vault!' 49
+                endif
+            endif
+        endif
+    endwhile
+endfor
+
+
+
+#################################
+# DEPOSIT GOLD FROM PACKIES
+#################################
+
+if list 'packies' > 0
+    if not varexist gold_container or not find gold_container gold_container_location_serial any any 2
+        overhead 'cant find gold deposit container to unload gold from packies' 38
+        sysmsg '> Cant Find gold deposit Container To Unload Gold From Packies' sysmsgs_color
+    elseif varexist gold_container and find gold_container gold_container_location_serial any any 2
+        foreach packanimal in 'packies'
+            while findtype 'gold coin' packanimal any any 2 as currency_from_packie
+                getlabel currency_from_packie currency_from_packie_label
+                if verbose_mode == yes
+                    overhead '*unloading {{currency_from_packie_label}}*' 49 packanimal
+                    sysmsg '> Unloading {{currency_from_packie_label}} From Pack Animal' 49
+                endif
+
+                # we have to use 'lifttype' here cause only it supports specifying the item src, 'lift' doenst
+                lift currency_from_packie 60000
+                # lifttype 'gold coin' 60000 packanimal
+                wait action_delay
+                # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
+                drop gold_container -1 -1 0
+                wait action_delay
+            endwhile
+        endfor
+    endif
+endif
+
+
+#################################
+# MINERS - UNLOAD ORES/INGOTS
+#################################
+
+
+while findtype 6585 backpack as ores_from_backpack
+    if skill 'mining' <= 50 and hue ores_from_backpack != 0
+        overhead 'char cant smelt colored ore' 52
+        break
+    endif
+
+    if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
+        if verbose_mode == yes
+            overhead '*smelting ores*' 49 packanimal
+            sysmsg '> Smelting Ores In Backpack' 49
+        endif
+        dclick ores_from_backpack
+        wait action_delay
+    else
+        sysmsg 'Found Ores in backpack but no forge nearby to smelt it...' 40
+        break
+    endif
+endwhile
+
+
+# MINERS - UNLOAD ORES/INGOTS FROM PACKIES
+# smelt ores or make boards from resources inside packies to deposit them in resource stockpile
+if list 'packies' > 0
+    foreach packanimal in 'packies'
+
+        # smelt ores
+        while findtype 6585 packanimal any any 2 as ores_from_packie
+            if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
+                if verbose_mode == yes
+                    overhead '*smelting ores*' 49 packanimal
+                    sysmsg '> Smelting Ores In Pack Animal' 49
+                endif
+
+                dclick ores_from_packie
+                wait action_delay
+            else
+                sysmsg 'Found Ores in pack animal but no forge nearby to smelt it...' 40
+                overhead 'found ores but no forge' 40 packanimal
+                break
+            endif
+        endwhile
+
+        # make boards from logs
+        while findtype 'logs' packanimal any any 2 as logs_from_packie
+            if verbose_mode == yes
+                overhead '*making boards from logs*' 49 packanimal
+                sysmsg '> Smelting Ores In Pack Animal' 49
+            endif
+
+            if findtype 'scissors' backpack as cutter
+                dclick cutter
+                wft action_delay
+                if targetexists 'neutral'
+                    target logs_from_packie
+                endif
+            else
+                sysmsg 'NO SCISSORS TO MAKE BOARDS!' 44
+            endif
+        endwhile
+    endfor
+endif
+
+
+#################################
+# LUMBER - UNLOAD LOGS/BOARDS
+#################################
+
+
+# UNLOADING BOARDS AT HOME
+# make boards from logs on backpack
+while findtype 'log%s' backpack any any 2 as logs_from_backpack
+
+    if verbose_mode == yes
+        overhead '*making boards from logs*' 49 packanimal
+        sysmsg '> Making boards from logs in backpack' 49
+    endif
+
+    if findtype 'hatchet' backpack or findtype 'hatchet' lefthand
+        dclick logs_from_backpack
+        wait action_delay
+    elseif findtype 'scissors' backpack as cutter
+        dclick cutter
+        wft action_delay
+        if targetexists 'neutral'
+            target logs_from_backpack
+        endif
+    else
+        sysmsg 'NO SCISSORS TO MAKE BOARDS!' 44
+    endif
+endwhile
+
+# make boards from resources inside packies to deposit them in resource stockpile
+if list 'packies' > 0
+    foreach packanimal in 'packies'
+
+        # make boards from logs
+        while findtype 'log%s' packanimal any any 2 as logs_from_packie
+            if verbose_mode == yes
+                overhead '*making boards from logs*' 49 packanimal
+                sysmsg '> Making boards from logs in pack animal' 49
+            endif
+
+            if findtype 'hatchet' backpack
+                dclick logs_from_packie
+                wait action_delay
+            elseif findtype 'scissors' backpack as cutter
+                dclick cutter
+                wft action_delay
+                if targetexists 'neutral'
+                    target logs_from_packie
+                endif
+            else
+                sysmsg 'NO SCISSORS TO MAKE BOARDS!' 44
+            endif
+        endwhile
+
+    endfor
+endif
+
+
+#################################
+# TREASURE MAPS
+#################################
+
+if findtype 'book' tomes_location_serial 2990 1 2 as treasure_map_tome
+    if findtype 'map' backpack 0 any as tmap
+
+        getlabel tmap item_label
+
+        if verbose_mode == yes
+            sysmsg '> Unloading {{item_label}}...' sysmsgs_color
+        endif
+
+        while findtype 'map' backpack 0 any as tmap
+            getlabel tmap tmap_label
+            if "completed by" in tmap_label
+                lift tmap 1
+                wait action_delay
+                overhead "dropping completed map"
+                if findtype 'barrel' ground 0 1 2 as trashcan
+                    if verbose_mode == yes
+                        sysmsg "Dropping Completed Map On Trash Barrel" sysmsgs_color
+                    endif
+                    drop trashcan -1 -1 0
+                else
+                    if verbose_mode == yes
+                        sysmsg "Dropping Completed Map On The Ground" sysmsgs_color
+                    endif
+                    droprelloc 0 0
+                endif
+            else
+                lift tmap 1
+                wait action_delay
+                drop treasure_map_tome -1 -1 0
+                wait action_delay
+            endif
+        endwhile
+
+    endif
+endif
+
+
+#################################
+# MINING MAPS
+#################################
+
+if findtype 'book' tomes_location_serial 2796 1 2 as mining_map_tome
+    if findtype 'map' backpack 2796 any as mining_map
+        while findtype 'map' backpack 2796 any as mining_map
+            getlabel mining_map item_label
+
+            if verbose_mode == yes
+                sysmsg '> Unloading {{item_label}}...' sysmsgs_color
+            endif
+
+            lift mining_map 1
+            wait action_delay
+            drop mining_map_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+endif
+
+
+#################################
+# LUMBER MAPS
+#################################
+
+if findtype 'book' tomes_location_serial 2799 1 2 as lumber_map_tome
+    if findtype 'map' backpack 2799 any as lumber_map
+        while findtype 'map' backpack 2799 any as lumber_map
+            getlabel lumber_map item_label
+
+            if verbose_mode == yes
+                sysmsg '> Unloading {{item_label}}...' sysmsgs_color
+            endif
+
+            lift lumber_map 1
+            wait action_delay
+            drop lumber_map_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+endif
+
+
+#################################
+# SKINNING MAPS
+#################################
+
+if findtype 'book' tomes_location_serial 2651 1 2 as skinning_map_tome
+    if findtype 'map' backpack 2651 any as skinning_map
+        while findtype 'map' backpack 2651 any as skinning_map
+            getlabel skinning_map item_label
+
+            if verbose_mode == yes
+                sysmsg '> Unloading {{item_label}}...' sysmsgs_color
+            endif
+
+            lift skinning_map 1
+            wait action_delay
+            drop skinning_map_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+endif
+
+
+#################################
+# FISHING MAPS
+#################################
+
+if findtype 'book' tomes_location_serial 2722 1 2 as fishing_map_tome
+    if findtype 'map' backpack 2904 any as fishing_map
+        while findtype 'map' backpack 2904 any as fishing_map
+            getlabel fishing_map item_label
+
+            if verbose_mode == yes
+                sysmsg '> Unloading {{item_label}}...' sysmsgs_color
+            endif
+
+            lift fishing_map 1
+            wait action_delay
+            drop fishing_map_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+endif
+
+
+
+#################################
+# SKILL SCROLLS
+#################################
+
+if findtype 'book' tomes_location_serial 2963 1 2 as skill_scroll_tome
+    if findtype 'scroll of calling' backpack any any as skill_scroll
+        while findtype 'scroll of calling' backpack any any as skill_scroll
+            getlabel skill_scroll item_label
+
+            if verbose_mode == yes
+                sysmsg '> Unloading {{item_label}}...' sysmsgs_color
+            endif
+            lift skill_scroll 999
+            wait action_delay
+            drop skill_scroll_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+endif
+
+
+#################################
+# ASPECT ITEMS
+#################################
+
+if findtype 'book' tomes_location_serial 2618 1 2 as aspect_item_tome
+    if findtype 'aspect core' backpack any any as core
+        # if verbose_mode == yes
+        #     sysmsg '> Unloading {{core_label}}' sysmsgs_color
+        # endif
+
+        while findtype 'aspect core' backpack any any as core
+            getlabel core core_label
+            if verbose_mode == yes
+                sysmsg '> Unloading {{core_label}}' sysmsgs_color
+            endif
+            lift core 999
+            wait action_delay
+            drop aspect_item_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+
+    # extract
+    if findtype 3836 backpack any any as extract
+        # if verbose_mode == yes
+        #     sysmsg '> Unloading {{extract_label}}' sysmsgs_color
+        # endif
+
+        while findtype 3836 backpack any any as extract
+            getlabel extract extract_label
+            if verbose_mode == yes
+                sysmsg '> Unloading {{extract_label}}' sysmsgs_color
+            endif
+
+            lift extract 999
+            wait action_delay
+            drop aspect_item_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+
+    # destils
+    if findtype 17686 backpack any any as destil
+
+        while findtype 17686 backpack any any as destil
+            getlabel destil destil_label
+            if verbose_mode == yes
+                sysmsg '> Unloading {{destil_label}}' sysmsgs_color
+            endif
+
+            lift destil 999
+            wait action_delay
+            drop aspect_item_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+
+    # phylacteries
+    if findtype 'phylactery' backpack any any as phyli
+        # if verbose_mode == yes
+        #     sysmsg '> Unloading Phyli'
+        # endif
+
+        while findtype 'phylactery' backpack any any as phyli
+            getlabel phyli phyli_label
+            if verbose_mode == yes
+                sysmsg '> Unloading {{phyli_label}}' sysmsgs_color
+            endif
+
+            lift phyli 999
+            wait action_delay
+            drop aspect_item_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+
+endif
+
+
+#################################
+# RARE CLOTHES
+#################################
+
+if findtype 'book' tomes_location_serial 1495 1 2 as rare_cloth_tome
+    if findtype 'folded cloth' backpack any any as piece_of_cloth
+        if verbose_mode == yes
+            sysmsg '> Unloading Rare Cloths' sysmsgs_color
+        endif
+
+        while findtype 'folded cloth' backpack any any as piece_of_cloth
+            getlabel piece_of_cloth cloth_label
+            if verbose_mode == yes
+                sysmsg '> Unloading {{cloth_label}}' sysmsgs_color
+            endif
+
+            lift piece_of_cloth 999
+            wait action_delay
+            drop rare_cloth_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+endif
+
+
+#################################
+# DYES CLOTHES
+#################################
+
+if not listexists 'dyes'
+    createlist 'dyes'
+    # runebook dye
+    pushlist 'dyes' 3838
+    # backpack dye
+    pushlist 'dyes' 3839
+    # headwear dye
+    pushlist 'dyes' 3842
+    # facial hair dye
+    pushlist 'dyes' 3843
+    # hair, shield and quiver dye
+    pushlist 'dyes' 3843
+    # fortuniture dye
+    pushlist 'dyes' 29025
+    # carpet dye
+    pushlist 'dyes' 29036
+endif
+
+
+if findtype 'book' tomes_location_serial 1494 1 2 as dyes_tome
+    foreach dye in 'dyes'
+        if findtype dye backpack any any as dye_bottle
+            # if verbose_mode == yes
+            #     sysmsg '> Unloading Dyes' sysmsgs_color
+            # endif
+
+            while findtype dye backpack any any as dye_bottle
+                getlabel dye_bottle dye_bottle_label
+                if verbose_mode == yes
+                    sysmsg '> Unloading {{dye_bottle_label}}' sysmsgs_color
+                endif
+                lift dye_bottle 999
+                wait action_delay
+                drop dyes_tome -1 -1 0
+                wait action_delay
+            endwhile
+        endif
+    endfor
+endif
+
+
+#################################
+# INCRIPTION RUNES
+#################################
+
+
+if findtype 'book' tomes_location_serial 2085 1 2 as runes_tome
+    # foreach rune in 'runes'
+    if findtype rune backpack any any as magic_rune
+        if verbose_mode == yes
+            sysmsg '> Unloading Magic Runes' sysmsgs_color
+        endif
+
+        while findtype rune backpack any any as magic_rune
+            getlabel magic_rune magic_rune_label
+            if verbose_mode == yes
+                sysmsg '> Unloading {{magic_rune_labe}}' sysmsgs_color
+            endif
+
+            lift magic_rune 999
+            wait action_delay
+            drop runes_tome -1 -1 0
+            wait action_delay
+        endwhile
+    endif
+    # endfor
+endif
+
+#################################
+# MAGERY SCROLLS
+#################################
+
+if not listexists 'magery_scrolls'
+    createlist 'magery_scrolls'
+    pushlist 'magery_scrolls' 'Curse Scroll'
+    pushlist 'magery_scrolls' 'Recall'
+    pushlist 'magery_scrolls' 'ManaDrain Scroll'
+    pushlist 'magery_scrolls' 'Paralyze Scroll'
+    pushlist 'magery_scrolls' 'Archcure Scroll'
+    pushlist 'magery_scrolls' 'Fire Field Scrol'
+    pushlist 'magery_scrolls' 'Magic Trap Scroll'
+    pushlist 'magery_scrolls' 'Magic Arrow Scroll'
+    pushlist 'magery_scrolls' 'Arch Protection Sc'
+    pushlist 'magery_scrolls' 'Greater Heal Scrol'
+    pushlist 'magery_scrolls' 'Fire Field Scroll'
+    pushlist 'magery_scrolls' 'Lightning Scroll'
+    pushlist 'magery_scrolls' 'Energy Bolt Scroll'
+endif
+
+if findtype 'book' tomes_location_serial 2227 1 2 as magery_scroll_tome
+    foreach scroll in 'magery_scrolls'
+        if findtype scroll backpack any any as magery_scroll
+            # getlabel scroll scroll_label
+
+            # if verbose_mode == yes
+            #     sysmsg '> Unloading {{scroll_label}}' sysmsgs_color
+            # endif
+
+            while findtype scroll backpack any any as magery_scroll
+                getlabel magery_scroll scroll_label
+                if verbose_mode == yes
+                    sysmsg '> Unloading {{scroll_label}}' sysmsgs_color
+                endif
+
+                lift magery_scroll 999
+                wait action_delay
+                drop magery_scroll_tome -1 -1 0
+                wait action_delay
+            endwhile
+        endif
+    endfor
+endif
+
+
+#################################
+# REPAIR BENCH
+#################################
+
+sysmsg '!!! BEFORE REPAIR BENCH' 92
+if findtype 'repair bench' ground any any 2 as bench
+    sysmsg '!!! INSIDE REPAIR BENCH' 92
+    if verbose_mode == yes
+        sysmsg "> Repairing Items..." sysmsgs_color 'self'
+    endif
+
+    dclick bench
+
+    if not timerexists 'waiting_repair_timer'
+        createtimer 'waiting_repair_timer'
+    endif
+    settimer 'waiting_repair_timer' 0
+
+    clearsysmsg
+
+    while not insysmsg 'in need of repairs' and not insysmsg 'item' and not insysmsg 'items'
+        if timer 'waiting_repair_timer' >= 3500
+            if verbose_mode == yes
+                sysmsg '[DEBUG] BREAKING WAITING FOR BENCH'
+            endif
+            break
+        endif
+        wait 100
+    endwhile
+
+    if insysmsg 'in need of repairs' or insysmsg 'item' or insysmsg 'items'
+        if verbose_mode == yes
+            sysmsg 'Repaired All Items!'
+        endif
+    endif
+endif
+
+sysmsg '!!!!AFTER REPAIR BENCH' 92
+
+
+#################################
+# STORAGE SHELF
+#################################
+
+# first search for a shelf, save it and use it to restock
+if findtype 'storage shelf' ground any any 2 as shelf
+    # setvar! storage_shelf storageshelf
+    #overhead 'using shelf' 68 'shelf'
+    if verbose_mode == yes
+        sysmsg 'Restocking Storage Shelf...' sysmsgs_color
+    endif
+
+    menu shelf 0
+    wft action_delay
+    if targetexists 'neutral'
+        if varexist shelf_restock_container_serial
+            if find shelf_restock_container_serial backpack
+                target shelf_restock_container_serial
+            else
+                @unsetvar shelf_restock_container_serial
+                target self
+            endif
+        else
+            target self
+        endif
+    endif
+    waitforgump 3232825965 600
+    if gumpexists 3232825965
+        gumpclose 3232825965
+    endif
+
+    # restock shelf from packies
+    if list 'packies' > 0
+        foreach packanimal in 'packies'
+            if verbose_mode == yes
+                sysmsg '> Restocking Shelf From Pack Animal...' sysmsgs_color
+            endif
+
+            menu shelf 0
+            wft action_delay
+            if targetexists 'neutral'
+                if verbose_mode == yes
+                    overhead "unloading on shelf" 56 packanimal
+                endif
+
+                target packanimal
+            endif
+        endfor
+    endif
+
+    if gumpexists 3232825965
+        gumpclose 3232825965
+    endif
+else
+    if varexist shelf
+        @unsetvar shelf
+    endif
+    overhead 'no shelfs nearby'
+    
+endif
+
+
+
+#################################
+# RESOURCE STOCKPILE
+#################################
+
+if findtype 'resource container' ground any any 2 as stockpile
+    menu stockpile 0
+    wft action_delay
+    if targetexists 'neutral'
+        if verbose_mode == yes
+            sysmsg '> Restocking Resource Stockpile...' sysmsgs_color
+        endif
+
+        target 'self'
+    endif
+
+    # restock stockpile from packies
+    if list 'packies' > 0
+        foreach packanimal in 'packies'
+            if noto packanimal = noto 'self'
+                if verbose_mode == yes
+                    sysmsg '> Restocking Stockpile From Pack Animal...' sysmsgs_color
+                endif
+
+                menu stockpile 0
+                wft 600
+                if targetexists 'neutral'
+                    overhead "unloading on stockpile" 56 packanimal
+                    target packanimal
+                endif
+            endif
+        endfor
+    endif
+    if gumpexists 1859005118
+        gumpclose 1859005118
+    endif
+endif
+
+
+#################################
+# GARDEN SHELF
+#################################
+
+if findtype 'garden shelf' ground any any 2 as gardenshelf
+    menu gardenshelf 0
+    wft 600
+    if targetexists 'neutral'
+        if verbose_mode == yes
+            sysmsg '> Restocking Garden Shelf...' sysmsgs_color
+        endif
+
+        target 'self'
+    endif
+
+    waitforgump 426984115 600
+    if gumpexists 426984115
+        gumpclose 426984115
+    endif
+endif
+
+
+#################################
+# DUMP ITENS IN RECYCLER
+#################################
+
+if findtype 'ornate elven chest' ground any any 2 as recycler
+    useobject recycler
+    waitforgump 4045111101 600
+    if gumpexists 4045111101
+        if verbose_mode == yes
+            sysmsg "> Dumping items in recycler" sysmsgs_color
+        endif
+
+        while not targetexists 'neutral'
+            sysmsg 'Generating target to dump items in recycler...' 56
+            gumpresponse 3 4045111101
+            waitfortarget 600
+        endwhile
+
+        target backpack
+        waitforgump 4045111101 600
+
+        if gumpexists 4045111101
+            gumpclose 4045111101
+        endif
+
+        if insysmsg 'recyclable items found'
+
+
+            if verbose_mode == yes
+                sysmsg 'Recycled all items!' 71
+            endif
+
+        endif
+    else
+        sysmsg 'Recycler gump did NOT open!' 52
+    endif
+
+    if gumpexists 4045111101
+        gumpclose 4045111101
+    endif
+endif
+
+
+#################################
+# FINALLY, RESSUPLY FROM SHELF
+#################################
+
+if findtype 'storage shelf' ground any any 2 as shelf
+    sysmsg '> RESSUPLYING...' 90
+    menu shelf 1
+
+    waitforgump 3232825965 600
+
+    if gumpexists 3232825965
+        gumpclose 3232825965
+    endif
+
+endif
+
+#################################
+# GET BARDING INSTRUMENT BACK
+# FROM RECYCLER IF NEEDED
+#################################
+
+if skill 'musicianship' > 50
+    if varexist char_instrument
+        while not find char_instrument backpack
+            hotkey 'Grab Item'
+            wft 1000
+            target char_instrument
+            wait action_delay
+        endwhile
+
+        if find char_instrument backpack
+            if verbose_mode == yes
+                overhead 'got char instrument back!' 90
+                sysmsg 'Got Char Instrument Back From Recycler!' 90
+            endif
+        endif
+    endif
+endif
+
+@removelist 'packies'
+@clearignore
+@clearsysmsg
+
+
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v1.4.0
+# - Adds check on deposit safe for 'locked in' money, that was droped inside by scripting bug, and takes it out
+# - Adds while loop to force target generation on recycler dump items button when recycler gump is already open (gump has a bug where first click wont open target)
+# - Simplifies a little logic behind getting bard instrument back from recycler and closing recycler gump
+# - Improves shelf re-use throughout scripts and removes related setvars (improves performance a bit)
+# - Moves garden shelf restock to before stockpile restock so plant chemicals go into garden shelf first
+# - Fix bug where script would only move 1 stack of misc items of the same type and leave other stacks
+# - Adds suport to restock shelf using a container (bag/pouch/backpack) instead of using 'self'
+# - Switches list configs to non-persistent variables (simplifies code maintenance and should improve performance)
+#
+# v1.3.3
+# - Adds missing 'bamboo flute' instrument to instruments list
+# - Completed tmaps will be thrown in a trashcan instead of directly on the ground if a trashcan is found nearby
+# - Improved some system messages related to flow errors
+#
+# v1.3.2
+# - Fixed detection of supremely instruments for bards
+# - Fix searching for tomes inside different types of containers
+#
+# v1.3.1
+# - Fixed bug where char wouldnt deposit gold from packies
+# - Switched pack notoriety from '== noto self' to '== friend', so blue chars will also have their packies detected
+# - New option 'ground_container' for tomes
+# - Script should now work for people who have their tomes inside the master_container or in an independant ground_container
+#
+# v1.3.0
+# - Switches arcane rune list for regular generic type 'rune' for performance optimization
+# - Detect bard templates and saves magical instruments (exceedingly and supremely) to get them back from recycler after dumping items
+# - Changes script name to SUPER RESTOCK & RESSUPLY
+#
+# v1.2.0
+# - Dump completed tmaps on ground instead of trying to put them inside tome
+#
+# v1.1.0
+# - Adds currency list so script will also unload doublons along with gold
+# - Adds 'verbose_mode' to control printing of messages
+# - Greatly simplified script configuration for containers locations
+#
+# v1.0.4
+# - Adds routine for smelting ores and making boards out of logs
+#
+# v1.0.0
+# - First usable stable version release
+#
+# v0.0.1
+# - Initial release

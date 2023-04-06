@@ -1,17 +1,94 @@
-setvar tracking_gump_id 4267467659
 
+#################################
+# CONFIGURATION
+#################################
+setvar! action_delay 350
+
+
+
+if not timerexists 'waiting_tracking_gump_warning_msg_timer'
+    createtimer 'waiting_tracking_gump_warning_msg_timer'
+    settimer 'waiting_tracking_gump_warning_msg_timer' 10000
+endif
+
+# #################################
+# # INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+# #################################
+# if atlist 'tracking_gump_id' 0 as tracking_gump_id
+
+###################################
+# TRACKING - BEGIN HUNTING
+#
+
+if not varexist tracking_gump_id
+    @setvar tracking_gump_id 4267467659
+endif
+
+
+if not findbuff 'Tracking Hunting'
+    while not gumpexists tracking_gump_id
+        sysmsg 'Opening tracking gump...' 53
+        skill 'tracking'
+        waitforgump tracking_gump_id action_delay
+    endwhile
+
+    if gumpexists tracking_gump_id
+        if ingump 'Begin Hunting' 4267467659
+            overhead '*starting hunting*' 65
+            gumpresponse 6 4267467659
+            stop
+        endif
+    endif
+endif
+
+
+###################################
+# TRACKING - OPEN GUMP
+#
 
 if not gumpexists tracking_gump_id
-    skill 'tracking'
-    waitforgump tracking_gump_id 200
+    while not gumpexists tracking_gump_id
+        if timer 'waiting_tracking_gump_warning_msg_timer' >= 950
+            settimer 'waiting_tracking_gump_warning_msg_timer' 0
+            overhead '*trying to track*' 53
+            sysmsg '!! WAITING TRACKING GUMP...' 53
+        endif
+
+        skill 'tracking'
+        waitforgump tracking_gump_id action_delay
+    endwhile
+
+    if gumpexists tracking_gump_id
+        # if didnt find any player, try again
+        if not ingump 'Tiles' 4267467659
+            sysmsg 'Replaying tracking...' 54
+            replay
+        endif
+    endif
 endif
 
 if gumpexists tracking_gump_id
-    if not ingump 'Stop Hunting' tracking_gump_id
-        overhead 'STARTING HUNTING' 65
-        gumpresponse 6 4267467659
-        gumpclose
+
+    overhead '*searching players*' 54
+    gumpresponse 5 4267467659
+
+    waitforgump 4267467659 600
+
+    if ingump 'Tiles' 4267467659
+        overhead '!! FOUND PLAYERS !!' 33
+        # overhead 'selecting first player in gump!' 37
+        # wait 1000
+        # gumpresponse 2
+
+    # if didnt find any player, try again
     else
-        overhead 'already hunting' 55
+        replay
     endif
 endif
+
+
+
+# ################################
+# # CLOSE CONFIG 'if atlist' STATEMENTS
+# ################################
+# endif

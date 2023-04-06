@@ -1,0 +1,304 @@
+##########################
+# SMART SNOOPING
+# by gugutz
+# version 0.0.1
+#################################
+
+
+sysmsg '♥ SMART SNOOP by gugutz ♥' 91
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 1000
+
+
+#################################
+# CREATE ALL TIMERS
+#################################
+
+createlist 'snoop_timers'
+pushlist 'snoop_timers' 'wait_snoop_cooldown'
+
+
+foreach timer in 'snoop_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 99999
+    endif
+endfor
+
+
+if not listexists 'target_bags'
+    createlist 'target_bags'
+endif
+
+if not listexists 'target_untrapped_pouches'
+    createlist 'target_untrapped_pouches'
+endif
+
+if not listexists 'target_trapped_pouches'
+    createlist 'target_trapped_pouches'
+endif
+
+if not listexists 'target_backpacks'
+    createlist 'target_backpacks'
+endif
+
+
+#################################
+# POPULATE LIST WITH ITEMS TO SEARCH
+#################################
+
+if not listexists 'items_to_steal'
+    createlist 'items_to_steal'
+
+    pushlist 'items_to_steal' 'chain link'
+    # aspect focis
+    pushlist 'items_to_steal' 48261
+
+
+    # # mcd (this goes into the resource stockpile)
+    pushlist 'items_to_steal' 17087
+    pushlist 'items_to_steal' 'research materials'
+
+    # spell hue deeds
+    pushlist 'items_to_steal' 5359
+    # rare cloth
+    pushlist 'items_to_steal' 'folded cloth'
+    pushlist 'items_to_steal' 'map'
+
+    pushlist 'items_to_steal' 'aspect core'
+    # aspect extract
+    pushlist 'items_to_steal' 3836
+
+
+    # skillMasteryOrb
+    pushlist 'items_to_steal' 'void orb'
+    # skill scrolls
+    pushlist 'items_to_steal' 'scroll of calling'
+
+    # runebook dye
+    pushlist 'items_to_steal' 3838
+    # backpack dye
+    pushlist 'items_to_steal' 3839
+    # headwear dye
+    pushlist 'items_to_steal' 3842
+    # facial hair dye
+    pushlist 'items_to_steal' 3843
+    # hair, shield and quiver dye
+    pushlist 'items_to_steal' 3843
+    # fortuniture dye
+    pushlist 'items_to_steal' 29025
+    # carpet dye
+    pushlist 'items_to_steal' 29036
+
+    # botas que da pano de cor
+    pushlist 'items_to_steal' '0x1711'
+endif
+
+
+unsetvar target_backpack
+unsetvar target_pouch
+
+setvar target_backpack
+
+if targetexists 'neutral'
+    sysmsg 'select container to search'
+    overhead 'select container to search' 53
+    while targetexists 'neutral'
+        wait 100
+    endwhile
+endif
+
+if not varexist target_backpack
+    sysmsg 'ABORTED...' 44
+    stop
+endif
+
+clearsysmsg
+dclick target_backpack
+wait action_delay
+
+while insysmsg 'You must wait'
+    clearsysmsg
+    dclick target_backpack
+    wait action_delay
+endwhile
+
+
+foreach item in items_to_steal
+    if findtype item target_backpack as target_item
+        overhead 'FOUND {{item}}!!'
+        settimer 'snoop_timer' 0
+        setvar! found_something_to_steal 1
+        hotkey "Set Last Target"
+        wft 1000
+        if targetexists 'any'
+            overhead 'SETTING {{item}} AS LAST'
+            target target_item
+            break
+        endif
+    endif
+endfor
+
+#####################################
+# OPEN ALL BAGS THAT MIGHT CONTAIN POUCHES
+#####################################
+
+if findtypelist 'target_bags' 'bag' target_backpack any
+    overhead 'found bags' 71
+endif
+
+foreach target_bag in 'target_bags'
+    sysmsg 'clicking bag {{target_bag}}'
+    clearsysmsg
+    dclick target_bag
+    wait action_delay
+
+    while insysmsg 'You must wait'
+        sysmsg 'REREREREclicking bag {{target_bag}}'
+        clearsysmsg
+        dclick target_bag
+        wait action_delay
+        while insysmsg 'You must wait'
+            clearsysmsg
+            sysmsg 'REREREREclicking bag {{target_bag}}' 39
+            dclick target_bag
+            wait action_delay
+        endwhile
+
+    endwhile
+
+    foreach item in items_to_steal
+        if findtype item target_bag as target_item
+            overhead 'FOUND {{item}}!!'
+            settimer 'snoop_timer' 0
+            setvar! found_something_to_steal 1
+            hotkey "Set Last Target"
+            wft 1000
+            if targetexists 'any'
+                overhead 'SETTING {{item}} AS LAST'
+                target target_item
+                break
+            endif
+        endif
+    endfor
+endfor
+
+if findtypelist 'target_untrapped_pouches' 'pouch' target_backpack 0
+    overhead 'found untrap pouches' 71
+endif
+
+if findtypelist 'target_trapped_pouches' 'pouch' target_backpack 38
+    overhead 'found trap pouches' 71
+endif
+
+if list 'target_trapped_pouches' > 0
+    overhead 'achou pouches'
+else
+    overhead 'nao achou pouches'
+endif
+
+#####################################
+# OPEN AND SCAN ALL UNTRAP POUCHES WITH ITEMS
+#####################################
+
+# if here we still didnt find anything to steal, we look for the trap pouch with itens and try that
+if not varexist found_something_to_steal
+    foreach pouch in 'target_untrapped_pouches'
+        dclick pouch
+        wait action_delay
+
+        if insysmsg 'You must wait'
+            while insysmsg 'You must wait'
+                clearsysmsg
+                dclick pouch
+                wait action_delay
+            endwhile
+        endif
+
+        foreach item in items_to_steal
+            if findtype item target_pouch as target_item
+                overhead 'FOUND {{item}}!!'
+                settimer 'snoop_timer' 0
+                setvar! found_something_to_steal 1
+                hotkey "Set Last Target"
+                wft 1000
+                if targetexists 'any'
+                    overhead 'SETTING {{item}} AS LAST'
+                    target target_item
+                    break
+                endif
+            endif
+        endfor
+
+    endfor
+endif
+
+
+#####################################
+# OPEN AND SCAN ALL TRAP POUCHES WITH ITEMS
+#####################################
+
+# if here we still didnt find anything to steal, we look for the trap pouch with itens and try that
+if not varexist found_something_to_steal
+    foreach pouch in 'target_trapped_pouches'
+        dclick pouch
+        wait action_delay
+
+        if insysmsg 'You must wait'
+            while insysmsg 'You must wait'
+                clearsysmsg
+                dclick pouch
+                wait action_delay
+            endwhile
+        endif
+
+        if diffhits > 0
+            overhead "*found pouch with items!"
+            setvar! target_pouch pouch
+            break
+        endif
+    endfor
+endif
+
+if varexist target_pouch
+    foreach item in items_to_steal
+        if findtype item target_pouch as target_item
+            overhead 'FOUND {{item}}!!'
+            settimer 'snoop_timer' 0
+            setvar! found_something_to_steal 1
+            hotkey "Set Last Target"
+            wft 1000
+            if targetexists 'any'
+                overhead 'SETTING {{item}} AS LAST'
+                target target_item
+                break
+            endif
+        endif
+    endfor
+endif
+
+
+if varexist found_something_to_steal
+    while timer 'snoop_timer' < 4000
+        sysmsg 'waiting snoop cooldown' 56
+        wait 100
+    endwhile
+
+    overhead 'CAN STEAL NOW! USE LAST TARGET'
+    useskill 'Stealing'
+endif
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release
+
+

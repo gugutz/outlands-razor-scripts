@@ -1,3 +1,4 @@
+
 sysmsg '#########################' 90
 sysmsg '>>> MAGE SHOP BUYER' 55
 sysmsg 'by gugutz' 45
@@ -8,31 +9,68 @@ sysmsg '########################' 90
 # CHANGELOG
 #################################
 #
-# v0.6
-# - Adds survival routine to defend char against closed-ranged combat creatures
-# - Adds sysmsg check to see if char got far from forge while inside the smelting loop
-#
-# v0.5
-# - Stops double clicking packie to open packpack when unloading ores while heavy
-# - Adds wait timer after recalling and before unloading when getting home
-#
-# v0.4
-# - Adds setting to choose if script will auto smelt ores when close to forge
-#
-# v0.3
-# - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
-#
-# v0.2
-# - Adds checks for several map-forges around the world
-# - Adds option to not smelt colored ores (makes it hard for PKS to take them)
+# v0.0.2
+# - Adds more vendor serials to list
+# - Switches individual vendor clicking with list iteration
+# - Adds check for reagents on ground and unloads them in pack animal
+# - Auto checks pack animal weight and uses next in list if available
 #
 # v0.1
 # - Initial release
 
 
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 600
+
+setvar! unload_regs_from_backpack 1
+
+if not timerexists 'execution_timer'
+    createtimer 'execution_timer'
+endif
+settimer 'execution_timer' 0
+
 #################################
-# CREATE LIST WITH VERNDORS SERIALS
+# CREATE ALL TIMERS
 #################################
+
+if not listexists 'buy_regs_timers'
+    createlist 'buy_regs_timers'
+    pushlist 'buy_regs_timers' 'loop_on_warning_msg'
+
+    foreach timer in 'buy_regs_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
+        endif
+    endfor
+endif
+
+
+
+#################################
+# CREATE LIST WITH VENDORS SERIALS
+#################################
+
+# REAGENTS
+
+# REAGENTS
+if not listexists 'buy_list'
+    createlist 'buy_list'
+    pushlist 'buy_list' 'Blood Moss'
+    pushlist 'buy_list' 'Black Pearl%s%'
+    pushlist 'buy_list' 'Garlic'
+    pushlist 'buy_list' 'Mandrake Root%s%'
+    pushlist 'buy_list' 'Ginseng'
+    pushlist 'buy_list' 'Nightshade'
+    pushlist 'buy_list' 'Sulfurous Ash'
+    pushlist 'buy_list' "Spider's Silk"
+    pushlist 'buy_list' "empty bottle%s%"
+endif
 
 if not listexists 'vendors_serials'
     createlist 'vendors_serials'
@@ -43,18 +81,28 @@ if not listexists 'vendors_serials'
     pushlist 'vendors_serials' 0x170
     pushlist 'vendors_serials' 0x172
     pushlist 'vendors_serials' 0x171
+
     ###################################
     # PREVALIA MAGE SHOP WEST
+
+    # raynor the herbalist
     pushlist 'vendors_serials' 0x37A
+    # garret the mage
     pushlist 'vendors_serials' 0x3CE
+    # ginger the mage
     pushlist 'vendors_serials' 0x64BA2
+    # lindan the scribe
     pushlist 'vendors_serials' 0x388
-    # duncan
+    # duncan the mage
     pushlist 'vendors_serials' 0xCC06D
-    # bentley
+    # bentley the scribe
     pushlist 'vendors_serials' 0x38F
+    # brandy the herbalist
+    pushlist 'vendors_serials' 0x3BB
+
     ###################################
     # PREVMAGE MAGE SHOP SOUTH EAST
+
     # christable
     pushlist 'vendors_serials' 0x45
     # gideon
@@ -69,10 +117,28 @@ if not listexists 'vendors_serials'
     pushlist 'vendors_serials' 0x40
 
     ###################################
+    # PREVMAGE ALCHEMY SHOP SOUTH WEST
+
+    # Cato the alchemist
+    pushlist 'vendors_serials' 0x42
+
+    # Iona the alchemist
+    pushlist 'vendors_serials' 0x43
+
+    ###################################
+    # PREVMAGE HERBALIST SHOP SOUTH WEST
+
+    # Jonathan the herbalist
+    pushlist 'vendors_serials' 0x47
+
+    ###################################
     # CAMBRIA MAGE SHOP SOUTH
+
     pushlist 'vendors_serials' 0xFE
+
     ###################################
     # CAMBRIA MAGE SHOP NORTH
+
     # zuza
     pushlist 'vendors_serials' 0xF2
     # kanika
@@ -84,7 +150,21 @@ if not listexists 'vendors_serials'
 
 
     ###################################
+    # CAMBRIA HERBALIST SHOP NORTH
+
+    # Valeria the herbalist
+    pushlist 'vendors_serials' 0xFB
+
+    ###################################
+    # CAMBRIA ALCHEMIST SHOP NORTH
+
+    # Jezebel the herbalist
+    pushlist 'vendors_serials' 0xF3
+
+
+    ###################################
     # ANDARIA MAGE SHOP NORTH
+
     # abira the scribe
     pushlist 'vendors_serials' 0xD3
     # shunnar the alchemist
@@ -102,6 +182,7 @@ if not listexists 'vendors_serials'
 
     ###################################
     # ANDARIA MAGE SHOP SOUTH
+
     # kelli the mage
     pushlist 'vendors_serials' 0xA8
     # shani the mage
@@ -112,10 +193,271 @@ if not listexists 'vendors_serials'
     pushlist 'vendors_serials' 0xAA
     # Ines the alchemist
     pushlist 'vendors_serials' 0xA9
+
+    ###################################
+    # HORSESHOE BAY MAGE SHOP
+
+    # Caitlin the alchemist
+    pushlist 'vendors_serials' 0x15F
+    # Thera the mage
+    pushlist 'vendors_serials' 0x15E
+    # Raymond the scribe
+    pushlist 'vendors_serials' 0x160
+
+    ###################################
+    # CORPSE CREEK MAGE SHOP
+
+    # orvile the alchemist
+    pushlist 'vendors_serials' 0x10335
+    # Gamble the mage
+    pushlist 'vendors_serials' 0x10246
+    # Camile the mage
+    pushlist 'vendors_serials' 0x10247
+    # Magenta the scribe
+    pushlist 'vendors_serials' 0x10336
+
+    ###################################
+    # ANCHORS REST MAGE SHOP
+
+    # Clara the scribe
+    pushlist 'vendors_serials' 0x2DA
+    # Tem the mage
+    pushlist 'vendors_serials' 0x2D7
+    # Akili the mage
+    pushlist 'vendors_serials' 0x2D4
+    # Rigby the alchemist
+    pushlist 'vendors_serials' 0x34A
+    # Diane the alchemist
+    pushlist 'vendors_serials' 0x34F
+    # Ryan the Herbalist
+    pushlist 'vendors_serials' 0x346
+
+
+    ###################################
+    # TERRAN MAGE & ALCHEMIST SHOPS
+
+    # Donnelly the mage
+    pushlist 'vendors_serials' 0x197
+    # Asta the mage
+    pushlist 'vendors_serials' 0x198
+    # Adena the alchemist
+    pushlist 'vendors_serials' 0x199
+    # Lunt the herbalist
+    pushlist 'vendors_serials' 0x19A
+
+
+    ###################################
+    # BEEKEEPERS SOUTHREACH INN
+    # Adiran the beekeper
+    pushlist 'vendors_serials' 0xB00
+    # Claudine the beekeper
+    pushlist 'vendors_serials' 0xB06
+    # Urania the beekeper
+    pushlist 'vendors_serials' 0xAFE
+
+    ###################################
+    # BEEKEEPERS CAMBRIA
+    # Chaney the beekeper
+    pushlist 'vendors_serials' 0x1092
+    # Felix the beekeper
+    pushlist 'vendors_serials' 0x3CD7
 endif
 
 
+
+###################################
+# PACK ANIMALS
+###################################
+
+sysmsg 'Searching for pack animals...' 87
+
+
+if not listexists 'full_packies'
+    createlist 'full_packies'
+endif
+clearlist 'full_packies'
+
+if not listexists 'packies'
+    createlist 'packies'
+endif
+clearlist 'packies'
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        # dclick packie
+        # wait action_delay_var
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        # dclick packie
+        # wait action_delay_var
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+
+###################################
+# MAIN ROUTINE
+###################################
+
 foreach vendor in 'vendors_serials'
-    overhead 'BUYING...' 90 vendor
-    menu vendor 1
+    if find vendor ground any any 25
+        overhead 'FOUND VENDOR {{vendor}}! BUYING...' 90 vendor
+        menu vendor 1
+    endif
 endfor
+
+if list 'packies' > 0
+    foreach packie in 'packies'
+
+        ###################################
+        # CHECK IF THIS PACKIE IS FULL
+
+        # check packie weight to determine if its full or not
+        unsetvar! pack_heavy
+
+        if counttype 'Blood Moss' packie >= 999 and counttype 'Black Pearl%s%' packie >= 999 and counttype 'Garlic' packie >= 999 and counttype 'Mandrake Root%s%' packie >= 999 and counttype 'Ginseng' packie >= 999 and counttype 'Nightshade' packie >= 999 and counttype 'Sulfurous Ash' packie >= 999 and counttype "Spider's Silk" packie >= 999
+            overhead 'packie with 999 of each type of regs' packie
+            setvar! pack_heavy 1
+        elseif counttype 'Blood Moss' packie >= 1998 and counttype 'Black Pearl%s%' packie >= 1998 and counttype 'Garlic' packie >= 1998 and counttype 'Mandrake Root%s%' packie >= 999 and counttype 'Ginseng' packie >= 999 and counttype 'Nightshade' packie >= 999 and counttype 'Sulfurous Ash' packie >= 999 and counttype "Spider's Silk" packie >= 999
+            setvar! pack_heavy 1
+        endif
+
+        # add or remove packie to full 0packies list based on if its heavy or not
+        if varexist pack_heavy
+            if not inlist 'full_packies' packie
+                overhead 'adding to full list' 54 packie
+                pushlist 'full_packies' packie
+            endif
+
+            overhead '! heavy !' 34 packie
+        else
+            if inlist 'full_packies' packie
+                overhead 'removing from full list' 52 packie
+                poplist 'full_packies' packie
+            endif
+        endif
+
+
+        ###################################
+        # IF PACKIE IS NOT FULL, USE IT TO UNLOAD REGS
+
+        if not inlist 'full_packies' packie
+            unsetvar! pack_heavy
+
+            # get packie closer if it gets too far to unload (more than 2 tiles away)
+            while not find packie ground any any 2
+                while not find packie ground any any 2
+                    if timer 'call_packie_closer_timer' >= 1000
+                        settimer 'call_packie_closer_timer' 0
+                        overhead "calling packie closer!" 40 'self'
+                        overhead "too far to unload!" 40 packie
+
+                        # say 'all follow me'
+                        menu packie 5
+                    endif
+                    wait 10
+                endwhile
+                # break
+            endwhile
+
+            dclick packie
+            wait action_delay
+
+            foreach reg in 'buy_list'
+                sysmsg 'SEARCHING {{reg}}' 90
+                # I HAD A BUG IN THIS LINE I DEF WANT TO REMEMBER
+                # WHILE THE <ammount> PARAMETER IS SET TO ANY
+                # THE SCRIPT WILL ACTUALLY FIND MORE THAN 999 REGS (ex: 3 stacks of 999)
+                # AND ALIAS THE WHOLE AMOUNT TO THE VARIABLE DEFINED IN THE <as> PARAM
+                # SO EVEN IF I LIFTED THE FIRST STACK OF 999 AND DROPOPED AT MY PACKIE
+                # THE NEXT STACK WOULD HAVE THE SAME SERIAL AND THE SCRIPT WOULD THINK
+                # THE STACK I JUST DROPED ON PACKIE WAS STILL ON THE GROUND AND BUG
+                # THATS WHY I ONLY NEED TO USE 1 AS THE AMOUNT HERE
+                # THE SCRIPT ONLY NEEDS TO FIND ANY AMOUNT IN THE GROUND AND SET A SERIAL
+                # AND THEN I MOVE 999 OF THAT REG PER ONCE
+                # if findtype reg ground 0 any 2 as reg_serial
+                if findtype reg ground any any 1 as reg_serial
+                    getlabel reg_serial reg_label
+                    sysmsg '>> FOUND {{reg_label}} AT GROUND!' 90
+
+
+                    while find reg_serial ground and not find reg_serial packie
+                    # while findtype reg ground any any 1 as reg_serial
+                    # while findtype reg ground any any 1 and not findtype reg packie
+                        getlabel reg_serial reg_label
+                        sysmsg '>> FOUND {{reg}} AT GROUND!' 90
+                        sysmsg '>> TRYING TO MOVE {{reg_label}} FROM GROUND TO PACKIE!' 90
+                        # hotkey 'Drop What You Are Currently Holding'
+                        overhead 'dumping {{reg_label}}' 53 packie
+
+                        lifttype reg 999 ground
+                        # lift reg_serial 100
+                        wait action_delay
+                        # drop packie -1 -1 0
+                        drop packie
+                        wait 50
+
+                        while queued
+                            sysmsg '>>> queued'
+                            wait 20
+                        endwhile
+
+                        if not find reg_serial ground
+                            sysmsg 'Moved {{reg_label}}!' 63 packie
+                            # ignore reg_serial
+                            break
+                            # put this animal to the end of the list so we use the next one next time
+                        endif
+
+                    endwhile
+
+
+                    # # if find reg_serial ground any any 2 and not find reg_serial packie any any
+                    # if find reg_serial ground and not find reg_serial packie
+                    #     overhead 'heavy?? found same reg serial on ground' 53 packie
+                    #     sysmsg 'Found reg serial char tried to unload in packie on ground. Pet is probably heavy... Moving To End Of List' 53
+                    #     pushlist 'full_packies' packie
+                    # endif
+
+                    # unsetvar reg_serial
+                endif
+
+            endfor
+
+            if unload_regs_from_backpack == 1
+                foreach reg in 'buy_list'
+                    sysmsg 'Searching Reagents To Unload...' 56
+
+                        # overhead "*unloading reagents*" 56 'self'
+                    if findtype reg backpack 0 1 2 as reg_serial
+
+                        while find reg_serial backpack and not find reg_serial packie any any
+                            overhead "*unloading {{reg}} from backpack" 56 packie
+
+                            # hotkey 'Drop What You Are Currently Holding'
+                            lift reg_serial 999
+                            wait action_delay
+                            drop packie -1 -1 0
+                            wait action_delay
+                        endwhile
+
+                        sysmsg 'Moved {{reg_label}}!' 63
+                    endif
+                endfor
+            endif
+
+        endif
+
+    endfor
+endif
+
+sysmsg 'FINISHED IN {{execution_timer}}' 90

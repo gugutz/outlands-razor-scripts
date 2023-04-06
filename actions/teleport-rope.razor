@@ -1,0 +1,106 @@
+#################################
+# TELEPORT & ROPE
+# by gugutz
+# version 0.0.1
+#################################
+
+
+cast 'teleport'
+wait 200
+
+if findtype 'rope' backpack 2799 as adv_rop
+    # useobject adv_rop
+    say '[rope'
+
+    getlabel adv_rop rope_label
+    if '25 uses' in rope_label
+        setvar! rope_charges 25
+        setvar! rope_charges_warning_msg_color 70
+    elseif '24 uses' in rope_label
+        setvar! rope_charges 24
+        setvar! rope_charges_warning_msg_color 70
+    elseif '23 uses' in rope_label
+        setvar! rope_charges 23
+        setvar! rope_charges_warning_msg_color 70
+    elseif '22 uses' in rope_label
+        setvar! rope_charges 22
+        setvar! rope_charges_warning_msg_color 70
+    elseif '21 uses' in rope_label
+        setvar! rope_charges 21
+        setvar! rope_charges_warning_msg_color 70
+    elseif '20 uses' in rope_label
+        setvar! rope_charges 20
+        setvar! rope_charges_warning_msg_color 70
+    elseif '19 uses' in rope_label
+        setvar! rope_charges 19
+        setvar! rope_charges_warning_msg_color 70
+    elseif '18 uses' in rope_label
+        setvar! rope_charges 18
+        setvar! rope_charges_warning_msg_color 70
+    elseif '17 uses' in rope_label
+        setvar! rope_charges 17
+        setvar! rope_charges_warning_msg_color 70
+    elseif '16 uses' in rope_label
+        setvar! rope_charges 16
+        setvar! rope_charges_warning_msg_color 70
+    elseif '15 uses' in rope_label
+        setvar! rope_charges 15
+        setvar! rope_charges_warning_msg_color 65
+    elseif '14 uses' in rope_label
+        setvar! rope_charges 14
+        setvar! rope_charges_warning_msg_color 65
+    elseif '13 uses' in rope_label
+        setvar! rope_charges 13
+        setvar! rope_charges_warning_msg_color 65
+    elseif '12 uses' in rope_label
+        setvar! rope_charges 12
+        setvar! rope_charges_warning_msg_color 65
+    elseif '11 uses' in rope_label
+        setvar! rope_charges 11
+        setvar! rope_charges_warning_msg_color 65
+    elseif '10 uses' in rope_label
+        setvar! rope_charges 10
+        setvar! rope_charges_warning_msg_color 60
+    elseif '9 uses' in rope_label
+        setvar! rope_charges 9
+        setvar! rope_charges_warning_msg_color 60
+    elseif '8 uses' in rope_label
+        setvar! rope_charges 8
+        setvar! rope_charges_warning_msg_color 60
+    elseif '7 uses' in rope_label
+        setvar! rope_charges 7
+        setvar! rope_charges_warning_msg_color 60
+    elseif '6 uses' in rope_label
+        setvar! rope_charges 6
+        setvar! rope_charges_warning_msg_color 60
+    elseif '5 uses' in rope_label
+    # if '5 uses' in rope_label
+        setvar! rope_charges 5
+        setvar! rope_charges_warning_msg_color 60
+    elseif '4 uses' in rope_label
+        setvar! rope_charges 3
+        setvar! rope_charges_warning_msg_color 56
+    elseif '3 uses' in rope_label
+        setvar! rope_charges 3
+        setvar! rope_charges_warning_msg_color 50
+    elseif '2 uses' in rope_label
+        setvar! rope_charges 2
+        setvar! rope_charges_warning_msg_color 40
+    elseif '1 uses' in rope_label
+        setvar! rope_charges 1
+        setvar! rope_charges_warning_msg_color 33
+    endif
+
+
+    if targetexists 'neutral'
+        # overhead "*rope target open!*" 71
+        if varexist rope_charges
+            overhead 'rope ({{rope_charges}} charges left)' rope_charges_warning_msg_color
+        endif
+
+        while targetexists 'neutral'
+            wait 15
+        endwhile
+    endif
+
+endif

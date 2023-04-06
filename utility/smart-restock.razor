@@ -1,0 +1,39 @@
+setvar! BOAT_REPAIR_KIT 25578
+setvar! BOARDING_ROPE 5370
+
+createlist 'boating_items'
+pushlist 'boating_items' BOARDING_ROPE
+
+setvar! restock_container
+setvar! small_ship_bomb_stock 10
+
+
+setvar! SMALL_SHIP_BOMB 5189
+
+
+# set destination to backpack
+setvar! destination_container backpack
+
+# restock ship items
+if not findtype SMALL_SHIP_BOMB backpack
+    if findtype SMALL_SHIP_BOMB restock_container as found
+        lift found small_ship_bomb_stock
+        wait 50
+        while queued
+            sysmsg '>>> lift queued'
+            wait 20
+        endwhile
+
+        drop destination_container
+        wait 50
+        while queued
+            sysmsg '>>> drop queued'
+            wait 20
+        endwhile
+
+    else
+        sysmsg 'OUT OF SMALL SHIP BOMBS!'
+    endif
+
+
+endif

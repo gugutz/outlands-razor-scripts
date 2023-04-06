@@ -1,0 +1,12 @@
+
+if findlayer 'self' lightsource as light
+    dclick light
+endif
+
+if boating_mode == 0
+    sysmsg '▷▷▷ BOATING MODE ON!' 66
+    setvar! boating_mode 1
+elseif boating_mode == 1
+    sysmsg '▷▷▷ BOATING MODE OFF!' 37
+    setvar! boating_mode 1
+endif

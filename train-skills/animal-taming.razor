@@ -1,104 +1,175 @@
+##############################i##
+# CREDITS :)
+#################################
+
+sysmsg '#########################' 90
+sysmsg '>>> ANIMAL TAMING TRAINING SCRIPT' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.0.1' 31
+sysmsg '########################' 90
+
+
+#################################
+# IN GAME INSTRUCTIONS / OBSERVATIONS
+#################################
+sysmsg '************************' 90
+sysmsg 'FOR THIS SCRIPT TO WORK PROPERLY, YOU MUST:' 53
+sysmsg " > Have one or more tank pet!" 55
+sysmsg "." 0
+sysmsg " > Recommended tank pets:" 55
+sysmsg " > 50 - 72.5  skill: use Rock Guar" 55
+sysmsg " > 75 - 102.5 skill: use Scarab" 55
+sysmsg " > 105 - 120  skill: use Sand Roach" 55
+sysmsg "." 0
+sysmsg " > Recommended training mobs:" 55
+sysmsg " > 50 - 60 - tame Colossal Frogs at Shelter Dungeon lvl 1" 55
+sysmsg " > 60 - 75 - tame Cave Bears and Corpse Eaters at Shelter Dungeon lvl 2" 55
+sysmsg " > 75 - 80 - tame Drake Whelps and Chameleons at Shelter Dungeon lvl 2" 55
+sysmsg " > 80 - 85 - tame XXXX at Shelter Dungeon lvl 1" 55
+sysmsg " > 85 - 90 - tame XXXX at Shelter Dungeon lvl 1" 55
+sysmsg " > 90 - 95 - tame Drakes" 55
+sysmsg '***********************' 90
+
+
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#################################
+
+
+if not listexists 'animal_taming_config_lists'
+    createlist 'animal_taming_config_lists'
+
+    pushlist 'animal_taming_config_lists' 'player_tank_pets'
+    pushlist 'animal_taming_config_lists' 'animal_lore_gump_id'
+
+    foreach list in 'animal_taming_config_lists'
+        if not listexists list
+            createlist list
+        endif
+    endfor
+
+
+    # CREATE ALL TIMERS
+    if not listexists 'animal_taming_timers'
+        createlist 'animal_taming_timers'
+        pushlist 'animal_taming_timers' 'loop_on_warning_msg'
+        pushlist 'animal_taming_timers' 'taming_timer'
+        pushlist 'animal_taming_timers' 'running_script_warning_timer'
+        pushlist 'animal_taming_timers' 'healing_bandage_timer'
+        pushlist 'animal_taming_timers' 'vet_bandage_timer'
+        pushlist 'animal_taming_timers' 'searching_tameables_msg_timer'
+
+        foreach timer in 'animal_taming_timers'
+            if not timerexists timer
+                createtimer timer
+                settimer timer 99999
+            endif
+        endfor
+    endif
+endif
+
+
+
+
+
+#################################
+# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
+setvar! action_delay 600
+setvar! vet_bandage_delay 9000
+setvar! script_running_warning_msg_delay 30000
+setvar! find_tameables_range 9
+setvar! max_taming_level 120
+setvar! searching_tameables_msg_warning_delay 2000
+setvar! animal_lore_gump_id 3280914284
+
+
+
+###############################################################
+# TANK_PETS
+#
+if not listexists 'tank_pets'
+    sysmsg '>>> CREATING TANK TRAINING_PETS LITS...' 74
+    @createlist 'tank_pets'
+    #lemura
+    @pushlist 'tank_pets' 293
+    # Drake grey body
+    pushlist 'tank_pets' 60
+    # Drake red body
+    pushlist 'tank_pets' 61
+    # Acarid
+    pushlist 'tank_pets' 385
+    # Drake grey body
+    pushlist 'tank_pets' 60
+    # Drake red body
+    pushlist 'tank_pets' 61
+    # Aegis Minion
+    pushlist 'tank_pets' 776
+    # or Sphinx
+    pushlist 'tank_pets' 293
+    #Cave Bear
+    pushlist 'tank_pets' 213
+    #Scarab
+    pushlist 'tank_pets' 169
+    # Drake Whelp
+    pushlist 'tank_pets' 718
+    # or Aegis Slime
+    pushlist 'tank_pets' 51
+    # Deep Crawler
+    pushlist 'tank_pets' 315
+    # Drake red body
+    pushlist 'tank_pets' 61
+    # Drake grey body
+    pushlist 'tank_pets' 60
+    # Dragon whelp
+    pushlist 'tank_pets' 718
+    # Husk Crab
+    pushlist 'tank_pets' 729
+    # or Dragon grey body
+    pushlist 'tank_pets' 12
+    # or Dragon red body
+    pushlist 'tank_pets' 59
+    # Snow Drift
+    pushlist 'tank_pets' 51
+    # Grey Dragon body value
+    pushlist 'tank_pets' 12
+    # Red Dragon body value
+    pushlist 'tank_pets' 59
+    # or Colossal Sandroach
+    pushlist 'tank_pets' 388
+endif
+
+
 ##########################################################
-# Animal taming
-# by gugutz
-# based on original macro by Zell
-#
-# IMPORTANT
-# This requires you to have a dagger in your backpack
-#
-# You require a tank for this
-# Create a script variable called tank
-# Make sure that tank is on follow, not guard
-#
-# 50-72.5 use rock guar as tank
-# 75-102.5 use scarab as tank
-# 105-120 use sand roach as tank
-#
-# The important thing here is to not use
-# a scarab as a tank when taming scarabs
-#
-# UPDATES:
-# * add GH self if diffhits > 0 (thanks @Mummaz)
-# * use setvar instead of list to set tank pet
-# * re-set tank pet if previously set cant be find in screen
-# * change several pauses before targets for wait for target to optimize performance
-# * replace camelCased word to snake_cased version
-# * replaced looping method from 'replay' command to while loop to set config part only once on script start
-# * add check if tamable exist to avoid spamming clicking dagger for nothing
-# * add timed msg to warn that script is running
-# * add check for bandages on backpack and warning if there are none
-# * add check for dagger on backpack and warning if there are none
-# * auto animal lore current pet and change gump to show Value vs Avg page
-# * add check if targetexists before sending it on tameable and reseting taming timer
-# * add several checks for targetexists before spending them
-# * add notoriety check on last target before canceling right before luring mob with all kill to reduce spam
-#
-##########################################################
-
-# CONFIGURATION
-
-@setvar bandage_delay 8000
-@setvar script_running_warning_msg_delay 8000
-@setvar find_tameables_range 10
-@setvar max_taming_level 121
-@setvar searching_tameables_msg_warning_delay 2000
-
-##########################################################
-
-# SCRIPT VARIABLES
-
-@setvar animal_lore_gump_id 3280914284
-
-##########################################################
-
 # BOOTSTRAPING
 
 # SET TANK PET WHEN NEEDED OR TANK IS SET BUT NOT FOUND NEARBY
+unsetvar! tank
 if not varexist tank
     overhead 'Please select your tanking pet'
     setvar tank
-elseif varexist tank and not find tank
+elseif not find tank ground any any 10
     overhead 'Please select your tanking pet'
     setvar tank
 endif
 
-if diffhits > 0
-    say 'all guard'
-    cast 'Greater Heal'
-    wft 4000
-    @target 'self'
-    pause 2000
-    say 'all follow'
-    hotkey 'Toggle Peace Only'
-endif
-##################################
-# CONFIGURE TIMERS
+# AUTO FIND TANK PET (USUALLY SCARAB)
+foreach pet in 'tank_pets'
+    # using 5 here cause thats the max ammount of training_pets of the same graphic a player can have
+    while findtype pet ground any 5 find_pet_range as pet
+        if noto pet = friend and not inlist 'player_tank_pets' pet
+            overhead 'found tank pet!' 55 pet
+            @pushlist 'player_tank_pets' pet
+            # ignore for now so razor cant find it anymore and we can leave the while loop
+            @ignore pet
+        endif
+    endwhile
+endfor
+@clearignore
 
-
-if not timerexists 'taming_timer'
-    createtimer 'taming_timer'
-    settimer 'taming_timer' 0
-endif
-
-if not timerexists 'running_script_warning_timer'
-    createtimer 'running_script_warning_timer'
-    # this is 0 because i already put a 'starting msg' before the while loop
-    settimer 'running_script_warning_timer' 0
-endif
-
-if not timerexists 'bandage_timer'
-    createtimer 'bandage_timer'
-    settimer 'bandage_timer' bandage_delay
-endif
-
-if not timerexists 'searching_tameables_msg_timer'
-    createtimer 'searching_tameables_msg_timer'
-    settimer 'searching_tameables_msg_timer' searching_tameables_msg_warning_delay
-endif
 
 
 sysmsg ">>> STARTING ANIMAL TAMING TRAINING SCRIPT..." 56
-pause 1000
 
 ##################################
 # MAIN ROUTINE
@@ -107,308 +178,538 @@ while skill 'taming' < max_taming_level
 
     # warn every X (pre-set) seconds the script is running
     if timer 'running_script_warning_timer' > script_running_warning_msg_delay
-        sysmsg '>>> RUNNING ANIMAL TAMING SCRIPT...' 55
+        sysmsg '>>> RUNNING ANIMAL TAMING SCRIPT...' 92
         settimer 'running_script_warning_timer' 0
     endif
 
-    # bandage tank every X (pre-set) seconds
-    if timer 'bandage_timer' >= bandage_delay
-        sysmsg '>>> TIME FOR HEALING TANK...' 60
+
+    ####################################
+    # MONITOR AND MAINTAIN CHAR HEALTH
+    ####################################
+
+    if diffhits > 5
+        sysmsg 'LOST HP! ASSUMING CHAR IS UNDER ATTACK AND GUARDING WITH PETS'
+        say 'all guard me'
+
+        # heal with pots
+        if diffhits > 20
+            if findtype 'yellow potion' backpack
+                hotkey 'Drink Heal'
+                wait action_delay_var
+            endif
+        endif
+
+        # heal with healing
+        if diffhits > 10 and skill 'healing' >= 20
+            if timer 'healing_bandage_timer' >= bandage_delay
+                settimer 'healing_bandage_timer' 0
+                hotkey 'Bandage Self'
+            endif
+        # heal with magery
+        elseif diffhits > 0 and skill 'magery' >= 50 and mana >= 11
+            cast 'greater heal'
+
+            @settimer 'waiting_target_timer' 0
+            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                wait 100
+
+                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                    break
+                endif
+            endwhile
+
+            if targetexists 'beneficial'
+                hotkey 'Target Self'
+            endif
+        endif
+
+        wait 2000
+        say 'all follow me'
+        wait action_delay
+    endif
+
+
+    ####################################
+    # KEEP HEALING ALL TANKS ROUTINE
+    ####################################
+
+    if timer 'vet_bandage_timer' >= vet_bandage_delay
+        getlabel tank tank_pet_label
+
         if findtype 'clean bandage%s%' backpack any any as bands
             useobject bands
             wft 1000
-            target tank
-            waitforsysmsg 'not damaged' 1000
-            if insysmsg 'not damaged'
-                settimer 'bandage_timer' 4000
+            if targetexists 'any'
+                sysmsg 'HEALING TANK: {{tank_pet_label}}'
+                overhead '*healing*' 90 tank
+                target tank
+                wait action_delay
+                settimer 'vet_bandage_timer' 0
             else
-                settimer 'bandage_timer' 0
+                sysmsg 'NO BENEFICIAL TARG AFTER BANDS FOR TANK'
             endif
         else
             overhead 'NO BANDAGES!!!' 39
         endif
-    # else
-        #sysmsg '>>> NO TIME TO HEAL TANK JUST YET...' 55
+
+#         foreach tank_pet in 'player_tank_pets'
+#             getlabel tank_pet tank_pet_label
+# 
+#             if findtype 'clean bandage%s%' backpack any any as bands
+#                 sysmsg 'HEALING TANK: {{tank_pet_label}}'
+#                 overhead '*healing*' 90 tank_pet
+#                 useobject bands
+#                 wft action_delay
+#                 target tank_pet
+#                 wait action_delay
+# 
+#                 if insysmsg 'not damaged'
+#                     overhead '*not damaged. skipping to next pet*' 52 tank_ket
+#                     sysmsg '*{{tank_pet_label}} not damaged. Skipping to next pet*' 52
+#                     break
+#                 elseif insysmsg 'You being applying the bandages...'
+#                     sysmsg '>>> HEALING {{tank_pet_label}}' 60
+#                     sysmsg '*healing*' 90 tank_pet
+#                     settimer 'vet_bandage_timer' 0
+#                 endif
+#             else
+#                 overhead 'NO BANDAGES!!!' 39
+#                 break
+#             endif
+#         endfor
+        settimer 'vet_bandage_timer' 0
     endif
 
-    # In case for some reason bandage doesnt get used on tank
-    # cancels target so bandage doesnt target grey untamed
-    # hotkey 'Cancel current target'
+    ################################
+    # RECREATE TRANING PET LIST EVERY TIME TO KEEP TRACK
+    # OF CHAR TAMING SKILL AND AVOID WASTING TIME ON WRONG PETS
+    @removelist 'training_pets'
+    @createlist 'training_pets'
 
-    # Apply pets to tame at specific levels, feel free to add
-    # them, see user doc for how
-    #
-    createlist 'pets'
-    #Frogs
-    pushlist 'pets' '80'
-    #Cave Bear
-    pushlist 'pets' '213'
-    #Scarab
-    pushlist 'pets' '169'
-    # Drake Whelp
-    pushlist 'pets' '718'
-    # or Aegis Slime
-    pushlist 'pets' '51'
-    # Deep Crawler
-    pushlist 'pets' '315'
-    # Drake red body
-    pushlist 'pets' '61'
-    # Drake grey body
-    pushlist 'pets' '60'
-    # Dragon whelp
-    pushlist 'pets' '718'
-    # Husk Crab
-    pushlist 'pets' '729'
-    # or Dragon grey body
-    pushlist 'pets' '12'
-    # or Dragon red body
-    pushlist 'pets' '59'
+    # At 50 taming
+    if skill 'taming' < 60
+        pushlist 'training_pets' '80' //colossal_frog_shelter_dg_lvl1
 
-    # Snow Drift
-    pushlist 'pets' '51'
+    # At 60 taming
+    elseif skill 'taming' < 70
+        pushlist 'training_pets' '213' //cave_bears
+        pushlist 'training_pets' '302' //corpse_eaters_shelter_dg_lvl2
+
+    # At 70 taming
+    elseif skill 'taming' < 75
+        pushlist 'training_pets' '213' //cave_bears
+        pushlist 'training_pets' '302' //corpse_eaters_shelter_dg_lvl2
+
+    # At 75 taming
+    elseif skill 'taming' < 80
+        pushlist 'training_pets' '718' //drake_whelp
+        pushlist 'training_pets' '734' //chameleon
+        pushlist 'training_pets' '51' //aegis_slime
+
+    # At 80 taming
+    elseif skill 'taming' < 85
+        pushlist 'training_pets' '315' //deep_crawler
+
+    # At 85 taming
+    elseif skill 'taming' < 90
+        pushlist 'training_pets' '61' //drake_red_body
+        pushlist 'training_pets' '60' //drake_gray_body
+        pushlist 'training_pets' '718' //dragon_whelp
+
+    # At 90 taming
+    elseif skill 'taming' < 95
+        pushlist 'training_pets' '718'
+        pushlist 'training_pets' '729' //husky_crab
+
+    # At 95 taming
+    elseif skill 'taming' < 100
+        pushlist 'training_pets' '12' //dragon_grey_body
+        pushlist 'training_pets' '59' //dragon_red_body
+        # adding dragon whelp as 3rd option cause can still gain from them and dragon spawns are full of them
+        pushlist 'training_pets' '718' //dragon_whelp
+
+    # At 100 taming
+    elseif skill 'taming' < 105
+        pushlist 'training_pets' '51' //snow_drift
+
     # At 105 taming, Earth Drake
-    # Drake grey body
-    pushlist 'pets' '60'
-    # Drake red body
-    pushlist 'pets' '61'
-    # Acarid
-    #pushlist 'pets' '385'
+    elseif skill 'taming' < 110
+        pushlist 'training_pets' '60' //earth_drake_gray_body
+        pushlist 'training_pets' '61' //earth_drake_red_body
+        pushlist 'training_pets' '385' //acarid
 
-    # Drake grey body
-    pushlist 'pets' '60'
-    # Drake red body
-    pushlist 'pets' '61'
+    # At 110 taming
+    elseif skill 'taming' < 115
+        pushlist 'training_pets' '60' //drake_grey_body
+        pushlist 'training_pets' '61' //drake_red_body
+        pushlist 'training_pets' '776' //aegis_minion
+        pushlist 'training_pets' '293' //sphinx
 
-    # Aegis Minion
-    pushlist 'pets' '776'
-    # or Sphinx
-    pushlist 'pets' '293'
-    # Grey Dragon body value
-    pushlist 'pets' '12'
-    # Red Dragon body value
-    pushlist 'pets' '59'
-    # or Colossal Sandroach
-    pushlist 'pets' '388'
-
-    # # Frog
-    # if skill 'taming' < 60 # At 50 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     pushlist 'pets' '80'
-    # #Cave Bear
-    # elseif skill 'taming' < 70 # At 60 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     pushlist 'pets' '213'
-    # #Scarab
-    # elseif skill 'taming' < 75 # At 70 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     pushlist 'pets' '169'
-    # elseif skill 'taming' < 80 # At 75 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Drake Whelp
-    #     pushlist 'pets' '718'
-    #     # or Aegis Slime
-    #     pushlist 'pets' '51'
-    # elseif skill 'taming' < 85 # At 80 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Deep Crawler
-    #     pushlist 'pets' '315'
-    # elseif skill 'taming' < 90 # At 85 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Drake red body
-    #     pushlist 'pets' '61'
-    #     # Drake grey body
-    #     pushlist 'pets' '60'
-    #     # Dragon whelp
-    #     pushlist 'pets' '718'
-    # elseif skill 'taming' < 95 # At 90 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Husk Crab
-    #     pushlist 'pets' '729'
-    # elseif skill 'taming' < 100 # At 95 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # or Dragon grey body
-    #     pushlist 'pets' '12'
-    #     # or Dragon red body
-    #     pushlist 'pets' '59'
-
-    # elseif skill 'taming' < 105 # At 100 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Snow Drift
-    #     pushlist 'pets' '51'
-    # # At 105 taming, Earth Drake
-    # elseif skill 'taming' < 110
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Drake grey body
-    #     pushlist 'pets' '60'
-    #     # Drake red body
-    #     pushlist 'pets' '61'
-    #     # Acarid
-    #     #pushlist 'pets' '385'
-    # elseif skill 'taming' < 115 # At 110 taming
-    #     removelist 'pets'
-    #     createlist 'pets'
-
-    #     # Drake grey body
-    #     pushlist 'pets' '60'
-    #     # Drake red body
-    #     pushlist 'pets' '61'
-
-    #     # Aegis Minion
-    #     pushlist 'pets' '776'
-    #     # or Sphinx
-    #     pushlist 'pets' '293'
-    # elseif skill 'taming' < 120 # At 115 taming, Earth Dragon
-    #     removelist 'pets'
-    #     createlist 'pets'
-    #     # Grey Dragon body value
-    #     pushlist 'pets' '12'
-    #     # Red Dragon body value
-    #     pushlist 'pets' '59'
-    #     # or Colossal Sandroach
-    #     pushlist 'pets' '388'
-    # else
-    #     overhead 'STOP! You have finished your journey'
-    #     pause 1000
-    #     replay
-    # endif
+    # At 115 taming, Earth Dragon
+    elseif skill 'taming' < 120
+        pushlist 'training_pets' '12' //dragon_grey_body
+        pushlist 'training_pets' '59' //dragon_red_body
+        pushlist 'training_pets' '388' //colossal_sandroach
+    else
+        overhead 'STOP! You have finished your journey'
+        stop
+    endif
 
 
-    foreach pet in pets
+    ###################################
+    # MAIN ROUTINE
+    # SEARCH FOR TAMEABLE PETS TO TRAIN
+    ###################################
+
+    foreach pet in training_pets
         if not findtype pet ground any any find_tameables_range
             if timer 'searching_tameables_msg_timer' >= searching_tameables_msg_warning_delay
-                overhead 'Searching Tameables...' 55
                 settimer 'searching_tameables_msg_timer' 0
-            endif
-        elseif findtype pet ground any any find_tameables_range as tameable
-            if noto tameable != friend and noto tameable != friendly
-                overhead 'Found tameable! Luring...' 60
+                overhead '*searching tameables*' 55
+                sysmsg 'Searching Tameables...' 55
 
-                # try to use a dagger on mob to see which msg it creates
-                # if says 'too far away, we have to lure the mob first'
-                if findtype 'dagger' backpack as knife
-                    useobject knife
-                    wft 1000
-                    if targetexists 'neutral'
-                        target tameable
+
+                if skill 'AnimalLore' < max_taming_level
+                    if targetexists 'any'
+                        hotkey 'Cancel Current Target'
                     endif
-                    pause 500
-                else
-                    overhead 'CANT FIND DAGGER' 40
-                    overhead 'YOU NEED A DAGGER' 40
-                    overhead 'STOPPING SCRIPT...' 40
-                    sysmsg 'THIS SCRIPT NEEDS A DAGGER TO WORK.' 55
-                    sysmsg 'GET A DAGGER AND PLAY THE SCRIPT AGAIN' 55
-                    sysmsg 'STOPPING SCRIPT...' 55
-                    stop
+                    hotkey 'Clear Target Queue'
+                    sysmsg 'Training animal lore with tank pet...' 54
+                    skill 'AnimalLore'
+                    wft 600
+                    target tank
+                    waitforgump animal_lore_gump_id action_delay
+                    gumpclose animal_lore_gump_id
                 endif
+            endif
 
-                if noto 'last' == friendly or noto 'last' == friend or noto 'last' == innocent
-                    sysmsg 'CANCELING LAST TARGET BEFORE ALL KILL' 55
-                    hotkey 'Cancel current target'
+
+
+        elseif findtype pet ground any any find_tameables_range as tameable
+            getlabel tameable tameable_label
+            # sysmsg 'FOUND PET {{pet}}: {{tameable_label}}' 90
+
+            if not dead tameable and noto tameable != friendly and noto tameable != friend and noto tameable != innocent
+
+                sysmsg 'LURING {{tameable_label}}' 75
+                overhead '*found. luring*' 75 tameable
+                setvar! opened_lore_gump_once 0
+
+
+                ###################################
+                # BEFORE TAMING ROUTINE
+                ###################################
+    
+                while not dead tameable and noto tameable != friendly and noto tameable != friend and noto tameable != innocent
+                    hotkey 'Toggle Peace Only'
+    
+                    if targetexists 'any'
+                        hotkey 'Cancel Current Target'
+                        wait 400
+                    endif
+    
+                    #-----------------------------------
+                    # MONITOR AND MAINTAIN CHAR HEALTH
+    
+                    if diffhits > 0
+                        # if its the eldrich dragons, the char will always get some AOE dmg, so guarding all the time
+                        # makes the dragon too angry to tame
+                        if skill 'taming' < 115
+                            sysmsg 'LOST HP! ASSUMING CHAR IS UNDER ATTACK AND GUARDING WITH PETS'
+                            say 'all guard me'
+                        endif
+    
+                        # heal with pots
+                        if diffhits > 20
+                            if findtype 'yellow potion' backpack
+                                hotkey 'Drink Heal'
+                                wait action_delay_var
+                            endif
+                        endif
+    
+                        # heal with healing
+                        if diffhits > 10 and skill 'healing' >= 20
+                            if timer 'healing_bandage_timer' >= bandage_delay
+                                settimer 'healing_bandage_timer' 0
+                                hotkey 'Bandage Self'
+                            endif
+                        # heal with magery
+                        elseif diffhits > 20 and skill 'magery' >= 50 and mana >= 11
+                            cast 'greater heal'
+    
+                            @settimer 'waiting_target_timer' 0
+                            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                                wait 100
+                                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                                    break
+                                endif
+                            endwhile
+    
+                            if targetexists 'beneficial'
+                                hotkey 'Target Self'
+                            endif
+                        endif
+    
+                        wait 2000
+                        say 'all follow me'
+                        wait action_delay
+                    endif
+    
+    
+                    #-----------------------------------
+                    # KEEP HEALING ALL TANKS ROUTINE
+    
+                    if timer 'vet_bandage_timer' >= vet_bandage_delay
+                        sysmsg 'HEALING TANK: {{tank_pet_label}}'
+                        overhead '*healing*' 90 tank
+                        if findtype 'clean bandage%s%' backpack any any as bands
+                            useobject bands
+                            wft action_delay
+                            target tank
+                            wait action_delay
+                        else
+                            overhead 'NO BANDAGES!!!' 39
+                        endif
+    
+                        settimer 'vet_bandage_timer' 0
+    
+    #                     foreach tank_pet in 'player_tank_pets'
+    #                         getlabel tank_pet tank_pet_label
+    # 
+    #                         if findtype 'clean bandage%s%' backpack any any as bands
+    #                             useobject bands
+    #                             wft action_delay
+    #                             target tank_pet
+    #                             wait action_delay
+    # 
+    #                             if insysmsg 'not damaged'
+    #                                 overhead '*not damaged. skipping to next pet*' 52 tank_ket
+    #                                 sysmsg '*{{tank_pet_label}} not damaged. Skipping to next pet*' 52
+    #                                 break
+    #                             elseif insysmsg 'You being applying the bandages...'
+    #                                 sysmsg '>>> HEALING {{tank_pet_label}}' 60
+    #                                 sysmsg '*healing*' 90 tank_pet
+    #                                 settimer 'vet_bandage_timer' 0
+    #                             endif
+    #                         else
+    #                             overhead 'NO BANDAGES!!!' 39
+    #                             break
+    #                         endif
+    #                     endfor
+                    endif
+    
+    
+                    #-----------------------------------
+                    # LURE TAMEABLE CLOSER IF NEEDED
+
+                    while not dead tameable and not find tameable ground any any 2
+                        sysmsg 'LURING {{tameable_label}} CLOSER TO TAME...' 55
+                        overhead 'luring mob closer...' 55
+                        overhead 'luring closer...' 55 tameable
+                        if targetexists 'any'
+                            hotkey 'Cancel current target'
+                        endif
+                        wait action_delay
+                        say 'all kill'
+                        wft 1000
+                        target tameable
+                        pause 2000
+                        say 'all follow me'
+                        pause 3000
+                    endwhile
+    
+                    # if noto 'last' == friendly or noto 'last' == friend or noto 'last' == innocent
+                    if targetexists 'any'
+                        # sysmsg 'CANCELLING LAST TARGET BEFORE ALL KILL' 55
+                        hotkey 'Cancel current target'
+                    endif
+    
+                    #-----------------------------------
+                    # OPEN ANIMAL LORE GUMP FOR CURRENT PET
+    
+                    if opened_lore_gump_once == 0 and not gumpexists 3280914284
+                        sysmsg '>>> OPENING {{tameable_label}} LORE GUMP...' 56
+                        overhead '*opening lore gump*' 56 tameable
+                        skill 'AnimalLore'
+                        wft 600
+                        target tameable
+                        waitforgump animal_lore_gump_id action_delay
+    
+                    endif
+    
+                    if opened_lore_gump_once == 0 and gumpexists 3280914284
+                        sysmsg '>>> OPENED {{tameable_label}} LORE GUMP...' 56
+                        while not ingump 'Avg' 3280914284
+                            skill 'AnimalLore'
+                            wft 600
+                            target tameable
+                            waitforgump animal_lore_gump_id 600
+                            sysmsg ">> CHANGING GUMP PAGE TO 'Value vs Avg'" 56
+                            gumpresponse 5 animal_lore_gump_id
+                            waitforgump animal_lore_gump_id 1000
+                            wait 400
+                        endwhile
+
+                        if ingump 'Avg' 3280914284
+                            setvar! opened_lore_gump_once 1
+                        endif
+                    endif
+    
+                    #-----------------------------------
+                    # TRY TO TAME PET
+    
+                    # if timer 'taming_timer' > 13000
+                    if timer 'taming_timer' > 1000
+                        if not cooldown 'Taming'
+                            useskill 'taming'
+                            wft 1000
+                            if targetexists 'neutral'
+                                target tameable
+                                settimer 'taming_timer' 0
+                            endif
+
+                            if insysmsg 'You have already received the maximum taming skill gain possible from this individual creature'
+                                sysmsg '>>> CANT GAIN FROM {{tameable_label}} ANYMORE. KILLING IT...' 40
+
+                                while not dead tameable
+                                    if timer 'vet_bandage_timer' >= vet_bandage_delay
+                                        getlabel tank tank_pet_label
+                                
+                                        if findtype 'clean bandage%s%' backpack any any as bands
+                                            useobject bands
+                                            wft 1000
+                                            if targetexists 'any'
+                                                sysmsg 'HEALING TANK: {{tank_pet_label}}'
+                                                overhead '*healing*' 90 tank
+                                                target tank
+                                                wait action_delay
+                                            else
+                                                sysmsg 'NO BENEFICIAL TARG AFTER BANDS FOR TANK'
+                                            endif
+                                        else
+                                            overhead 'NO BANDAGES!!!' 39
+                                        endif
+
+                                        settimer 'vet_bandage_timer' 0
+                                    endif
+
+                                    sysmsg 'Killing tamed pet to release slot'
+                
+                                    if hits < maxhits
+                                        hotkey '> Greater Heal/Cure Self'
+                                        wait 3100
+                                    endif
+                
+                                    if targetexists 'any'
+                                        hotkey 'Cancel Current Target'
+                                    endif
+                                    hotkey 'Clear Target Queue'
+
+                                    say 'all kill'
+                                    wft 1000
+                                    target tameable
+                                    attack tameable
+                                    wait action_delay
+                
+                                    if skill 'magery' > 80 and mana >= 11
+                                        cast 'lightning'
+                                        wft 3000
+                                        target tameable
+                                    endif
+                                endwhile
+                            endif
+
+                            cooldown 'Taming' 0
+                        endif
+                    endif
+    
+                endwhile
+            endif
+
+
+            ###################################
+            # AFTER TAMING ROUTINE
+            ###################################
+
+            # if systems asks who do we want to transfer ownership to, that means the pet is tamed and we call kill it to tame the next one
+            setvar! kill_current_tameable 0
+            if tameable != tank
+                if noto tameable == friend or noto tameable == innocent
+                    sysmsg '>> {{tameable_label}} TAMED. KILLING IT TO TAME THE NEXT ONE...' 40
+                    setvar! kill_current_tameable 1
+    
+                elseif insysmsg 'You have already received the maximum taming skill gain possible from this individual creature'
+                    sysmsg '>>> CANT GAIN FROM {{tameable_label}} ANYMORE. KILLING IT...' 40
+                    setvar! kill_current_tameable 1
                 endif
-
-                # check if mob is tamed already by trying to hit "Release" on its context menu
-                # the herding check is because if you have herding, the "Release" option changes to position 11
-                if skill 'herding' > 0
-                    menu tameable 11
-                else
-                    menu tameable 10
-                endif
-
-                pause 500
-
-                # if systems asks who do we want to transfer ownership to, that means the pet is tamed and we call kill it to tame the next one
-                if insysmsg 'Click on the person to transfer ownership to'
+    
+                if kill_current_tameable == 1
+                    clearlist 'kill_current_tameable'
                     while not dead tameable
+                        if timer 'vet_bandage_timer' >= vet_bandage_delay
+                            getlabel tank tank_pet_label
+                    
+                            if findtype 'clean bandage%s%' backpack any any as bands
+                                useobject bands
+                                wft 1000
+                                if targetexists 'any'
+                                    sysmsg 'HEALING TANK: {{tank_pet_label}}'
+                                    overhead '*healing*' 90 tank
+                                    target tank
+                                    wait action_delay
+                                else
+                                    sysmsg 'NO BENEFICIAL TARG AFTER BANDS FOR TANK'
+                                endif
+                            else
+                                overhead 'NO BANDAGES!!!' 39
+                            endif
+
+                            settimer 'vet_bandage_timer' 0
+                        endif
+
                         sysmsg 'Killing tamed pet to release slot'
+    
                         if hits < maxhits
                             hotkey '> Greater Heal/Cure Self'
                         endif
+    
                         say 'all kill'
                         wft 1000
                         @target tameable
                         attack tameable
-                        wait 2000
+                        wait action_delay
+    
+                        if skill 'magery' > 80
+                            cast 'lightning'
+                            wft 3000
+                            target tameable
+                        endif
                     endwhile
-
-                    break
-                elseif insysmsg 'You have already received the maximum taming skill gain possible for this individual creature'
-                    sysmsg '>>> CANT GAIN FROM THIS CREATURE ANYMORE. KILLING IT...' 40
-                    say 'all kill'
-                    wft 1000
-                    target tameable
-
-                elseif insysmsg 'too far away'
-                    sysmsg 'LURING MORE CLOSER TO TAME...' 55
-                    overhead 'luring mob close...' 55
-                    say 'all kill'
-                    wft 1000
-                    target tameable
-                    pause 2000
-                    say 'all follow me'
-
-                # if when using dagger the message is cant used a bladed item in that, mob is close enough
-                # we can start trying to tame it
-                elseif insysmsg 'use a bladed item on that'
-
-                    # animal lore pet so player can see its stats
-                    # if not gumpexists animal_lore_gump_id
-                    if not gumpexists 3280914284
-                        sysmsg '>>> OPENING PET LORE GUMP...'
-                        skill 'AnimalLore'
-                        wft 1000
-                        @target tameable
-                        waitforgump animal_lore_gump_id 1000
-                        wait 400
-
-                        if not ingump 'Base' 3280914284
-                            sysmsg '>>> CHANGING GUMP TO SHOW Value vs Avg VALUES'
-                            gumpresponse 5
-                            waitforgump animal_lore_gump_id 1000
-                            wait 400
-                        endif
-                    endif
-
-                    if timer 'taming_timer' > 13000
-                        useskill 'taming'
-                        wft 750
-                        if targetexists 'neutral'
-                            @target 'last'
-                            settimer 'taming_timer' 0
-                        endif
-                    endif
-
                 endif
             endif
 
-
-            # if findtype 'dagger' backpack as knife
-            #     useobject knife
-            #     wft 1000
-            #     target tameable
-            #     pause 500
-            # else
-            #     overhead 'YOU NEED A DAGGER' 40
-            #     overhead 'STOPPING SCRIPT...' 40
-            #     sysmsg 'YOU NEED A DAGGER TO RUN THIS SCRIPT' 40
-            #     sysmsg 'STOPPING SCRIPT...' 40
-            #     stop
-            # endif
+            clearsysmsg
         endif
-
-        clearsysmsg
 
     endfor
 endwhile
 
 sysmsg 'EXITING ANIMAL TAMING TRAINIG SCRIPT...' 54
+
+
+
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Big refactor, lots of fixes, updated tameable graphics
+# - Changed from list config to local variables
+# - Add dragon whelp as 3rd option while at 95 - 100 taming
+
+# v0.0.1
+# - Initial release

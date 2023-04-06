@@ -1,10 +1,11 @@
+if dead 0x300BF3
+    sysmsg 'pegou dead'
+endif
 
-interrupt
-pause 175
-hotkey 'Flamestrike'
-pause 175
-hotkey 'Energy Bolt'
-pause 175
-hotkey 'Fireball'
-pause 175 
-hotkey 'Lightning'
+if not dead 0x300BF3
+    sysmsg 'pegou dead2'
+endif
+
+if not dead 0xF4497
+    sysmsg 'pegou not dead'
+    endif

@@ -1,0 +1,16 @@
+
+if varexist CHAR_LOOT_POUCH
+    if find CHAR_LOOT_POUCH
+        while hue CHAR_LOOT_POUCH == 38
+            sysmsg '>>> POPING LOOT POUCH!' sysmsgs_color
+            dclick char_loot_pouch
+            wait action_delay
+        endwhile
+
+        sysmsg '>>> OPENING TRAPPED LOOT POUCH!' sysmsgs_color
+        dclick CHAR_LOOT_POUCH
+        wait action_delay
+    else
+        sysmsg 'CANT FIND CHAR LOOT POUCH (TRY TO MOVE IT?)'
+    endif
+endif

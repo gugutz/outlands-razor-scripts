@@ -1,0 +1,12 @@
+
+if findtype 'keg' backpack 0 1 as keg
+    overhead 'dropping stool...' 60
+    lift keg 1
+    droprelloc 0 0
+elseif findtype 'stool' backpack as stool
+    overhead 'dropping stool...' 60
+    lift stool
+    droprelloc 0 0
+else
+    overhead 'NO STOOLS' 39
+endif

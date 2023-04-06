@@ -1,0 +1,73 @@
+setvar! action_delay 600
+setvar! spell_recovery_delay 200
+setvar! mana_drain_delay 60000
+setvar! mana_vampire_delay 300000
+
+if not timerexists 'waiting_target_timer'
+    createtimer 'waiting_target_timer'
+endif
+
+
+
+if targetexists 'any'
+    sysmsg 'TARGET OPEN!' 54
+    overhead 'target open!' 54
+    stop
+endif
+
+
+clearsysmsg
+settimer 'waiting_target_timer' 0
+
+setvar! used_mana_vampire 0
+setvar! used_mana_drain 0
+if noto lasttarget == murderer
+    sysmsg 'MOB RED! CASTING MANA VAMPIRE!' 54
+    cast 'Mana Vampire'
+    setvar! used_mana_vampire 1
+elseif noto lasttarget == hostile
+    sysmsg 'MOB GRAY! CASTING MANA DRAIN!' 54
+    cast 'Mana Drain'
+    setvar! used_mana_drain 1
+else
+    sysmsg 'NO MOB! CASTING MANA DRAIN!' 54
+    cast 'Mana Drain'
+    setvar! used_mana_drain 1
+endif
+
+
+while not targetexists 'harmful' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 3500
+    wait 10
+
+    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell'
+        sysmsg 'BREAKING WHILE WAITING FOR MANA DRAIN TARGET' warning_msg_color
+        wait spell_recovery_delay
+        break
+    endif
+endwhile
+
+if targetexists 'harmful'
+    if used_mana_drain == 1
+        sysmsg 'SELECT MANA DRAIN TARGET' 54
+    elseif used_mana_vampire == 1
+        sysmsg 'SELECT MANA VAMPIRE TARGET' 54
+    endif
+
+    clearsysmsg
+    while targetexists 'harmful'
+        wait 100
+    endwhile
+
+    if not insysmsg 'Target cannot be seen'
+        # sysmsg '+++ RESETING MANA DRAIN TIMER' reset_timer_msg_color
+
+        # settimer 'mana_drain_timer' 0
+        if used_mana_drain == 1
+            cooldown 'MANA DRAIN' mana_drain_delay
+        elseif used_mana_vampire == 1
+            cooldown 'MANA DRAIN' mana_vampire_delay
+        endif
+
+        setvar! last_mana_drained_serial lasttarget
+    endif
+endif

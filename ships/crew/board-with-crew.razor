@@ -1,0 +1,40 @@
+
+
+setvar! action_delay 600
+setvar! ship_send_boarding_party_gump 2881168634
+
+setvar! boarding_gump_ship_crew_btn 2
+setvar! boarding_gump_myself_btn 3
+setvar! boarding_gump_followers_btn 2
+
+if not gumpexists 2881168634
+    if not findtype 'rope' backpack 0
+        overhead 'no boarding rope!' 39
+        sysmsg 'NO BOARDING ROPE!' 39
+        stop
+    endif
+
+    say '[SendBoarding'
+    waitforgump ship_send_boarding_party_gump action_delay
+endif
+
+
+if gumpexists ship_send_boarding_party_gump
+    overhead '*boarding with crew' 89
+    sysmsg  'SENDING CREW BOARDING PARTY' 89
+
+    # remove myself from boarding gump
+    gumpresponse boarding_gump_myself_btn ship_send_boarding_party_gump
+    waitforgump ship_send_boarding_party_gump action_delay
+
+    # remove follower from boarding gump
+    gumpresponse boarding_gump_followers_btn ship_send_boarding_party_gump
+    waitforgump ship_send_boarding_party_gump action_delay
+
+    # click boarding button
+    gumpresponse 5 ship_send_boarding_party_gump
+    wft 600
+    if targetexists 'neutral'
+        overhead "BOARD WHICH SHIP?" 84
+    endif
+endif

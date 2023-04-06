@@ -1,0 +1,100 @@
+[33mcommit e153f0426b58e3866f5f7c5ab78cfbb42c31bd0a[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop[m[33m, [m[1;31morigin/develop[m[33m)[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Wed Apr 5 14:26:47 2023 -0300
+
+    updates repo
+
+[33mcommit fc86bce260a3206385b9c3c81bc48cea5342505a[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Thu Nov 24 09:04:44 2022 -0300
+
+    updates branch with latest changes
+
+[33mcommit a8b12579fe9f2d73ac341c357d911962705defd1[m[33m ([m[1;32mmaster[m[33m)[m
+Merge: 18771c7 59b8d9d
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Sat Mar 26 16:34:47 2022 -0300
+
+    Merge branch 'master' of github.com:gugutz/outlands-razor-scripts
+
+[33mcommit 18771c7c722ce565ca19991851be8bc8c82ac7c2[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Sat Mar 26 16:34:35 2022 -0300
+
+    update repo
+
+[33mcommit 59b8d9d4209aa99e5bc24e96e27ded22da614b7a[m[33m ([m[1;31morigin/master[m[33m)[m
+Merge: e352d77 431c541
+Author: Gustavo <gugutz@gmail.com>
+Date:   Sat Mar 26 16:33:59 2022 -0300
+
+    Merge pull request #1 from renatoemoura/master
+    
+    Correção de validação de notoriedade do pack animal
+
+[33mcommit 431c541cfd0f6e57a44349a3e51cae0eb8fc2273[m
+Author: Renato Estevão de Moura <renatoemoura@gmail.com>
+Date:   Thu Mar 24 14:56:53 2022 -0300
+
+    Correção de validação de notoriedade do pack animal
+
+[33mcommit e352d77d023779e476f1720e49ec2f7c3d7a0555[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Tue Mar 15 13:30:30 2022 -0300
+
+    update repo
+
+[33mcommit 437bf35eb3e8f6feede3fe2bb393414b2cfc30ee[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Mon Feb 28 22:52:56 2022 -0300
+
+    update repo
+
+[33mcommit 2dfc98ed6debe7b0d75ce7ca7c508f7c90987f76[m
+Merge: 8744346 ad11671
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Tue Feb 22 12:28:04 2022 -0300
+
+    Merge branch 'master' of github.com:gugutz/outlands-razor-scripts
+
+[33mcommit 87443461bd7bb5a13e31512589b628131f0c8e5a[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Tue Feb 22 12:26:50 2022 -0300
+
+    cleans repo
+
+[33mcommit ad1167134c9724d6993eaaddcf36611fe8772aea[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Tue Feb 22 12:26:50 2022 -0300
+
+    updates repo with updated scripts (lot of changes)
+
+[33mcommit 81378642da2ea36d468887a8c64f857b8d80e714[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Tue Feb 22 12:25:59 2022 -0300
+
+    updates repo with updated scripts (lot of changes)
+
+[33mcommit c8ea4cd49745e4a21966599ad72d70530aba0158[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Tue Feb 22 12:24:12 2022 -0300
+
+    updates repo with updated scripts (lot of changes)
+
+[33mcommit 238ada432416735835563af00d3efab856b0cd53[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Wed Jan 19 11:26:27 2022 -0300
+
+    updates repo (lots of changes)
+
+[33mcommit 6c7d739b2276eb0aded2f5eedacaabad0950fff6[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Fri Sep 10 09:53:21 2021 -0300
+
+    chore: updating repo with existing scripts
+
+[33mcommit 039b6904edba858ede8ea8ded4aa7e59c2d5e573[m
+Author: Gustavo P Borges <gustavo.borges@neoway.com.br>
+Date:   Fri Sep 10 09:51:49 2021 -0300
+
+    first commit

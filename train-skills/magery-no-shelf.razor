@@ -12,6 +12,10 @@ sysmsg '########################' 90
 
 while skill "magery" < 100 and not dead
 
+    if maxmana <= 10
+        overhead 'TOO LOW MANA. RAISE YOUR MANA TO START'
+    endif
+
     if skill "magery" < 60
         @setvar mana_needed 11
     elseif skill "magery" < 80
@@ -20,11 +24,8 @@ while skill "magery" < 100 and not dead
         @setvar mana_needed 50
     endif
 
-    # ressuply when reg count is low
     if count "black pearl" < 1 or count "blood moss" < 1 or count "mandrake root" < 1 or count "garlic" < 1 or count "ginseng" < 1 count "nightshade" < 1 or count "spider's silk" < 1 or count "sulfurous ash" < 1
-        sysmsg 'RESSUPLYING...' 55
-        menu shelf 1
-        gumpclose
+        sysmsg 'LOW ON REGS!' 55
     endif
 
     # meditate when needed

@@ -1,0 +1,339 @@
+if dead 'self'
+    overhead 'cant dress set while dead!' 53
+    stop
+endif
+
+#################################
+# CREATE ALL LISTS FOR CONFIG
+#
+if not listexists 'config_lists'
+    createlist 'config_lists'
+else
+    clearlist 'config_lists'
+endif
+
+pushlist 'config_lists' 'action_delay'
+pushlist 'config_lists' 'debug_mode'
+pushlist 'config_lists' 'searching_for_items_msg_color'
+pushlist 'config_lists' 'equiping_items_msg_color'
+pushlist 'config_lists' 'move_resources'
+pushlist 'config_lists' 'layer_already_equipped_msg_color'
+
+foreach list in 'config_lists'
+    if not listexists list
+        createlist list
+    else
+        clearlist list
+    endif
+endfor
+
+
+#################################
+# SCRIPT CONFIGURATION
+#
+pushlist 'action_delay' 200
+@setvar 'searching_for_items_msg_color' 49
+@setvar 'equiping_items_msg_color' 90
+@setvar 'layer_already_equipped_msg_color' 65
+
+createlist 'righthand_items'
+createlist 'lefthand_items'
+# second list for left hand items in case the char uses weapon + shield
+createlist 'shields'
+createlist 'head_items'
+createlist 'neck_items'
+createlist 'shirt_items'
+createlist 'arms_items'
+createlist 'gloves_items'
+createlist 'pants_items'
+createlist 'shoes_items'
+createlist 'waist_items'
+createlist 'innertorso_items'
+createlist 'middletorso_items'
+createlist 'outertorso_items'
+createlist 'cloak_items'
+createlist 'innerlegs_items'
+createlist 'outerlegs_items'
+createlist 'ring_items'
+createlist 'bracelet_items'
+createlist 'earrings_items'
+createlist 'talisman_items'
+createlist 'onehandedsecondary_items'
+createlist 'hair_items'
+createlist 'face_items'
+createlist 'facialhair_items'
+createlist 'backpack_items'
+createlist 'outerbody_items'
+createlist 'quiver_items'
+createlist 'lantern_items'
+
+if not listexists 'layer_items'
+
+    createlist 'layer_items'
+    pushlist 'layer_items' 'righthand_items'
+    pushlist 'layer_items' 'lefthand_items'
+    pushlist 'layer_items' 'shields'
+    pushlist 'layer_items' 'head_items'
+    pushlist 'layer_items' 'neck_items'
+    pushlist 'layer_items' 'shirt_items'
+    pushlist 'layer_items' 'arms_items'
+    pushlist 'layer_items' 'gloves_items'
+    pushlist 'layer_items' 'pants_items'
+    pushlist 'layer_items' 'shoes_items'
+    pushlist 'layer_items' 'waist_items'
+    pushlist 'layer_items' 'innertorso_items'
+    pushlist 'layer_items' 'middletorso_items'
+    pushlist 'layer_items' 'outertorso_items'
+    pushlist 'layer_items' 'cloak_items'
+    pushlist 'layer_items' 'innerlegs_items'
+    pushlist 'layer_items' 'outerlegs_items'
+    pushlist 'layer_items' 'ring_items'
+    pushlist 'layer_items' 'bracelet_items'
+    pushlist 'layer_items' 'earrings_items'
+    pushlist 'layer_items' 'talisman_items'
+    pushlist 'layer_items' 'onehandedsecondary_items'
+    pushlist 'layer_items' 'hair_items'
+    pushlist 'layer_items' 'face_items'
+    pushlist 'layer_items' 'facialhair_items'
+    pushlist 'layer_items' 'backpack_items'
+    pushlist 'layer_items' 'outerbody_items'
+    pushlist 'layer_items' 'quiver_items'
+    pushlist 'layer_items' 'lantern_items'
+endif
+
+
+
+if not listexists 'layers'
+    createlist 'layers'
+    pushlist 'layers' 'righthand'
+    pushlist 'layers' 'lefthand'
+    pushlist 'layers' 'shields'
+    pushlist 'layers' 'head'
+    pushlist 'layers' 'neck'
+    pushlist 'layers' 'shirt'
+    pushlist 'layers' 'arms'
+    pushlist 'layers' 'gloves'
+    pushlist 'layers' 'pants'
+    pushlist 'layers' 'shoes'
+    pushlist 'layers' 'waist'
+    pushlist 'layers' 'innertorso'
+    pushlist 'layers' 'middletorso'
+    pushlist 'layers' 'outertorso'
+    pushlist 'layers' 'cloak'
+    pushlist 'layers' 'innerlegs'
+    pushlist 'layers' 'outerlegs'
+    pushlist 'layers' 'ring'
+    pushlist 'layers' 'bracelet'
+    pushlist 'layers' 'earrings'
+    pushlist 'layers' 'talisman'
+    pushlist 'layers' 'onehandedsecondary'
+    pushlist 'layers' 'hair'
+    pushlist 'layers' 'face'
+    pushlist 'layers' 'facialhair'
+    pushlist 'layers' 'backpack'
+    pushlist 'layers' 'earrings'
+    pushlist 'layers' 'lantern'
+    pushlist 'layers' 'quiver'
+    pushlist 'layers' 'outerbody'
+endif
+
+###########################
+# CATALOG OF DRESSEABLE ITEMS AND THEIR LAYERS
+
+# --------------------
+# RIGHTHAND ITEMS
+pushlist 'righthand_items' 'katana'
+pushlist 'righthand_items' 'viking sword'
+pushlist 'righthand_items' 'broadsword'
+pushlist 'righthand_items' 'longsword'
+pushlist 'righthand_items' 'war mace'
+pushlist 'righthand_items' 'club'
+pushlist 'righthand_items' 'spellbook'
+
+# --------------------
+# LEFT HAND ITEMS (TWO HANDED WEAPONS)
+pushlist 'lefthand_items' 'double axe'
+
+# LEFT HAND ITEMS (SHIELDs)
+pushlist 'shields' 'wooden shield'
+
+# --------------------
+# HEAD ITEMS
+pushlist 'head_items' "wizard's hat"
+pushlist 'head_items' 'fur hood'
+# ranger's hood
+pushlist 'head_items' "hood"
+# primal mask - limited edition prev item
+pushlist 'head_items' 'primal mask'
+pushlist 'head_items' 'leather cap'
+pushlist 'head_items' 'bone helmet'
+
+# --------------------
+# GORGETS (NECK)
+pushlist 'neck_items' 'neckerchief'
+pushlist 'neck_items' 'scarf'
+pushlist 'neck_items' 'leather gorget'
+pushlist 'neck_items' 'bone gorget'
+
+# --------------------
+# ARMS / SLEEVES
+pushlist 'arms_items' 'leather sleeves'
+pushlist 'arms_items' 'bone arms'
+
+# --------------------
+# GLOVES
+# waxed gloves (prev item)
+pushlist 'gloves_items' 22429
+pushlist 'gloves_items' 'fur mittens'
+# evening gloves prev item
+pushlist 'gloves_items' 'white gloves'
+pushlist 'gloves_items' 'leather gloves'
+
+# --------------------
+# INNERTORSO / TUNICS / CHEST
+pushlist 'innertorso_items' 'leather tunic'
+pushlist 'innertorso_items' 'bone chest'
+
+# --------------------
+# SHIRTS
+pushlist 'shirt_items' 'shirt'
+
+# --------------------
+# TUNICS / DOUBLETS
+pushlist 'middletorso_items' 'doublet'
+
+# PANTS (LEGGINGS)
+pushlist 'pants_items' 'leather leggings'
+pushlist 'pants_items' 'leather skirt'
+pushlist 'pants_items' 'bone legs'
+
+# OUTERLEGS (skirts, over-armor clothing)
+# torn waist wrap (halloween 2021 returning prev item - type of skirt)
+pushlist 'outerlegs_items' 'torn short skirt'
+pushlist 'outerlegs_items' 'beach sarong'
+pushlist 'outerlegs_items' 'frond skirt'
+pushlist 'outerlegs_items' 'hula skirt'
+pushlist 'outerlegs_items' 'skirt'
+pushlist 'outerlegs_items' 'kilt'
+
+# ROBES AND OUTER TORSO
+# ------------------------
+# >>> Halloween 2021 Limited Edition Items
+# brocade jacket
+pushlist 'outertorso_items' 'wool coat'
+# spider jacket
+pushlist 'outertorso_items' 'web sleeved tunic'
+# plague coat
+pushlist 'outertorso_items' 'plague doctor coat'
+# spiderweb gown
+pushlist 'outertorso_items' 'web shoulder dress'
+# long overcoat - artisan clothing
+pushlist 'outertorso_items' 'long coat'
+pushlist 'outertorso_items' 'fur coat'
+pushlist 'outertorso_items' 'robe'
+# ------------------------
+# >>> Regular Outer Torso Items
+pushlist 'outertorso_items' 'beach wrap'
+pushlist 'outertorso_items' 'beach wrap tube'
+
+# CLOAKS
+# ruffled cloak
+pushlist 'cloak_items' 21943
+# regular cloak
+pushlist 'cloak_items' 5397
+# fur lined cloak (limited edition prev item)
+pushlist 'cloak_items' 'fur lined fur cloak'
+
+# WAIST
+pushlist 'waist_items' 'belt with bones'
+# necromancer belt - halloween 2021 prev item
+pushlist 'waist_items' 'skull belt'
+pushlist 'waist_items' 'half apron'
+
+# SHOES
+# Batwing Boots (prev item)
+pushlist 'shoes_items' 22419
+pushlist 'shoes_items' 'overknee fur boots'
+pushlist 'shoes_items' 'sinew sandals'
+pushlist 'shoes_items' 'shoes'
+
+# EARRINGS (On outlands its used for lanterns)
+pushlist 'earrings_items' 'lantern'
+
+# LANTERN (new custom outlands layer (march 2022)
+pushlist 'lantern_items' 'yuletide candle'
+pushlist 'lantern_items' 'torch%es%'
+pushlist 'lantern_items' 'lantern'
+
+# TALISMAN (Cavernam Torches, Mastery Chain, Fur Coat)
+# fur mantle
+pushlist 'talisman_items' 'fur shoulder wrap'
+
+
+# ONE HANDED SECONDARY ITEMS LAYER (Pipes)
+pushlist 'onehandedsecondary_items' 'large pipe'
+
+
+# QUIVER LAYER (specifically for quivers)
+pushlist 'quiver_items' 'quiver'
+
+# OUTER BODY LAYER ( for Suspenders, Leather Satchel, Leather Harness, and Brown Leather Harness )
+pushlist 'outerbody_items' 'suspenders'
+pushlist 'outerbody_items' 'leather satchel'
+pushlist 'outerbody_items' 'leather harness'
+
+
+###########################
+# INITIALIZE LIST CONFIG
+
+if atlist 'action_delay' 0 as action_delay
+
+###########################
+# CODE
+
+sysmsg '###############################' 90
+sysmsg 'Starting Dress...' 90
+foreach layer in 'layers'
+    foreach layer_items in 'layer_items'
+        if layer in layer_items
+            foreach type in layer_items
+                overhead 'OK {{type}}/{{layer}}/{{layer_items}}'
+
+                if not findlayer self layer
+                    if layer == 'righthand'
+                        overhead 'RIGHTHAND LAYER'
+                        # if char has magery and no weapon skill, it shoudl definately equip a magic spell book
+                        if skill 'magery' >= 50 and skill 'swords' == 0 and skill 'macefightning' == 0 and skill 'fencing' == 0
+                            sysmsg 'Searching for Magic Spellbooks...' searching_for_items_msg_color
+                            if findtype 'spellbook' backpack 2606 as book
+                                sysmsg 'Equipping Magic Spellbook!' equipping_items_msg_color
+                                dclick book
+                                wait action_delay
+                                break
+                            endif
+                        elseif skill 'swords' >= 50 or skill 'macefightning' >= 50 or skill 'fencing' >= 50
+                            sysmsg 'Searching for One Handed Weapons...' searching_for_items_msg_color
+                            foreach type in 'righthand_items'
+                                if findtype type backpack as item
+                                    sysmsg 'Equipping One Handed Weapon!' equipping_items_msg_color
+                                    dclick item
+                                    wait action_delay
+                                    break
+                                endif
+                            endfor
+                        endif
+                    endif
+                else
+                    # overhead 'OK {{type}}/{{layer}}/{{layer_items}}'
+                    sysmsg 'Right Hand Already Equipped' layer_already_equipped_msg_color
+                    break
+                endif
+            endfor
+        endif
+    endfor
+endfor
+
+
+###########################
+# CLOSE LIST CONFIG
+endif

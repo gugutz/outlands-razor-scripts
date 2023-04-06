@@ -1,11 +1,38 @@
-hotkey 'Toggle War Only'
 hotkey 'Toggle Peace Only'
 
-if not targetexists 'beneficial'
-    hotkey 'Next Friend Target'
-    cast 'greater heal'
-elseif targetexists 'harmful'
+if targetexists 'harmful'
     hotkey 'Cancel Current Target'
-elseif targetexists 'beneficial'
-    hotkey 'Next Friend Target'
 endif
+
+if not targetexists 'beneficial'
+    cast 'greater heal'
+endif
+
+hotkey 'Next Friend Target'
+wait 200
+
+# if last has no notiriety, probably failed to get target above, so we try a friendly packie instead
+# if noto 'last' != friend and noto 'last' != innocent and noto 'last' != hostile and noto 'last' != criminal and noto 'last' != enemy and noto 'last' != murderer and noto 'last' != invulnerable
+if noto 'last' != friend
+    sysmsg 'No Friends Nearby. Trying Friendly Pets...' 53
+    overhead '*no friends nearby*' 53
+
+    hotkey 'Next Friendly Monster Target'
+    wait 200
+
+    if noto 'last' != friend
+        overhead '*no friendly creatures*' 53
+        sysmsg 'No Friendly Creatures Nearby. Trying Any Friendly...'
+        hotkey 'Next Friendly Monster Target'
+        wait 200
+
+    endif
+endif
+
+if not dead 'last' and noto 'last' != friend and noto 'last' != innocent
+    sysmsg 'No Candidates For Beneficial Targetting...' 53
+    overhead 'no candidates for heals' 53
+    stop
+endif
+
+overhead '>> HEALING TARGET <<' 91 'last'

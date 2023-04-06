@@ -1,5 +1,5 @@
 if insysmsg 'The world will save'
-    wait 27000
+    wait 100
 endif
 
 skill 'stealing'
@@ -29,6 +29,7 @@ elseif skill 'stealing' < 100
     restock 8
 else
     overhead '** Skill 100 **'
+    jk
     sysmsg 'You have reached skill level 100 in Stealing' 44
     stop
 endif

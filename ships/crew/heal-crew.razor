@@ -1,0 +1,190 @@
+
+# MY BOAT CREW!
+
+if not listexists 'ship_crew'
+    createlist 'ship_crew'
+endif
+
+
+# STUFF RELATED TO SEARCHING SHIPS WHILE REPAIRING
+
+setvar! search_ships_gump 2890020940
+setvar! search_ships_cooldown 6100
+
+if not timerexists 'spyglass_cooldown_warning_msg_timer'
+    createtimer 'spyglass_cooldown_warning_msg_timer'
+    settimer 'spyglass_cooldown_warning_msg_timer' 2000
+endif
+
+
+if not timerexists 'spyglass_timer'
+    createtimer 'spyglass_timer'
+    settimer 'spyglass_timer' 7000
+endif
+
+
+
+
+# check if need to remake ship crew list
+foreach member in 'ship_crew'
+    if not find member ground any any 15
+        sysmsg 'CANT FIND CREW MEMBER {{member}}' boating_msg_color
+        clearlist 'ship_crew'
+    endif
+endfor
+
+if list 'ship_crew' == 0
+    sysmsg 'SEARCHING FOR CREW MEMBERS' boating_msg_color
+
+    for 7
+        hotkey 'Next Friendly Monster Target'
+        # wait action_delay
+        setvar! temp_serial lasttarget
+        getlabel temp_serial label
+
+        if noto temp_serial != hostile
+            if 'elemental' in label or 'lich' in label or 'mummy' in label or 'vampire' in label
+            elseif 'Crewmember' in label and not inlist 'ship_crew' temp_serial
+                overhead 'found crew member!' boating_msg_color
+                sysmsg 'FOUND CREW MEMBER: {{label}}!' boating_msg_color
+
+                pushlist 'ship_crew' temp_serial
+            endif
+        endif
+    endfor
+endif
+
+# heal crew
+
+if list 'ship_crew' > 0
+    while not dead self
+        foreach crew_member in 'ship_crew'
+            if find crew_member ground any any 15
+                cast 'greater heal'
+                getlabel crew_member crew_member_label
+                sysmsg 'HEALING CREW MEMBER {{crew_member_label}}'
+    
+                clearsysmsg
+                @settimer 'waiting_target_timer' 0
+                while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+                    wft 10
+                    if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                        if verbose == 1
+                            overhead '▽▽ BREAKING HEAL ▽▽' warning_msg_color
+                            sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET TO HEAL CREWMEMBER {{crew_member}}' warning_msg_color
+                        endif
+    
+                        wait spell_recovery_delay
+                        break
+                    endif
+                endwhile
+    
+                if targetexists 'beneficial'
+                    target crew_member
+                    wait 200
+                endif
+            else
+                sysmsg 'CREWMEMBER {{crew_member}} NOT FOUND TO HEAL!' alert_msg_color
+            endif
+
+
+            # THIS ENTIRE BLOCK IS JUST A COPY OF MY SEARCH SHIPS SCRIPT
+            setvar! found_player_boat 0
+            if findtype 'spyglass' backpack as tool
+                gumpclose 2890020940
+                dclick tool
+                waitfortarget 600
+                if targetexists 'neutral'
+                    hotkey 'Target Self'
+                    waitforgump search_ships_gump 600
+                    if gumpexists search_ships_gump
+                        sysmsg 'SEARCHING SHIPS...' 89
+                        overhead 'searching ships...' 89
+                        gumpresponse 4 search_ships_gump
+                        waitforgump search_ships_gump 600
+                    endif
+            
+                    if insysmsg 'before you may make another ship search'
+                        gumpresponse 4 search_ships_gump
+                        waitforgump search_ships_gump 600
+                    endif
+            
+                    # WARN ABOUT NPC BOATS NEARBY
+                    if ingump "a daemon" 2890020940
+                        setvar! found_npc_boat 1
+                        sysmsg 'NPC DAEMON BOAT NEARBY!'
+                    endif
+
+                    if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                        setvar! found_npc_boat 1
+                        sysmsg 'NPC GALEON NEARBY!'
+                    endif
+
+                    if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                        setvar! found_npc_boat 1
+                        sysmsg 'NPC CARRACK NEARBY!'
+                    endif
+
+                    if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                        setvar! found_npc_boat 1
+                        sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                    endif
+
+                    # SEARCH PLAYER BOATS
+                    if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon ship" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                        setvar! found_player_boat 1
+                    else
+                        while ingump "Next" 2890020940
+                            gumpresponse 3 2890020940
+                            waitforgump search_ships_gump 600
+            
+                            # WARN ABOUT NPC BOATS NEARBY
+                            if ingump "a daemon" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC DAEMON BOAT NEARBY!'
+                            endif
+
+                            if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC GALEON NEARBY!'
+                            endif
+
+                            if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC CARRACK NEARBY!'
+                            endif
+
+                            if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                            endif
+
+                            if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                                setvar! found_player_boat 1
+                            endif
+                        endwhile
+            
+                    endif
+            
+                    if found_player_boat == 1
+                        overhead "FOUND PLAYER BOAT" 43
+                        overhead "FOUND PLAYER BOAT" 43
+                        overhead "FOUND PLAYER BOAT" 43
+                        sysmsg "FOUND PLAYER BOAT!" 43
+                        sysmsg "FOUND PLAYER BOAT!" 43
+                        sysmsg "FOUND PLAYER BOAT!" 43
+                        settimer 'spyglass_timer' 0
+                    else
+                        sysmsg 'NO PLAYER BOATS NEARBY!' 74
+                        overhead 'no player boats nearby!' 74
+                        overhead '*no ships nearby*' 54
+                        # gumpclose 2890020940
+                        settimer 'spyglass_timer' 0
+                    endif
+            
+            
+                endif
+            endif
+        endfor
+    endwhile
+endif

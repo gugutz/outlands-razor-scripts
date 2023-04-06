@@ -1,0 +1,797 @@
+sysmsg '#########################' 90
+sysmsg '>>> MAGE SHOP BUYER' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.0.1' 31
+sysmsg '########################' 90
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Adds more vendor serials to list
+# - Switches individual vendor clicking with list iteration
+# - Adds check for reagents on ground and unloads them in pack animal
+# - Auto checks pack animal weight and uses next in list if available
+#
+# v0.1
+# - Initial release
+
+
+
+
+################################
+# SCRIPT CONFIGURATION
+################################
+
+setvar! action_delay 600
+
+setvar! unload_regs_from_backpack 1
+
+if not timerexists 'execution_timer'
+    createtimer 'execution_timer'
+endif
+settimer 'execution_timer' 0
+
+#################################
+# CREATE ALL TIMERS
+#################################
+
+if not listexists 'buy_regs_timers'
+    createlist 'buy_regs_timers'
+    pushlist 'buy_regs_timers' 'loop_on_warning_msg'
+
+    foreach timer in 'buy_regs_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
+        endif
+    endfor
+endif
+
+
+#############################
+# SET THE HOME BOOK
+#############################
+
+# search runetomes first
+while findtype 'runetome' backpack as found
+    getlabel found rtome_label
+    if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
+        sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
+        setvar! home_book rtome
+        setvar! home_book_gump_id 167090027
+        setvar! home_rune_btn_number runetome_rune_position
+    endif
+
+    @ignore found
+endwhile
+@clearignore
+
+# if we couldnt find a home runetome, search for a home runebook
+if not varexist home_book
+    while findtype 'runebook' backpack as found
+        getlabel found rbook_label
+        if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
+            sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
+            setvar! home_book rtome
+            setvar! home_book_gump_id 167090027
+            setvar! home_rune_btn_number runetome_rune_position
+        endif
+
+        @ignore found
+    endwhile
+    @clearignore
+endif
+
+
+#############################
+# SET THE VENDORS RUNETOMES
+#############################
+
+clearlist 'vendor_runetomes'
+createlist 'vendor_runetomes'
+
+while findtype 'runetome' backpack as found
+    getlabel found rtome_label
+    if 'regs' in rtome_label or 'Regs' in rtome_label or 'REGS' in rtome_label
+        sysmsg 'ADDING RUNETOME {{found}} TO LIST' 54
+        pushlist 'vendor_runetomes' found
+    endif
+
+    @ignore found
+endwhile
+
+@clearignore
+
+
+if list 'vendor_runetomes' == 0
+    sysmsg 'NO REG VENDOR RUNETOMES FOUND. RENAME YOUR RUNETOME WITH THE TERM REGS IN IT.' 90
+    sysmsg 'NO REG VENDOR RUNETOMES FOUND. RENAME YOUR RUNETOME WITH THE TERM REGS IN IT.' 90
+    stop
+endif
+
+foreach x in 'vendor_runetomes'
+    sysmsg 'VENDOR RUNETOME {{index}}: {{x}}'
+endfor
+
+#############################
+# SET THE LUMBER RUNETOME BUTTONS TO PRESS TO RECALL
+#############################
+
+# runetomes recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
+if not listexists 'runetome_page_numbers'
+    createlist 'runetome_page_numbers'
+
+    # runetome page 1
+    # we dont push the first rune since its the home rune
+    pushlist 'runetome_page_numbers' 200
+    pushlist 'runetome_page_numbers' 201
+    pushlist 'runetome_page_numbers' 202
+    pushlist 'runetome_page_numbers' 203
+    pushlist 'runetome_page_numbers' 204
+    pushlist 'runetome_page_numbers' 205
+    pushlist 'runetome_page_numbers' 206
+    pushlist 'runetome_page_numbers' 207
+    pushlist 'runetome_page_numbers' 208
+    pushlist 'runetome_page_numbers' 209
+    pushlist 'runetome_page_numbers' 210
+    pushlist 'runetome_page_numbers' 211
+    pushlist 'runetome_page_numbers' 212
+    pushlist 'runetome_page_numbers' 213
+    
+    # runetome page 2
+    pushlist 'runetome_page_numbers' 214
+    pushlist 'runetome_page_numbers' 215
+    pushlist 'runetome_page_numbers' 216
+    pushlist 'runetome_page_numbers' 217
+    pushlist 'runetome_page_numbers' 218
+    pushlist 'runetome_page_numbers' 219
+    pushlist 'runetome_page_numbers' 220
+    pushlist 'runetome_page_numbers' 221
+    pushlist 'runetome_page_numbers' 222
+    pushlist 'runetome_page_numbers' 223
+    pushlist 'runetome_page_numbers' 224
+endif
+
+
+# runetomes recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
+if not listexists 'runetome_rune_btns'
+    createlist 'runetome_rune_btns'
+
+    # runetome page 1
+    # we dont push the first rune since its the home rune
+    pushlist 'runetome_rune_btns' 11
+    pushlist 'runetome_rune_btns' 17
+    pushlist 'runetome_rune_btns' 23
+    pushlist 'runetome_rune_btns' 29
+    pushlist 'runetome_rune_btns' 35
+    pushlist 'runetome_rune_btns' 41
+    pushlist 'runetome_rune_btns' 47
+    
+    # runetome page 2
+    pushlist 'runetome_rune_btns' 53
+    pushlist 'runetome_rune_btns' 59
+    pushlist 'runetome_rune_btns' 65
+    pushlist 'runetome_rune_btns' 71
+    pushlist 'runetome_rune_btns' 77
+    pushlist 'runetome_rune_btns' 83
+    pushlist 'runetome_rune_btns' 89
+    pushlist 'runetome_rune_btns' 95
+endif
+
+setvar! runetome_gump_id 167090027
+setvar! runebook_gump_id 1551740969
+
+setvar! recall_travel_time 3000
+
+setvar! 1st_circle_spell_mana_cost 8
+setvar! 2nd_circle_spell_mana_cost 9
+setvar! 3rd_circle_spell_mana_cost 10
+setvar! 4th_circle_spell_mana_cost 12
+
+#################################
+# CREATE LIST WITH VENDORS SERIALS
+#################################
+
+# REAGENTS
+
+# REAGENTS
+if not listexists 'buy_list'
+    createlist 'buy_list'
+    pushlist 'buy_list' 'Blood Moss'
+    pushlist 'buy_list' 'Black Pearl%s%'
+    pushlist 'buy_list' 'Garlic'
+    pushlist 'buy_list' 'Mandrake Root%s%'
+    pushlist 'buy_list' 'Ginseng'
+    pushlist 'buy_list' 'Nightshade'
+    pushlist 'buy_list' 'Sulfurous Ash'
+    pushlist 'buy_list' "Spider's Silk"
+    pushlist 'buy_list' "empty bottle%s%"
+endif
+
+if not listexists 'vendors_serials'
+    createlist 'vendors_serials'
+
+    ###################################
+    # OUTPOST MAGE SHOP
+    pushlist 'vendors_serials' 0x16F
+    pushlist 'vendors_serials' 0x170
+    pushlist 'vendors_serials' 0x172
+    pushlist 'vendors_serials' 0x171
+
+    ###################################
+    # PREVALIA MAGE SHOP WEST
+
+    # raynor the herbalist
+    pushlist 'vendors_serials' 0x37A
+    # garret the mage
+    pushlist 'vendors_serials' 0x3CE
+    # ginger the mage
+    pushlist 'vendors_serials' 0x64BA2
+    # lindan the scribe
+    pushlist 'vendors_serials' 0x388
+    # duncan the mage
+    pushlist 'vendors_serials' 0xCC06D
+    # bentley the scribe
+    pushlist 'vendors_serials' 0x38F
+    # brandy the herbalist
+    pushlist 'vendors_serials' 0x3BB
+
+    ###################################
+    # PREVMAGE MAGE SHOP SOUTH EAST
+
+    # christable
+    pushlist 'vendors_serials' 0x45
+    # gideon
+    pushlist 'vendors_serials' 0x44
+    # arlene
+    pushlist 'vendors_serials' 0x46
+
+
+    # Reidon (scribe shop next door)
+    pushlist 'vendors_serials' 0xD5D15
+    # Brendon (scribe shop next door)
+    pushlist 'vendors_serials' 0x40
+
+    ###################################
+    # PREVMAGE ALCHEMY SHOP SOUTH WEST
+
+    # Cato the alchemist
+    pushlist 'vendors_serials' 0x42
+
+    # Iona the alchemist
+    pushlist 'vendors_serials' 0x43
+
+    ###################################
+    # PREVMAGE HERBALIST SHOP SOUTH WEST
+
+    # Jonathan the herbalist
+    pushlist 'vendors_serials' 0x47
+
+    ###################################
+    # CAMBRIA MAGE SHOP SOUTH
+
+    pushlist 'vendors_serials' 0xFE
+
+    ###################################
+    # CAMBRIA MAGE SHOP NORTH
+
+    # zuza
+    pushlist 'vendors_serials' 0xF2
+    # kanika
+    pushlist 'vendors_serials' 0xF0
+    # magdaline
+    pushlist 'vendors_serials' 0x4BA97
+    # wayland
+    pushlist 'vendors_serials' 0xF1
+
+
+    ###################################
+    # CAMBRIA HERBALIST SHOP NORTH
+
+    # Valeria the herbalist
+    pushlist 'vendors_serials' 0xFB
+
+    ###################################
+    # CAMBRIA ALCHEMIST SHOP NORTH
+
+    # Jezebel the herbalist
+    pushlist 'vendors_serials' 0xF3
+
+
+    ###################################
+    # ANDARIA MAGE SHOP NORTH
+
+    # abira the scribe
+    pushlist 'vendors_serials' 0xD3
+    # shunnar the alchemist
+    pushlist 'vendors_serials' 0xD0
+    # adrian the alchemist
+    pushlist 'vendors_serials' 0xD1
+    # rudyard the mage
+    pushlist 'vendors_serials' 0xD4
+    # dane the mage
+    pushlist 'vendors_serials' 0xCF
+    # amadis the scribe
+    pushlist 'vendors_serials' 0xD2
+    # peyton the mage
+    pushlist 'vendors_serials' 0xCE
+
+    ###################################
+    # ANDARIA MAGE SHOP SOUTH
+
+    # kelli the mage
+    pushlist 'vendors_serials' 0xA8
+    # shani the mage
+    pushlist 'vendors_serials' 0xAC
+    # Slevin the mage
+    pushlist 'vendors_serials' 0xAB
+    # mae the harbalist
+    pushlist 'vendors_serials' 0xAA
+    # Ines the alchemist
+    pushlist 'vendors_serials' 0xA9
+
+    ###################################
+    # HORSESHOE BAY MAGE SHOP
+
+    # Caitlin the alchemist
+    pushlist 'vendors_serials' 0x15F
+    # Thera the mage
+    pushlist 'vendors_serials' 0x15E
+    # Raymond the scribe
+    pushlist 'vendors_serials' 0x160
+
+    ###################################
+    # CORPSE CREEK MAGE SHOP
+
+    # orvile the alchemist
+    pushlist 'vendors_serials' 0x10335
+    # Gamble the mage
+    pushlist 'vendors_serials' 0x10246
+    # Camile the mage
+    pushlist 'vendors_serials' 0x10247
+    # Magenta the scribe
+    pushlist 'vendors_serials' 0x10336
+
+    ###################################
+    # ANCHORS REST MAGE SHOP
+
+    # Clara the scribe
+    pushlist 'vendors_serials' 0x2DA
+    # Tem the mage
+    pushlist 'vendors_serials' 0x2D7
+    # Akili the mage
+    pushlist 'vendors_serials' 0x2D4
+    # Rigby the alchemist
+    pushlist 'vendors_serials' 0x34A
+    # Diane the alchemist
+    pushlist 'vendors_serials' 0x34F
+    # Ryan the Herbalist
+    pushlist 'vendors_serials' 0x346
+
+
+    ###################################
+    # TERRAN MAGE & ALCHEMIST SHOPS
+
+    # Donnelly the mage
+    pushlist 'vendors_serials' 0x197
+    # Asta the mage
+    pushlist 'vendors_serials' 0x198
+    # Adena the alchemist
+    pushlist 'vendors_serials' 0x199
+    # Lunt the herbalist
+    pushlist 'vendors_serials' 0x19A
+
+
+    ###################################
+    # BEEKEEPERS SOUTHREACH INN
+    # Adiran the beekeper
+    pushlist 'vendors_serials' 0xB00
+    # Claudine the beekeper
+    pushlist 'vendors_serials' 0xB06
+    # Urania the beekeper
+    pushlist 'vendors_serials' 0xAFE
+
+    ###################################
+    # BEEKEEPERS CAMBRIA
+    # Chaney the beekeper
+    pushlist 'vendors_serials' 0x1092
+    # Felix the beekeper
+    pushlist 'vendors_serials' 0x3CD7
+endif
+
+
+
+###################################
+# PACK ANIMALS
+###################################
+
+sysmsg 'Searching for pack animals...' 87
+
+
+if not listexists 'full_packies'
+    createlist 'full_packies'
+endif
+clearlist 'full_packies'
+
+if not listexists 'packies'
+    createlist 'packies'
+endif
+clearlist 'packies'
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        # dclick packie
+        # wait action_delay_var
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        # dclick packie
+        # wait action_delay_var
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+
+###################################
+# MAIN ROUTINE
+###################################
+
+
+setvar! rune_number 10
+
+foreach runetome in 'vendor_runetomes'
+    sysmsg '>>> STARTING RUNETOME {{index}}: {{runetome}}'
+
+    foreach page_number in 'runetome_page_numbers'
+    # foreach rune_number in 'runetome_rune_btns'
+        # travel to the rune
+
+        while mana <= 11
+            sysmsg 'MEDITATING TO RECALL' warning_msg_color
+            if not findbuff 'actively meditating'
+                skill meditation
+                wait action_delay
+            endif
+            wait action_delay
+        endwhile
+
+        sysmsg 'TRAVELLING TO RUNE {{rune_number}}'
+        dclick runetome
+        wait 1000
+        waitforgump runetome_gump_id action_delay
+        gumpresponse page_number runetome_gump_id
+        waitforgump runetome_gump_id action_delay
+
+
+        settimer 'waiting_runetome_gump_timer' 0
+        if not gumpexists runetome_gump_id and timer 'waiting_runetome_gump_timer' < 2000
+            sysmsg 'waiting for runetome gump'
+            while not gumpexists runetome_gump_id and timer 'waiting_runetome_gump_timer' < 2000
+                waitforgump runetome_gump_id action_delay
+            endwhile
+        endif
+
+
+
+        if gumpexists runetome_gump_id
+            gumpresponse rune_number runetome_gump_id
+            wait recall_travel_time
+        else
+            sysmsg 'COULDNT OPEN RUNETOME TO TRAVEL!' 37
+        endif
+
+        # CLICK BUY ON EACH VENDOR FOUND
+        foreach vendor in 'vendors_serials'
+            if find vendor ground any any 25
+                overhead 'FOUND VENDOR {{vendor}}! BUYING...' 90 vendor
+                menu vendor 1
+            endif
+        endfor
+
+        sysmsg 'FINISHED BUYING FROM VENDORS' 54
+        wait 1500
+        
+        while diffweight > 0
+            if list 'packies' > 0
+                foreach packie in 'packies'
+            
+                    ###################################
+                    # CHECK IF THIS PACKIE IS FULL
+            
+                    # check packie weight to determine if its full or not
+                    unsetvar! pack_heavy
+            
+                    if counttype 'Blood Moss' packie >= 999 and counttype 'Black Pearl%s%' packie >= 999 and counttype 'Garlic' packie >= 999 and counttype 'Mandrake Root%s%' packie >= 999 and counttype 'Ginseng' packie >= 999 and counttype 'Nightshade' packie >= 999 and counttype 'Sulfurous Ash' packie >= 999 and counttype "Spider's Silk" packie >= 999
+                        overhead 'packie with 999 of each type of regs' packie
+                        setvar! pack_heavy 1
+                    elseif counttype 'Blood Moss' packie >= 1998 and counttype 'Black Pearl%s%' packie >= 1998 and counttype 'Garlic' packie >= 1998 and counttype 'Mandrake Root%s%' packie >= 999 and counttype 'Ginseng' packie >= 999 and counttype 'Nightshade' packie >= 999 and counttype 'Sulfurous Ash' packie >= 999 and counttype "Spider's Silk" packie >= 999
+                        setvar! pack_heavy 1
+                    endif
+            
+                    # add or remove packie to full 0packies list based on if its heavy or not
+                    if varexist pack_heavy
+                        if not inlist 'full_packies' packie
+                            overhead 'adding to full list' 54 packie
+                            pushlist 'full_packies' packie
+                        endif
+            
+                        overhead '! heavy !' 34 packie
+                    else
+                        if inlist 'full_packies' packie
+                            overhead 'removing from full list' 52 packie
+                            poplist 'full_packies' packie
+                        endif
+                    endif
+            
+            
+                    ###################################
+                    # IF PACKIE IS NOT FULL, USE IT TO UNLOAD REGS
+            
+                    if not inlist 'full_packies' packie
+                        unsetvar! pack_heavy
+            
+                        # get packie closer if it gets too far to unload (more than 2 tiles away)
+                        while not find packie ground any any 2
+                            while not find packie ground any any 2
+                                if timer 'call_packie_closer_timer' >= 1000
+                                    settimer 'call_packie_closer_timer' 0
+                                    overhead "calling packie closer!" 40 'self'
+                                    overhead "too far to unload!" 40 packie
+            
+                                    # say 'all follow me'
+                                    menu packie 5
+                                endif
+                                wait 10
+                            endwhile
+                            # break
+                        endwhile
+            
+                        dclick packie
+                        wait action_delay
+            
+                        foreach reg in 'buy_list'
+                            sysmsg 'SEARCHING {{reg}}' 90
+                            # I HAD A BUG IN THIS LINE I DEF WANT TO REMEMBER
+                            # WHILE THE <ammount> PARAMETER IS SET TO ANY
+                            # THE SCRIPT WILL ACTUALLY FIND MORE THAN 999 REGS (ex: 3 stacks of 999)
+                            # AND ALIAS THE WHOLE AMOUNT TO THE VARIABLE DEFINED IN THE <as> PARAM
+                            # SO EVEN IF I LIFTED THE FIRST STACK OF 999 AND DROPOPED AT MY PACKIE
+                            # THE NEXT STACK WOULD HAVE THE SAME SERIAL AND THE SCRIPT WOULD THINK
+                            # THE STACK I JUST DROPED ON PACKIE WAS STILL ON THE GROUND AND BUG
+                            # THATS WHY I ONLY NEED TO USE 1 AS THE AMOUNT HERE
+                            # THE SCRIPT ONLY NEEDS TO FIND ANY AMOUNT IN THE GROUND AND SET A SERIAL
+                            # AND THEN I MOVE 999 OF THAT REG PER ONCE
+                            # if findtype reg ground 0 any 2 as reg_serial
+                            if findtype reg ground any any 1 as reg_serial
+                                getlabel reg_serial reg_label
+                                sysmsg '>> FOUND {{reg_label}} AT GROUND!' 90
+            
+            
+                                while find reg_serial ground and not find reg_serial packie
+                                    getlabel reg_serial reg_label
+                                    sysmsg '>> FOUND {{reg}} AT GROUND!' 90
+                                    sysmsg '>> TRYING TO MOVE {{reg_label}} FROM GROUND TO PACKIE!' 90
+                                    # hotkey 'Drop What You Are Currently Holding'
+                                    overhead 'dumping {{reg_label}}' 53 packie
+            
+                                    lifttype reg 999 ground
+                                    # lift reg_serial 100
+                                    wait action_delay
+                                    # drop packie -1 -1 0
+                                    drop packie
+                                    wait 50
+            
+                                    while queued
+                                        sysmsg '>>> queued'
+                                        wait 20
+                                    endwhile
+            
+                                    if not find reg_serial ground
+                                        sysmsg 'Moved {{reg_label}}!' 63 packie
+                                        # ignore reg_serial
+                                        break
+                                        # put this animal to the end of the list so we use the next one next time
+                                    endif
+            
+                                endwhile
+            
+            
+                                # # if find reg_serial ground any any 2 and not find reg_serial packie any any
+                                # if find reg_serial ground and not find reg_serial packie
+                                #     overhead 'heavy?? found same reg serial on ground' 53 packie
+                                #     sysmsg 'Found reg serial char tried to unload in packie on ground. Pet is probably heavy... Moving To End Of List' 53
+                                #     pushlist 'full_packies' packie
+                                # endif
+            
+                                # unsetvar reg_serial
+                            endif
+            
+                        endfor
+            
+                        if unload_regs_from_backpack == 1
+                            foreach reg in 'buy_list'
+                                sysmsg 'Searching Reagents To Unload...' 56
+            
+                                    # overhead "*unloading reagents*" 56 'self'
+                                if findtype reg backpack 0 1 2 as reg_serial
+            
+                                    while find reg_serial backpack and not find reg_serial packie any any
+                                        overhead "*unloading {{reg}} from backpack" 56 packie
+            
+                                        # hotkey 'Drop What You Are Currently Holding'
+                                        lift reg_serial 999
+                                        wait action_delay
+                                        drop packie -1 -1 0
+                                        wait action_delay
+                                    endwhile
+            
+                                    sysmsg 'Moved {{reg_label}}!' 63
+                                endif
+                            endfor
+                        endif
+            
+                    endif
+
+                    # breaks from the loop and pops the current rune from front of list into the back, so we can
+                    # bypass the razor bug that keeps on same iteration when you from from a while inside a for
+
+        
+                endfor
+
+            endif
+        endwhile
+
+        # setvar! go_to_next_rune 1
+        setvar! recall_home_now 1
+
+        # end if list packies > 0
+
+
+
+        ########################################
+        # GO HOME AND UNLOAD ROUTINE
+        ########################################
+        if recall_home_now == 1
+
+            if skill 'magery' == 0 or counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "Mandrake Root%s%" == 0
+                if counttype "Recall"
+                    overhead 'no regs. trying scroll...' 54
+                    setvar! use_recall_scroll 1
+                else
+                    overhead 'no regs. trying charges...' 54
+                    setvar! use_charges 1
+                endif
+            endif
+
+
+            if use_charges == 1
+                sysmsg 'TRAVELLING VIA CHARGES'
+                dclick home_book
+                waitforgump home_book_gump_id 600
+                gumpresponse home_rune_btn_number recall_book_gump_id
+                setvar! use_charges 0
+            else
+                sysmsg 'TRAVELLING VIA SPELL WITH RUNEBOOK {{home_runebook}}'
+                hotkey 'Recall'
+                waitfortarget 3500
+                target home_book
+            endif
+
+            wait recall_travel_time
+
+            sysmsg 'ASSUMING CHAR IS HOME. START UNLOADING'
+
+            if use_hotel_room == 1
+                say 'room'
+                waitforgump 2393832411 action_delay
+                if ingump 'Your Room' 2393832411 action_delay
+                    if use_own_room == 1
+                        overhead 'entering own room'
+                        gumpresponse 4 2393832411
+                    else
+                        overhead 'entering friend room'
+                        gumpresponse 5 2393832411
+                        waitforgump 2393832411 action_delay
+                        gumpresponse 100 2393832411
+                    endif
+                else
+                    overhead 'entering friend room'
+                    gumpresponse 5 2393832411
+                    waitforgump 2393832411 action_delay
+                    gumpresponse 100 2393832411
+                endif
+
+                wait 1500
+            endif
+
+
+
+            # after escaping, smelt ores from char
+            while findtype LOGS backpack as boards
+                overhead '*cutting boards*' 49
+                sysmsg '> Cutting Boards' 49
+                dclick boards
+                wait action_delay
+            endwhile
+
+
+            # unload everything on resource stockpile
+            if findtype 'resource container' ground any any 2 as stockpile
+                setvar! resource_stockpile stockpile
+                menu resource_stockpile 0
+                wft 600
+                if targetexists 'neutral'
+                    sysmsg '> Restocking Resource Stockpile...' sysmsgs_color
+                    target 'self'
+                endif
+
+                if gumpexists 1859005118
+                    gumpclose 1859005118
+                endif
+            endif
+
+            if findtype 'storage shelf' ground any any 2 as shelf
+                sysmsg 'RESSUPLYING...' 55
+                menu shelf 1
+                waitforgump 3232825965 600
+            else
+                overhead 'NO SHELFS FOUND TO RESSUPLY!'
+            endif
+
+            sysmsg 'SETTING TO TRAVEL TO NEXT RUNE' 54
+            setvar! go_to_next_rune 1
+
+            setvar! recall_home_now 0
+
+        endif
+
+
+        ########################################
+        # SET NEXT RUNE TO TRAVEL
+        ########################################
+        if rune_number == 10
+            setvar! rune_number 20
+        elseif rune_number == 20
+            sysmsg 'GOING TO NEXT RUNE'
+            setvar! rune_number 10
+            poplist 'runetome_page_numbers' 'front'
+            pushlist 'runetome_page_numbers' page_number 'back'
+        endif
+
+
+        ########################################
+        # SET NEXT RUNETOME PAGE
+        ########################################
+
+        poplist 'runetome_page_numbers' 'front'
+        pushlist 'runetome_page_numbers' page_number 'back'
+
+        ########################################
+        # SET NEXT RUNETOME IF LAST PAGE OF CURRENT ONE
+        ########################################
+
+        if page_number == 224
+            sysmsg 'GOING TO NEXT RUNETOME'
+            poplist 'vendor_runetomes' 'front'
+            pushlist 'vendor_runetomes' page_number 'back'
+            say 'all follow me'
+            break
+        endif
+
+        # SINCE NESTED LOOPS DONT WORK, WE NEED TO HACK THE LISTS AND BREAK TO START OVER FROM ANOTHER ELEMENTS
+        break
+
+    endfor
+endfor
+
+sysmsg 'FINISHED IN {{execution_timer}}' 90

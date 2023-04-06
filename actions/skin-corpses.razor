@@ -1,76 +1,143 @@
+#################################
+# SKIN CORPSES
+# by gugutz
+# version 0.0.2
+#################################
 
 
-if not findtype 'elven spellblade' backpack
-    overhead '!no skinning knife!' 45
-    stop
-endif
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Keep trying to open target by clicking knife while on skill or carving cooldown
+# - Script clicks knife and opens target even if there are no corpses nearby. A warning is still issued if no corpses nearby.
+# - Remove all variables and use lists instead, improving performance
+#
+# v0.0.1
+# - Initial release
+#
+
+
+
+#################################
+# CODE
+#################################
+clearsysmsg
+@clearignore
 
 if not listexists 'skinned_corpses'
     createlist 'skinned_corpses'
 endif
 
-if not listexists 'corpses'
-    createlist 'corpses'
-else
-    clearlist 'corpses'
+# if skill 'forensic' = 0
+#     overhead '*no skill to skin*' 40
+#     stop
+# endif
+
+
+
+
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+setvar! boating_mode 0
+if findtype 2578 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 3947 self
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
 endif
 
 
-if not findtype 'corpse' ground any any 2
-    overhead '*no corpses nearby*' 45
-    stop
+
+
+if not findtype 'elven spellblade' backpack
+    overhead '*NO KNIFE*' 37
+
+    # open corpse instead, better than nothing
+    if not findtype 'corpse' ground any any 2
+        overhead '*no corpses nearby*' 45
+    endif
+
+    if findtype 'corpse' ground any any 2 as corp
+        getlabel corp corpse_label
+        overhead '*opening {{corpse_label}}*'
+        dclick corp
+    # this is the bones when the corpse is almost decaying
+    elseif findtype 'bones' ground any any 2 as bons
+        getlabel bons bones_label
+        overhead '*opening {{bones_label}}*'
+        dclick corp
+    endif
+
+    # stop
 endif
 
-while findtype 'corpse' ground any any 2 as body
-    sysmsg 'debug 1'
-    if not inlist 'skinned_corpses' body
-        sysmsg 'debug 3' 87
-        pushlist 'corpses' body
-    endif
-    ignore body
-    if list 'corpses' >= 2
-        break
-    endif
-endwhile
-clearignore
-
-if list 'corpses' == 0
-    if list 'skinned_corpses' > 0
-        overhead '*no new corpses to skin*' 44
-    else
-        overhead '*no corpses to skin*' 45
-    endif
-    stop
-endif
-
-foreach corp in 'corpses'
-    sysmsg 'debug 2'
+while not targetexists 'neutral'
     usetype 'elven spellblade'
     wft 500
     if insysmsg 'must wait'
         sysmsg '>>> SKILL COOLDOWN (FORENSIC)' 45
-        overhead 'forensic cooldown' 45
-        clearsysmsg
-        break
+        # overhead 'forensic cooldown' 45
     endif
 
-    if targetexists 'neutral'
-        sysmsg '>>> SKINNING CORPSES NEARBY' 56
+    if insysmsg 'must wait a few moments before carving again'
+        sysmsg '>>> SKILL COOLDOWN (FORENSIC)' 45
+        # overhead 'forensic cooldown' 45
+    endif
+endwhile
+
+if targetexists 'neutral'
+    if not findtype 'corpse' ground any any 2
+        overhead '*no corpses to skin*' 45
+        while targetexists 'neutral'
+            wait 100
+        endwhile
+        # stop
+    endif
+
+    if findtype 'corpse' ground any any 2 as body
+        if inlist 'skinned_corpses' body
+            overhead '*no new corpses to skin*' 45
+        endif
+
         overhead '*skinning corpses*' 56 'self'
+        sysmsg '>>> SKINNING CORPSES NEARBY' 49
         hotkey 'Target Self'
         wait 600
+        if not inlist 'skinned_corpses' body
+            @pushlist 'skinned_corpses' body
+        endif
+
         if insysmsg 'dont see anything'
-            overhead '*NOTHING TO CARVE*' 41
-            clearsysmsg
-            @pushlist 'skinned_corpses' corp
+            # overhead '*NOTHING TO CARVE*' 53
+            sysmsg '*NOTHING TO CARVE*' 53
         elseif insysmsg 'carve materials'
-            overhead '*carved materials!*'
-            clearsysmsg
+            # overhead '*carved materials!*' 91
+            sysmsg 'CARVED MATERIALS!*' 91
             # switched ignore to list control cause spirit speak will ignore corpses and then razor wont skin it anymore since it would be globally ignored
             # @ignore body
-            @pushlist 'skinned_corpses' corp
+            if not inlist 'skinned_corpses' body
+                @pushlist 'skinned_corpses' body
+            endif
         endif
-        break
     endif
-    break
-endfor
+endif
+
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+if boating_mode == 1
+    script 'ships\search-ships'
+endif

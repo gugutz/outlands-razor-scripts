@@ -1,15 +1,145 @@
+#################################
+# SMART BIG HEAL
+# v0.0.1
+# by gugutz
+#################################
+
+if not varexist bigheal_first_run_done
+    setvar! max_hp_before_targetting_self 80
+    setvar! crossheal_friendly_monsters 1
+    setvar! spell_recovery_delay 200
+
+    #################################
+    # TIMERS
+    #################################
+
+    if not timerexists 'loop_on_warning_msg'
+        createtimer 'loop_on_warning_msg'
+    endif
+endif
+
+
+#################################
+# CODE
+#################################
+
+# this cancels a precast harmful target to cast gheal faster, without having to cancel the harmful target first
+if targetexists 'harmful' or targetexists 'neutral'
+    hotkey 'Cancel Current Target'
+    wait spell_recovery_delay
+endif
+
+if not targetexists 'beneficial'
+    if not dead last
+        if last == self
+            overhead 'PEGOU NOTO SELF BIG HEAL'
+        endif
+
+        # if last != self and noto lasttarget != hostile and noto lasttarget != murderer
+        setvar! lastserial lasttarget
+        setvar! selfserial self
+        if lastserial != selfserial and noto lasttarget == friend
+        # if hits == maxhits
+            sysmsg 'Keeping Lasttarget Until Target Opens (Friendly...)'
+            overhead '*keeping beneficial target*'
+            overhead '▼▼▼▼ LAST ▼▼▼▼' 54 lasttarget
+        else
+            sysmsg 'Last target is not friendly/friend. Getting new friendly target...'
+            hotkey 'Next Friend Target'
+        endif
+    endif
+endif
+# endif
+
 if targetexists 'beneficial'
+    if hits == maxhits
+        settimer 'loop_on_warning_msg' 2000
+        hotkey 'Next Friend Target'
+        # while targetexists 'beneficial'
+        #     wait 100
 
+        #     # remember player the loop is active every 60s
+        #     if timer 'loop_on_warning_msg' >= 2000
+        #         settimer 'loop_on_warning_msg' 0
+        #         sysmsg 'holding gheal...' 71
+        #     endif
 
-    if hits < maxhits
-        target 'self'
-    else
-        # if we already got a gh open, avoid wasting punches in the arena
-        overhead 'holding target (100% hp)' 41
+        #     # if hp < max_hp_before_targetting_self
+        #     #     target self
+        #     # endif
+        # endwhile
     endif
 else
-    if not dead 'last'
-        attack 'lasttarget'
+    if not dead lasttarget and name != 'Neron'
+        # attack 'lasttarget'
     endif
-    hotkey 'Play: spells\greater-heal'
+
+
+    cast 'greater heal'
+    wft 3500
+
+    settimer 'loop_on_warning_msg' 0
+    # while targetexists 'beneficial'
+    #     wait 100
+
+    #     # remember player the loop is active every 60s
+    #     if timer 'loop_on_warning_msg' >= 2000
+    #         settimer 'loop_on_warning_msg' 0
+    #         sysmsg 'holding gheal...' 71
+    #     endif
+
+    #     if hp < max_hp_before_targetting_self
+    #         target self
+    #     endif
+    # endwhile
 endif
+
+
+# if maxhp, try to set a friendly target to help crosshealing
+# if hp == maxhp
+if dead 'last'
+    hotkey 'Next Friend Target'
+endif
+# wait 200
+
+# if last has no notiriety, probably failed to get target above, so we try a friendly packie instead
+if not dead 'last' and noto 'last' == friend
+    sysmsg 'FOUND FRIEND PLAYER.' 71
+    stop
+endif
+
+sysmsg 'No FRIENDS NEARBY. TRYING FRIENDLY HUMANOIDS...' 39
+# overhead '*no friends. trying friendlies*' 55
+
+# next, try to find friendly humanoids to heal (usefull in DFPs, TS and other events)
+hotkey 'Next Friendly Player Target'
+if not dead 'last' and noto 'last' == friend
+    sysmsg 'FOUND FRIEND PLAYER.' 71
+    stop
+endif
+
+if crossheal_friendly_monsters ==1
+    sysmsg 'No FRIENDLY HUMANOIDS NEARBY. TRYING FRIENDLY MONSTERS...' 39
+    # overhead '*no friendlies. trying pets*' 56
+
+    # check if last is friend noto and also if we can find it, which would confirm a monster, and not a humanoid, is last target
+    # (razor blocks scripts from finding humanoids)
+    hotkey 'Next Friendly Monster Target'
+    if noto last == friendly and find last ground any any 25
+        sysmsg 'FOUND FRIENDLY PET.' 71
+        stop
+    endif
+endif
+
+sysmsg 'NO CANDIDATES FOR BENEFICIAL TARGETTING...' 39
+overhead 'no candidates for heals' 53
+
+# endif
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release

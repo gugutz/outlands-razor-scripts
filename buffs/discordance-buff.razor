@@ -1,30 +1,24 @@
 
-    overhead 'begin disco macro'
 
 if not listexists 'instruments'
     createlist 'instruments'
     pushlist 'instruments' 'lute'
     pushlist 'instruments' 'drum'
+    pushlist 'instruments' 'bamboo flute'
     pushlist 'instruments' 'tambourine'
     pushlist 'instruments' 'lap harp'
 endif
 
 
 if skill 'discordance' >= 50 and not findbuff 'song of discordance'
-    overhead 'debug 00001'
-    if not listexists 'char_instrument'
-        createlist 'char_instrument'
-    else
-        clearlist 'char_instrument'
-    endif
 
     foreach type in 'instruments'
         # find all instruments and see if any of them are magical
-        while findtype type backpack as instrument and list 'char_instrument' == 0
+        while findtype type backpack as instrument and not varexist char_instrument
             getlabel instrument instrument_label
 
             if exceedingly in instrument_label or supremely in instrument_label
-                pushlist 'char_instrument' instrument
+                setvar! char_instrument instrument
                 break
             endif
             @ignore instrument
@@ -32,15 +26,20 @@ if skill 'discordance' >= 50 and not findbuff 'song of discordance'
 
         @clearignore
 
-        if list 'char_instrument' > 0
+        if varexist char_instrument
             break
         endif
     endfor
 
-    if atlist 'char_instrument' 0 as instrument
+    if varexist char_instrument
         clearsysmsg
         useskill 'discordance'
         wft 600
+
+        if insysmsg 'You must wait a few moments before performing another barding song'
+            over 'barding cooldown. retrying...'
+            replay
+        endif
 
         if insysmsg 'What instrument shall you play?'
             overhead 'selecting instrument...' 54

@@ -1,70 +1,85 @@
 # ###############################
 # USE HEAL AND CURE POT
-# v0.0.1
+# v0.0.3
 # by gugutz
+# ###############################
 
-# create all lists used in script setup
+# ###############################
+# CONFIG LISTS
+# ###############################
 
-if not listexists 'heal_cure_script_lists'
-    createlist 'heal_cure_script_lists'
-    pushlist 'heal_cure_script_lists' 'unequip_hands_to_drink_potion'
-    pushlist 'heal_cure_script_lists' 'drink_heal_potion'
-    pushlist 'heal_cure_script_lists' 'drink_cure_potion'
-    pushlist 'heal_cure_script_lists' 'prefer_switching_to_1hand_weapon_instead_of_unequiping'
+if not varexist heal_cure_script_first_run_done
+    setvar! heal_cure_script_first_run_done 1
 
-    foreach list in 'heal_cure_script_lists'
-        if not listexists list
-            createlist list
-        else
-            clearlist list
-        endif
-    endfor
+    setvar! action_delay 350
+    setvar! unequip_hands_to_drink_potion 1
+    setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping 1
 
     # this list  is created separatedely cause we also seed it with values
     if not listexists 'one_handed_weapons'
         createlist 'one_handed_weapons'
-        pushlist 'one_handed_weapons' 'katana'
-        pushlist 'one_handed_weapons' 'viking sword'
-        pushlist 'one_handed_weapons' 'broadsword'
-        pushlist 'one_handed_weapons' 'longsword'
+        if skill 'swordsmanship' >= 20
+            pushlist 'one_handed_weapons' 'katana'
+            pushlist 'one_handed_weapons' 'viking sword'
+            pushlist 'one_handed_weapons' 'broadsword'
+            pushlist 'one_handed_weapons' 'longsword'
+        elseif skill 'archery' >= 20
+            pushlist 'one_handed_weapons' 'crossbow'
+        elseif skill 'mace fighting' >= 20
+            pushlist 'one_handed_weapons' 'war mace'
+            pushlist 'one_handed_weapons' 'maul'
+            pushlist 'one_handed_weapons' 'mace'
+            pushlist 'one_handed_weapons' 'club'
+        elseif skill 'fencing' >= 20
+            pushlist 'one_handed_weapons' 'kryss'
+            pushlist 'one_handed_weapons' 'war fork'
+        endif
     endif
 
-    # CONFIG
-    pushlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
-    pushlist 'unequip_hands_to_drink_potion' 'yes'
+
+    # ###############################
+    # TIMERS
+    # ###############################
+
+    if not timerexists 'heal_pot_cooldown_warning_msg_timer'
+        createtimer 'heal_pot_cooldown_warning_msg_timer'
+        settimer 'heal_pot_cooldown_warning_msg_timer' 10000
+    endif
+
 endif
 
 
 
 ################################
+# CODE
+################################
+
+unsetvar! drink_heal_potion
+unsetvar! drink_cure_potion
 
 
-
-clearlist 'drink_cure_potion'
-clearlist 'drink_heal_potion'
 
 # DECISION FLOW
 if poisoned
-    pushlist 'drink_cure_potion' 'yes'
+    setvar! drink_cure_potion 1
 endif
 
 
 # restore hits
 if diffhits > 0
-    pushlist 'drink_heal_potion' 'yes'
-    sysmsg 'HEAL 1: ONLY DIFFHITS'
+    setvar! drink_heal_potion 1
+    # if skill 'healing' > 0
+    #     hotkey 'Bandage Self'
+    # endif
 endif
-
-
-
 
 
 
 ################################
 # if we have to drhink a potion, check if left hand has a weapon first
-if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes'
+if drink_cure_potion == 1 or drink_heal_potion == 1
     if not lhandempty
-        if inlist 'prefer_switching_to_1hand_weapon_instead_of_unequiping' 'yes'
+        if prefer_switching_to_1hand_weapon_instead_of_unequiping == 1
             foreach weapon in 'one_handed_weapons'
                 if findtype weapon backpack as weap
                     overhead "*switching to 1-handed*"
@@ -73,39 +88,93 @@ if inlist 'drink_cure_potion' 'yes' or inlist 'drink_heal_potion' 'yes'
                     break
                 endif
             endfor
-        elseif inlist 'unequip_hands_to_drink_potion' 'yes'
+        elseif unequip_hands_to_drink_potion == 1
             hotkey "Undress Left Hand"
             wait action_delay
         endif
     endif
 endif
 
-if inlist 'drink_cure_potion' 'yes'
-    if findtype 'orange potion' as pot
-        overhead 'cure pot' 56
-        useobject pot
+if drink_cure_potion == 1
+    if not findtype 'orange potion' backpack
+        overhead '!no cure pots!' 33
         stop
-    else
-        overhead '!no cure pots!' 41
+    endif
+
+    if findtype 'orange potion' backpack as pot
+        overhead 'cure pot' 56
+        potion cure
+        # useobject pot
+        stop
     endif
 endif
 
-if inlist 'drink_heal_potion' 'yes'
-    if findtype 'yellow potion' as pot
+if drink_heal_potion == 1
+    if findtype 'yellow potion' backpack as heal_pot
+
+        # getlabel heal_pot heal_pot_label
+        # unsetvar! heal_pot_cooldown_current_value
+        # while 'next usable in' in heal_pot_label
+        #     if '8 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 8
+        #     elseif '7 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 7
+        #     elseif '6 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 6
+        #     elseif '5 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 5
+        #     elseif '4 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 4
+        #     elseif '3 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 3
+        #     elseif '2 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 2
+        #     elseif '1 seconds' in heal_pot_label
+        #         setvar heal_pot_cooldown_current_value 1
+        #     endif
+
+        #     if timer 'heal_pot_cooldown_warning_msg_timer' >= 950
+        #         overhead '!heal pot cooldown {{current_heal_pot_cooldown}}s!' 53
+        #         sysmsg '!! Heal POT COOLDOWN: {{current_heal_pot_cooldown}} SECONDS!' 53
+        #         settimer 'heal_pot_cooldown_warning_msg_timer' 0
+        #         clearlist 'heal_pot_cooldown_current_value'
+        #     endif
+
+        #     getlabel heal_pot heal_pot_label
+        #     wait 10
+        # endwhile
+
         overhead '** heal pot **' 56
-        useobject pot
+        potion heal
         stop
-        # trying without stopping so it will continue to use stam pot
-        # sometimes im dying cause i wanna use a stam to pass through a mob, but my hp is also low
-        # and the script gets stuck on shard healpot timer and doenst use refresh pot
-        # stop
+
     else
-        overhead '!no heal POTS!'
+        overhead '! no heal pots !' 33
         stop
     endif
-    stop
+
 endif
 
 
 
 overhead '*everything ok!*' 65
+
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.3
+# - Changes list config to setvar!
+# - Removes annoying debug msgs
+#
+# v0.0.2
+# - Adds label check for heal pots
+# - Adds loop waiting for healpot to be ready to use and use it immediatelly
+# - Switches all vars to list to improve script performance
+# - Conditional creation of one handed weapons list based on char weapon skill check
+# - Adds more weapon types to one handed weapons list
+#
+# v0.0.1
+# - Initial release

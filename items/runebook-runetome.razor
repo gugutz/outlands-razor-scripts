@@ -1,0 +1,28 @@
+#################################
+# OPEN TRAVEL BOOK
+# by gugutz
+# version 0.0.1
+#################################
+
+setvar! action_delay 600
+unsetvar! book
+if findtype 'runetome' backpack as rtome
+    setvar! book rtome
+elseif findtype 'runebook' backpack as rbook
+    setvar! book rbook
+endif
+
+if varexist book
+    overhead '*opening travel book*' 74
+
+    dclick book
+    wait action_delay
+
+    if insysmsg 'You must wait'
+        while insysmsg 'You must wait'
+            clearsysmsg
+            dclick book
+            wait action_delay
+        endwhile
+    endif
+endif

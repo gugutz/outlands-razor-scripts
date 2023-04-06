@@ -1,0 +1,184 @@
+#################################
+# HEAL CREW UNTIL FULL HP
+# v0.0.1
+# by gugutz
+#################################
+
+setvar! max_hp_before_targetting_self 80
+setvar! crossheal_friendly_monsters 1
+setvar! spell_recovery_delay 200
+
+#################################
+# TIMERS
+#################################
+
+if not timerexists 'loop_on_warning_msg'
+    createtimer 'loop_on_warning_msg'
+endif
+
+
+# STUFF RELATED TO SEARCHING SHIPS WHILE REPAIRING
+
+setvar! search_ships_gump 2890020940
+setvar! search_ships_cooldown 6100
+
+if not timerexists 'spyglass_cooldown_warning_msg_timer'
+    createtimer 'spyglass_cooldown_warning_msg_timer'
+    settimer 'spyglass_cooldown_warning_msg_timer' 2000
+endif
+
+
+if not timerexists 'spyglass_timer'
+    createtimer 'spyglass_timer'
+    settimer 'spyglass_timer' 7000
+endif
+
+
+#################################
+# CODE
+#################################
+
+#
+overhead 'select crewmember to heal' 90
+setvar! crewmember
+#
+while not dead
+
+    if find crewmember ground any any 20
+        cast 'greater heal'
+        getlabel crewmember crewmember_label
+        sysmsg 'HEALING CREW MEMBER {{crewmember_label}}'
+    
+        clearsysmsg
+        @settimer 'waiting_target_timer' 0
+        while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+            wft 10
+            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                if verbose == 1
+                    overhead '▽▽ BREAKING HEAL ▽▽' warning_msg_color
+                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET TO HEAL CREWMEMBER {{crewmember}}' warning_msg_color
+                endif
+    
+                wait spell_recovery_delay
+                break
+            endif
+        endwhile
+    
+        if targetexists 'beneficial'
+            target crewmember
+            wait 200
+        endif
+    else
+        overhead 'CANT FIND SET CREWMEMBER!' 39
+    endif
+
+    # THIS ENTIRE BLOCK IS JUST A COPY OF MY SEARCH SHIPS SCRIPT
+    if timer 'spyglass_timer' < search_ships_cooldown
+        sysmsg 'SPLYGLASS COOLDOWN!' 54
+    else
+        setvar! found_player_boat 0
+        if findtype 'spyglass' backpack as tool
+            gumpclose 2890020940
+            dclick tool
+            waitfortarget 600
+            if targetexists 'neutral'
+                hotkey 'Target Self'
+                waitforgump search_ships_gump 600
+                if gumpexists search_ships_gump
+                    sysmsg 'SEARCHING SHIPS...' 89
+                    overhead 'searching ships...' 89
+                    gumpresponse 4 search_ships_gump
+                    waitforgump search_ships_gump 600
+                endif
+        
+                if insysmsg 'before you may make another ship search'
+                    gumpresponse 4 search_ships_gump
+                    waitforgump search_ships_gump 600
+                endif
+        
+                # WARN ABOUT NPC BOATS NEARBY
+                if ingump "a daemon" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'NPC DAEMON BOAT NEARBY!'
+                endif
+    
+                if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'NPC GALEON NEARBY!'
+                endif
+    
+                if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'NPC CARRACK NEARBY!'
+                endif
+    
+                if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                endif
+    
+                # SEARCH PLAYER BOATS
+                if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon ship" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                    setvar! found_player_boat 1
+                else
+                    while ingump "Next" 2890020940
+                        gumpresponse 3 2890020940
+                        waitforgump search_ships_gump 600
+        
+                        # WARN ABOUT NPC BOATS NEARBY
+                        if ingump "a daemon" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'NPC DAEMON BOAT NEARBY!'
+                        endif
+    
+                        if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'NPC GALEON NEARBY!'
+                        endif
+    
+                        if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'NPC CARRACK NEARBY!'
+                        endif
+    
+                        if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                        endif
+    
+                        if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                            setvar! found_player_boat 1
+                        endif
+                    endwhile
+        
+                endif
+        
+                if found_player_boat == 1
+                    overhead "FOUND PLAYER BOAT" 43
+                    overhead "FOUND PLAYER BOAT" 43
+                    overhead "FOUND PLAYER BOAT" 43
+                    sysmsg "FOUND PLAYER BOAT!" 43
+                    sysmsg "FOUND PLAYER BOAT!" 43
+                    sysmsg "FOUND PLAYER BOAT!" 43
+                    settimer 'spyglass_timer' 0
+                else
+                    sysmsg 'NO PLAYER BOATS NEARBY!' 74
+                    overhead 'no player boats nearby!' 74
+                    overhead '*no ships nearby*' 54
+                    # gumpclose 2890020940
+                    settimer 'spyglass_timer' 0
+                endif
+        
+        
+            endif
+        endif
+    endif
+endwhile
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release

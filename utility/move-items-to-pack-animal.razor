@@ -1,0 +1,304 @@
+#################################
+# MOVE ITEMS TO PACK ANIMAL
+# by gugutz
+# v0.0.3
+#################################
+#
+#
+#
+#################################
+# SCRIPT CONFIGURATION
+#################################
+#
+if not listexists 'move_items_to_pack_animal_first_run'
+    createlist 'move_items_to_pack_animal_first_run'
+
+    #################################
+    # SCRIPT CONFIGURATION
+    #################################
+
+    setvar! action_delay 250
+    setvar! open_pack_animal_backpack true
+
+    # select what the script should move to packie
+    setvar! move_gold true
+    setvar! move_resources true
+    setvar! move_gems true
+    setvar! move_food true
+
+    setvar! move_reagents true
+    setvar! min_reagents_amount_to_leave_on_char 160
+    setvar! amount_of_regs_to_move 40
+
+
+    #################################
+    # CREATE ALL TIMERS
+    #################################
+
+    createlist 'move_items_to_pack_animal_timers'
+    pushlist 'move_items_to_pack_animal_timers' 'call_packie_closer_timer'
+
+    foreach timer in 'move_items_to_pack_animal_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
+        endif
+    endfor
+
+endif
+
+
+
+#####################################
+# CREATE ITEMS TO MOVE TO PACKIE LISTS
+#####################################
+
+if not listexists 'items_to_move_to_llama'
+    @createlist 'items_to_move_to_llama'
+
+    if varexist move_gold
+        @pushlist 'items_to_move_to_llama' 'gold coin'
+    endif
+
+    if varexist move_resources
+        @pushlist 'items_to_move_to_llama' 'cut up leather'
+        @pushlist 'items_to_move_to_llama' 'log%s'
+        @pushlist 'items_to_move_to_llama' 'board%s'
+        @pushlist 'items_to_move_to_llama' 'ingot%s'
+    endif
+
+    # gems
+    if varexist move_gems
+        @pushlist 'items_to_move_to_llama' 'rub%ies/y%'
+        @pushlist 'items_to_move_to_llama' 'tourmaline%s%'
+        @pushlist 'items_to_move_to_llama' 'emerald%s%'
+        @pushlist 'items_to_move_to_llama' 'diamond%s%'
+        @pushlist 'items_to_move_to_llama' 'piece%s% of amber'
+        @pushlist 'items_to_move_to_llama' 'amethyst%s%'
+        @pushlist 'items_to_move_to_llama' 'star sapphire%s%'
+        @pushlist 'items_to_move_to_llama' 'citrine%s%'
+        @pushlist 'items_to_move_to_llama' 'sapphire%s%'
+    endif
+    #
+    # foods
+    if varexist move_food
+        @pushlist 'items_to_move_to_llama' 'sliced ham'
+        @pushlist 'items_to_move_to_llama' 'raw chicken leg%s%'
+        @pushlist 'items_to_move_to_llama' 'raw leg%s% of lamb'
+        @pushlist 'items_to_move_to_llama' 'slab%s% of bacon'
+        @pushlist 'items_to_move_to_llama' 'sausage%s%'
+        @pushlist 'items_to_move_to_llama' 'ham%s%'
+        @pushlist 'items_to_move_to_llama' 'cut%s% of raw ribs'
+    endif
+    #
+    # foods
+endif
+
+if varexist move_reagents and not listexists 'reagents'
+    @createlist 'reagents'
+    @pushlist 'reagents' 'Blood Moss'
+    @pushlist 'reagents' 'Black Pearl%s%'
+    @pushlist 'reagents' 'Garlic'
+    @pushlist 'reagents' 'Mandrake Root%s%'
+    @pushlist 'reagents' 'Ginseng'
+    @pushlist 'reagents' 'Nightshade'
+    @pushlist 'reagents' 'Sulfurous Ash'
+    @pushlist 'reagents' "Spider's Silk"
+endif
+
+
+#####################################
+# FIND AND SAVE PACKIE WHEN NEEDED
+#####################################
+
+if not varexist pack_animal or not find pack_animal ground 0 any 5
+    @unsetvar pack_animal
+
+    # FIND AND SAVE PLAYER LLAMA
+    if findtype 292 ground 0 any 5 as llama
+        overhead 'scanning' 55 llama
+        if noto llama == noto 'self'
+            @setvar pack_animal llama
+            overhead 'found player llama!' 70 pack_animal
+        endif
+    elseif findtype 291 ground 0 any 5 as horse
+        overhead 'scanning' 55 horse
+        if noto horse == noto 'self'
+            @setvar pack_animal horse
+            overhead 'found player horse!' 70 pack_animal
+        endif
+    endif
+
+    if varexist pack_animal
+        sysmsg "FOUND PLAYER PACK LLAMA" 55
+        overhead "found and saving llama!" 55 'self'
+        overhead 'found player llama' 55 pack_animal
+
+        overhead '*renaming*' 55 pack_animal
+        rename pack_animal 'i'
+        menu pack_animal 4
+    else
+        sysmsg '>>> COULD NOT FIND ANY PACK ANIMALS CLOSE.' 56
+        sysmsg '****** IMPORTANT: ******' 90
+        sysmsg '>>> YOU SHOULD BE WITHIN 5 TILES OF YOUR LLAMA SO THE SCRIPT CAN FIND AND SAVE IT!' 56
+    endif
+endif
+
+
+
+#####################################
+# MOVE ITEMS TO PACKIE MAIN ROUTINE
+#####################################
+
+if varexist pack_animal and find pack_animal 'ground' 0 any 7
+    unsetvar! found_item_to_unload
+    # make one more search with range reduced to 2 to see if we need to call the llama close
+    while not find pack_animal 'ground' 0 1 2
+
+        if timer 'call_packie_closer_timer' >= 1000
+            settimer 'call_packie_closer_timer' 0
+            overhead "calling packie closer!" 40 'self'
+            overhead "too far to unload!" 40 pack_animal
+
+            # say 'all follow me'
+            menu pack_animal 5
+        endif
+        wait 10
+    endwhile
+
+
+    dclick pack_animal
+    wait action_delay
+
+    sysmsg 'Searching Items To Unload...' 56
+    foreach item_graphic in 'items_to_move_to_llama'
+        if findtype item_graphic backpack as item
+            # set the variable so we know we found something in the end of the script
+            # if this var is not set, we warn the player there was nothing to move
+            if not varexist found_item_to_unload
+                setvar! found_item_to_unload true
+            endif
+
+            sysmsg ">  Unloading Items In Pack Animal..." 56 'self'
+            sysmsg item_graphic 56
+
+            # overhead "*unloading char*" 56 'self'
+            # overhead "*unloading items*" 56 pack_animal
+            while findtype item_graphic backpack as item
+                getlabel item item_label
+                overhead "unloading {{item_label}}" 56 pack_animal
+                hotkey 'Drop What You Are Currently Holding'
+                lift item 60000
+                wait action_delay
+                drop pack_animal -1 -1 0
+                wait action_delay
+            endwhile
+        endif
+    endfor
+
+    if varexist move_reagents
+        sysmsg 'Searching Reagents To Unload...' 56
+        foreach reagent_graphic in 'reagents'
+
+            # set an initial amount of regs to leave on char
+            setvar! min_reagents_amount_to_leave_on_char 100
+            if counttype reagent_graphic backpack > min_reagents_amount_to_leave_on_char
+                # set the variable so we know we found something in the end of the script
+                # if this var is not set, we warn the player there was nothing to move
+                sysmsg ">  Unloading {{reagent_graphic}} In Pack Animal..." 56 'self'
+                # overhead "*unloading reagents*" 56 'self'
+                while counttype reagent_graphic > min_reagents_amount_to_leave_on_char
+
+                    # set the variable so we know we found something in the end of the script
+                    # if this var is not set, we warn the player there was nothing to move
+                    setvar! found_item_to_unload true
+
+                    # decide how many regs to move based on current amount
+                    unsetvar! 'amount_of_regs_to_move'
+                    if counttype reagent_graphic backpack >= 700
+                        setvar! amount_of_regs_to_move 600
+                    elseif counttype reagent_graphic backpack >= 650
+                        setvar! amount_of_regs_to_move 550
+                    elseif counttype reagent_graphic backpack >= 600
+                        setvar! amount_of_regs_to_move 500
+                    elseif counttype reagent_graphic backpack >= 550
+                        setvar! amount_of_regs_to_move 450
+                    elseif counttype reagent_graphic backpack >= 500
+                        setvar! amount_of_regs_to_move 400
+                    elseif counttype reagent_graphic backpack >= 450
+                        setvar! amount_of_regs_to_move 350
+                    elseif counttype reagent_graphic backpack >= 400
+                        setvar! amount_of_regs_to_move 300
+                    elseif counttype reagent_graphic backpack >= 350
+                        setvar! amount_of_regs_to_move 250
+                    elseif counttype reagent_graphic backpack >= 300
+                        setvar! amount_of_regs_to_move 200
+                    elseif counttype reagent_graphic backpack >= 250
+                        setvar! amount_of_regs_to_move 150
+                    elseif counttype reagent_graphic backpack >= 200
+                        setvar! amount_of_regs_to_move 100
+                    elseif counttype reagent_graphic backpack >= 150
+                        setvar! amount_of_regs_to_move 50
+                    elseif counttype reagent_graphic backpack > min_reagents_amount_to_leave_on_char
+                        setvar! amount_of_regs_to_move 40
+                    endif
+
+                    # get packie closer if it gets too far to unload (more than 2 tiles away)
+                    if not find pack_animal ground any any 2
+                        while not find pack_animal ground any any 2
+                            if timer 'call_packie_closer_timer' >= 1000
+                                settimer 'call_packie_closer_timer' 0
+                                overhead "calling packie closer!" 40 'self'
+                                overhead "too far to unload!" 40 pack_animal
+
+                                # say 'all follow me'
+                                menu pack_animal 5
+                            endif
+                            wait 10
+                        endwhile
+                        # break
+                    endif
+
+                    overhead 'unloading {{amount_of_regs_to_move}} {{reagent_graphic}}' 53 pack_animal
+
+                    hotkey 'Drop What You Are Currently Holding'
+                    lifttype reagent_graphic amount_of_regs_to_move backpack
+                    wait action_delay
+                    drop pack_animal -1 -1 0
+                    wait action_delay
+
+                endwhile
+            endif
+        endfor
+    endif
+
+    if not varexist found_item_to_unload
+        overhead '*no items to unload*' 41
+        sysmsg '> No Items To Unload To Packie' 41
+        stop
+    endif
+
+else
+    overhead "*no pack animal nearby*" 41
+    sysmsg "> NO PACK ANIMAL NEARBY" 41
+endif
+
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.3
+# - Switches list configs to non-persistent variables (simplifies code maintenance and should improve performance)
+# - Increases number of possible reagent ammounts to decide how much to transfer at once
+#
+# v0.0.2
+# - Improves unload reagents logic, dumping larger amounts per once on packie
+# - Informs amount of regs being unloaded
+# - If packie is too far, instead of calling it once and stoping, keeps calling it until it gets closer to start/continue unload
+# - Creates all config and state lists only on first run (improves performance)
+#
+# v0.0.1
+# - Initial release
+#

@@ -8,14 +8,17 @@
 # ethy polar bear  0x20E1
 
 if mounted
-    overhead '* dismounting *'
+    overhead '*dismounting*'
     useobject 'self'
     stop
 endif
 
 if not mounted and not findbuff 'dismount'
+    # mount tokens
+    if findtype "8484|8438" as mount_token
+        dclick mount_token
     # horses or llamas
-    if findtype 204 true as 'pet' and noto 'pet' = 'friend'
+    elseif findtype 204 true as 'pet' and noto 'pet' = 'friend'
         useobject 'pet'
     # horses diff graphic
     elseif findtype 228 true as 'pet' and noto 'pet' = 'friend'
@@ -28,25 +31,24 @@ if not mounted and not findbuff 'dismount'
         useobject 'pet'
     elseif findtype 218 true as 'pet' and noto 'pet' = 'friend'
         useobject 'pet'
-    #
-    # mount tokens
-    elseif findtype '0x20f6' as mount
-        useobject 'mount'
-    elseif findtype '0x20e1' as 'mount'
-        useobject 'mount'
     endif
 
 
     # check pet status by monitoring sysmsgs when clikcking it
-    if insysmsg 'That is too far away to ride.'
+    while insysmsg 'That is too far away to ride.'
+        clearsysmsg
         overhead '** calling **' 37 'pet'
         say 'all follow me'
-    elseif insysmsg 'This mount is too ill to ride.'
+    endwhile
+
+    while insysmsg 'This mount is too ill to ride.'
+        clearsysmsg
         overhead '** curing pet **' 37 'pet'
         cast 'cure'
         waitfortarget
         target 'pet'
-    else
-        overhead '* mounting *'
-    endif
+        wait 300
+    endwhile
+
+    overhead '* mounting *'
 endif

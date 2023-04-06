@@ -1,6 +1,8 @@
-if not findbuff 'healing'
-    hotkey 'target self'
-    usetype 'bandage'
-    wait 500
-endif
-play 'escudo'
+dclicktype '3617'
+waitfortarget
+target self
+wait 600
+while bandaging
+   wait 100
+endwhile
+loop

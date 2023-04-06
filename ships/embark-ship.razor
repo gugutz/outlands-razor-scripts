@@ -1,6 +1,23 @@
+
+setvar! action_delay 300
+
+if followers > 0
+    say '[embarkfollowers'
+
+    wft action_delay
+    if targetexists 'neutral'
+        while targetexists 'neutral'
+            overhead 'where to embark followers?' 53
+        endwhile
+    endif
+endif
+
+
+sysmsg "EMBARKING SHIP" 84
 say '[embark'
 
-wft 300
+wft action_delay
+
 if targetexists 'neutral'
     while targetexists 'neutral'
         overhead 'where to embark?' 53

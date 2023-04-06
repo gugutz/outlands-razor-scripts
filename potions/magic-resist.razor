@@ -1,5 +1,12 @@
-if not findtype 'black potion' 'backpack'
-    overhead '* NO RESIST POT *' 40
-else
-    usetype 'black potion' 'backpack'
+if not findtype 'black potion' backpack
+    overhead '* NO MR POT *' 39
+    stop
 endif
+
+if findbuff 'magic resist potion'
+    overhead '!MR BUFF ALREADY ACTIVE!' 39
+    stop
+endif
+
+overhead '*mr pot*' 90
+usetype 'black potion' 'backpack'

@@ -1,0 +1,10 @@
+setvar! action_delay 600
+setvar! spell_recovery_delay 200
+
+say '[wither'
+wait spell_recovery_delay
+
+if insysmsg 'symbols remaining'
+    sysmsg 'WITHER!' 90
+    cooldown 'WITHER' 30000
+endif

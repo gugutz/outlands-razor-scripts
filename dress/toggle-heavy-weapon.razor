@@ -1,0 +1,192 @@
+#################################
+# SCRIPT CONFIGURATION
+#################################
+
+setvar! action_delay 400
+
+if toggle_heavy_weapon_first_run_done == 0
+    setvar toggle_mode 1
+
+
+    # CREATE ALL TIMERS
+    if not timerexists 'waiting_dress_timer'
+        createtimer 'waiting_dress_timer'
+        settimer 'waiting_dress_timer' 0
+    endif
+
+    if not timerexists 'toggle_heavy_weapon_timer'
+        createtimer 'toggle_heavy_weapon_timer'
+    endif
+
+    setvar! toggle_heavy_weapon_first_run_done 1
+endif
+
+settimer 'toggle_heavy_weapon_timer' 0
+
+#################################
+# CODE
+#################################
+
+
+if not varexist heavy_weapon
+    setvar reset_weapon 1
+elseif not varexist heavy_weapon
+    setvar reset_weapon 1
+endif
+
+if reset_weapon == 1
+    if skill 'archery' >= 50 or findtype 'heavy crossbow' backpack
+        # heavy crossbow - 5117
+        if findtype 5117 backpack as found
+            setvar! heavy_weapon found
+        endif
+    elseif skill 'swordsmanship' >= 50 or findtype 'halberd' backpack or findtype 'bardiche' backpack
+        # halberd - 5182
+        # bardiche - 3917
+        if findtype 5182|3917 backpack as found
+            setvar! heavy_weapon found
+        endif
+    elseif skill 'fencing' >= 50 or findtype 'long spear' backpack
+        # long spear - 3938
+        if findtype 3938 backpack as found
+            setvar! heavy_weapon found
+        endif
+    elseif skill 'mace fighting' >= 50 or findtype 'war hammer' backpack
+        # war hammer - 5177
+        # gnarled staff - 5112
+        if findtype 5177|5112 backpack as found
+            setvar! heavy_weapon found
+        endif
+    else
+        overhead 'char has no weapon skill'
+    endif
+endif
+
+
+
+# if not listexists 'burst_weapons'
+#     createlist 'burst_weapons'
+#     if skill 'archery' >= 50 or findtype 'heavy crossbow' backpack
+#         pushlist 'burst_weapons' 'heavy crossbow'
+#     elseif skill 'fencing' >= 50 or findtype 'long spear' backpack
+#         pushlist 'burst_weapons' 'long spear'
+#     elseif skill 'mace fighting' >= 50 or findtype 'war hammer' backpack
+#         pushlist 'burst_weapons' 'war hammer'
+#         pushlist 'burst_weapons' 'gnarled staff'
+#     elseif skill 'swordsmanship' >= 50 or findtype 'halberd' backpack or findtype 'bardiche' backpack
+#         pushlist 'burst_weapons' 'halberd'
+#         pushlist 'burst_weapons' 'bardiche'
+#     else
+#         overhead 'char has no weapon skill'
+#     endif
+# endif
+
+
+
+
+# if we found the weapon, check if we need to equip or unequip it
+hotkey 'Attack Last Target'
+
+if find heavy_weapon lefthand
+    sysmsg '333333'
+    hotkey 'Toggle Peace Only'
+    hotkey 'Undress Left Hand'
+    stop
+endif
+
+if find heavy_weapon righthand
+    hotkey 'Toggle Peace Only'
+    hotkey 'Undress Right Hand'
+    stop
+endif
+
+# if list 'burst_weapons' == 0
+if not varexist heavy_weapon
+    overhead 'no weapons found'
+    stop
+endif
+
+if find heavy_weapon backpack as weap
+    sysmsg '000000'
+
+    # EQUIP THE WEAPON
+    settimer 'waiting_dress_timer' 0
+
+    # while not find char_weapon lefthand and not find weapon righthand
+    while not find heavy_weapon lefthand and not find heavy_weapon righthand
+        sysmsg '11111111111'
+
+
+
+        if targetexists
+            # if we need to equip the weapon, first make sure theres nothing dress on the hands layers already
+            if not rhandempty
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Right Hand'
+
+                wait 70
+                while queued
+            sysmsg 'BEFORE DROP '
+                endwhile
+            elseif not lhandempty
+                hotkey 'Toggle Peace Only'
+                hotkey 'Undress Left Hand'
+
+                wait 70
+                while queued
+            sysmsg 'BEFORE DROP '
+                endwhile
+            endif
+
+            sysmsg 'LIFT'
+            hotkey 'Drop What You Are Currently Holding'
+
+            lift weap 1
+            wait 100
+            while queued
+                sysmsg 'LIFT 1'
+            endwhile
+
+            sysmsg 'BEFORE DROP '
+            drop 'self' LeftHand
+            wait 100
+            while queued
+                sysmsg 'drop 1'
+            endwhile
+            sysmsg 'LIFT END '
+        else
+            sysmsg 'DCLICK'
+
+            dclick heavy_weapon
+            wait 70
+            while queued
+                sysmsg 'dclick 1'
+            endwhile
+        endif
+
+        # wait action_delay
+
+        # if timer 'waiting_dress_timer' >= 400
+        #     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
+        #     break
+        # endif
+            sysmsg 'LIFT END 2'
+    endwhile
+
+    if not lhandempty or not rhandempty
+        overhead 'WEAPON EQUIPED!' 52
+        if noto lasttarget == hostile
+            overhead 'ATTACKING!' 41 'last'
+            overhead 'attacking lasttarget!' 41
+            hotkey 'Attack Last Target'
+        endif
+    else
+        hotkey 'Toggle Peace Only'
+    endif
+endif
+# endfor
+
+
+hotkey "Resynchronize Client"
+
+sysmsg 'FINISHED IN {{toggle_heavy_weapon_timer}}' 90

@@ -1,0 +1,291 @@
+#PARE NA FRENTE DO distro_container_t8 E NÃO SE
+#MOVA ANTES DO SCRIPT FINALIZAR
+@setvar object_delay 300
+@setvar detect_delay 10000
+@removelist 'packies'
+createlist 'packies'
+
+
+# ##########################
+# SEARCH FOR EVERY PACKANIMAL NEARBY WHOS NOTO IS SAME AS CHAR, TO RESTOCK FROM THEM
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = noto 'self'
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        dclick packie
+        wait object_delay
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = noto 'self'
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        dclick packie
+        wait object_delay
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+createlist 'source_containers'
+pushlist 'source_containers' backpack
+
+if list 'packies' > 0
+    foreach packie in 'packies'
+        pushlist 'source_containers' packie
+    endfor
+endif
+
+setvar guild_resources_bottom_container 0x40DDF069
+setvar guild_resources_top_container 0x40DDF069
+setvar spell_scroll_tome 0x408C4224
+setvar distro_container_t8 0x40DA6A03
+
+dclick distro_container_t8
+wait object_delay
+dclick guild_resources_bottom_container
+wait object_delay
+
+gumpclose
+
+
+###############################
+sysmsg 'DETECTING THIEFS' 53
+###############################
+
+clearsysmsg
+useskill 'detectinghidden'
+wft 600
+target 'self'
+wait object_delay
+
+if insysmsg 'you reveal what was hidden.'
+    overhead '>>>>> ATENÇÃO LADRAO NA GH <<<<<'
+    sysmsg ">>>>> ATENÇÃO LADRAO NA GH <<<<<"
+endif
+
+
+foreach container in 'source_containers'
+
+    # TOKEN BOSS
+    if findtype 42517 backpack any any as token
+        sysmsg '> GUARDANDO TOKEN DO BOSS'
+        while findtype 42517 backpack any any as token
+            lift token 1
+            wait object_delay
+drop guild_resources_top_container -1 -1 0
+            wait object_delay
+        endwhile
+    endif
+
+    # TOKEN MINI
+    if findtype 17083 backpack any any as mtoken
+        sysmsg '> GUARDANDO TOKEN DO MINI'
+        while findtype 17083 backpack any any as mtoken
+            lift mtoken 1
+            wait object_delay
+drop guild_resources_top_container -1 -1 0
+            wait object_delay
+        endwhile
+    endif
+
+    # LINKS
+    if findtype 'chain link' backpack any any as chain_link
+        sysmsg '> GUARDANDO OS LINKS'
+        while findtype 'chain link' backpack any any as chain_link
+            lift chain_link 1
+            wait object_delay
+            drop guild_resources_top_container 64 137 0
+            wait object_delay
+        endwhile
+    endif
+
+    # RESEARCH MATERIALS
+    if findtype 'research materials' backpack any any as research
+        sysmsg '> GUARDANDO OS RESEARCH MATERIALS'
+        while findtype 29348 backpack any any as research
+            lift research 1
+            wait object_delay
+drop guild_resources_bottom_container 118 105 0
+            wait object_delay
+        endwhile
+    endif
+
+    # ARCANE SCROLL
+    if findtype 3827 backpack any any as arcane_ss
+        sysmsg '> Unloading Arcane Scroll...'
+        while findtype 3827 container any any as arcane_ss
+            lift arcane_ss 999
+            wait object_delay
+            drop guild_resources_top_container -1 -1 0
+            wait object_delay
+        endwhile
+    endif
+
+    # OMNI RUNE
+    if findtype 7956 backpack any any as omni_rune
+        sysmsg '> Unloading Omni Rune'
+        while findtype 7956 container any any as omni_rune
+            lift omni_rune 999
+            wait object_delay
+            drop guild_resources_top_container -1 -1 0
+            wait object_delay
+        endwhile
+    endif
+
+    # TREASURE MAPS
+    if findtype 'map' backpack 0 any as tmap
+        sysmsg '> Unloading Treasure Maps...'
+        while findtype 'map' backpack 0 any as tmap
+            lift tmap 1
+            wait object_delay
+drop distro_container_t8 18 105 0
+            wait object_delay
+        endwhile
+endif
+
+# CORES
+    if findtype 'aspect core' backpack any any as core
+        sysmsg '> Unloading Aspect Cores'
+        while findtype 'aspect core' backpack any any as core
+            lift core 1
+            wait object_delay
+drop distro_container_t8 49 146 0
+            wait object_delay
+        endwhile
+    endif
+
+    # MCD
+    if findtype 17087 backpack any any as mcd
+        sysmsg '> GUARDANDO MCD'
+        while findtype 17087 container any any as mcd
+            lift mcd 1
+            wait object_delay
+            drop distro_container_t8 118 140 0
+            wait object_delay
+        endwhile
+    endif
+
+    # MINING MAPS
+    if findtype 'map' backpack 2796 any as mining_map
+        sysmsg '> Unloading Mining Maps...'
+        while findtype 'map' container 2796 any as mining_map
+            lift mining_map 1
+            wait object_delay
+            drop distro_container_t8 49 105 0
+            wait object_delay
+        endwhile
+    endif
+
+    # LUMBER MAPS
+    if findtype 'map' backpack 2799 any as lumber_map
+        sysmsg '> Unloading Lumber Maps...'
+        while findtype 'map' container 2799 any as lumber_map
+            lift lumber_map 1
+            wait object_delay
+            drop distro_container_t8 82 105 0
+            wait object_delay
+        endwhile
+    endif
+
+    # SKINNING MAPS
+    if findtype 'map' backpack 2651 any as skinning_map
+        sysmsg '> Unloading Skinning Maps...'
+        while findtype 'map' container 2651 any as skinning_map
+            lift skinning_map 1
+            wait object_delay
+            drop distro_container_t8 114 105 0
+            wait object_delay
+        endwhile
+    endif
+
+    # SKILL SCROLLS
+    if findtype 'scroll of calling' backpack any any as skill_scroll
+        sysmsg '> Unloading Skill Scrolls...'
+        while findtype 'scroll of calling' container any any as skill_scroll
+            lift skill_scroll 1
+            wait object_delay
+        drop distro_container_t8 18 146 0
+            wait object_delay
+        endwhile
+    endif
+
+    # SKILL BALL
+    if findtype 'void orb' backpack any any as skill_ball
+        sysmsg '> Unloading Skill Ball...'
+        while findtype 'void orb' container any any as skill_ball
+            lift skill_ball 1
+            wait object_delay
+            drop distro_container_t8 86 151 0
+            wait object_delay
+        endwhile
+    endif
+
+    # EXTRACT
+    if findtype 3836 backpack any any as extract
+        sysmsg '> Unloading Aspect Extracts'
+        while findtype 3836 container any any as extract
+            lift extract 1
+            wait object_delay
+        drop distro_container_t8 72 145 0
+            wait object_delay
+        endwhile
+    endif
+
+    # PHYLACTERIES
+    if findtype 'phylactery' backpack any any as phyli
+        sysmsg '> Unloading Phyli'
+        while findtype 'phylactery' container any any as phyli
+            lift phyli 999
+            wait object_delay
+            drop guild_resources_top_container -1 -1 0
+            wait object_delay
+        endwhile
+    endif
+
+
+    # FISHING MAPS
+    if findtype 'map' backpack 2904 any as fishing_map
+        sysmsg '> Unloading Fishing Maps...'
+        while findtype 'map' container 2904 any as fishing_map
+            lift fishing_map 1
+            wait object_delay
+            drop guild_resources_top_container 118 140 0
+            wait object_delay
+        endwhile
+    endif
+
+    # GOLD
+    if findtype 'gold coin' backpack any any as gold
+        sysmsg '> GUARDANDO O DINHEIRO'
+        while findtype 'gold coin' container any any as gold
+            lift gold 60000
+            wait object_delay
+            drop guild_resources_top_container -1 -1 0
+            wait object_delay
+        endwhile
+    endif
+
+
+# RUNAS
+        if findtype rune backpack any any as magic_rune
+            sysmsg '> Unloading Magic Runes'
+            while findtype rune backpack any any as magic_rune
+                lift magic_rune 999
+                wait object_delay
+                drop guild_resources_top_container -1 -1 0
+                wait object_delay
+            endwhile
+        endif
+
+endfor
+
+overhead 'TERMINOU DE GUARDAR O LOOT'
+sysmsg '>>>>> TERMINOU DE GUARDAR O LOOT <<<<<'
+
+@removelist 'packies'
+@clearignore
+@clearsysmsg

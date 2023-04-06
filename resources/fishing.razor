@@ -1,0 +1,195 @@
+# Fishing with Captcha Detection (cooldown) by Jaseowns
+# UO Outlands
+# Requirements
+#    Setup a cooldown named "Fish" - it must match that name.
+#    If you run the script without the cooldown, it will show you instructions.
+#    but you want to have 3 entries with 10 seconds on each
+#            sysmsg: fish
+#            sysmsg: You retrieve a
+#            overhead: You catch
+#    The script works by checking the cooldown firing
+
+clearsysmsg
+
+@setvar! fishing_CD 10000
+setvar! success_msg_color 65
+setvar! warning_msg_color 54
+setvar! dockmaster_gump_id 3287496917
+setvar! action_delay 600
+setvar! deposit_catch_delay 60000
+
+if not timerexists fishing_timer
+    createtimer fishing_timer
+    settimer fishing_timer fishing_CD
+endif
+
+if not timerexists deposit_catch_timer
+    createtimer deposit_catch_timer
+    settimer deposit_catch_timer deposit_catch_delay
+endif
+
+cooldown FISHING fishing_CD
+
+if not cooldown FISHING
+    overhead "Please setup a cooldown named:" 34
+    overhead "Fish" 88
+    sysmsg "Please setup a cooldown named:" 34
+    sysmsg "Fish" 88
+    sysmsg "Add these with 10 second cooldown" 66
+    sysmsg "sysmsg: fish"
+    sysmsg "sysmsg: You retrieve a"
+    sysmsg "overhead: You catch"
+    stop
+endif
+
+
+
+if not listexists 'dockmasters_serials'
+    createlist 'dockmasters_serials'
+    clearlist 'dockmasters_serials'
+    # shelter docks Uriah the Dockmaster
+    pushlist 'dockmasters_serials' 0x11A32F
+    # Horseshoe Bay Beaumont the Dockmaster
+    pushlist 'dockmasters_serials' 0x80600
+    # Prevalia Kisa the Dockmaster
+    pushlist 'dockmasters_serials' 0x80788
+    # Prevalia Vanda the Dockmaster
+    pushlist 'dockmasters_serials' 0x80786
+    # Prevalia Meta the Dockmaster
+    pushlist 'dockmasters_serials' 0x80782
+    # Ivar the Dockmaster (GH)
+    pushlist 'dockmasters_serials' 0x19E66B
+    # Calandra Granite Docks dockmaster
+    pushlist 'dockmasters_serials' 0x54B3
+    # Winona Terran Dockmaster
+    pushlist 'dockmasters_serials' 0x805EF
+    # Marvin Terran Dockmaster
+    pushlist 'dockmasters_serials' 0xA3F
+    # Winona Terran Dockmaster
+    pushlist 'dockmasters_serials' 0x805EF
+    # Keane Winter Harbor dockmaster
+    pushlist 'dockmasters_serials' 0x5A40
+    # a dockmaster from the void (NW corner of the map in a floating concrete platform)
+    pushlist 'dockmasters_serials' 0x26290
+endif
+
+
+
+
+
+overhead "Target organizer 20 hotbag"
+organizer 20 set
+while not insysmsg "Container set successfully"
+    wait 250
+endwhile
+
+
+while not dead
+
+    # dock ship if boat being attacked
+    if findtype 'status bar' ground 150 any as found
+        getlabel found hull_label
+
+        # first make sure its the chars boat, and not a friend boat
+        if '/2305' in hull_label
+            # if it is, check full hull hp and see if it matches chat boat hull (EDIT HERE)
+            if '2305/2305' in hull_label
+            else
+                sysmsg 'BOAT BEING ATTACKED. TRYING TO DOCK!'
+                if gumpexists dockmaster_gump_id
+                    sysmsg '>>> DOCKING SHIP!' warning_msg_color
+                    gumpresponse 7
+                    waitforgump dockmaster_gump_id action_delay
+                    waitforgump 4216593270
+                    waitforgump dockmaster_gump_id action_delay
+                else
+    
+                    foreach dockmaster in 'dockmasters_serials'
+                        if find dockmaster ground any any 25
+                            sysmsg '>> FOUND DOCKMASTER!' success_msg_color
+                            overhead '* FOUND DOCKMASTER *' success_msg_color
+                            menu dockmaster 1
+                            waitforgump dockmaster_gump_id action_delay
+                    
+                            if gumpexists dockmaster_gump_id
+                                sysmsg '>>> DOCKING SHIP!' warning_msg_color
+                                gumpresponse 7
+                                waitforgump dockmaster_gump_id action_delay
+                                waitforgump 4216593270
+                                waitforgump dockmaster_gump_id action_delay
+                            endif
+                        endif
+                    endfor
+                endif
+            endif
+        else
+            sysmsg 'CANT FIND HULL STATUS BAR! TRY TO TURN THE SHIP!' 39
+        endif
+    endif
+
+    if lhandempty
+        if findtype "fishing pole" backpack as item
+            lift item
+            wait action_delay
+            drop self lefthand
+            wait action_delay
+        else
+            overhead "Out of poles!" 34
+            stop
+        endif
+    endif
+
+    # if insysmsg "The world will save in 15 seconds"
+    #     for 30
+    #         overhead 'Waiting for world save...'
+    #         wait 1000
+    #         if insysmsg 'save complete'
+    #             overhead 'Save complete - continue on!' 88
+    #             # replay
+    #         endif
+    #     endfor
+    # endif
+
+
+    if timer fishing_timer >= fishing_CD
+        if cooldown FISHING
+            hotkey 'Use item in hand'
+            wait action_delay
+            settimer fishing_timer 0
+            cooldown Fish 0
+        else
+            if not cooldown Fish
+                overhead 'Captcha break!' 34
+                overhead 'Awaiting Captcha...' 34
+                wait 1000
+                if insysmsg 'Captcha successful'
+                    overhead 'Success - continue on!' 88
+                endif
+            endif
+        endif
+    endif
+
+    # save catches and special fishing nets in the hatch
+    if timer 'deposit_catch_timer' > deposit_catch_delay
+        if findtype 'Crab SOUTH' backpack or findtype 'fishing net' backpack 2814 or findtype 'cooked fish' backpack
+            sysmsg 'DEPOSITING CATCH IN HATCH' 54
+            organizer 20
+            wait 250
+    
+            while queued
+                wait 50
+            endwhile
+
+            settimer 'deposit_catch_timer' 0
+        endif
+    endif
+
+    if insysmsg 'You retrieve a special fishing net'
+        sysmsg 'FISHING NET!' 90
+        # settimer 'fishing_timer' 0
+    elseif insysmsg 'You have recently traveled and must wait'
+        overhead '! travel harvest cooldown !' 43
+        # settimer 'fishing_timer' 0
+    endif
+
+endwhile

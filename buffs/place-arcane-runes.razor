@@ -1,0 +1,95 @@
+##########################
+# PLACE ARCANE RUNES ON GROUND
+# by gugutz
+# version 0.0.1
+#################################
+
+
+#################################
+# CREDITS :)
+#################################
+
+sysmsg '♥ PLACE ARCANE RUNES. by gugutz ♥' 91
+
+#################################
+# CONFIGURATION
+#################################
+
+setvar! action_delay 600
+
+
+#################################
+# SCRIPT VARIABLES AND LISTS
+#################################
+
+if not listexists 'arcane_runes'
+    createlist 'arcane_runes'
+    # focus rune
+    pushlist 'arcane_runes' 39912
+    # fortification rune
+    pushlist 'arcane_runes' 39918
+    # essence rune
+    pushlist 'arcane_runes' 39909
+    # fury rune
+    pushlist 'arcane_runes' 39897
+    # chemistry rune
+    pushlist 'arcane_runes' 39917
+    # immunity rune
+    pushlist 'arcane_runes' 39898
+    # toxicity rune
+    pushlist 'arcane_runes' 39911
+    # aggression rune
+    pushlist 'arcane_runes' 39892
+    # poison warding rune
+    pushlist 'arcane_runes' 39905
+    # empowerment rune
+    pushlist 'arcane_runes' 39891
+    # whirlwind rune
+    pushlist 'arcane_runes' 39889
+    # spellshielding rune
+    pushlist 'arcane_runes' 39916
+    # healing rune
+    pushlist 'arcane_runes' 39896
+endif
+
+
+#################################
+# CODE
+#################################
+
+foreach rune in 'arcane_runes'
+    if not findtype rune ground any any 20
+        sysmsg 'MISSING RUNE {{rune}} ON GROUND!' 52
+        setvar! couldnt_find_installed_rune 1
+    endif
+endfor
+
+if not varexist couldnt_find_installed_rune
+    overhead 'all runes already installed!' 71
+    stop
+endif
+
+
+foreach rune in 'arcane_runes'
+    if findtype rune backpack as rune_serial
+        getlabel rune_serial rune_label
+        while not findtype rune ground any any 20
+            overhead '*installing {{rune_label}}*' 90
+            dclick rune_serial
+            wait action_delay
+
+            # while insysmsg 'You must place this rune at a location currently free of items'
+            #     clearsysmsg
+            #     # overhead 'MOVE!' 56
+            # endwhile
+
+            overhead 'MOVE!' 56
+            wait action_delay
+
+            # break
+        endwhile
+    else
+        overhead 'cant find rune {{rune}} in backpack!' 52
+    endif
+
+endfor

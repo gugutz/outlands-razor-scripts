@@ -9,13 +9,13 @@ if not varexist pack_animal or not find pack_animal ground 0 any 5
     if findtype 292 ground 0 any 5 as llama
         overhead 'scanning' 55 llama
         if noto llama == noto 'self'
-            @setvar pack_animal llama
+            setvar! pack_animal llama
             overhead 'found player llama' 55 pack_animal
         endif
     elseif findtype 291 ground 0 any 5 as horse
         overhead 'scanning' 55 horse
         if noto horse == noto 'self'
-            @setvar pack_animal horse
+            setvar! pack_animal horse
         endif
     endif
 endif

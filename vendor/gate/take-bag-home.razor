@@ -1,0 +1,1197 @@
+sysmsg '#########################' 90
+sysmsg '>>> LUMBERJACKING BOT' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.2.1' 31
+ sysmsg '########################' 90
+#################################
+# IN GAME INSTRUCTIONS / OBSERVATIONS
+#################################
+sysmsg '************************' 90
+sysmsg 'FOR THIS SCRIPT TO WORK PROPERLY, YOU MUST:' 53
+sysmsg "* uncheck option 'filter repeating system messages' on razor" 55
+sysmsg "* uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor" 55
+sysmsg "* first run far from other friends pack animals" 55
+sysmsg '***********************' 90
+
+
+###################################
+# SCRIPT CONFIGURATION
+###################################
+
+sysmsg 'Applying configuration...'
+
+setvar! debug 0
+
+setvar! action_delay 600
+setvar! recall_to_escape_pks 1
+
+# escape rune button number on runebook
+setvar! runetome_rune_position 100
+# escape rune button number on runebook
+setvar! runebook_rune_position 2
+
+setvar! auto_walk_randomly 0
+
+setvar! auto_walk_to_direction 0
+# direction to walk to when 'auto_walk_to_direction' is ON!
+if auto_walk_to_direction == 1 and not listexists 'direction_to_walk'
+    createlist 'direction_to_walk'
+    pushlist 'direction_to_walk' 'right'
+endif
+
+###################################
+# SCRIPT ROUTINE RELATED VARIABLES
+# (USUALLY THERES NO NEED TO EDIT THESE)
+###################################
+
+# delay between pickaxes uses
+setvar! max_wait_for_last_sysmsg_to_use_hatchet  1000
+# delay before suspecting captcha gump
+setvar! max_wait_for_last_sysmsg_to_suspect_gump 7000
+# max ores a packie can have before being set as full
+setvar! max_ores_in_packie 380
+
+setvar! max_diffhits_before_starting_heal_routine 0
+setvar! max_diffhits_before_starting_defense_routine 2
+
+# auto maintain char status settings
+setvar! max_diffhits_before_healing_with_potion 20
+setvar! max_diffhits_before_healing_with_magery 20
+setvar! max_diffhits_before_healing_with_bandages 10
+setvar! min_healing_to_use_bandages 30
+
+setvar! max_diffweight_before_unloading 50
+
+setvar! LOGS 7133
+setvar! BOARDS 7127
+
+setvar! max_mob_range_to_attack 2
+
+if skill 'archery' >= 50
+    setvar! max_mob_range_to_attack 12
+endif
+
+###################################
+# TIMERS
+###################################
+
+sysmsg 'Creating timers...'
+
+createlist 'script_timers'
+pushlist 'script_timers' 'waiting_save'
+pushlist 'script_timers' 'last_sysmsg_timer'
+pushlist 'script_timers' 'waiting_target_timer'
+pushlist 'script_timers' 'bandage_timer'
+
+foreach timer in 'script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 0
+    endif
+endfor
+
+
+# this will make the script use bandage right at start if needed without having to wait for the bandage_delay first time
+# settimer 'bandage_timer' bandage_delay
+
+
+###################################
+# POPULATE SOME LISTS
+###################################
+
+
+if not listexists 'resource_types'
+    createlist 'resource_types'
+    pushlist 'resource_types' LOGS
+    pushlist 'resource_types' BOARDS
+endif
+
+
+
+if not listexists 'char_combat_skill_weapons'
+    createlist 'char_combat_skill_weapons'
+    if skill 'archery' >= 50
+        pushlist 'char_combat_skill_weapons' 'bow'
+        pushlist 'char_combat_skill_weapons' 'crossbow'
+        pushlist 'char_combat_skill_weapons' 'heavy crossbow'
+    # elseif skill 'swordsmanship' >= 50
+    #     pushlist 'char_combat_skill_weapons' 'halberd'
+    #     pushlist 'char_combat_skill_weapons' 'bardiche'
+    #     pushlist 'char_combat_skill_weapons' 'katana'
+    #     pushlist 'char_combat_skill_weapons' 'axe'
+    #     pushlist 'char_combat_skill_weapons' 'viking sword'
+    #     pushlist 'char_combat_skill_weapons' 'longsword'
+    #     pushlist 'char_combat_skill_weapons' 'broadsword'
+    #     pushlist 'char_combat_skill_weapons' 'double axe'
+    #     pushlist 'char_combat_skill_weapons' "executioner's axe"
+    elseif skill 'mace fighting' >= 50
+        pushlist 'char_combat_skill_weapons' 'war mace'
+        pushlist 'char_combat_skill_weapons' 'mace'
+        pushlist 'char_combat_skill_weapons' 'club'
+        pushlist 'char_combat_skill_weapons' 'black staff'
+        pushlist 'char_combat_skill_weapons' 'gnarled staff'
+        pushlist 'char_combat_skill_weapons' 'war hammer'
+    endif
+endif
+
+###################################
+# PACK ANIMALS
+###################################
+
+sysmsg 'Searching for pack animals...' 87
+createlist 'packies'
+
+while findtype 292 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        wait action_delay
+    endif
+    @ignore packie
+endwhile
+
+while findtype 291 ground any any 2 as packie
+    if noto packie = friend
+        pushlist 'packies' packie
+        overhead '*opening bag*' 56 packie
+        wait action_delay
+    endif
+    @ignore packie
+endwhile
+clearignore
+
+
+###################################
+# PREPARING TO START
+###################################
+
+# set bandage_delay based on char dex
+# if dex >= 100
+#     sysmsg 'Setting bandage_delay to 10s' 53
+#     setvar! bandage_delay 10000
+# else
+#     sysmsg 'Setting bandage_delay to 14s' 53
+#     setvar! bandage_delay 14000
+# endif
+
+
+if list 'packies' >= 1
+    say 'all follow me'
+endif
+
+# check and equip axe if needed before starting so we dont waist the main timer equiping the axe
+# which was causing the timer to be greater then the lumber timer and the char wouldnt mine when that happened
+if lhandempty or not findtype 'hatchet' lefthand
+    if not findtype 'hatchet' true
+        overhead "| You are out of hatchets|"
+        wait 1500
+    endif
+    if findtype 'hatchet' true
+        dclicktype 'hatchet'
+        overhead "|equipped new hatchet|"
+        wait action_delay
+    endif
+endif
+
+
+###################################
+# TRACKING - BEGIN HUNTING
+###################################
+
+
+if not varexist tracking_gump_id
+    @setvar tracking_gump_id 4267467659
+endif
+
+
+if not findbuff 'Tracking Hunting'
+    while not gumpexists tracking_gump_id
+        sysmsg 'Opening tracking gump...' 53
+        skill 'tracking'
+        waitforgump tracking_gump_id 600
+    endwhile
+
+    if gumpexists tracking_gump_id
+        if not ingump 'Stop Hunting' 4267467659
+            overhead 'STARTING HUNTING' 65
+            gumpresponse 6 tracking_gump_id
+            waitforgump tracking_gump_id action_delay
+        else
+            overhead 'already hunting' 55
+        endif
+
+        gumpclose tracking_gump_id
+    endif
+
+else
+    overhead 'Tracking already ON!' 55
+endif
+
+###################################
+sysmsg 'STARTING...' 87
+###################################
+
+wait action_delay
+
+clearsysmsg
+settimer 'last_sysmsg_timer' 0
+
+if not listexists 'runetome_rune_btns'
+    createlist 'runetome_rune_btns'
+endif
+clearlist 'runetome_rune_btns'
+pushlist 'runetome_rune_btns' 100
+pushlist 'runetome_rune_btns' 101
+pushlist 'runetome_rune_btns' 102
+
+# runebooks recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
+if not listexists 'runebook_rune_btns'
+    createlist 'runebook_rune_btns'
+endif
+clearlist 'runebook_rune_btns'
+pushlist 'runebook_rune_btns' 2
+pushlist 'runebook_rune_btns' 8
+pushlist 'runebook_rune_btns' 14
+pushlist 'runebook_rune_btns' 20
+
+setvar! runetome_gump_id 167090027
+setvar! runebook_gump_id 1551740969
+
+setvar! recall_travel_time 3000
+
+setvar! runebook
+foreach rune_number in 'runebook_rune_btns'
+    # travel to the rune
+    sysmsg 'TRAVELLING TO RUNE {{rune_number}}'
+    dclick runebook
+    waitforgump runebook_gump_id action_delay
+    gumpresponse rune_number runebook_gump_id
+    wait recall_travel_time
+
+    # after travelling, hide and wait for the cooldown to end
+    wait 60000
+    #
+    while not dead 'self'
+
+
+
+        if timer 'last_sysmsg_timer' > max_wait_for_last_sysmsg_to_suspect_gump
+            overhead "✩ GUMP or LAG ✩" 33
+            wait 1000
+        endif
+
+
+
+        # if we dont suspect gump, start lumbering and monitor char weight
+        if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
+            # sysmsg 'Timer low...' 65
+    
+            if lhandempty
+                if not findtype 'hatchet' true
+                    overhead "| You are out of hatchets|"
+                    wait 1500
+                    # script "WaitAndWatch"
+                endif
+                if findtype 'hatchet' true
+                    dclicktype 'hatchet'
+                    overhead "|equipped new hatchet|"
+                    wait action_delay
+                endif
+            endif
+    
+            if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_hatchet and not lhandempty
+    
+                while not targetexists 'neutral'
+                    hotkey 'Use item in Hand'
+                    waitfortarget action_delay
+                endwhile
+    
+                if targetexists 'neutral'
+                    # sysmsg 'Lumbering...' 65
+                    target 'self'
+                endif
+    
+                wait max_wait_for_last_sysmsg_to_use_hatchet
+            endif
+    
+
+            ##############################################
+            # LUMBER MAPS ROUTINE
+            # if heavy and there are packies nearby, unload
+
+            if findtype 'map' backpack 2799 any as lumber_map
+                getlabel lumber_map lumber_map_label
+                if "completed by" in lumber_map_label
+                    overhead 'LUMBER MAP COMPLETE!' 90
+
+                    # drop completed ore map
+                    lift lumber_map 1
+                    wait action_delay
+                    overhead "dropping completed lumber map"
+                    if findtype 'barrel' ground 0 1 2 as trashcan
+                        sysmsg "Dropping Completed Map On Trash Barrel" sysmsgs_color
+                        drop trashcan -1 -1 0
+                    else
+                        sysmsg "Dropping Completed Map On The Ground" sysmsgs_color
+                        droprelloc 0 0
+                    endif
+
+                    clearsysmsg
+                    stop
+                else
+                    sysmsg 'Doing Lumber Map...' 49
+                    setvar! reset_last_sysmsg_timer 1
+                endif
+            endif
+    
+
+            ##############################################
+            # UNLOADING ROUTINE
+            # if heavy and there are packies nearby, unload
+            if diffweight <= max_diffweight_before_unloading and findtype LOGS backpack
+
+                if not listexists 'full_packies'
+                    createlist 'full_packies'
+                endif
+
+                if list 'packies' > 0 and list 'full_packies' > 0 and list 'packies' == list 'full_packies'
+                    overhead 'all packies full! going home!' 53
+                    sysmsg 'ALL PACKIES FULL! GOING HOME!' 53
+                    sysmsg 'ALL PACKIES FULL! GOING HOME!' 53
+                    setvar! recall_home_now 1
+
+                elseif list 'packies' > 0
+                    foreach packanimal in 'packies'
+
+                        unsetvar! pack_heavy
+
+                        # check packie weight to determine if its full or not
+                        if counttype LOGS packanimal >= max_ores_in_packie
+                            setvar! pack_heavy true
+                        elseif counttype LOGS packanimal >= 200 and counttype BOARDS packanimal >= 500
+                            setvar! pack_heavy true
+                        elseif counttype LOGS packanimal >= 150 and counttype BOARDS packanimal >= 800
+                            setvar! pack_heavy true
+                        elseif counttype LOGS packanimal >= 100 and counttype BOARDS packanimal >= 1100
+                            setvar! pack_heavy true
+                        endif
+
+                        # add or remove packie to full 0packies list based on if its heavy or not
+                        if varexist pack_heavy
+                            if not inlist 'full_packies' packanimal
+                                overhead 'adding to full list' 54 packanimal
+                                pushlist 'full_packies' packanimal
+                            endif
+                            # sysmsg 'PACKIE HAS MORE THAN 100 ORES' 40
+                            # overhead 'PACKIE HAS MORE THAN 100 ORES' 40
+                            overhead '! heavy !' 34 packanimal
+                        else
+                            if inlist 'full_packies' packanimal
+                                overhead 'removing from full list' 52 packanimal
+                                poplist 'full_packies' packanimal
+                            endif
+                        endif
+
+                        if not inlist 'full_packies' packanimal
+                            # getlabel packanimal packie_label
+                            # sysmsg packie_label 99
+
+                            # call packies if they are not within 2 tiles
+                            while not find packanimal ground any any 2
+                                say 'all follow me'
+                                wait action_delay
+                            endwhile
+
+                            # dclick packanimal
+                            # wait action_delay
+                            # if this pet is already full, we move to the next one
+
+                            while findtype LOGS backpack as logs and counttype LOGS packanimal < max_logs_in_packie
+                                sysmsg '>>> MOVING LOGS TO PACKIE' 56
+                                overhead '*unloading logs*' 56
+                                overhead '*unloading logs*' 56 packanimal
+                                lift logs 999
+                                wait action_delay
+                                drop packanimal -1 -1 0
+                                wait action_delay
+                                if findtype LOGS ground any any 1
+                                    # put this animal to the end of the list so we use the next one next time
+                                    overhead 'heavy?? moving to end of list' 53 packanimal
+                                    sysmsg 'Found logs on ground. Pet is probably heavy... Moving To End Of List' 53
+                                    pushlist 'full_packies' packanimal
+                                endif
+                            #
+                            endwhile
+
+                            # BOARDS. this isnt pretty, its duplicated from above. ill refactor it later
+                            while findtype BOARDS backpack as boards and counttype BOARDS packanimal < 2000
+                                sysmsg '>>> MOVING BOARDS TO PACKIE' 56
+                                overhead '*unloading boards*' 56
+                                overhead '*unloading boards*' 56 packanimal
+                                lift boards 999
+                                wait action_delay
+                                drop packanimal -1 -1 0
+                                wait action_delay
+                                if findtype BOARDS ground any any 1
+                                    # put this animal to the end of the list so we use the next one next time
+                                    overhead 'heavy?? moving to end of list' 53 packanimal
+                                    sysmsg 'Found boards on ground. Pet is probably heavy... Moving To End Of List' 53
+                                    pushlist 'full_packies' packanimal
+                                endif
+
+                            endwhile
+
+
+                        endif
+                    endfor
+                    #
+                    setvar! reset_last_sysmsg_timer 1
+                    # settimer 'last_sysmsg_timer' 0
+
+
+                else
+                    overhead '! HEAVY !' 90
+                endif
+                # end if list 'packies' > 0
+
+            endif
+            # end if diffweight > max_diffweight_before_unload
+        endif
+
+
+
+        ###############################################
+        # JOURNAL MESSAGES CHECKS
+        # we need to first check for pks or else the other msgs might not allow us to get to this check
+        if insysmsg 'now tracking'
+                sysmsg '>>> PK...' 54
+                sysmsg '>>> PK...' 54
+                sysmsg '>>> PK...' 54
+                overhead '!! PK !!' 54
+                overhead '!! PK !!' 54
+                overhead '!! PK !!' 54
+    
+            if recall_to_escape_pks == 1
+                sysmsg '>>> ESCAPING PK!!!' 41
+                overhead '!! ESCAPING PK !!' 41
+                setvar! recall_home_now 1
+            endif
+    
+    
+    
+        # handle world saves
+        elseif insysmsg "The world is saving"
+            overhead '*WORLD SAVING*' 90
+            while not insysmsg 'World save complete'
+                wait 100
+                if timer 'waiting_save' >= 5000
+                    sysmsg 'BREAKING WAITING FOR SAVE' 49
+                    break
+                endif
+            endwhile
+    
+            if insysmsg 'World save complete'
+                overhead '*save complete!*' 90
+                setvar! reset_last_sysmsg_timer 1
+            endif
+    
+        # handle tools breaking
+        elseif insysmsg "You broke your axe"
+            overhead 'HATCHET BROKE!' 90
+
+            if not lhandempty and not findtype 'hatchet' lefthand
+                overhead 'undressing hands for hatchet'
+                hotkey "Undress Both Hands"
+                wait action_delay
+            endif
+
+            if rhandempty
+                if findtype 'hatchet' backpack
+                    dclicktype 'hatchet'
+                    overhead "✩equipped new hatchet✩"
+                else
+                    overhead "✩ You are out of hatchet✩"
+                    stop
+                endif
+            endif
+
+            setvar! reset_last_sysmsg_timer 1
+    
+    
+        # no resources where char is
+        elseif insysmsg "You do not see any harvestable resources nearby"
+            # track how many empty trees we hit to decide whether to go to next rune
+            if not varexist attempts_to_find_new_tree_with_logs
+                setvar! attempts_to_find_new_tree_with_logs 1
+            endif
+            if attempts_to_find_new_tree_with_logs == 1
+                setvar! attempts_to_find_new_tree_with_logs 2
+            elseif attempts_to_find_new_tree_with_logs == 2
+                setvar! attempts_to_find_new_tree_with_logs 3
+            elseif attempts_to_find_new_tree_with_logs == 3
+                sysmsg 'TRIED TO FIND 3 TREES AND DIDNT. BREAKING TO GO TO ANOTHER RUNE'
+                break
+                # setvar! attempts_to_find_new_tree_with_logs 1
+            endif
+
+            if auto_walk_to_direction == 1
+                foreach direction in 'direction_to_walk'
+                    walk direction
+                    break
+                endfor
+            endif
+    
+            setvar! reset_last_sysmsg_timer 1
+            overhead '| NO WOOD HERE |' 54
+    
+            if auto_walk_randomly == 1
+                random 8
+                if insysmsg 'Random: 1'
+                    walk 'south'
+                    walk 'south'
+                    walk 'south'
+                elseif insysmsg  'Random: 2'
+                    walk 'down'
+                    walk 'down'
+                    walk 'down'
+                elseif insysmsg  'Random: 3'
+                    walk 'east'
+                    walk 'east'
+                    walk 'east'
+                elseif insysmsg  'Random: 4'
+                    walk 'right'
+                    walk 'right'
+                    walk 'right'
+                elseif insysmsg  'Random: 5'
+                    walk 'north'    
+                    walk 'north'
+                    walk 'north'
+                elseif insysmsg  'Random: 6'
+                    walk 'up'
+                    walk 'up'
+                    walk 'up'
+                elseif insysmsg  'Random: 7'
+                    walk 'west'
+                    walk 'west'
+                    walk 'west'
+                elseif insysmsg  'Random: 8'
+                    walk 'left'
+                    walk 'left'
+                    walk 'left'
+                endif
+            endif
+    
+    
+    
+    
+        # lumber fail message
+        elseif insysmsg "You hack"
+            setvar! reset_last_sysmsg_timer 1
+            overhead '| hacked |'
+    
+    
+    
+        # when char is on cooldown for having traveled recently
+        elseif insysmsg 'You have recently traveled and must wait'
+            setvar! reset_last_sysmsg_timer 1
+            overhead '! travel harvest cooldown !' 43
+    
+    
+        # action cooldowns (when sysmsg prints 'You must wait...') will break the macro, so we need to get them as well
+        elseif insysmsg "You must wait to perform another action"
+            setvar! reset_last_sysmsg_timer 1
+            overhead '! action cooldown !' 54
+
+        # skill cooldowns will break the macro, so we need to get them as well
+        elseif insysmsg "You must wait a few moments before using another skill"
+            setvar! reset_last_sysmsg_timer 1
+            overhead '! skill cooldown !' 54
+    
+        # action cooldowns (when sysmsg prints 'You must wait...') will break the macro, so we need to get them as well
+        elseif insysmsg "Harvesting is not allowed in this area"
+            setvar! reset_last_sysmsg_timer 1
+            overhead 'harvest not allowed. move!' 53
+
+
+
+    # this msg is overhead, not sysmsg, thus we cant know if a char is doing a lumbermap
+        elseif insysmsg 'You gather some'
+            overhead '| lumber map |' 15
+            setvar! reset_last_sysmsg_timer 1
+
+
+        # I TRIED LOOPING THROUGH A LIST INSTEAD OF USING MULTIPLE IF/ELSE AND DIDNT WORK, THE LOOP BREAKS THE MACRO
+        elseif insysmsg 'Dullwood'
+            overhead '| dullwood |' 248
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'shadowwood'
+            overhead '| shadowwood |' 193
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Copperwood'
+            overhead '| copperwood |' 248
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Bronzewood'
+            overhead '| bronzewood |' 248
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Goldenwood'
+            overhead '| goldenwood |' 55
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Rosewood'
+            overhead '| rosewood |' 55
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Verewood'
+            overhead '| verewood |' 55
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Valewood'
+            overhead '| valewood |' 33
+            setvar! reset_last_sysmsg_timer 1
+        elseif insysmsg 'Avarwood'
+            overhead '| avarwood |' 33
+            setvar! reset_last_sysmsg_timer 1
+        # regular logs have to be checked last because all of the above also have the word 'logs'
+        # so it was always thinking it got regular logs, even when getting colored
+        elseif insysmsg 'Logs'
+            overhead '| logs |' 15
+            setvar! reset_last_sysmsg_timer 1
+
+
+
+
+        # catch captcha successful msgs
+        elseif insysmsg "Captcha successful"
+            overhead 'captcha anwsered succesfully' 90
+            sysmsg 'Captcha Anwsered Succesfully!' 90
+
+
+        # catch captcha failure msgs
+        elseif insysmsg "Due to previous captcha failures"
+            overhead '! resource locked !' 33
+            sysmsg 'CAPTCHA FAILED AND CHAR IS RESOURCE LOCKED. STOPPING MACRO...' 33
+            stop
+
+
+        endif
+
+
+
+        ########################################
+        # GO HOME AND UNLOAD ROUTINE
+        ########################################
+        if varexist recall_home_now
+            unsetvar! recall_home_now
+            if skill 'magery' == 0 or counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "Mandrake Root%s%" == 0
+                if counttype "Recall"
+                    overhead 'no regs. trying scroll...'
+                    setvar! use_recall_scroll true
+                else
+                    overhead 'no regs. trying charges...'
+                    setvar! use_charges true
+                endif
+            endif
+
+            # pick which book should script recall to
+            if findtype 'runetome' backpack as rtome
+                setvar! recall_book rtome
+                setvar! recall_book_gump_id 167090027
+                setvar! recall_by_charge_btn_number runetome_rune_position
+            elseif findtype 'runebook' backpack as rbook
+                setvar! recall_book rbook
+                setvar! recall_book_gump_id 1551740969
+                setvar! recall_by_charge_btn_number runebook_rune_position
+            elseif findtype 'recall rune' backpack as recall_rune
+                setvar! recall_book recall_rune
+                setvar! recall_book_gump_id 1551740969
+                setvar! recall_by_charge_btn_number runebook_rune_position
+            endif
+
+            if varexist recall_book
+                if not varexist use_charges
+                    unsetvar! use_charges
+                    hotkey 'Recall'
+                    waitfortarget 3500
+                    target recall_book
+                else
+                    dclick recall_book
+                    waitforgump recall_book_gump_id 600
+                    gumpresponse recall_by_charge_btn_number recall_book_gump_id
+                endif
+
+                unsetvar! recall_book
+            endif
+
+            wait 2500
+
+
+            # after escaping, smelt ores from char
+            while findtype LOGS backpack as ores_from_backpack
+                if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
+                    overhead '*smelting ores*' 49 packanimal
+                    sysmsg '> Smelting Ores In Pack Animal' 49
+                    dclick ores_from_backpack
+                    wait action_delay
+                else
+                    sysmsg 'Found Ores in backpack but no forge nearby to smelt it...' 40
+                    break
+                endif
+            endwhile
+
+
+            # after escaping, smelt ores from all packies
+            if list 'packies' > 0
+                foreach packanimal in 'packies'
+
+                    dclick packanimal
+                    wait action_delay
+                    # smelt ores
+                    while findtype LOGS packanimal any any 2 as ores_from_packie
+                        if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
+                            overhead '*smelting ores*' 49 packanimal
+                            sysmsg '> Smelting Ores In Pack Animal' 49
+                            dclick ores_from_packie
+                            wait action_delay
+                        else
+                            sysmsg 'Found Ores in pack animal but no forge nearby to smelt it...' 40
+                            overhead 'found ores but no forge' 40 packanimal
+                            break
+                        endif
+                    endwhile
+                endfor
+            endif
+
+            # unload everything on resource stockpile
+            if findtype 'resource container' ground any any 2 as stockpile
+                setvar! resource_stockpile stockpile
+                menu resource_stockpile 0
+                wft 600
+                if targetexists 'neutral'
+                    sysmsg '> Restocking Resource Stockpile...' sysmsgs_color
+                    target 'self'
+                endif
+
+                # restock stockpile from packies
+                if list 'packies' > 0 and varexist resource_stockpile
+                    foreach packanimal in 'packies'
+                        if noto packanimal = friend
+                            sysmsg '> Restocking Stockpile From Pack Animal...' sysmsgs_color
+                            menu resource_stockpile 0
+                            wft 600
+                            if targetexists 'neutral'
+                                overhead "unloading on stockpile" 56 packanimal
+                                target packanimal
+                            endif
+                        endif
+                    endfor
+                endif
+                if gumpexists 1859005118
+                    gumpclose
+                endif
+            endif
+
+        endif
+        # END GO HOME AND UNLOAD ROUTINE
+        ########################################
+
+
+        ########################################
+        # HANDLE POISON
+        ########################################
+
+        if poisoned
+            if findtype 'orange potion' backpack
+                sysmsg 'Curing poison with potion...' 90
+                hotkey 'Drink Cure'
+            elseif magery >= 50 and counttype 'Garlic' > 0 and counttype 'Ginseng' > 0
+                sysmsg 'Curing poison with magery...' 90
+                cast 'Cure'
+
+                @settimer 'waiting_target_timer' 0
+                while not targetexists 'beneficial' and timer 'waiting_target_timer' < 1500
+                    wait 100
+                    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                        sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                        break
+                    endif
+                endwhile
+
+                if targetexists 'beneficial'
+                    target 'self'
+                endif
+            elseif healing >= 50 and counttype 'clean bandage%s%' > 0
+                # if not bandaging
+                if bandaging == 0
+                    if debug == 1
+                        sysmsg '[DEBUG] bandage 001'
+                    endif
+                    overhead '*applying bandages*' 65
+                    hotkey 'Bandage Self'
+
+                    wait action_delay
+                elseif bandaging > 10
+                    overhead '10+ secs till next bandage!' 52
+                elseif bandaging > 5
+                    overhead '5+ secs till next bandage!' 52
+                else
+                    overhead 'less than 5 secs till next bandage!' 52
+                endif
+            endif
+        endif
+
+
+
+        ########################################
+        # MAINTAIN CHAR HP
+        ########################################
+
+        if diffhits > max_diffhits_before_starting_heal_routine
+            # heal with pots
+            if diffhits > max_diffhits_before_healing_with_potion
+                if findtype 'yellow potion' backpack
+                    hotkey 'Drink Heal'
+                    wait action_delay
+                endif
+            endif
+
+            # heal with healing
+            if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= min_healing_to_use_bandages
+                # if not bandaging
+                if bandaging == 0
+                    if debug == 1
+                        sysmsg '[DEBUG] bandage 002'
+                    endif
+                    overhead '*applying bandages*' 65
+                    hotkey 'Bandage Self'
+
+                    wait action_delay
+                elseif bandaging > 10
+                    overhead '10+ secs till next bandage!' 52
+                elseif bandaging > 5
+                    overhead '5+ secs till next bandage!' 52
+                else
+                    overhead 'less than 5 secs till next bandage!' 52
+                endif
+            endif
+
+            # heal with magery
+            if diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+                cast 'greater heal'
+
+                @settimer 'waiting_target_timer' 0
+                while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                    wait 100
+                    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                        sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                        break
+                    endif
+                endwhile
+
+                if targetexists 'beneficial'
+                    hotkey 'Target Self'
+                endif
+            endif
+        endif
+
+
+
+        ########################################
+        # DEFEND AGAINST MONSTERS ROUTINE
+        ########################################
+
+        if diffhits > max_diffhits_before_starting_defense_routine
+            if debug == 1
+                sysmsg '[DEBUG]: ENTERED DEFENSE ROUTINE' debug_msg_color
+            endif
+
+            if not find 'last' ground any any 2 or not dead 'last' or noto 'last' != hostile
+                overhead 'searching for mobs to kill...' 52
+                hotkey 'Next Non-Friendly Monster Target'
+                wait action_delay
+
+                # if there is not a captcha present already, reset timer to make sure the script wont bug after killing the mob
+                if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
+
+                    if debug == 1
+                        sysmsg '[DEBUG]: RESET 014 DEFEND 1' debug_msg_color
+                    endif
+
+                    sysmsg 'Flaging to reset catpcha timer while searching for mobs...' 54
+                    setvar! reset_last_sysmsg_timer 1
+                endif
+
+            endif
+
+            if debug == 1
+                sysmsg '[DEBUG]: RESET 014 AFTER DEFEND 1' debug_msg_color
+            endif
+
+            while find 'last' ground any any max_mob_range_to_attack and not dead 'last'
+
+                if debug == 1
+                    sysmsg '[DEBUG]: INSIDE WHILE DEFEND LOOP' debug_msg_color
+                endif
+
+                if lasttarget == self
+                    overhead 'cancelling self as target!' 52
+                    hotkey 'Cancel Current Target'
+
+                    if debug == 1
+                        sysmsg '[DEBUG]: RESET 015A DEFEND 2A CANCEL SELF TARGET' debug_msg_color
+                    endif
+                elseif noto lasttarget == friendly
+                    overhead 'cancelling friendly target!' 52
+                    hotkey 'Cancel Current Target'
+
+                    if debug == 1
+                        sysmsg '[DEBUG]: RESET 015 DEFEND 2 CANCEL TARGET' debug_msg_color
+                    endif
+
+                    setvar! reset_last_sysmsg_timer 1
+                elseif noto lasttarget != friend and noto lasttarget != friendly
+                    overhead '|| LUMBER TARGET ||' 90 'last'
+                    setvar! found_mob 1
+
+                    if not varexist entered_combat_mode
+                        setvar! entered_combat_mode 1
+                    endif
+
+                    #make sure we dont have a captcha gump before trying to arm for fightning
+                    if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
+                        setvar! reset_last_sysmsg_timer 1
+
+                        overhead '*ATTACKING*' 39 lasttarget
+                        sysmsg 'Hostile Last Target Detected! Entering Defense Routine...' 56
+
+                        # equip hatchet if needed
+                        if skill 'swordsmanship' > 0
+                            if not findtype 'hatchet' righthand
+
+                                if findtype 'hatchet' backpack as hatchet
+                                    # undress hands if necessary to equip pickaxe found
+                                    if not lhandempty and not rhandempty
+                                        overhead 'undressing hands to put hatchet' 54
+                                        hotkey "Undress Both Hands"
+                                        wait action_delay
+                                    endif
+
+                                    if debug == 1
+                                        sysmsg '[DEBUG]: EQUIPING HATCHET' debug_msg_color
+                                    endif
+
+                                    setvar! found_weapon 1
+                                    dclick hatchet
+                                    wait action_delay
+                                else
+                                    overhead 'OUT OF HATCHETS!' 39
+                                endif
+                            endif
+                        else
+                            # first make sure char is empty handed to equip the weapon afterwards
+                            if not lhandempty and not rhandempty
+                                overhead 'undressing hands to put combat weaopn' 54
+                                hotkey "Undress Both Hands"
+                                wait action_delay
+
+                            # if char is not macer, we got to equip a different weaopn equip weapon if needed according to weaopn skill
+                            else
+                                foreach weapon_type in 'char_combat_skill_weapons'
+                                    if findtype weapon_type backpack as weap
+                                        setvar! found_weapon 1
+                                        dclick weap
+                                        overhead "|equipped {{weapon_type}} weapon|"
+                                        wait action_delay
+                                        break
+                                    endif
+                                endfor
+                            endif
+
+                            if not varexist found_weapon and lhandempty and rhandempty
+                                overhead 'CANT FIND WEAPON'
+                            endif
+
+                            unsetvar! found_weapon
+                        endif
+
+                        if not rhandempty or not lhandempty
+                            sysmsg 'Attacking last target'
+                            hotkey 'Attack Last Target'
+                        endif
+                    endif
+
+
+                    # HANDLE POISON
+                    if poisoned
+                        if findtype 'orange potion' backpack
+                            sysmsg 'Curing poison with potion...' 90
+                            hotkey 'Drink Cure'
+                        elseif magery >= 50 and counttype 'Garlic' > 0 and counttype 'Ginseng' > 0
+                            sysmsg 'Curing poison with magery...' 90
+                            cast 'Cure'
+
+                            @settimer 'waiting_target_timer' 0
+                            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 1500
+                                wait 100
+                                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                                    break
+                                endif
+                            endwhile
+
+                            if targetexists 'beneficial'
+                                target 'self'
+                            endif
+                        elseif healing >= 50 and counttype 'clean bandage%s%' > 0
+                            # if not bandaging
+                            if bandaging == 0
+                                overhead '*applying bandages*' 65
+                                if debug == 1
+                                    sysmsg '[DEBUG] bandage 003'
+                                endif
+                                hotkey 'Bandage Self'
+
+                                wait action_delay
+                            elseif bandaging > 10
+                                overhead '10+ secs till next bandage!' 52
+                            elseif bandaging > 5
+                                overhead '5+ secs till next bandage!' 52
+                            else
+                                overhead 'less than 5 secs till next bandage!' 52
+                            endif
+                        endif
+                    endif
+
+                    # MAINTAIN CHAR HP
+                    if diffhits > 0
+                        # heal with pots
+                        if diffhits > max_diffhits_before_healing_with_potion
+                            if findtype 'yellow potion' backpack
+                                hotkey 'Drink Heal'
+                                wait action_delay
+                            endif
+                        endif
+
+                        # heal with healing
+                        if diffhits > max_diffhits_before_healing_with_bandages and skill 'healing' >= min_healing_to_use_bandages
+                            # if not bandaging
+                            if bandaging == 0
+                                overhead '*applying bandages*' 65
+                                if debug == 1
+                                    sysmsg '[DEBUG] bandage 003'
+                                endif
+                                hotkey 'Bandage Self'
+
+                                wait action_delay
+                            elseif bandaging > 10
+                                overhead '10+ secs till next bandage!' 52
+                            elseif bandaging > 5
+                                overhead '5+ secs till next bandage!' 52
+                            else
+                                overhead 'less than 5 secs till next bandage!' 52
+                            endif
+                        endif
+
+                        # heal with magery
+                        if diffhits > max_diffhits_before_healing_with_magery and skill 'magery' >= 50 and mana >= 11
+                            cast 'greater heal'
+
+                            @settimer 'waiting_target_timer' 0
+                            while not targetexists 'beneficial' and timer 'waiting_target_timer' < 3500
+                                wait 100
+                                if insysmsg 'disturbed' or insysmsg 'cannot cast a spell while frozen'
+                                    sysmsg 'BREAKING WHILE WAITING FOR GREATER HEAL TARGET'
+                                    break
+                                endif
+                            endwhile
+
+                            if targetexists 'beneficial'
+                                hotkey 'Target Self'
+                            endif
+                        endif
+                    endif
+
+                # END elseif noto lasttarget != friend and noto lasttarget != friendly
+                endif
+
+            endwhile
+
+            if dead 'last' and varexist found_mob
+                unsetvar found_mob
+
+                if debug == 1
+                    sysmsg '[DEBUG]: RESET 017 DEFEND 4 AFTER LOOP' debug_msg_color
+                endif
+
+                setvar! reset_last_sysmsg_timer 1
+            endif
+
+            if debug == 1
+                sysmsg '[DEBUG]: LAST ENDIF DEFEND ROUTINE' debug_msg_color
+            endif
+
+            # setvar! reset_last_sysmsg_timer 1
+
+        # END if diffhits > max_diffhits_before_starting_defense_routine
+        endif
+
+        # check if we got any sysmsg that should reset the timer in each iteration
+        if varexist reset_last_sysmsg_timer
+            unsetvar! reset_last_sysmsg_timer
+            # RESET THE TIMER
+            settimer 'last_sysmsg_timer' 0
+            clearsysmsg
+        endif
+
+
+    endwhile
+endfor
+
+
+#################################
+# CHANGELOG
+
+# v0.2.1
+# - Removes 'backpack' from reagents sources on findtype in case they are in the new reagent satchel so recall wont fail
+# - No longer unequips hatchet to equip combat weapon since now hatchets have the same dmg/level as other axes and benefit from Lumberjacking
+#
+# v0.2.0
+# - Switches from list configs back to variables using setvar!
+# - Adds gump serial to gumpresponse command on recall routine
+# - Adds Archery to supported weapon skills when defending against monsters
+#
+# v0.0.10
+# - Fixed bug where char would keep equipping all combat weaopns found in backpack while fightning mobs
+# - Added startup warnings about script requirements
+#
+# v0.0.9
+# - Handles 'You broke your axe' sysmsgs
+#
+# v0.0.8
+# - Fixes error happening on chars without healing due to script trying to access a variable that is only created on chars with healing (tkx to @BaLLa#7588 for finding and reporting it)
+# - Fixed blue chars not finding packies (tkx to @renatoestevao#8568  for subimitting a PR)
+#
+# v0.0.7
+# - Makes char remove hatchet to equip combat weapon to fight monsters
+# - Fixes calling to wrong variable name in some parts of the code
+#
+# v0.0.6
+# - Searches a list of weapons intead of using just hatchets and clubs
+#
+# v0.0.5
+# - Fix missing endif that was breaking the macro when i captcha was detected
+
+# v0.0.4
+# - Adds missing list 'use_charges' for using charges when escaping PKs
+# - Enhances unloading routine (based on my miner script unload routine)
+#
+# v0.0.3
+# - Fix captcha pause check
+# - Stops double clicking packie to open packpack when unloading logs while heavy
+# - Adds variables to control rune slot button numbers while escaping PKs
+# - Adds checks if char has magery or regs before trying to cast recall, or use scrolls / charges to escape PK
+# - Fix colored logs check on journal messages
+#
+# v0.0.2
+# - Adds unloading routine after escaping PKs and turn logs into boards
+# - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
+#
+# v0.0.1
+# - Initial release
+#

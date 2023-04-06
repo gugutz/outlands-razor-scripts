@@ -1,0 +1,246 @@
+
+setvar! repair_ship_cooldown 10000
+# we create individual delays for each part so we can increase the delay when ship is full health
+setvar! repair_ship_hull_delay repair_ship_cooldown
+setvar! repair_ship_sails_delay repair_ship_cooldown
+setvar! repair_ship_guns_delay repair_ship_cooldown
+
+
+if not timerexists 'repair_ship_hull_timer'
+    createtimer 'repair_ship_hull_timer'
+    settimer 'repair_ship_hull_timer' 20000
+endif
+
+if not timerexists 'repair_ship_sails_timer'
+    createtimer 'repair_ship_sails_timer'
+    settimer 'repair_ship_sails_timer' 20000
+endif
+
+if not timerexists 'repair_ship_guns_timer'
+    createtimer 'repair_ship_guns_timer'
+    settimer 'repair_ship_guns_timer' 20000
+endif
+
+
+
+setvar! hull_fully_repaired 0
+setvar! sails_fully_repaired 0
+setvar! guns_fully_repaired 0
+
+if not timerexists 'repair_ship_loop_execution_timer'
+    createtimer 'repair_ship_loop_execution_timer'
+    settimer 'repair_ship_loop_execution_timer' 0
+endif
+
+
+# STUFF RELATED TO SEARCHING SHIPS WHILE REPAIRING
+
+setvar! search_ships_gump 2890020940
+setvar! search_ships_cooldown 6100
+
+if not timerexists 'spyglass_cooldown_warning_msg_timer'
+    createtimer 'spyglass_cooldown_warning_msg_timer'
+    settimer 'spyglass_cooldown_warning_msg_timer' 2000
+endif
+
+
+if not timerexists 'spyglass_timer'
+    createtimer 'spyglass_timer'
+    settimer 'spyglass_timer' 7000
+endif
+
+
+while not dead self
+
+    setvar! found_player_boat 0
+
+    if not findtype 'spyglass' backpack
+        sysmsg 'NO SPYGLASS!' 39
+        overhead '!NO SPYGLASS!' 39
+    endif
+
+    if timer 'spyglass_timer' < search_ships_cooldown
+        if timer 'spyglass_cooldown_warning_msg_timer' > 2000
+            sysmsg 'SPYGLASS COOLDOWN: {{spyglass_timer}} ms' 56
+            # overhead 'spyglass cooldown ({{spyglass_timer}})ms' 39
+            settimer 'spyglass_cooldown_warning_msg_timer' 0
+        endif
+    else
+        # THIS ENTIRE BLOCK IS JUST A COPY OF MY SEARCH SHIPS SCRIPT
+        setvar! found_player_boat 0
+        if findtype 'spyglass' backpack as tool
+            gumpclose 2890020940
+            dclick tool
+            waitfortarget 600
+            if targetexists 'neutral'
+                hotkey 'Target Self'
+                waitforgump search_ships_gump 600
+                if gumpexists search_ships_gump
+                    sysmsg 'SEARCHING SHIPS...' 89
+                    overhead 'searching ships...' 89
+                    gumpresponse 4 search_ships_gump
+                    waitforgump search_ships_gump 600
+                endif
+        
+                while insysmsg 'before you may make another ship search'
+                    gumpresponse 4 search_ships_gump
+                    waitforgump search_ships_gump 600
+                endwhile
+        
+                # WARN ABOUT NPC BOATS NEARBY
+                if ingump "a daemon" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'NPC DAEMON BOAT NEARBY!'
+                endif
+
+                if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'NPC GALEON NEARBY!'
+                endif
+
+                if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'NPC CARRACK NEARBY!'
+                endif
+
+                if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                    setvar! found_npc_boat 1
+                    sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                endif
+
+                # SEARCH PLAYER BOATS
+                if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon ship" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                    setvar! found_player_boat 1
+                else
+                    while ingump "Next" 2890020940
+                        gumpresponse 3 2890020940
+                        waitforgump search_ships_gump 600
+        
+                        # WARN ABOUT NPC BOATS NEARBY
+                        if ingump "a daemon" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'NPC DAEMON BOAT NEARBY!'
+                        endif
+
+                        if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'NPC GALEON NEARBY!'
+                        endif
+
+                        if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'NPC CARRACK NEARBY!'
+                        endif
+
+                        if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                            setvar! found_npc_boat 1
+                            sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                        endif
+
+                        if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                            setvar! found_player_boat 1
+                        endif
+                    endwhile
+        
+                endif
+        
+                if found_player_boat == 1
+                    overhead "FOUND PLAYER BOAT" 43
+                    overhead "FOUND PLAYER BOAT" 43
+                    overhead "FOUND PLAYER BOAT" 43
+                    sysmsg "FOUND PLAYER BOAT!" 43
+                    sysmsg "FOUND PLAYER BOAT!" 43
+                    sysmsg "FOUND PLAYER BOAT!" 43
+                    settimer 'spyglass_timer' 0
+                else
+                    sysmsg 'NO PLAYER BOATS NEARBY!' 74
+                    overhead 'no player boats nearby!' 74
+                    overhead '*no ships nearby*' 54
+                    # gumpclose 2890020940
+                    settimer 'spyglass_timer' 0
+                endif
+        
+        
+            endif
+        endif
+    endif
+
+
+    clearsysmsg
+    if hull_fully_repaired == 0 and timer 'repair_ship_hull_timer' > repair_ship_hull_delay
+        sysmsg 'REPAIRING SHIP HULL' action_msg_color
+        say '[RepairHull'
+        wait action_delay
+    
+        if insysmsg 'hull does not need'
+            if verbose == 1
+                sysmsg 'HULL DONT NEED REPAIRING! SETTING HIGHER DELAY' warning_msg_color
+            endif
+            setvar! hull_fully_repaired 1
+
+            setvar! repair_ship_hull_delay 30000
+            settimer 'repair_ship_hull_timer' 0
+        else
+            if verbose == 1
+                sysmsg 'REPAIRED HULLS! NEXT IN {{repair_boat_hull_delay}}ms' reset_timer_msg_color
+            endif
+            # reset repair delay to regular repair cooldown to keep repairing this part until its full
+            setvar! repair_ship_hull_delay repair_ship_cooldown
+            settimer 'repair_ship_hull_timer' 0
+        endif
+    endif
+
+    
+    if sails_fully_repaired == 0 and timer 'repair_ship_sails_timer' > repair_ship_sails_delay
+        if verbose == 1
+            sysmsg 'REPAIRING SHIP SAILS' action_msg_color
+        endif
+    
+        say '[RepairSails'
+        wait action_delay
+    
+        if insysmsg 'sails do not need'
+            if verbose == 1
+                sysmsg 'SAILS DONT NEED REPAIRING! SETTING HIGHER DELAY' warning_msg_color
+            endif
+            setvar! sails_fully_repaired 1
+    
+            setvar! repair_ship_sails_delay 30000
+            settimer 'repair_ship_sails_timer' 0
+        else
+            sysmsg 'REPAIRED SAILS! NEXT IN {{repair_ship_sails_delay}}ms' reset_timer_msg_color
+    
+            # reset repair delay to regular repair cooldown to keep repairing this part until its full
+            setvar! repair_ship_sails_delay repair_ship_cooldown
+            settimer 'repair_ship_sails_timer' 0
+        endif
+    endif
+    
+    if guns_fully_repaired == 0 and timer 'repair_ship_guns_timer' > repair_ship_guns_delay
+        sysmsg 'REPAIRING SHIP GUNS' action_msg_color
+        say '[RepairGuns'
+        wait action_delay
+    
+        if insysmsg "guns do not need"
+            if verbose == 1
+                sysmsg 'GUNS DONT NEED REPAIRING! SETTING HIGHER DELAY' warning_msg_color
+            endif
+            setvar! guns_fully_repaired 1
+    
+            setvar! repair_ship_guns_delay 30000
+            settimer 'repair_ship_guns_timer' 0
+        else
+            sysmsg 'REPAIRED GUNS! NEXT IN {{repair_ship_guns_delay}}ms' reset_timer_msg_color
+    
+            # reset repair delay to regular repair cooldown to keep repairing this part until its full
+            setvar! repair_ship_sails_delay repair_ship_cooldown
+            settimer 'repair_ship_guns_timer' 0
+        endif
+    endif
+
+    if hull_fully_repaired == 1 and sails_fully_repaired == 1 and guns_fully_repaired == 1
+        sysmsg 'SHIP FULLY REPAIRED IN {{repair_ship_loop_execution_timer}}!'
+        stop
+    endif
+
+endwhile

@@ -1,0 +1,593 @@
+###################################################
+# 1-KEY SUMMON MAINTAINANCE
+# by gugutz
+# v0.0.2
+###################################################
+#
+########################################
+# ADD TOGGLEABLE INGAME FLAG FOR BOATING MODE BEHAVIOUR
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+#
+#################################
+# CONFIGURATION
+#################################
+#
+setvar! spell_recovery_delay 120
+
+if not varexist maintain_summons_first_run_done
+    setvar! maintain_summons_first_run_done true
+
+    setvar! action_delay 600
+    setvar! find_summon_range 5
+    setvar! auto_summon 1
+    setvar! use_undead_summons 1
+
+    setvar! debug 0
+
+    # SET CHAR SUMMONS
+    if not listexists 'summons'
+        createlist 'summons'
+        if boating_mode == 1
+            pushlist 'summons' 'an earth elemental'
+            pushlist 'summons' 'a water elemental'
+            pushlist 'summons' 'summ. creature'
+        else
+            pushlist 'summons' 'an earth elemental'
+            pushlist 'summons' 'a fire elemental'
+            # pushlist 'summons' 'a water elemental'
+            pushlist 'summons' 'summ. creature'
+        endif
+    endif
+
+endif
+
+
+#################################
+#
+# CODE (DO NOT EDIT FROM HERE)
+#
+#################################
+
+# if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
+# if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
+if inlist 'summons' 'summ. creature'
+    setvar! summon_max_limit 5
+else
+    setvar! summon_max_limit 4
+endif
+
+
+#################################
+# CREATE THE SUMMON SPELLS LIST
+
+if not listexists 'summonspells'
+    createlist 'summonspells'
+
+    if inlist 'summons' 'an air elemental' or inlist 'summons' 'a skeletal fiend'
+        @pushlist 'summonspells' 'air elemental'
+    endif
+
+    if inlist 'summons' 'an earth elemental' or inlist 'summons' 'an ancient mummy'
+        @pushlist 'summonspells' 'earth elemental'
+    endif
+
+    if inlist 'summons' 'a water elemental' or inlist 'summons' 'a rag witch'
+        @pushlist 'summonspells' 'water elemental'
+    endif
+
+    if inlist 'summons' 'a fire elemental' or inlist 'summons' 'a lich'
+        @pushlist 'summonspells' 'fire elemental'
+    endif
+
+    if inlist 'summons' 'a daemon' or inlist 'summons' 'a vampire thrall'
+        @pushlist 'summonspells' 'summon daemon'
+    endif
+
+    if inlist 'summons' 'an energy vortex' or inlist 'summons' 'a jackal spirit'
+        @pushlist 'summonspells' 'energy vortex'
+    endif
+
+    if inlist 'summons' 'a blade spirit' or inlist 'summons' 'mudar aqui'
+        @pushlist 'summonspells' 'blade spirits'
+    endif
+
+    if inlist 'summons' 'summ. creature' or inlist 'summons' 'qualquer outro'
+        @pushlist 'summonspells' 'summ. creature'
+    endif
+endif
+
+if not timerexists 'vengeful_spirit_timer'
+    createtimer 'vengeful_spirit_timer'
+    settimer 'vengeful_spirit_timer' 30001
+endif
+
+if not timerexists 'low_mana_for_summoning_warning_msg_timer'
+    createtimer 'low_mana_for_summoning_warning_msg_timer'
+    settimer 'low_mana_for_summoning_warning_msg_timer' 30001
+endif
+
+
+if skill 'necromancy' > 0 and not listexists 'vampiric_embraced_corpses'
+    sysmsg '>>> Creating list to control consumed (vamp embraced) corpses...' 74
+    createlist 'vampiric_embraced_corpses'
+endif
+
+if skill 'spirit' > 0 and not listexists 'drained_corpses'
+    sysmsg '>>> Creating list to control drained corpses...' 74
+    createlist 'drained_corpses'
+endif
+
+
+
+
+
+########################################
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+########################################
+
+setvar! TORCH_ON_TYPE 2578
+setvar! TORCH_OFF_TYPE 3947
+
+if findtype 2594|2598|2578|30580 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+
+
+#####################################
+# SUMMON SUMMONS MAIN ROUTINE
+
+# this is just a print to inform char is under summon_limit and is getting ready to summon up
+if auto_summon == 1 and followers < summon_max_limit
+    sysmsg 'Under Summon Limit. Preparing To Summon...' 67
+
+
+    foreach summon in 'summons'
+
+        if debug == 1
+            sysmsg 'CHECKING {{summon}}: {{index}}' 18
+        endif
+
+        if list 'summons' == 1 and followers == 4
+            if debug == 1
+                sysmsg 'BREAKING ON CHECKING SUMMON {{summon}}' 99
+            endif
+            break
+        elseif list 'summons' > 1 and followers == 5
+            if debug == 1
+                sysmsg 'BREAKING ON CHECKING SUMMON {{summon}}' 99
+            endif
+            break
+        endif
+
+        unsetvar! found_summon
+        unsetvar! cast_summon_spell
+
+        # determine summon name by whether char has necromancy or not
+        if skill 'necromancy' >= 50 and use_undead_summons == 1
+            # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
+            if not listexists 'undead_summons'
+                createlist 'undead_summons'
+            endif
+            clearlist 'undead_summons'
+
+            if 'earth' in summon
+                pushlist 'undead_summons' 'an ancient mummy'
+            elseif 'fire' in summon
+                pushlist 'undead_summons' 'a lich'
+            elseif 'air' in summon
+                pushlist 'undead_summons' 'a skeletal fiend'
+            elseif 'daemon' in summon
+                pushlist 'undead_summons' 'a vampire thrall'
+            elseif 'water' in summon
+                pushlist 'undead_summons' 'a rag witch'
+            endif
+        endif
+
+        # if char is necro, make sure vengeful spirit is activated before summoning
+        if use_undead_summons == 1
+            if list 'undead_summons' > 0
+                if timer 'vengeful_spirit_timer' >= 30000
+                    clearsysmsg
+                    sysmsg '>>> VENGEFUL SPIRIT...' 95
+                    say '[vengefulspirit'
+
+                    wait action_delay
+                    if insysmsg 'symbols remaining'
+                        settimer 'vengeful_spirit_timer' 0
+                        sysmsg 'VENGEFUL SPIRIT!' 90
+                        cooldown 'Vengeful Spirit' 30000
+                    endif
+
+
+                    clearsysmsg
+                    sysmsg '>>> WITHER...' 95
+                    say '[wither'
+                    wait spell_recovery_delay
+                
+                    if insysmsg 'symbols remaining'
+                        sysmsg 'WITHER!' 90
+                        cooldown 'Wither' 30000
+                    endif
+                else
+                    sysmsg 'Vengeful Spirit Cooldown..' 41
+                endif
+            endif
+        endif
+
+        #########################
+        # try to find a similir creature summon to see if we need to cast this one or skip to next one
+
+
+        if findtype summon ground any 1 find_summon_range as summonserial
+            if noto summonserial = friend
+                overhead '*found {{summon}}*' 91 summonserial
+                setvar! found_summon true
+            endif
+        # if the 'undead_summons' list has elements, we need to check for those undead summons as well
+        elseif use_undead_summons == 1
+            if list 'undead_summons' > 0
+                foreach necro_summon in 'undead_summons'
+                    if findtype necro_summon ground any 1 find_summon_range as summonserial
+                        if noto summonserial = friend
+                            overhead '*found {{summon}}*' 91 summonserial
+                            setvar! found_summon true
+                            # break
+                        endif
+                    endif
+                endfor
+            endif
+        endif
+
+        # even if we found this summon type, we still might need to cast it (if only 1 summon in list for instance)
+        if varexist found_summon
+
+            # if theres only one summon in the 'summons' list, even if we found the summon above,
+            # we still need to cast it again
+            if list 'summons' == 1 and followers < 4
+                setvar! cast_summon_spell true
+            # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
+            # summon before actually casting summ.creature
+            elseif list 'summons' == 2 and followers <= 3 and inlist 'summons' 'summ. creature'
+                setvar! cast_summon_spell true
+            elseif list 'summons' >= 3 and followers <= 1
+                setvar! cast_summon_spell true
+            # else if theres more than one summon in 'summons' list and we didnt find this specific summon
+            # we need to cast ig
+            endif
+        else
+            setvar! cast_summon_spell true
+        endif
+
+        #########################
+        # prepare to cast the summon spell for this summon
+        if varexist cast_summon_spell
+
+
+            foreach summonspell in 'summonspells'
+
+                if summonspell in summon
+
+                    unsetvar! 'summon_spell_required_mana'
+
+                    # first make a mana check for this specific summon spell
+                    if 'creature' in summonspell or 'blade' in summonspell
+                        setvar! 'summon_spell_required_mana' 14
+                    else
+                        setvar! 'summon_spell_required_mana' 50
+                    endif
+
+                    if varexist summon_spell_required_mana
+                        if mana < summon_spell_required_mana
+
+                            if timer 'low_mana_for_summoning_warning_msg_timer' >= 2000
+                                sysmsg ">>> LOW MANA FOR SUMMONING {{summon}}. (NEEDS {{summon_spell_mana}})..." 41
+                                overhead "low mana for summoning" 41
+                                settimer 'low_mana_for_summoning_warning_msg_timer' 0
+                            endif
+                        else
+                            sysmsg ">>> SUMMONING {{summon}}..." 56
+                            cast summonspell
+                            if 'blade' in summonspell or 'vortex' in summonspell
+                                overhead 'Waiting for {{summonspell}} target..'
+
+                                @settimer 'waiting_summon_timer' 0
+                                while not targetexists 'neutral' and timer 'waiting_summon_timer' < 3500
+                                    wft 100
+                                    if insysmsg 'disturbed'
+                                        @settimer 'waiting_summon_timer' 0
+                                        sysmsg 'BREAKING WHILE WAITING FOR RESS TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'neutral'
+                                    sysmsg 'CASTING BLADE OR VORTEX IN GROUND' 55
+                                    targetrelloc 0 1
+                                    break
+                                endif
+                            else
+                                @settimer 'waiting_summon_timer' 0
+                                while timer 'waiting_summon_timer' < 3500
+                                    wait 100
+                                    if insysmsg 'disturbed'
+                                        @settimer 'waiting_summon_timer' 0
+                                        sysmsg 'BREAKING WHILE WAITING FOR RESS TARGET'
+                                        wait 150
+                                        break
+                                    endif
+                                endwhile
+                                say 'all guard me'
+                            endif
+
+                            break
+
+                        endif
+                    endif
+
+
+                endif
+
+
+                ########################################
+                # SEARCH SHIPS IN BETWEEN CASTING SUMMONS
+                ########################################
+
+                setvar! search_ships_gump 2890020940
+                setvar! search_ships_cooldown 6100
+
+                if not timerexists 'spyglass_cooldown_warning_msg_timer'
+                    createtimer 'spyglass_cooldown_warning_msg_timer'
+                    settimer 'spyglass_cooldown_warning_msg_timer' 2000
+                endif
+                
+                
+                if not timerexists 'spyglass_timer'
+                    createtimer 'spyglass_timer'
+                    settimer 'spyglass_timer' 7000
+                endif
+
+                if timer 'spyglass_timer' < search_ships_cooldown
+                    sysmsg 'SPLYGLASS COOLDOWN!' 54
+                else
+                    setvar! found_player_boat 0
+                    if findtype 'spyglass' backpack as tool
+                        gumpclose 2890020940
+                        dclick tool
+                        waitfortarget 600
+                        if targetexists 'neutral'
+                            hotkey 'Target Self'
+                            waitforgump search_ships_gump 600
+                            if gumpexists search_ships_gump
+                                sysmsg 'SEARCHING SHIPS...' 89
+                                overhead 'searching ships...' 89
+                                gumpresponse 4 search_ships_gump
+                                waitforgump search_ships_gump 600
+                            endif
+                    
+                            if insysmsg 'before you may make another ship search'
+                                gumpresponse 4 search_ships_gump
+                                waitforgump search_ships_gump 600
+                            endif
+                    
+                            # WARN ABOUT NPC BOATS NEARBY
+                            if ingump "a daemon" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC DAEMON BOAT NEARBY!'
+                            endif
+                
+                            if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC GALEON NEARBY!'
+                            endif
+                
+                            if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'NPC CARRACK NEARBY!'
+                            endif
+                
+                            if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                setvar! found_npc_boat 1
+                                sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                            endif
+                
+                            # SEARCH PLAYER BOATS
+                            if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon ship" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                                setvar! found_player_boat 1
+                            else
+                                while ingump "Next" 2890020940
+                                    gumpresponse 3 2890020940
+                                    waitforgump search_ships_gump 600
+                    
+                                    # WARN ABOUT NPC BOATS NEARBY
+                                    if ingump "a daemon" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'NPC DAEMON BOAT NEARBY!'
+                                    endif
+                
+                                    if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'NPC GALEON NEARBY!'
+                                    endif
+                
+                                    if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'NPC CARRACK NEARBY!'
+                                    endif
+                
+                                    if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
+                                        setvar! found_npc_boat 1
+                                        sysmsg 'MEDIUM NPC BOAT NEARBY!'
+                                    endif
+                
+                                    if ingump "a small ship" 2890020940 or ingump "a small dragon ship" 2890020940 or ingump "a medium ship" 2890020940 or ingump "a medium dragon ship" 2890020940 or ingump "a large ship" 2890020940 or ingump "a large dragon" 2890020940 or ingump "a carrack" 2890020940 or ingump "a galleon" 2890020940
+                                        setvar! found_player_boat 1
+                                    endif
+                                endwhile
+                    
+                            endif
+                    
+                            if found_player_boat == 1
+                                overhead "FOUND PLAYER BOAT" 43
+                                overhead "FOUND PLAYER BOAT" 43
+                                overhead "FOUND PLAYER BOAT" 43
+                                sysmsg "FOUND PLAYER BOAT!" 43
+                                sysmsg "FOUND PLAYER BOAT!" 43
+                                sysmsg "FOUND PLAYER BOAT!" 43
+                                settimer 'spyglass_timer' 0
+                            else
+                                sysmsg 'NO PLAYER BOATS NEARBY!' 74
+                                overhead 'no player boats nearby!' 74
+                                overhead '*no ships nearby*' 54
+                                # gumpclose 2890020940
+                                settimer 'spyglass_timer' 0
+                            endif
+                    
+                    
+                        endif
+                    endif
+                endif
+
+
+            endfor
+        endif
+
+
+    endfor
+    stop
+endif
+
+
+
+####################################
+# CHECK IF WE CAN EXTEND / RESTORE SUMMONS
+
+foreach summon in 'summons'
+    # determine summon name by whether char has necromancy or not
+    if skill 'necromancy' >= 50 and use_undead_summons == 1
+        # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
+
+        if not listexists 'undead_summons'
+            createlist 'undead_summons'
+        endif
+
+        clearlist 'undead_summons'
+
+        if earth in summon
+            pushlist 'undead_summons' 'an ancient mummy'
+        elseif fire in summon
+            pushlist 'undead_summons' 'a lich'
+        elseif air in summon
+            pushlist 'undead_summons' 'a skeletal fiend'
+        elseif daemon in summon
+            pushlist 'undead_summons' 'a vampire thrall'
+        elseif water in summon
+            pushlist 'undead_summons' 'a rag witch'
+        endif
+    endif
+
+    #########################
+    # try to find a similir creature summon to see if we need to cast this one or skip to next one
+    unsetvar! found_summon
+    unsetvar! found_undead_summon
+    unsetvar! cast_summon_spell
+
+    if findtype summon ground any 1 find_summon_range as summonserial
+        if noto summonserial = friend
+            overhead '*found {{summon}}*' 91 summonserial
+            setvar! found_summon true
+        endif
+    endif
+
+    # if the 'undead_summons' list has elements, we need to check for those undead summons as well
+    if list 'undead_summons' > 0
+        foreach necro_summon in 'undead_summons'
+            if findtype necro_summon ground any 1 find_summon_range as summonserial
+                if noto summonserial = friend
+                    overhead necro_summon 16 summonserial
+                    setvar! found_undead_summon true
+                    break
+                endif
+            endif
+
+        endfor
+    endif
+
+    if varexist found_summon or varexist found_undead_summon
+        break
+    endif
+endfor
+
+
+# drain energy to increse mage summons duration
+if varexist found_summon
+    if skill 'spirit' > 0
+        if findtype 'corpse' ground any any 10 as body
+            if not inlist 'drained_corpses' body
+                sysmsg '>>> DRANING NEARBY CORPSES' 55
+                skill 'spirit'
+                @pushlist 'drained_corpses' body
+                @ignore body
+            endif
+        else
+            overhead '*no corpses to drain*' 56
+            sysmsg 'No Corpses Nearby To Drain...' 56
+        endif
+    endif
+else
+    sysmsg '>>> No Summons To Extend*' 56
+endif
+
+
+# consume nearby corpses to increase undead summons hp
+if varexist found_undead_summon
+    if skill 'necromancy' > 0 and use_undead_summons == 1
+        if findtype 'corpse' ground any any 10 as body
+            say '[vampiricembrace'
+            wft 400
+            if targetexists 'neutral'
+                sysmsg '>>> CONSUMING NEARBY CORPSE...' 95
+                overhead '*consuming corpse*' 95
+                target 'self'
+            endif
+        else
+            overhead '*no corpses to consume*' 56
+            sysmsg 'No Corpses Nearby To Consume...' 56
+        endif
+    endif
+elseif not varexist found_undead_summon
+    sysmsg '>>> No Undeads To Heal' 56
+endif
+
+if not varexist found_summon and not varexist found_undead_summon
+    overhead '|* no followers to maintain *|' 56
+    stop
+endif
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Switches everything back from lists to setvar! to simplify code maintenance
+# - Adds support for necro summons
+# - Fix follower count check when casting summ creature
+#
+# v0.0.1
+# - Initial release

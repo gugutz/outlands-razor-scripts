@@ -1,0 +1,19 @@
+setvar! max_skill_value 100
+setvar! action_delay 100
+
+while skill 'Camping' < max_skill_value
+    while not findtype campfire ground any any 3
+        if findtype kindling backpack as firestarter
+            overhead '*starting campfire*' 52
+            dclick firestarter
+            wait action_delay
+        else
+            overhead 'NO KINDLINGS!' 37
+            wait 3000
+        endif
+
+        if findtype campfire ground any any 3
+            overhead 'started campfire!' 72
+        endif
+    endwhile
+endwhile

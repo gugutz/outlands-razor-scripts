@@ -1,31 +1,57 @@
-if not findtype corpse ground any any 2
-    overhead '*no corpses nearby*' 45
-elseif findtype corpse ground any any 2 as corp
-    overhead '*opening corpse*'
-    dclick corp
-# this is the bones when the corpse is almost decaying
-elseif findtype 3792 ground any any 2 as corp
-    overhead '*opening pile of bones 2*'
-    dclick corp
-elseif findtype 3794 ground any any 2 as corp
-    overhead '*opening pile of bones 4*'
-    dclick corp
-elseif findtype 3791 ground any any 2 as corp
-    overhead '*opening pile of bones 1*'
-    dclick corp
-elseif findtype 3793 ground any any 2 as corp
-    overhead '*opening pile of bones 3*'
-    dclick corp
-elseif findtype 3789 ground any any 2 as corp
-    overhead '*opening pile of bones 89*'
-    dclick corp
-elseif findtype 3790 ground any any 2 as corp
-    overhead '*opening pile of bones 0*'
-    dclick corp
-elseif findtype 3787 ground any any 2 as corp
-    overhead '*opening pile of bones 87*'
-    dclick corp
-elseif findtype 3786 ground any any 2 as corp
-    overhead '*opening pile of bones 86*'
-    dclick corp
+
+createlist 'open_corpses'
+clearlist 'open_corpses'
+
+setvar! action_delay 600
+
+if findtypelist 'open_corpses' 'corpse' ground any any 2
+    sysmsg 'OPENING CORPSES' 73
+    foreach corpse in 'open_corpses'
+        dclick corpse
+        wait action_delay
+    endfor
+else
+    sysmsg 'NO CORPSES NEARBY!' 54
 endif
+
+
+# if not findtype 'corpse' ground any any 2
+#     overhead '*no corpses nearby*' 45
+#     stop
+# endif
+
+# if findtype 'corpse' ground any any 2 as corp
+#     getlabel corp corpse_label
+#     overhead '*opening {{corpse_label}}*'
+#     dclick corp
+# # this is the bones when the corpse is almost decaying
+# elseif findtype 'bones' ground any any 2 as bons
+#     getlabel bons bones_label
+#     overhead '*opening {{bones_label}}*'
+#     dclick corp
+# endif
+# elseif findtype 3792 ground any any 2 as corp
+#     overhead '*opening pile of bones 2*'
+#     dclick corp
+# elseif findtype 3794 ground any any 2 as corp
+#     overhead '*opening pile of bones 4*'
+#     dclick corp
+# elseif findtype 3791 ground any any 2 as corp
+#     overhead '*opening pile of bones 1*'
+#     dclick corp
+# elseif findtype 3793 ground any any 2 as corp
+#     overhead '*opening pile of bones 3*'
+#     dclick corp
+# elseif findtype 3789 ground any any 2 as corp
+#     overhead '*opening pile of bones 89*'
+#     dclick corp
+# elseif findtype 3790 ground any any 2 as corp
+#     overhead '*opening pile of bones 0*'
+#     dclick corp
+# elseif findtype 3787 ground any any 2 as corp
+#     overhead '*opening pile of bones 87*'
+#     dclick corp
+# elseif findtype 3786 ground any any 2 as corp
+#     overhead '*opening pile of bones 86*'
+#     dclick corp
+# endif

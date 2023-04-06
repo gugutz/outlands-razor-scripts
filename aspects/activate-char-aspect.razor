@@ -17,6 +17,10 @@ pushlist 'aspect_colors' 1788
 pushlist 'aspect_colors' 2599
 # poison
 pushlist 'aspect_colors' 2897
+# death
+pushlist 'aspect_colors' 2155
+# lyric
+pushlist 'aspect_colors' 2241
 
 
 
@@ -65,6 +69,7 @@ if skill 'herding' > 0
                 hotkey 'Undress Left Hand'
                 wait 500
             endwhile
+
             while not rhandempty
                 hotkey 'Undress Right Hand'
                 wait 500
@@ -79,12 +84,14 @@ if skill 'herding' > 0
 
             sysmsg "Activating aspect on  Crook..." 90
             waitforgump 2424293173 500
-            gumpresponse 8
+            gumpresponse 8 2424293173
             waitforgump 2424293173 500
-            gumpresponse 8
+            gumpresponse 8 2424293173
             waitforgump 2424293173 500
             hotkey 'Undress Left Hand'
         endif
+    else
+        overhead '!no crook to activate aspect!' 39
     endif
 
     if inlist 'aspect_active_on_crook' 'yes'
@@ -165,7 +172,7 @@ endif
 if varexist hand_item
     foreach aspect_color in 'aspect_colors'
         if hue hand_item == aspect_color
-        sysmsg 'debug: found aspect color on hand'
+            sysmsg 'debug: found aspect color on hand'
             pushlist 'is_active_on_hand' 'yes'
             break
         endif
@@ -195,9 +202,9 @@ else
     if not rhandempty
         sysmsg "Activating aspect on hand..." 56
         waitforgump 2424293173 500
-        gumpresponse hand_item_activate_aspect_gump_btn
+        gumpresponse hand_item_activate_aspect_gump_btn 2424293173
         waitforgump 2424293173 500
-        gumpresponse hand_item_activate_aspect_gump_btn
+        gumpresponse hand_item_activate_aspect_gump_btn 2424293173
     else
         if inlist 'is_mage' 'yes'
             overhead "book not equiped" 48

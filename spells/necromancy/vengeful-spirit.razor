@@ -1,3 +1,12 @@
+setvar! action_delay 600
+
 say '[vengefulspirit'
-wait 500
+wait action_delay
 say '[wither'
+wait action_delay
+if insysmsg 'You must wait a moment before attempting to use another Necromancy ability'
+    while insysmsg 'You must wait a moment before attempting to use another Necromancy ability'
+        say '[wither'
+        wait action_delay
+    endwhile
+endif

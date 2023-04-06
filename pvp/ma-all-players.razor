@@ -1,0 +1,69 @@
+
+setvar! spell_recovery_delay 180
+
+createlist 'broken_targets'
+clearlist 'broken_targets'
+
+while not dead self
+sysmsg 'TRY {{index}}'
+    hotkey "Next Non-Friendly Player Target"
+    if insysmsg 'New target'
+        setvar! targserial lasttarget
+        if not inlist 'broken_targets' targserial
+            sysmsg 'PUSHING {{targserial}} TO LIST'
+            pushlist 'broken_targets' targserial
+        else
+            sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
+            break
+        endif
+    endif
+    if index >= 9
+        sysmsg 'STOPING ON 9TH ATTEMPT TO FIND TARGET' 54
+        stop
+    endif
+endwhile
+
+foreach x in 'broken_targets'
+    sysmsg 'TARGET {{index}}: {{x}}'
+endif
+
+# if we are at the last list 'broken_targets', theres no next pouch to move
+if list 'broken_targets' == 0
+    setvar! list_size 1
+elseif list 'broken_targets' == 1
+    setvar! list_size 2
+elseif list 'broken_targets' == 2
+    setvar! list_size 3
+elseif list 'broken_targets' == 3
+    setvar! list_size 4
+elseif list 'broken_targets' == 4
+    setvar! list_size 5
+elseif list 'broken_targets' == 5
+    setvar! list_size 6
+elseif list 'broken_targets' == 6
+    setvar! list_size 7
+elseif list 'broken_targets' == 7
+    setvar! list_size 8
+elseif list 'broken_targets' == 8
+    setvar! list_size 9
+elseif list 'broken_targets' == 9
+    setvar! list_size 10
+elseif list 'broken_targets' == 10
+    setvar! list_size 11
+elseif list 'broken_targets' == 11
+    setvar! list_size 11
+elseif list 'broken_targets' == 12
+    setvar! list_size 13
+endif
+
+sysmsg 'LIST SIZE {{list_size}}'
+
+hotkey 'Clear Target Queue'
+foreach targ in 'broken_targets'
+    hotkey 'Toggle Peace Only'
+    cast 'magic arrow'
+    wft 2000
+    target targ
+    wait spell_recovery_delay
+endfor
+

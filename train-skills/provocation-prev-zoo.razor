@@ -1,0 +1,15 @@
+while skill 'Provocation' < 120.0
+    hotkey 'Cancel Current Target'
+    wait 400
+    skill 'Provocation'
+    wft 600
+    if insysmessage 'What instrument shall you play?'
+        targettype 'lute'
+        wait 600
+    else
+        target '0x414397'
+        wft 600
+        target '0x415A46'
+        wait 6000
+    endif
+endwhile

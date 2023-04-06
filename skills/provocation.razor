@@ -1,0 +1,61 @@
+
+
+if not listexists 'instruments'
+    createlist 'instruments'
+    pushlist 'instruments' 'lute'
+    pushlist 'instruments' 'drum'
+    pushlist 'instruments' 'bamboo flute'
+    pushlist 'instruments' 'tambourine'
+    pushlist 'instruments' 'lap harp'
+endif
+
+while not targetexists 'neutral' and not targetexists 'harmful'
+    useskill 'provocation'
+    wft 600
+endwhile
+
+# clearsysmsg
+# if insysmsg 'You must wait a few moments before performing another barding song'
+#     overhead 'barding cooldown. retrying...'
+#     replay
+# elseif insysmsg 'You must wait a few moments to use another skill'
+#     overhead 'skill cooldown. retrying...'
+#     replay
+# elseif insysmsg 'You must wait a few moments to use another skill'
+#     overhead 'action cooldown?. retrying...'
+#     replay
+# endif
+
+if insysmsg 'What instrument shall you play?'
+    overhead 'selecting instrument' 52
+    wait 100
+
+    foreach type in 'instruments'
+        # find all instruments and see if any of them are magical
+        # if findtype type backpack as instrument and list 'char_instrument' == 0
+        if findtype type backpack as instrument
+            getlabel instrument instrument_label
+
+            if exceedingly in instrument_label or supremely in instrument_label
+                overhead 'selecting {{instrument_label}}' 90
+                target instrument
+                break
+            endif
+        endif
+
+    endfor
+endif
+
+if insysmsg 'What do you wish to incite?' and targetexists 'harmful'
+    overhead 'provoke which creature?' 54
+
+    while targetexists 'harmful'
+        wait 100
+    endwhile
+
+    wait 200
+
+    if insysmsg 'Whom do you wish them to attack?' and targetexists 'harmful'
+        overhead 'provoke against who?' 90
+    endif
+endif

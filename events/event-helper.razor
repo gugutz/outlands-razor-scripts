@@ -1,0 +1,91 @@
+wait action_delay
+
+#########################################
+# QUESTS AND EVENT SPECIFIC CODE
+#########################################
+
+if insysmsg 'You have received a Dungeon Torch!'
+    sysmsg '!!!!!! DUNGEON TORCH!!!!!!!!!!!!!!!!!!!' 90
+    overhead '!!!!!! DUNGEON TORCH!!!!!!!!!!!!!!!!!!!' 90
+endif
+
+#########################################
+# QUESTS AND EVENT SPECIFIC CODE
+#########################################
+
+if findtype 'an elusive rabbit' ground any any 30 as rabbit
+    overhead '!! RABBIT !!' 90
+    overhead '!! RABBIT !!' 90 rabbit
+endif
+
+#########################################
+# STRANGELANDS
+#########################################
+
+# MOST OF THE CODE BELLOW WAS TAKEN FROM JASEOWNS STRANGELANDS DEXXER BOT HERE:
+# https://outlands.uorazorscripts.com/script/9c52c1ca-846f-409e-b625-8ba68e8f386d
+
+# 4655 2880 blood smear
+# 4651 2880 blood
+# tracking book 29106 2799 book
+
+# save trophies in caches on the ground
+# dclicking the cache will auto put away trophs
+if findtype "secret door|grass" ground -1 -1 2 as cache
+    dclick cache
+endif
+
+# gather all types of trophies, then check that first before clicking cachey
+if findtype "magic rock|skull" backpack
+    overhead "we got a trophy"
+endif
+
+# 4655 2880 blood smear
+# 4651 2880 blood
+
+# drink or food on ground
+if findtype 4650|4655|4651|4653 ground 2880 -1 2 as item
+    dclick item
+    wait 650
+elseif findtype "mushroom" ground -1 -1 2 as item
+    dclick item
+    wait 650
+endif
+
+# these are buff bottles
+if findtype "jar" ground -1 -1 2 as item
+    hotkey "Grab Item"
+    wft 500
+    target item
+    wait 650
+endif
+
+if findtype "jar" backpack as item
+    dclick item
+endif
+
+# supply manifest 29107 2220
+
+# shovel 3897  2796
+#
+if findtype 3897 backpack 2796 as item
+    if hp <= 25
+        dclick item
+    endif
+endif
+
+# book on ground, grab it
+if findtype "book" ground -1 -1 2 as item
+    hotkey "Grab Item"
+    wft 500
+    target item
+    wait 650
+endif
+
+if findtype 4029 backpack 0 as item
+    dclick item
+    wait 200
+    if insysmsg "You are not familiar enough with that skill to use a skill manual for it."
+        @ignore item
+    endif
+endif

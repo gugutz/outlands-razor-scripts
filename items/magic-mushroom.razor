@@ -1,42 +1,100 @@
+##########################
+# MAGIC MUSHROOM
+# by gugutz
+# version 0.0.1
+#################################
+#
+#
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.1
+# - Initial release
+#
+################################
+# SCRIPT CONFIGURATION
+################################
 
-# set this variable according to the level of Create Food in your grimoire
+if not varexist magic_mushroom_first_run_done
+    setvar! magic_mushroom_first_run_done true
 
-if not timerexists 'use_mushroom_timer'
-    sysmsg 'Creating mushroom timer...'
-    createtimer 'use_mushroom_timer'
-    settimer 'use_mushroom_timer' 60001
+    setvar! action_delay 600
+    setvar! auto_meditate_when_on_mushroom_timer true
+
+
+    #################################
+    # CREATE ALL TIMERS
+
+    if not listexists 'magic_mushroom_timers'
+        createlist 'magic_mushroom_timers'
+        pushlist 'magic_mushroom_timers' 'use_mushroom_timer'
+        pushlist 'magic_mushroom_timers' 'waiting_sysmsg_timer'
+
+
+        foreach timer in 'magic_mushroom_timers'
+            if not timerexists timer
+                createtimer timer
+                settimer timer 99999
+            endif
+        endfor
+    endif
+
 endif
 
 
+
+
+
+
+
+################################
+#
+# CODE
+#
+################################
+
 if mana = maxmana
-    overhead '*already full mana*' 55
+    overhead 'already full mana!' 55
     stop
 endif
 
 if mana > 70
-    overhead 'over mana limit'
+    overhead 'over mana limit!' 54
     stop
 endif
 
 if mana < 70
     if timer 'use_mushroom_timer' < 60000
-        overhead '! mushroom cooldown !' 55
-        stop
+        if varexist auto_meditate_when_on_mushroom_timer
+            overhead 'mushroom cooldown. meditating...' 55
+            script 'skills\medidate'
+        else
+            overhead 'mushroom cooldown!' 52
+            stop
+        endif
     endif
 
     if not findtype 'mushroom' 'backpack'
         overhead 'no mushrooms!' 37
         while counttype 'mushroom' < 5 and mana > 11
             cast 'create food'
+            wait action_delay
         endwhile
     else
+        clearsysmsg
         usetype 'mushroom' backpack
-        wait 600
-        # waitforsysmsg 'you consume' 600
-        if insysmsg 'you consume'
-            sysmsg '>>> Used mushroom! Resetting timer...' 55
-            settimer 'use_mushroom_timer' 0
-            clearsysmsg
-        endif
+        settimer 'waiting_sysmsg_timer' 0
+        while timer 'waiting_sysmsg_timer' < 600
+            wait 10
+            # waitforsysmsg 'you consume' 600
+            if insysmsg 'you consume'
+                sysmsg '>>> Used mushroom! Resetting timer...' 55
+                settimer 'waiting_sysmsg_timer' 0
+                settimer 'use_mushroom_timer' 0
+                clearsysmsg
+                break
+            endif
+        endwhile
     endif
 endif

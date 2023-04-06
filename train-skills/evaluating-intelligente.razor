@@ -1,13 +1,9 @@
-if insysmsg 'The world will save'
-    wait 27000
-endif
-
-if skill 'evaluating intelligence' < 120
-    skill 'evaluating intelligence'
-    waitfortarget
-    hotkey 'Target Closest Friendly'
-    hotkey 'Target Closest Friendly Monster'
-    pause 10000
+if skill 'evalint' < 120
+    sysmsg 'entrou'
+    useskill 'evalint'
+    waitfortarget 600
+    hotkey 'Last Target'
+    pause 1600
 else
     sysmsg 'You have reached skill level 120 in Evaluating Intelligence' 44
     stop

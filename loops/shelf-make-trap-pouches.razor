@@ -48,8 +48,20 @@ if varexist shelf
             if not findtype "pouch" backpack 0
                 sysmsg 'RESSUPLYING...' 55
                 menu shelf 1
-                gumpclose
-                wait 1000
+                waitforgump 3232825965 600
+
+                if gumpexists 3232825965
+                    gumpclose 3232825965
+                endif
+
+                wait 600
+
+                if not findtype "pouch" backpack 0
+                    overhead 'NO POUCHES AFTER RESUUPLY' 39
+                    overhead 'SHELF IS PROBABLY OUT OF POUCHES' 39
+                    overhead 'STOPPING SCRIPT' 39
+                    stop
+                endif
             endif
     
             # pouch graphic = 0x0e79
@@ -69,6 +81,11 @@ if varexist shelf
     
             if list 'untrapped_pouches' > 0
                 foreach untrapped_pouch in 'untrapped_pouches'
+                    if targetexists 'any'
+                        hotkey 'Cancel Current Target'
+                        wait 400
+                    endif
+
                     # first try to use scrolls
                     if findtype 0x1F39 as magic_trap_scroll
                         useobject magic_trap_scroll
@@ -80,7 +97,7 @@ if varexist shelf
                     # if there are no scrolls in backpack, try with magery if char has the skill
                     elseif skill 'magery' > 50
                         cast 'magic trap'
-                        wft 1800
+                        wft 2500
                         if targetexists 'neutral'
                             target untrapped_pouch
                         endif

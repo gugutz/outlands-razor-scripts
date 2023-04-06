@@ -1,0 +1,69 @@
+
+
+if not listexists 'instruments'
+    createlist 'instruments'
+    pushlist 'instruments' 'lute'
+    pushlist 'instruments' 'drum'
+    pushlist 'instruments' 'bamboo flute'
+    pushlist 'instruments' 'tambourine'
+    pushlist 'instruments' 'lap harp'
+endif
+
+
+if skill 'provocation' >= 50 and not findbuff 'song of provocation'
+
+    foreach type in 'instruments'
+        # find all instruments and see if any of them are magical
+        while findtype type backpack as instrument and not varexist char_instrument
+            getlabel instrument instrument_label
+
+            if exceedingly in instrument_label or supremely in instrument_label
+                setvar! char_instrument instrument
+                break
+            endif
+            @ignore instrument
+        endwhile
+
+        @clearignore
+
+        if varexist char_instrument
+            break
+        endif
+    endfor
+
+    if varexist char_instrument
+        clearsysmsg
+        useskill 'provocation'
+        wft 600
+
+        if insysmsg 'You must wait a few moments before performing another barding song'
+            over 'barding cooldown. retrying...'
+            replay
+        endif
+
+        if insysmsg 'What instrument shall you play?'
+            overhead 'selecting instrument...' 54
+            dclick instrument
+            wait 600
+        endif
+
+        if targetexists 'harmful' and insysmsg 'What do you wish to incite?'
+
+            if findtype 'dagger' backpack as knife
+                target knife
+            elseif findtype 'spellbook' backpack as book
+                target book
+            else
+                targetrelloc 1 1
+            endif
+
+            wait 200
+            if findbuff 'song of provocation'
+                overhead '+ provocation buff' 91
+                stop
+            endif
+        endif
+    else
+        overhead 'cant find instrument!' 41
+    endif
+endif

@@ -5,5 +5,20 @@ if not findtype 25758 backpack
     stop
 endif
 
-overhead 'reparing ship hull...' 54
+setvar! action_delay 600
+createtimer 'waiting_sysmsg'
+
 say '[repairhull'
+
+clearsysmsg
+settimer 'waiting_sysmsg' 0
+while timer 'waiting_sysmsg' < action_delay
+    if insysmsg 'hull does not need to be repaired'
+        overhead 'hull dont need reparing!' 54
+        stop
+    endif
+endwhile
+
+overhead 'reparing ship hull...' 54
+
+cooldown 'Repairing Ship' 10

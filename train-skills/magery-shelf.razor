@@ -6,6 +6,7 @@ sysmsg 'by gugutz' 56
 sysmsg '########################' 90
 
 
+setvar! storage_shelf_gump_id 3232825965
 
 if findtype 'storage shelf' ground any any 2 as shelf_found
    setvar shelf shelf_found
@@ -24,6 +25,43 @@ if varexist shelf
     while find shelf ground any any 2
         while skill "magery" < 100 and not dead
 
+            if not findbuff 'food satisfaction'
+                if findtype 'tray' as delectable
+                    overhead '*eating deletable*'
+                    dclick delectable
+                endif
+            endif
+
+            # TASTE BUFF
+            if not findbuff 'herbal poultice'
+                if skill 'taste identification' > 50
+                    if skill 'taste identification' > 50
+                        skill 'tasteid'
+                        wft action_delay
+        
+                        if findtype 'dagger' backpack as knife
+                            target knife
+                        elseif findtype 'spellbook' backpack as book
+                            target book
+                        else
+                            targetrelloc 1 1
+                        endif
+        
+                        wait 200
+        
+                        if findbuff 'herbal poultice'
+                            sysmsg '+++ CREATED HERBAL POULTICE' buff_msg_color
+                            overhead '*herbal poultice*' buff_msg_color
+                        endif
+                    endif
+        
+                endif
+            endif
+
+            if maxmana <= 10
+                overhead 'TOO LOW MANA. RAISE YOUR MANA TO START'
+            endif
+
             if skill "magery" < 60
                 @setvar mana_needed 11
             elseif skill "magery" < 80
@@ -36,7 +74,8 @@ if varexist shelf
             if count "black pearl" < 1 or count "blood moss" < 1 or count "mandrake root" < 1 or count "garlic" < 1 or count "ginseng" < 1 count "nightshade" < 1 or count "spider's silk" < 1 or count "sulfurous ash" < 1
                 sysmsg 'RESSUPLYING...' 55
                 menu shelf 1
-                gumpclose
+                waitforgump storage_shelf_gump_id 600
+                gumpclose storage_shelf_gump_id
             endif
 
             # meditate when needed
@@ -72,7 +111,7 @@ if varexist shelf
                 pause 600
             else
                 cast "air elemental"
-                pause 5250
+            pause 5200
                 say "an air elemental release"
                 pause 600
             endif

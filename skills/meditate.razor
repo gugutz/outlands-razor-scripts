@@ -6,44 +6,14 @@
 #
 # CREDITS :)
 #
-sysmsg '♥ Meditate & Use Mushroom by gugutz ♥' 55
+# sysmsg '♥ Meditate & Use Mushroom by gugutz ♥' 55
 #
-#################################
-# CHANGELOG
-#################################
-#
-#
-# v0.0.2
-# - Implements 'list config' system
-# - Adds mushroom use to macro
-#
-# v0.0.1
-# - Initial release
+################################
+# SCRIPT CONFIGURATION
+################################
 
-
-#################################
-# SCRIPT LISTS
-#################################
-
-# CREATE ALL LISTS FOR CONFIG
-
-if not listexists 'meditate_config_lists'
-    createlist 'meditate_config_lists'
-else
-    clearlist 'meditate_config_lists'
-endif
-
-pushlist 'meditate_config_lists' 'action_delay'
-pushlist 'meditate_config_lists' 'min_mana_to_use_mushroom'
-
-foreach list in 'meditate_config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
-
+setvar! action_delay 600
+setvar! min_mana_to_use_mushroom 70
 
 #################################
 # SCRIPT TIMERS
@@ -51,6 +21,7 @@ endfor
 
 createlist 'meditate_script_timers'
 pushlist 'meditate_script_timers' 'use_mushroom_timer'
+pushlist 'meditate_script_timers' 'waiting_meditation_timer'
 
 
 foreach timer in 'meditate_script_timers'
@@ -61,16 +32,7 @@ foreach timer in 'meditate_script_timers'
 endfor
 
 
-################################
-# SCRIPT CONFIGURATION
-################################
 
-pushlist 'action_delay' 600
-pushlist 'min_mana_to_use_mushroom' 70
-
-# INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
-if atlist 'action_delay' 0 as action_delay
-if atlist 'min_mana_to_use_mushroom' 0 as min_mana_to_use_mushroom
 
 
 ################################
@@ -78,39 +40,39 @@ if atlist 'min_mana_to_use_mushroom' 0 as min_mana_to_use_mushroom
 ################################
 
 # MUSHROOM
-if name == 'Neron' or name == 'Emillia'
-    if mana = maxmana
-        overhead 'no need for mushroom!' 55
-        stop
-    endif
+# if name == 'Neron' or name == 'Emillia'
+#     if mana = maxmana
+#         overhead 'no need for mushroom!' 55
+#         stop
+#     endif
 
-    if mana >= 70
-        overhead 'over mana limit for mushroom'
-    endif
+#     if mana >= 70
+#         overhead 'over mana limit for mushroom'
+#     endif
 
-    if mana < 70
-        if timer 'use_mushroom_timer' < 60000
-            overhead '! mushroom cooldown !' 55
-        endif
+#     if mana < 70
+#         if timer 'use_mushroom_timer' < 60000
+#             overhead '! mushroom cooldown !' 55
+#         endif
 
-        if not findtype 'mushroom' 'backpack'
-            overhead 'no mushrooms!' 37
-            while counttype 'mushroom' < 5 and mana > 11
-                cast 'create food'
-            endwhile
-        else
-            usetype 'mushroom' backpack
-            wait 600
-            # waitforsysmsg 'you consume' 600
-            if insysmsg 'you consume'
-                sysmsg '>>> Used mushroom! Resetting timer...' 55
-                settimer 'use_mushroom_timer' 0
-                clearsysmsg
-                stop
-            endif
-        endif
-    endif
-endif
+#         if not findtype 'mushroom' 'backpack'
+#             overhead 'no mushrooms!' 37
+#             while counttype 'mushroom' < 5 and mana > 11
+#                 cast 'create food'
+#             endwhile
+#         else
+#             usetype 'mushroom' backpack
+#             wait 600
+#             # waitforsysmsg 'you consume' 600
+#             if insysmsg 'you consume'
+#                 sysmsg '>>> Used mushroom! Resetting timer...' 55
+#                 settimer 'use_mushroom_timer' 0
+#                 clearsysmsg
+#                 stop
+#             endif
+#         endif
+#     endif
+# endif
 
 
 ###############################
@@ -139,43 +101,35 @@ if findbuff 'actively meditating'
     stop
 endif
 
+
 while mana < maxmana and not findbuff 'actively meditating'
     skill 'meditation'
-    waitforsysmsg 'You enter a meditative trance' 600
-    if findbuff 'actively meditating' or insysmsg 'You enter a meditative trance'
-        overhead '*begin meditating*' 90
-        settimer 'medit_msg' 0
-        while findbuff 'actively meditating'
-            if timer 'medit_msg' > 2000
-                settimer 'medit_msg' 0
-                overhead 'meditating...' 55
-            endif
+    settimer 'waiting_meditation_timer' 0
 
-            if name == 'Neron' or name == 'Emillia'
-                if timer 'use_mushroom_timer' >= 60000
-                    if not findtype 'mushroom' 'backpack'
-                        overhead 'no mushrooms!' 37
-                        while counttype 'mushroom' < 5 and mana > 11
-                            cast 'create food'
-                        endwhile
-                    else
-                        usetype 'mushroom' backpack
-                        wait 600
-                        # waitforsysmsg 'you consume' 600
-                        if insysmsg 'you consume'
-                            sysmsg '>>> Used mushroom! Resetting timer...' 55
-                            settimer 'use_mushroom_timer' 0
-                            clearsysmsg
-                        endif
-                    endif
+    while timer 'waiting_meditation_timer' < action_delay
+        if findbuff 'actively meditating' or insysmsg 'You enter a meditative trance'
+            overhead '*begin meditating*' 90
+            settimer 'medit_msg' 0
+            while findbuff 'actively meditating'
+                if timer 'medit_msg' > 2000
+                    settimer 'medit_msg' 0
+                    overhead 'meditating...' 54
                 endif
-            endif
-
-        endwhile
-    endif
+            endwhile
+        endif
+    endwhile
 endwhile
 
 
-# closing the ifs that initialized the config variables on top of tile
-endif
-endif
+
+#################################
+# CHANGELOG
+#################################
+#
+#
+# v0.0.2
+# - Implements 'list config' system
+# - Adds mushroom use to macro
+#
+# v0.0.1
+# - Initial release

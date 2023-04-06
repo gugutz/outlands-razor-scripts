@@ -1,5 +1,4 @@
 
-
 #################################
 # CREATE ALL LISTS FOR CONFIG
 #################################
@@ -7,49 +6,52 @@
 
 if not listexists 'scriptname_config_lists'
     createlist 'scriptname_config_lists'
-else
-    clearlist 'scriptname_config_lists'
+
+    # routine-related lists
+    pushlist 'scriptname_config_lists' 'action_delay'
+
+    foreach list in 'scriptname_config_lists'
+        if not listexists list
+            createlist list
+        else
+            clearlist list
+        endif
+    endfor
+
+
+    ################################
+    # SCRIPT CONFIGURATION
+    ################################
+
+    pushlist 'action_delay' 600
+
+    # VALIDATE THAT ALL CONFIG LISTS WERE ASSIGNED CONFIG VALUES
+    foreach list in 'scriptname_config_lists'
+        if not atlist list 0
+            sysmsg '[ERROR] {{list}} LIST MISSING VALUE!!!!!' 33
+        endif
+    endfor
 endif
 
-# routine-related lists
-pushlist 'scriptname_config_lists' 'action_delay'
-
-foreach list in 'scriptname_config_lists'
-    if not listexists list
-        createlist list
-    else
-        clearlist list
-    endif
-endfor
 
 
 #################################
 # CREATE ALL TIMERS
 #################################
 
-createlist 'scriptname_timers'
-pushlist 'scriptname_timers' 'loop_on_warning_msg'
+if not listexists 'scriptname_timers'
+    createlist 'scriptname_timers'
+    pushlist 'scriptname_timers' 'loop_on_warning_msg'
 
-foreach timer in 'scriptname_timers'
-    if not timerexists timer
-        createtimer timer
-        settimer timer 99999
-    endif
-endfor
+    foreach timer in 'scriptname_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
+        endif
+    endfor
+endif
 
 
-################################
-# SCRIPT CONFIGURATION
-################################
-
-pushlist 'action_delay' 600
-
-# VALIDATE THAT ALL CONFIG LISTS WERE ASSIGNED CONFIG VALUES
-foreach list in 'activate_void_config_lists'
-    if not atlist list 0
-        sysmsg '{{list}} LIST MISSING VALUE!!!!!'
-    endif
-endfor
 #################################
 # INITIALIZE THE CONFIGURATION VALUES AS VARIABLES BUT FROM LIST SO WE DONT NEED TO ITERATE TO GET THE INDEX 0
 if atlist 'action_delay' 0 as action_delay
@@ -57,7 +59,9 @@ if atlist 'action_delay' 0 as action_delay
 
 
 ################################
+#
 # CODE
+#
 ################################
 
 

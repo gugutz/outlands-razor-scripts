@@ -3,15 +3,87 @@ if not timerexists 'next_poison_tick'
 endif
 
 
-if targetexists 'harmful'
-    # if theres no need to cast, toggle hally
-    if lhandempty and rhandempty
-        script 'dress\toggle-main-weapon'
-    endif
-endif
+# if targetexists 'harmful'
+#     # if theres no need to cast, toggle hally
+#     if lhandempty and rhandempty
+#         script 'dress\toggle-main-weapon'
+#     endif
+# endif
 
 if not timerexists 'casting_poison'
     createtimer 'casting_poison'
 endif
 
-hotkey 'Play: spells\poison'
+# hotkey 'Play: spells\poison'
+
+# only loop poison until lethal is applied if char is PVMer
+# check if char is PVMer by searching for poison kit (item name 'full vials') in backpack
+if skill 'poisoning' >= 20 and findtype 'full vials' backpack and not dead lasttarget
+    sysmsg 'debug 1' 93
+    # getlabel lastarget lasttarget_label
+    if noto lasttarget == friendly
+        overhead 'cancelling poison on friendly target!' 52
+        hotkey 'Cancel Current Target'
+    # elseif noto lasttarget == hostile or noto lasttarget == criminal or noto lasttarget == murderer
+    else
+        sysmsg 'debug 3' 93
+        while not insysmsg 'upgraded to lethal' and not dead lasttarget
+            sysmsg 'debug 4' 93
+            while not targetexists 'harmful'
+                cast 'poison'
+
+                if not timerexists 'waiting_spell_timer'
+                    createtimer 'waiting_spell_timer'
+                endif
+                @settimer 'waiting_spell_timer' 0
+
+                while not targetexists 'harmful' and timer 'waiting_spell_timer' < 3000
+                    wait 100
+                    if insysmsg 'disturbed' or insysmsg 'cannot cast a spell'
+                        sysmsg 'BREAKING WHILE WAITING FOR POISON TARGET'
+                        wait 200
+                        break
+                    endif
+                endwhile
+
+            endwhile
+
+            if targetexists 'harmful'
+                if not dead lasttarget
+                    # getlabel lastarget lasttarget_label
+                    if noto lasttarget == friendly or noto lasttarget == friend
+                        overhead 'cancelling poison on friendly target!' 52
+                        hotkey 'Cancel Current Target'
+                    elseif noto lasttarget == hostile or noto lasttarget == criminal or noto lasttarget == murderer
+                        overhead 'poisoning' 78 lasttarget
+                        sysmsg 'Poisoning last target {{lasttarget_label}}...' 78
+                        hotkey 'Last Target'
+                        wait 200
+                    endif
+                endif
+            else
+
+            endif
+        endwhile
+    endif
+else
+    cast 'poison'
+endif
+
+
+########################################
+# SEARCH SHIPS
+########################################
+
+# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+if findtype 2578 self
+    sysmsg 'BOATING MODE ON'
+    setvar! boating_mode 1
+elseif findtype 3947 self
+    sysmsg 'BOATING MODE OFF'
+    setvar! boating_mode 0
+endif
+
+if boating_mode == 1
+    script 'ships\search-ships'
+endif
