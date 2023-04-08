@@ -1,16 +1,22 @@
 
-if varexist CHAR_LOOT_POUCH
-    if find CHAR_LOOT_POUCH
-        while hue CHAR_LOOT_POUCH == 38
-            sysmsg '>>> POPING LOOT POUCH!' sysmsgs_color
-            dclick char_loot_pouch
-            wait action_delay
-        endwhile
-
-        sysmsg '>>> OPENING TRAPPED LOOT POUCH!' sysmsgs_color
-        dclick CHAR_LOOT_POUCH
-        wait action_delay
-    else
-        sysmsg 'CANT FIND CHAR LOOT POUCH (TRY TO MOVE IT?)'
-    endif
+if not varexist CHAR_LOOT_POUCH
+    sysmsg 'CHAR_LOOT_POUCH is not defined!' 40
+    stop
 endif
+
+if not find CHAR_LOOT_POUCH
+    sysmsg 'CANT FIND CHAR LOOT POUCH '
+    sysmsg 'CHAR_LOOT_POUCH defined but not found (TRY TO MOVE IT)!' 40
+    stop
+endif
+
+
+while hue CHAR_LOOT_POUCH == 38
+    sysmsg '>>> POPING LOOT POUCH!' sysmsgs_color
+    dclick CHAR_LOOT_POUCH
+    wait action_delay
+endwhile
+
+sysmsg '>>> OPENING TRAPPED LOOT POUCH!' sysmsgs_color
+dclick CHAR_LOOT_POUCH
+wait action_delay

@@ -14,17 +14,16 @@ sysmsg "* uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor" 55
 sysmsg "* first run far from other friends pack animals" 55
 sysmsg '***********************' 90
 
-
-cooldown MINING 10000
 setvar! mining_cooldown_delay 10000
+
+cooldown MINING 3000
 
 # TEST IF REQUIRED COOLDOWN WAS CREATED
 if not cooldown MINING
     overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
-    sysmsg "PLEASE SETUP A COOLDOWN NAMED:" 34
-    sysmsg "Mining" 88
+    sysmsg "PLEASE SETUP A COOLDOWN NAMED 'MINING' WITH DEFAULT TIMER OF 30 SECONDS" 88
     sysmsg "." 88
-    sysmsg "Add these triggers each with a 10 second cooldown:" 66
+    sysmsg "ADD THESE TRIGGERS TO THE COOLDOWN:" 66
     sysmsg "Type: sysmsg | Text: you dig some"
     sysmsg "Type: sysmsg | Text: You have recently traveled"
     sysmsg "Type: sysmsg | Text: You have worn out your tool"
@@ -51,7 +50,7 @@ setvar! resource_cooldown_value 10000
 
 setvar! auto_smelt_ores_when_close_to_forges 1
 setvar! smelt_colored_ores 0
-setvar! recall_to_escape_pks 1
+setvar! auto_escape_pks 1
 
 # escape rune button number on runebook
 setvar! runetome_rune_position 100
@@ -242,7 +241,7 @@ setvar! max_diffweight_before_unloading 50
 if name == 'Darren'
     setvar! auto_smelt_ores_when_close_to_forges 0
     setvar! smelt_colored_ores 0
-    setvar! recall_to_escape_pks 0
+    setvar! auto_escape_pks 0
 endif
 
 
@@ -1090,7 +1089,13 @@ if auto_summon == 1 and followers < summon_max_limit
                             if verbose == 1
                                 sysmsg ">>> SUMMONING {{summon}}..." action_msg_color
                             endif
-                            cast summonspell
+
+                            # temporary fix for bug when char keeps trying to cast a 2 slot summon when only 1 slot available
+                            if followers == 4 and inlist 'summons' 'summ. creature'
+                                cast 'Summ. Creature'
+                            else
+                                cast summonspell
+                            endif
 
                             if 'blade' in summonspell or 'vortex' in summonspell
                                 if verbose == 1
@@ -1159,6 +1164,8 @@ setvar! possible_captcha_detected 0
 
 setvar! rune_number 10
 
+# trigger the cooldown once at start so char can start lumbering
+cooldown MINING 30000
 
 foreach runebook in 'mining_runebooks'
     if runebook != 0
@@ -1496,7 +1503,13 @@ foreach runebook in 'mining_runebooks'
                                         if verbose == 1
                                             sysmsg ">>> SUMMONING {{summon}}..." action_msg_color
                                         endif
-                                        cast summonspell
+
+                                        # temporary fix for bug when char keeps trying to cast a 2 slot summon when only 1 slot available
+                                        if followers == 4 and inlist 'summons' 'summ. creature'
+                                            cast 'Summ. Creature'
+                                        else
+                                            cast summonspell
+                                        endif
         
                                         if 'blade' in summonspell or 'vortex' in summonspell
                                             if verbose == 1
@@ -1552,7 +1565,7 @@ foreach runebook in 'mining_runebooks'
                         endfor
 
                         setvar! reset_last_sysmsg_timer 1
-                        cooldown MINING resource_cooldown_value
+                        # cooldown MINING resource_cooldown_value
                     # CLOSES if varexist cast_summon_spell
 
                     endif
@@ -1623,7 +1636,7 @@ foreach runebook in 'mining_runebooks'
                     endif
 
                     # setvar! reset_last_sysmsg_timer 1
-                    cooldown MINING resource_cooldown_value
+                    # cooldown MINING resource_cooldown_value
                 endif
 
             endif
@@ -1656,7 +1669,7 @@ foreach runebook in 'mining_runebooks'
                     endif
 
                     # setvar! reset_last_sysmsg_timer 1
-                    cooldown MINING resource_cooldown_value
+                    # cooldown MINING resource_cooldown_value
                 endif
             endif
 
@@ -1666,12 +1679,67 @@ foreach runebook in 'mining_runebooks'
             # MAIN MINING ROUTINE
             ########################################
 
-            # if we dont suspect gump, start mining and monitor char weight
-            # update: if we are coming from summoning or buffing above, we need to make sure we didnt set to reset the sysmsg timer, or else even if theres no sysmsg
-            # the timer will be reset and it will not detect a gump
+            if is_detecter == 1
+                useskill 'detectinghidden'
+                wait action_delay
+                if targetexists 'neutral'
+                    target self
+                endif
 
-            # if reset_last_sysmsg_timer == 0 and timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
-            if cooldown MINING
+                if insysmsg 'you reveal what was hidden.'
+                    sysmsg '!FOUND HIDDEN PLAYER!' alert_msg_color
+                    sysmsg '> FOUND HIDDEN PLAYER! PROBABLY THIEF!' alert_msg_color
+                endif
+            endif
+
+            # this piece has to run after using detecting hiden to find the player revealed
+            if auto_escape_thiefs == 1
+                sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
+                hotkey 'Clear Target Queue'
+                hotkey 'Next Grey Player Target'
+                if insysmsg 'New target'
+                    sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
+                    setvar! recall_home_now 1
+                endif
+            endif
+
+            # try to get pks that already appeared on screen and couldnt get tracked first
+            if auto_escape_pks == 1
+                sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+                hotkey 'Clear Target Queue'
+                hotkey 'Next Murderer Player Target'
+                if insysmsg 'New target'
+                    sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                    sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                    sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                    sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+
+                    overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                    overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                    overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                    overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+
+                    setvar! recall_home_now 1
+                endif
+
+                if cooldown 'UNDER ATTACK' or insysmsg 'Attacking you'
+                    if verbose == 1
+                        sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...' alert_msg_color
+                        sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...' alert_msg_color
+                        sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...' alert_msg_color
+                        sysmsg '>>> BEING ATTACKED! TRYING TO ESCAPE...' alert_msg_color
+                    endif
+
+                    setvar! recall_home_now 1
+                endif
+            endif
+        
+            if cooldown 'OUT OF REGS' > 0
+                sysmsg 'OUT OF REGS! GONNA TRAVEL HOME TO RESSUPLY' 54
+                setvar! recall_home_now 1
+            endif
+
+            if cooldown MINING and recall_home_now != 1
 
                 if possible_captcha_detected == 1
                     setvar! possible_captcha_detected 0
@@ -1687,7 +1755,7 @@ foreach runebook in 'mining_runebooks'
                             sysmsg '[DEBUG]: RESET 001' debug_msg_color
                         endif
                         # setvar! reset_last_sysmsg_timer 1
-                        cooldown MINING resource_cooldown_value
+                        # cooldown MINING resource_cooldown_value
                     else
                         overhead "✩OUT OF PICKAXES✩" 40
                         sysmsg "OUT OF PICKAXES! GOING HOME TO RESSUPLY!" warning_msg_color
@@ -1702,8 +1770,8 @@ foreach runebook in 'mining_runebooks'
                     # sysmsg '>>> ITEM IN RIGHT HAND... ' 87
                     # clearsysmsg
                     # settimer 'last_sysmsg_timer' 0
-                    cooldown MINING 0
                     hotkey 'Use Item in Right Hand'
+                    cooldown MINING 0
                     # wait max_wait_for_last_sysmsg_to_use_pickaxe
                 endif
 
@@ -1885,7 +1953,7 @@ foreach runebook in 'mining_runebooks'
                                       sysmsg '[DEBUG]: RESET 002' debug_msg_color
                                     endif
                                     setvar! reset_last_sysmsg_timer 1
-                                    cooldown MINING resource_cooldown_value
+                                    # cooldown MINING resource_cooldown_value
                                 endif
                             endwhile
 
@@ -1924,7 +1992,7 @@ foreach runebook in 'mining_runebooks'
                                               sysmsg '[DEBUG]: RESET 003' debug_msg_color
                                             endif
                                             # setvar! reset_last_sysmsg_timer 1
-                                            cooldown MINING resource_cooldown_value
+                                            # cooldown MINING resource_cooldown_value
                                         endif
 
                                         @ignore ore
@@ -1962,7 +2030,7 @@ foreach runebook in 'mining_runebooks'
                         sysmsg '[DEBUG]: RESET 004' debug_msg_color
                     endif
                     # setvar! reset_last_sysmsg_timer 1
-                    cooldown MINING resource_cooldown_value
+                    # cooldown MINING resource_cooldown_value
                     # settimer 'last_sysmsg_timer' 0
                 endwhile
 
@@ -2000,7 +2068,7 @@ foreach runebook in 'mining_runebooks'
                           sysmsg '[DEBUG]: RESET 005' debug_msg_color
                         endif
                         # setvar! reset_last_sysmsg_timer 1
-                        cooldown MINING resource_cooldown_value
+                        # cooldown MINING resource_cooldown_value
                     endif
                 endif
 
@@ -2158,7 +2226,7 @@ foreach runebook in 'mining_runebooks'
                                                   sysmsg '[DEBUG]: RESET 005' debug_msg_color
                                                 endif
                                                 # setvar! reset_last_sysmsg_timer 1
-                                                cooldown MINING resource_cooldown_value
+                                                # cooldown MINING resource_cooldown_value
                                             endwhile
                                         endif
 
@@ -2209,7 +2277,7 @@ foreach runebook in 'mining_runebooks'
                           sysmsg '[DEBUG]: RESET 006' debug_msg_color
                         endif
                         # setvar! reset_last_sysmsg_timer 1
-                        cooldown MINING resource_cooldown_value
+                        # cooldown MINING resource_cooldown_value
 
                     else
                         overhead '! HEAVY !' 90
@@ -2230,7 +2298,7 @@ foreach runebook in 'mining_runebooks'
                 overhead '!! PK !!' 49
                 overhead '!! PK !!' 54
 
-                if recall_to_escape_pks == 1
+                if auto_escape_pks == 1
                     # make sure char wont get stuck due to overweighting
                     # while weigth > maxweigth
                     #     if weigth > maxweigth and findtype ORES backpack 0 as ore_serial
@@ -2273,7 +2341,7 @@ foreach runebook in 'mining_runebooks'
                 if insysmsg 'World save complete in {{waiting_world_save_timer}}'
                     overhead '*save complete!*' 90
                     # setvar! reset_last_sysmsg_timer 1
-                    cooldown MINING resource_cooldown_value
+                    # cooldown MINING resource_cooldown_value
                 endif
 
             # handle tools breaking
@@ -2301,7 +2369,7 @@ foreach runebook in 'mining_runebooks'
                     sysmsg '[DEBUG]: RESET 008 TOOL BROKE' debug_msg_color
                 endif
                 # setvar! reset_last_sysmsg_timer 1
-                cooldown MINING resource_cooldown_value
+                # cooldown MINING resource_cooldown_value
 
 
 
@@ -2374,7 +2442,7 @@ foreach runebook in 'mining_runebooks'
                 endif
 
                 # setvar! reset_last_sysmsg_timer 1
-                cooldown MINING resource_cooldown_value
+                # cooldown MINING resource_cooldown_value
                 # overhead '| NO ORES HERE |' 54
                 overhead '! NO ORES HERE !' 54
 

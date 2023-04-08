@@ -52,21 +52,26 @@ endif
 # SET THE HOME BOOK
 #############################
 
+unsetvar! recall_book
+
 # search runetomes first
-if not varexist recall_book
-    while findtype 'runetome' backpack as found
-        getlabel found rtome_label
-        if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
-            sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
-            setvar! recall_book rtome
-            setvar! recall_book_gump_id 167090027
-            setvar! home_rune_btn_number runetome_rune_position
-        endif
-    
-        @ignore found
-    endwhile
-    @clearignore
-endif
+while findtype 'runetome' backpack as found
+    getlabel found rtome_label
+    if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
+        sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
+        setvar! recall_book found
+        setvar! recall_book_gump_id 167090027
+        setvar! home_rune_btn_number runetome_rune_position
+
+        setvar! recall_book rtome
+        # setvar! recall_by_charge_btn_number runetome_rune_position
+        setvar! recall_by_charge_btn_number 100
+
+    endif
+
+    @ignore found
+endwhile
+@clearignore
 
 # if we couldnt find a home runetome, search for a home runebook
 if not varexist recall_book
@@ -74,9 +79,10 @@ if not varexist recall_book
         getlabel found rbook_label
         if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
             sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
-            setvar! recall_book rtome
-            setvar! recall_book_gump_id 167090027
+            setvar! recall_book found
+            setvar! recall_book_gump_id 1551740969
             setvar! home_rune_btn_number runetome_rune_position
+            setvar! recall_by_charge_btn_number 2
         endif
 
         @ignore found

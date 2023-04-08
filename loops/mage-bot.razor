@@ -137,7 +137,7 @@ endif
 
 if skill 'veterinary' >= 50
     sysmsg 'VETERINARY DETECTED. OPTIMIZING...' script_msg_color
-    setvar! is_veterinary 1
+    setvar! is_veterinarian 1
     setvar! auto_vet_pets 1
     setvar! vet_pets_delay 5000
 endif
@@ -1820,7 +1820,7 @@ while not dead 'self'
                         sysmsg "ACHOU DEAD PET PORRA!"
                         # use context menu to give the 'follow' command to this pet
                         menu pet 4
-                        if skill 'veterinary' > 90
+                        if is_veterinarian == 1
                             if findtype 'veterinary supplies' backpack as supplies
                                 overhead '>>> TRYING TO RESS PET WITH VET SUPPLIES' 55 pet
                                 useobject supplies
@@ -1888,22 +1888,24 @@ while not dead 'self'
     # KEEP HEALING PETS
     ########################################
 
-    if auto_heal_pets == 1 and not targetexists 'any'
-        if not cooldown Bandage
-            if findtype 'veterinary supplies' as vet_supplies
-                settimer 'heal_pets_timer' 0
-                useobject vet_supplies
-                sysmsg ">>> USING VET SUPPLIES ON PET" 55
-                overhead '*vetting*' 75 pet
-                overhead '*vetting player pet*' 75 'self'
-            # elseif findtype 'clean bandage%s%' as bands
-            #     useobject bands
-            #     wft 1000
-            #     if targetexists 'beneficial'
-            #         overhead '*bandaging...*' 55 pet
-            #         sysmsg ">>> BANDAGING PET" 55
-            #         target pet
-            #     endif
+    if is_veterinarian == 1
+        if auto_heal_pets == 1 and not targetexists 'any'
+            if not cooldown Bandage
+                if findtype 'veterinary supplies' as vet_supplies
+                    settimer 'heal_pets_timer' 0
+                    useobject vet_supplies
+                    sysmsg ">>> USING VET SUPPLIES ON PET" 55
+                    overhead '*vetting*' 75 pet
+                    overhead '*vetting player pet*' 75 'self'
+                # elseif findtype 'clean bandage%s%' as bands
+                #     useobject bands
+                #     wft 1000
+                #     if targetexists 'beneficial'
+                #         overhead '*bandaging...*' 55 pet
+                #         sysmsg ">>> BANDAGING PET" 55
+                #         target pet
+                #     endif
+                endif
             endif
         endif
     endif
@@ -4063,14 +4065,14 @@ sysmsg 'chegou kill close to loot'
                                 # KEEP HEALING PETS
                                 ########################################
                             
-                                if auto_heal_pets == 1 and not targetexists 'any'
+                                if is_veterinarian == 1 and auto_heal_pets == 1 and not targetexists 'any'
                                     if not cooldown Bandage
                                         if findtype 'veterinary supplies' as vet_supplies
                                             settimer 'heal_pets_timer' 0
                                             useobject vet_supplies
-                                            sysmsg ">>> USING VET SUPPLIES ON PET" 55
-                                            overhead '*vetting*' 75 pet
-                                            overhead '*vetting player pet*' 75 'self'
+                                            sysmsg ">>> USING VET SUPPLIES ON PET" 76
+                                            overhead '*vetting*' 76 pet
+                                            overhead '*vetting player pet*' 77 'self'
                                         # elseif findtype 'clean bandage%s%' as bands
                                         #     useobject bands
                                         #     wft 1000
@@ -4220,6 +4222,29 @@ sysmsg 'chegou kill close to loot'
                                     endif
                                 endif
 
+                                ########################################
+                                # KEEP HEALING PETS
+                                ########################################
+                            
+                                if is_veterinarian == 1 and auto_heal_pets == 1 and not targetexists 'any'
+                                    if not cooldown Bandage
+                                        if findtype 'veterinary supplies' as vet_supplies
+                                            settimer 'heal_pets_timer' 0
+                                            useobject vet_supplies
+                                            sysmsg ">>> USING VET SUPPLIES ON PET" 76
+                                            overhead '*vetting*' 76 pet
+                                            overhead '*vetting player pet*' 77 'self'
+                                        # elseif findtype 'clean bandage%s%' as bands
+                                        #     useobject bands
+                                        #     wft 1000
+                                        #     if targetexists 'beneficial'
+                                        #         overhead '*bandaging...*' 55 pet
+                                        #         sysmsg ">>> BANDAGING PET" 55
+                                        #         target pet
+                                        #     endif
+                                        endif
+                                    endif
+                                endif
 
                                 # USE FLAMESTRIKE
                                 if followers >= followers_max_limit and diffhits < max_diffhits_before_healing and not dead 'last' and find 'last' ground any any find_last_target_max_range
