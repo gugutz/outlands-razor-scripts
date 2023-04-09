@@ -1574,17 +1574,11 @@ foreach runebook in 'lumber_runebooks'
                     # cooldown LUMBER resource_cooldown_value
                 endif
             endif
-    
-    
-            ########################################
-            # MAIN LUMBER ROUTINE
-            ########################################
 
-            # if we dont suspect gump, start lumbering and monitor char weight
-            # update: if we are coming from summoning or buffing above, we need to make sure we didnt set to reset the sysmsg timer, or else even if theres no sysmsg
-            # the timer will be reset and it will not detect a gump
 
-            # if reset_last_sysmsg_timer == 0 and timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
+            ########################################
+            # CHECK FOR THIEFS
+            ########################################
 
             if is_detecter == 1
                 useskill 'detectinghidden'
@@ -1609,6 +1603,10 @@ foreach runebook in 'lumber_runebooks'
                     setvar! recall_home_now 1
                 endif
             endif
+
+            ########################################
+            # CHECK FOR PKS
+            ########################################
 
             # try to get pks that already appeared on screen and couldnt get tracked first
             if auto_escape_pks == 1
@@ -1645,6 +1643,18 @@ foreach runebook in 'lumber_runebooks'
                 sysmsg 'OUT OF REGS! GONNA TRAVEL HOME TO RESSUPLY' 54
                 setvar! recall_home_now 1
             endif
+    
+    
+            ########################################
+            # MAIN LUMBER ROUTINE
+            ########################################
+
+            # if we dont suspect gump, start lumbering and monitor char weight
+            # update: if we are coming from summoning or buffing above, we need to make sure we didnt set to reset the sysmsg timer, or else even if theres no sysmsg
+            # the timer will be reset and it will not detect a gump
+
+            # if reset_last_sysmsg_timer == 0 and timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
+
 
             if cooldown LUMBER and recall_home_now != 1
 
@@ -1739,7 +1749,7 @@ foreach runebook in 'lumber_runebooks'
 
             ##############################################
             # HIDE COLORED WOOD IN CHAR_LOOT_POUCH
-            if hide_colored_resources_in_char_loot_pouch == 1 and varexist CHAR_LOOT_POUCH
+            if recall_home_now != 1 and hide_colored_resources_in_char_loot_pouch == 1 and varexist CHAR_LOOT_POUCH
                 sysmsg 'ENTERING HIDING COLORED WOOD'
                 while findtype 7133|7127 backpack as found
                     if hue found != 0
@@ -1765,7 +1775,7 @@ foreach runebook in 'lumber_runebooks'
     
             ####################################
             # RE-TRAP LOOT TRAP POUCH WHEN NEEDED
-            if varexist CHAR_LOOT_POUCH
+            if recall_home_now != 1 and varexist CHAR_LOOT_POUCH
                 if find CHAR_LOOT_POUCH backpack
                     while hue CHAR_LOOT_POUCH == 0
                         sysmsg '>>> RE-TRAPING LOOT POUCH' warning_msg_color
@@ -1782,9 +1792,12 @@ foreach runebook in 'lumber_runebooks'
             endif
     
     
+            # ALL FOLLOWING ROUTINES ONLY IF NOT FLAGGED TO GO HOME
             if recall_home_now != 1
+
                 ###############################################
                 # JOURNAL MESSAGES CHECKS
+                ###############################################
 
                 # we need to first check for pks or else the other msgs might not allow us to get to this check
                 if insysmsg 'now tracking'
@@ -2385,11 +2398,11 @@ foreach runebook in 'lumber_runebooks'
                     endif
         
                     # setvar! reset_last_sysmsg_timer 1
-        
-                # END if recall_home_now != 1
+          
+                # END if diffhits > max_diffhits_before_starting_defense_routine
                 endif
     
-            # END if diffhits > max_diffhits_before_starting_defense_routine
+            # END if recall_home_now != 1
             endif
     
     
