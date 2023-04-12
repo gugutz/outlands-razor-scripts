@@ -35,22 +35,73 @@ setvar! warning_msg_color 54
 setvar! alert_msg_color 39
 
 
+#############################
+# SET THE HOME BOOK
+#############################
+
+
+# search runetomes first
+if not varexist home_book
+    while findtype 'runetome' backpack as found
+        getlabel found rtome_label
+        if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
+            sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
+            setvar! home_book found
+            setvar! home_book_gump_id 167090027
+            setvar! home_rune_btn_number runetome_rune_position
+            # setvar! recall_by_charge_btn_number runetome_rune_position
+            setvar! recall_by_charge_btn_number 100
+    
+        endif
+    
+        @ignore found
+    endwhile
+endif
+@clearignore
+
+# if we couldnt find a home runetome, search for a home runebook
+if not varexist home_book
+    while findtype 'runebook' backpack as found
+        getlabel found rbook_label
+        if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
+            sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
+            setvar! home_book found
+            setvar! home_book_gump_id 1551740969
+            setvar! home_rune_btn_number runetome_rune_position
+            setvar! recall_by_charge_btn_number 2
+        endif
+
+        @ignore found
+    endwhile
+    @clearignore
+endif
+
 
 ##################################
 # TARGET RUNEBOOKS IF TARGET IS OPEN
 ##################################
 
 if targetexists 'neutral'
+    if not varexist home_book
+        sysmsg 'entered 1'
+        if findtype 'runetome' backpack as rtome
+            overhead 'targetting runetome!' 90
+            target rtome
+            stop
+        elseif findtype 'runebook' backpack as rbook
+            overhead 'targetting runebook!' 90
+            target rbook
+            stop
+        endif
+
+        sysmsg 'HOME BOOK NOT SET!' 39
+        overhead 'HOME BOOK NOT SET!' 39
+        stop
+    endif
+
+    overhead '*targeting home book*' 90
     target home_book
-    # if findtype 'runetome' backpack as rtome
-    #     overhead 'targetting runetome!' 90
-    #     target rtome
-    #     stop
-    # elseif findtype 'runebook' backpack as rbook
-    #     overhead 'targetting runebook!' 90
-    #     target rbook
-    #     stop
-    # endif
+    stop
 endif
 
 
@@ -99,7 +150,6 @@ if varexist use_scrolls
 endif
 
 sysmsg '>> Recalling...' 56
-overhead '*recalling*' 56
 hotkey 'Clear Target Queue'
 hotkey 'Recall'
 
@@ -108,48 +158,6 @@ if followers > 0
 endif
 
 
-#############################
-# SET THE HOME BOOK WHILE CASTING
-#############################
-
-
-# search runetomes first
-if not varexist home_book
-    while findtype 'runetome' backpack as found
-        getlabel found rtome_label
-        if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
-            sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
-            setvar! home_book found
-            setvar! home_book_gump_id 167090027
-            setvar! home_rune_btn_number runetome_rune_position
-    
-            setvar! home_book rtome
-            # setvar! recall_by_charge_btn_number runetome_rune_position
-            setvar! recall_by_charge_btn_number 100
-    
-        endif
-    
-        @ignore found
-    endwhile
-endif
-@clearignore
-
-# if we couldnt find a home runetome, search for a home runebook
-if not varexist home_book
-    while findtype 'runebook' backpack as found
-        getlabel found rbook_label
-        if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
-            sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
-            setvar! home_book found
-            setvar! home_book_gump_id 1551740969
-            setvar! home_rune_btn_number runetome_rune_position
-            setvar! recall_by_charge_btn_number 2
-        endif
-
-        @ignore found
-    endwhile
-    @clearignore
-endif
 
 
 ##################################

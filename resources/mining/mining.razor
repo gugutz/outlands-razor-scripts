@@ -1,4 +1,110 @@
+if varexist setting_rail
+    sysmsg 'COMING FROM SETTING RAIL!' 85
+
+    if list 'moveList' == 0
+        sysmsg 'SOMETHING WRONG HAPPENED WHEN SETTING RAIL LIST!'
+        unsetvar! setting_rail
+        stop
+    endif
+endif
+
 if not varexist setting_rail
+    ###################################
+    # GENERAL SETTINGS
+    ###################################
+    
+    setvar! action_delay 600
+    setvar! movement_delay 100
+    setvar! spell_recovery_delay 120
+    
+    setvar! auto_escape_pks 1
+    setvar! auto_smelt_ores_when_close_to_forges 1
+    setvar! smelt_colored_ores 0
+    setvar! use_void_aspect 0
+
+    setvar! use_hotel_room 0
+    # set if characters should use own rooms or enter a friends room
+    setvar! use_own_room 0
+
+    ###################################
+    # RECALL SETTINGS
+    ###################################
+
+    # how many runes per runebook should be used
+    setvar! max_runes_to_use_per_runebook 26
+
+    # button number to use charges for your home rune in runetomes or runebooks
+    setvar! runetome_home_rune_use_charge_btn_number 100
+    setvar! runebook_home_rune_use_charge_btn_number 2
+    
+
+    ###################################
+    # MOVEMENT SETTINGS (CHOOSE 1 ONLY)
+    ###################################
+    
+    # RAIL
+    setvar! auto_rail 1
+
+    # AUTO WALK RANDOMLY
+    setvar! auto_walk_randomly 0
+    setvar! max_walk_attempts_per_rune 20
+
+    # how many steps should char take per attempt when walking randomly
+    clearlist number_of_steps_per_walk
+    createlist number_of_steps_per_walk
+    pushlist number_of_steps_per_walk 1
+    pushlist number_of_steps_per_walk 2
+    pushlist number_of_steps_per_walk 3
+    pushlist number_of_steps_per_walk 4
+    pushlist number_of_steps_per_walk 5
+    pushlist number_of_steps_per_walk 6
+
+
+    # AUTO WALK TO DIRECTION
+    setvar! auto_walk_to_specific_direction 0
+    if auto_walk_to_specific_direction == 1
+        removelist 'direction_to_walk'
+        createlist 'direction_to_walk'
+        pushlist 'direction_to_walk' 'right'
+    endif
+    
+
+    ###################################
+    # UNLOAD HOME SETTINGS
+    ###################################
+
+
+
+
+
+
+    #############################
+    # CHARACTER SETTING OVERRIDES
+    #############################
+
+    if name == 'Emacs'
+        setvar! use_void_aspect 1
+        setvar! auto_rail 1
+        setvar! max_runes_to_use_per_runebook 6
+    endif
+
+    if name == 'Darren'
+        setvar! auto_smelt_ores_when_close_to_forges 0
+        setvar! smelt_colored_ores 0
+        setvar! auto_escape_pks 0
+    endif
+    
+
+
+
+    # END SETTINGS (DO NOT EDIT FROM HERE!!)
+    ###################################
+
+
+
+
+
+
     sysmsg '#########################' 90
     sysmsg '>>> MINING BOT' 55
     sysmsg 'by gugutz' 45
@@ -16,6 +122,7 @@ if not varexist setting_rail
     sysmsg '***********************' 90
     
     setvar! mining_cooldown_delay 10000
+    setvar! world_save_delay 8000
     
     cooldown RESOURCES 3000
     
@@ -38,105 +145,6 @@ if not varexist setting_rail
     endif
     
     
-    ###################################
-    # SCRIPT CONFIGURATION
-    ###################################
-    
-    sysmsg 'Applying configuration...'
-    
-    setvar! debug 1
-    setvar! action_delay 600
-    setvar! movement_delay 100
-    setvar! spell_recovery_delay 120
-
-    setvar! resource_cooldown_value 10000
-    
-    setvar! auto_smelt_ores_when_close_to_forges 1
-    setvar! smelt_colored_ores 0
-    setvar! auto_escape_pks 1
-    
-    # escape rune button number on runebook
-    setvar! runetome_rune_position 100
-    # escape rune button number on runebook
-    setvar! runebook_rune_position 2
-    
-    
-    setvar! auto_rail 1
-
-    # set to make char walk randomly to find new trees
-    setvar! auto_walk_randomly 0
-    # how many attempts should char make to find new trees
-    setvar! max_walk_attempts_per_rune 20
-
-    setvar! auto_walk_to_direction 0
-    # direction to walk to when 'auto_walk_to_direction' is ON!
-    if auto_walk_to_direction == 1 and not listexists 'direction_to_walk'
-        createlist 'direction_to_walk'
-        pushlist 'direction_to_walk' 'right'
-    endif
-    
-    # set if char uses a hotel room instead of a house
-    setvar! use_hotel_room 0
-    # set if characters should use own rooms or enter a friends room
-    setvar! use_own_room 0
-    
-    
-    setvar! use_strength 1
-    setvar! max_diffhits_before_buffing 5
-    
-    
-    # how many steps should char take per attempt when walking randomly
-    clearlist number_of_steps_per_walk
-    createlist number_of_steps_per_walk
-    pushlist number_of_steps_per_walk 1
-    pushlist number_of_steps_per_walk 2
-    pushlist number_of_steps_per_walk 3
-    pushlist number_of_steps_per_walk 4
-    pushlist number_of_steps_per_walk 5
-    pushlist number_of_steps_per_walk 6
-    
-    setvar! use_void_aspect 0
-    setvar! recall_casting_time 4500
-    
-    # ADD YOUR CHAR TO THIS LIST IF IT USES VOID ASPECT
-    createlist 'void_characters'
-    clearlist 'void_characters'
-    pushlist 'void_characters' 'Nazareno'
-    pushlist 'void_characters' 'Emacs'
-    pushlist 'void_characters' 'Heduardoh'
-    pushlist 'void_characters' 'Nonires'
-    
-    
-    # ADD YOUR CHAR TO THIS LIST IF IT USES ANOTHER FRIEND HOTEL ROOM
-    createlist 'hotel_room_owners'
-    clearlist 'hotel_room_owners'
-    pushlist 'hotel_room_owners' 'Neron'
-
-    # SET CURRENT RAIL INDEX TO 0 IF FIRST RUN
-    if auto_rail == 1 and not varexist first_run_done
-        setvar! current_rail_index 0
-    endif
-    
-    #############################
-    # SET SCRIPT STUFF
-    #############################
-    
-    # set all characters that should use void
-    foreach charname in 'void_characters'
-        if name == charname
-            sysmsg 'USING VOID ASPECT'
-            setvar! use_void_aspect 1
-        endif
-    endfor
-    
-    # set all characters who own a hotel room
-    foreach charname in 'hotel_room_owners'
-        if name == charname
-            sysmsg 'USING OWN HOTEL ROOM FOR CHARACTER' 90
-            setvar! use_own_room 1
-        endif
-    endfor
-    
     
     #############################
     # SET THE HOME BOOK
@@ -146,10 +154,9 @@ if not varexist setting_rail
     while findtype 'runetome' backpack as found
         getlabel found rtome_label
         if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
-            sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
             setvar! home_book found
             setvar! home_book_gump_id 167090027
-            setvar! home_rune_btn_number runetome_rune_position
+            setvar! home_rune_btn_number runetome_home_rune_use_charge_btn_number
         endif
     
         @ignore found
@@ -161,10 +168,9 @@ if not varexist setting_rail
         while findtype 'runebook' backpack as found
             getlabel found rbook_label
             if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
-                sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
                 setvar! home_book found
                 setvar! home_book_gump_id 167090027
-                setvar! home_rune_btn_number runetome_rune_position
+                setvar! home_rune_btn_number runetome_home_rune_use_charge_btn_number
             endif
     
             @ignore found
@@ -183,12 +189,14 @@ if not varexist setting_rail
     
     clearlist 'mining_runetomes'
     createlist 'mining_runetomes'
+    clearlist 'original_mining_runetomes'
+    createlist 'original_mining_runetomes'
     
     while findtype 'runetome' backpack as found
         getlabel found rbook_label
         if 'mining' in rbook_label or 'Mining' in rbook_label or 'MINING' in rbook_label
-            sysmsg 'ADDING RUNEBOOK {{found}} TO LIST' 54
             pushlist 'mining_runetomes' found
+            pushlist 'original_mining_runetomes' found
         endif
     
         @ignore found
@@ -211,6 +219,18 @@ if not varexist setting_rail
     # (USUALLY THERES NO NEED TO EDIT THESE)
     ###################################
     
+    setvar! debug 1
+    setvar! resource_cooldown_value 10000
+    setvar! recall_casting_time 4500
+
+    # SET CURRENT RAIL INDEX TO 0 IF FIRST RUN
+    if auto_rail == 1 and not varexist first_run_done
+        setvar! current_rail_index 0
+    endif
+
+    setvar! use_strength 1
+    setvar! max_diffhits_before_buffing 5
+
     # VARIABLES FOR MESSAGE COLORS
     setvar! debug_msg_color 41
     setvar! script_msg_color 2213
@@ -249,12 +269,6 @@ if not varexist setting_rail
     setvar! max_diffweight_before_unloading 50
     
     
-    # if its Jiu's char, unset autosmelt and autorun from pks cause he doenst use it
-    if name == 'Darren'
-        setvar! auto_smelt_ores_when_close_to_forges 0
-        setvar! smelt_colored_ores 0
-        setvar! auto_escape_pks 0
-    endif
     
     
     setvar! max_mob_range_to_attack 2
@@ -296,6 +310,15 @@ if not varexist setting_rail
         pushlist 'runetome_page_numbers' 222
         pushlist 'runetome_page_numbers' 223
         pushlist 'runetome_page_numbers' 224
+    endif
+
+    # create a duplicate list so we can restore the main list when needed (like when reaching max rune set to use on runetome)
+    if not listexists 'runetome_page_numbers_unchanged'
+        createlist 'runetome_page_numbers_unchanged'
+
+        foreach x in 'runetome_page_numbers'
+            pushlist 'runetome_page_numbers_unchanged' x
+        endfor
     endif
     
     #####################################
@@ -413,6 +436,8 @@ if not varexist setting_rail
     
     pushlist 'mining_script_timers' 'waiting_cooldown_timer'
     pushlist 'mining_script_timers' 'waiting_journal_timer'
+    pushlist 'mining_script_timers' 'waiting_runebook_gump_timer'
+
     
     
     
@@ -823,9 +848,8 @@ if not varexist setting_rail
     
     # if stockpile nearby, check if logs or boards to unload before starting
     if findtype ORES backpack or findtype INGOTS backpack
-        sysmsg 'UNLOADING AT START ON STOCKPILE.' 90
-    
         if findtype 'resource container' ground any any 2 as stockpile
+            sysmsg 'UNLOADING AT START ON STOCKPILE.' 90
             # smelt ores in backpack
             while findtype ORES backpack as ores
                 overhead 'smelting!'
@@ -891,7 +915,6 @@ if not varexist setting_rail
         sysmsg 'ORE OR INGOT NOT FOUND TO UNLOAD IN STOCKPILE' 39
     endif
     
-    sysmsg '2'
     
     # before starting check if char is not heavy and go home unload
     # same conditions as bellow to check if needs to go home and unload
@@ -923,9 +946,9 @@ if not varexist setting_rail
     
         foreach summon in 'summons'
     
-            if debug == 1
-                sysmsg 'CHECKING {{summon}}: {{index}}' default_sysmsg_color
-            endif
+            # if debug == 1
+            #     sysmsg 'CHECKING {{summon}}: {{index}}' default_sysmsg_color
+            # endif
     
             if list 'summons' == 1 and followers == 4
                 if verbose == 1
@@ -1236,7 +1259,7 @@ foreach runebook in 'mining_runetomes'
         endif
 
         if runebook != 0
-            sysmsg 'CURRENT RUNE POSITION: {{current_rune_position}}' 90
+            sysmsg 'RUNE: {{current_rune_position}} (PAGE: {{page_number}})' 90
         endif
 
         if auto_rail == 1
@@ -1246,19 +1269,23 @@ foreach runebook in 'mining_runetomes'
             else
                 setvar! setting_rail 1
 
-                sysmsg '!!!!!!!!!!!!!! CLEARING RAIL 1' 91
-                clearlist 'moveList'
-                clearlist 'xCoord'
-                clearlist 'yCoord'
+                removelist 'moveList'
+                removelist 'xCoord'
+                removelist 'yCoord'
                 if current_rune_position == 1
+                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 1' 91
                     script 'resources\mining\book-1-rail-1'
                 elseif current_rune_position == 2
+                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 2' 91
                     script 'resources\mining\book-1-rail-2'
                 elseif current_rune_position == 3
+                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 3' 91
                     script 'resources\mining\book-1-rail-3'
                 elseif current_rune_position == 4
+                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 4' 91
                     script 'resources\mining\book-1-rail-4'
                 elseif current_rune_position == 5
+                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 5' 91
                     script 'resources\mining\book-1-rail-5'
                 elseif current_rune_position == 6
                     script 'resources\mining\book-1-rail-6'
@@ -1332,7 +1359,7 @@ foreach runebook in 'mining_runetomes'
                     endwhile
                 endif
 
-                sysmsg 'waiting for runebook gump'
+                sysmsg 'waiting_runebook_gump_timer'
                 while not gumpexists runetome_gump_id and timer 'waiting_runebook_gump_timer' < 2000
                     waitforgump runetome_gump_id action_delay
                 endwhile
@@ -1385,30 +1412,30 @@ foreach runebook in 'mining_runetomes'
 
             if not cooldown RESOURCES
                 settimer 'waiting_cooldown_timer' 0
-                while not cooldown RESOURCES
-                    if timer 'waiting_cooldown_timer' < 2000
-                        wait 10
-                    else
-                        if possible_captcha_detected == 0
-                            setvar! possible_captcha_detected 1
-                            settimer 'last_gump_tracking_timer' 0
-                        endif
-        
-                        overhead "✩ GUMP PRESENT or LAGGED ✩" 33
-                        sysmsg "✩ GUMP PRESENT or LAGGED ✩" 33
-                        sysmsg "✩ GUMP PRESENT or LAGGED ✩" 34
-                        sysmsg "✩ GUMP PRESENT or LAGGED ✩" 35
-        
-        
-                        # play an instrument as a way of playing a sound to notify about the captcha
-                        if findtype 3763|3740|10245|3742|3762 backpack as instrument
-                            wait 1000
-                            dclick instrument
-                            wait 1500
-                            # break
-                        endif
-                    endif
+                while not cooldown RESOURCES and timer 'waiting_cooldown_timer' < 2000
+                    wait 10
                 endwhile
+
+                if not cooldown RESOURCES
+                    if possible_captcha_detected == 0
+                        setvar! possible_captcha_detected 1
+                        settimer 'last_gump_tracking_timer' 0
+                    endif
+    
+                    overhead "✩ GUMP PRESENT or LAGGED ✩" 33
+                    sysmsg "✩ GUMP PRESENT or LAGGED ✩" 33
+                    sysmsg "✩ GUMP PRESENT or LAGGED ✩" 34
+                    sysmsg "✩ GUMP PRESENT or LAGGED ✩" 35
+    
+    
+                    # play an instrument as a way of playing a sound to notify about the captcha
+                    if findtype 3763|3740|10245|3742|3762 backpack as instrument
+                        wait 1000
+                        dclick instrument
+                        wait 1500
+                        # break
+                    endif
+                endif
             endif
 
             # TOGGLE LANTERN TO MAKE CHAR SKIP CURRENT RUNE
@@ -1852,12 +1879,13 @@ foreach runebook in 'mining_runetomes'
 
                 # mine
                 # if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_pickaxe and not rhandempty and diffweight > 10
-                # if not rhandempty and cooldown RESOURCES
-                if not rhandempty
+                if not rhandempty and cooldown RESOURCES
+                # if not rhandempty
                     # sysmsg '>>> ITEM IN RIGHT HAND... ' 87
                     # clearsysmsg
                     # settimer 'last_sysmsg_timer' 0
                     cooldown RESOURCES 0
+                    wait 400
                     hotkey 'Use Item in Right Hand'
                     settimer 'waiting_journal_timer' 0
 
@@ -2408,7 +2436,7 @@ foreach runebook in 'mining_runetomes'
                 settimer 'waiting_world_save_timer' 0
                 while not insysmsg 'World save complete'
                     wait 100
-                    if timer 'waiting_world_save_timer' >= 5000
+                    if timer 'waiting_world_save_timer' >= world_save_delay
                         sysmsg 'BREAKING WAITING FOR SAVE' 49
                         break
                     endif
@@ -2464,6 +2492,18 @@ foreach runebook in 'mining_runetomes'
         
                     if list 'moveList' > 0
                         sysmsg 'ENTERED WALK RAIL!!' 90
+
+                        # before moving check if we got to previous destinatiojn and if so, remove destination from front of list to go to next
+                        if varexist rail_x and varexist rail_y
+                            if position rail_x rail_y
+                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
+    
+                                poplist moveList 'front'
+                                poplist xCoord 'front'
+                                poplist yCoord 'front'
+                            endif
+                        endif
+
                         unsetvar rail_direction
                         unsetvar rail_x
                         unsetvar rail_y
@@ -2482,14 +2522,6 @@ foreach runebook in 'mining_runetomes'
             
                         # WALK THE RAIL!
                         if varexist rail_direction and varexist rail_x and varexist rail_y
-                            if position rail_x rail_y
-                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
-    
-                                poplist moveList 'front'
-                                poplist xCoord 'front'
-                                poplist yCoord 'front'
-                            endif
-    
                             if not position rail_x rail_y
                                 sysmsg '[RAIL] DIR: {{rail_direction}} | POS: {{rail_x}}, {{rail_y}}' rail_msg_color
                                 if rail_direction == 1
@@ -2520,6 +2552,15 @@ foreach runebook in 'mining_runetomes'
                                 # wait movement_delay
             
                             endif
+
+                            if position rail_x rail_y
+                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
+    
+                                poplist moveList 'front'
+                                poplist xCoord 'front'
+                                poplist yCoord 'front'
+                            endif
+    
                         else
                             sysmsg 'COULDNT SET RAIL VARIABLES' alert_msg_color
                         endif
@@ -2534,7 +2575,7 @@ foreach runebook in 'mining_runetomes'
 
 
     
-                if auto_walk_to_direction == 1
+                if auto_walk_to_specific_direction == 1
                     foreach direction in 'direction_to_walk'
                         walk direction
                         break
@@ -2732,13 +2773,11 @@ foreach runebook in 'mining_runetomes'
                     # waitforgump recall_book_gump_id action_delay
                     # gumpresponse recall_rune_btn_number recall_book_gump_id
                     sysmsg 'TRAVELLING VIA SPELL WITH RUNEBOOK {{home_book}}'
-                    hotkey 'Recall'
-                    wait spell_recovery_delay
+                    while not cooldown 'CASTING RECALL'
+                        hotkey 'Recall'
+                        wait spell_recovery_delay
+                    endwhile
 
-                    if not cooldown 'CASTING RECALL'
-                        sysmsg 'RECALL FAILED! BREAKING TO TRY AGAIN!' 39
-                        break
-                    endif
 
                     clearsysmsg
                     @settimer 'waiting_target_timer' 0
@@ -3249,6 +3288,8 @@ foreach runebook in 'mining_runetomes'
             # bypass the razor bug that keeps on same iteration when you from from a while inside a for
             if go_to_next_rune == 1
                 setvar! go_to_next_rune 0
+
+
                 sysmsg 'GOING TO NEXT RUNE' 54
                 # poplist 'runebook_rune_btns' 'front'
                 # pushlist 'runebook_rune_btns' rune_number 'back'
@@ -3275,21 +3316,33 @@ foreach runebook in 'mining_runetomes'
                 pushlist 'runetome_page_numbers' page_number 'back'
 
                 ########################################
-                # SET NEXT RUNETOME IF LAST PAGE OF CURRENT ONE
+                # CHANGE RUNEBOOK AND RESET PAGE
+                # NUMBERS IF CURRENT IS COMPLETED
                 ########################################
 
-                if page_number == 224
+                # if we reached the max rune set to use, reset the runetome page numbers so we can start cycling it azgain from the first rune
+                if current_rune_position == max_runes_to_use_per_runebook
+
                     if atlist 'mining_runetomes' 1 as found
-                        sysmsg 'RUNETOME {{runebook}} COMPLETE! GOING TO NEXT {{found}}...'
+                        sysmsg 'REACHED LAST RUNE {{max_runes_to_use_per_runebook}}. STARTING NEXT RUNEBOOK {{found}}...' 54
                     else
-                        sysmsg 'RUNETOME {{runebook}} COMPLETE! STARTING OVER...'
+                        sysmsg 'REACHED LAST RUNE {{max_runes_to_use_per_runebook}}. STARTING RUNEBOOK AGAIN' 54
                     endif
+
+                    # move current runebook to back of the list
                     poplist 'mining_runetomes' 'front'
                     pushlist 'mining_runetomes' page_number 'back'
                     say 'all follow me'
-                    break
-                endif
 
+                    # reset the page numbers to original format including all rune positions to start from the first rune
+                    clearlist 'runetome_page_numbers'
+                    foreach x in 'runetome_page_numbers_unchanged'
+                        pushlist 'runetome_page_numbers' x
+                    endfor
+
+                    # reset rune btn on runetome to first btn of each page
+                    setvar! rune_number 10
+                endif
 
                 break
             endif

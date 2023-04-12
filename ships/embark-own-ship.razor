@@ -1,0 +1,22 @@
+
+setvar! action_delay 300
+
+setvar! ship_main_gump_id 4216593270
+
+if not varexist SHIP_MAST
+    overhead '*select ship mast*'
+    setvar! SHIP_MAST
+endif
+
+dclick SHIP_MAST
+wait action_delay
+if gumpexists 4216593270
+    if followers > 0
+        gumpresponse 22 4216593270
+        waitforgump 4216593270 1000
+    endif
+
+    gumpresponse 21 4216593270
+    waitforgump 4216593270 1000
+
+endif

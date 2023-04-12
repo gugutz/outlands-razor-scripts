@@ -19,9 +19,9 @@ sysmsg '***********************' 90
 
 
 # TEST IF REQUIRED COOLDOWN WAS CREATED
-cooldown LUMBER 3000
+cooldown RESOURCES 3000
 
-if not cooldown LUMBER
+if not cooldown RESOURCES
     overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
     sysmsg "PLEASE SETUP A COOLDOWN NAMED:" 34
     sysmsg "LUMBER" 88
@@ -43,6 +43,12 @@ endif
 # make sure no old var is fucking up the script
 unsetvar runebook
 unsetvar runetome
+createlist 'void_characters'
+clearlist 'void_characters'
+createlist 'hotel_room_owners'
+clearlist 'hotel_room_owners'
+createlist 'hotel_room_renters'
+clearlist 'hotel_room_renters'
 
 ###################################
 # SCRIPT CONFIGURATION
@@ -52,6 +58,7 @@ sysmsg 'Applying configuration...'
 
 setvar! debug 1
 setvar! action_delay 600
+setvar! world_save_delay 8000
 setvar! spell_recovery_delay 120
 
 # max ores a packie can have before being set as full
@@ -59,6 +66,7 @@ setvar! max_boards_before_unloading 1000
 
 # set if char should escape home when tracking PKs
 setvar! auto_escape_pks 1
+setvar! auto_escape_thiefs 0
 
 # escape rune button number on runebook
 setvar! runetome_rune_position 100
@@ -104,8 +112,6 @@ setvar! use_own_room 0
 setvar! hide_colored_resources_in_char_loot_pouch 1
 
 # ADD YOUR CHAR TO THIS LIST IF IT USES VOID ASPECT
-createlist 'void_characters'
-clearlist 'void_characters'
 pushlist 'void_characters' 'Nazareno'
 pushlist 'void_characters' 'Emacs'
 pushlist 'void_characters' 'Heduardoh'
@@ -113,8 +119,10 @@ pushlist 'void_characters' 'Nonires'
 
 
 # ADD YOUR CHAR TO THIS LIST IF IT USES ANOTHER FRIEND HOTEL ROOM
-createlist 'hotel_room_owners'
-clearlist 'hotel_room_owners'
+pushlist 'hotel_room_owners' 'Neron'
+pushlist 'hotel_room_owners' 'OTHER CHAR NAME'
+
+# ADD YOUR CHAR TO THIS LIST IF IT USES ANOTHER FRIEND HOTEL ROOM
 pushlist 'hotel_room_owners' 'Neron'
 pushlist 'hotel_room_owners' 'OTHER CHAR NAME'
 
@@ -144,8 +152,18 @@ endfor
 # set all characters who own a hotel room
 foreach charname in 'hotel_room_owners'
     if name == charname
-        sysmsg 'USING OWN HOTEL ROOM FOR CHARACTER' 90
+        sysmsg 'USING OWN HOTEL ROOM FOR TRIS CHARACTER' 90
+        setvar! use_hotel_room 1
         setvar! use_own_room 1
+    endif
+endfor
+
+# set all characters who own a hotel room
+foreach charname in 'hotel_room_renters'
+    if name == charname
+        sysmsg 'USING FRIENDS HOTEL ROOM FOR TRIS CHARACTER' 90
+        setvar! use_hotel_room 1
+        setvar! use_own_room 0
     endif
 endfor
 
@@ -492,7 +510,7 @@ while findtype 291 ground any any 2 as packie
     endif
     @ignore packie
 endwhile
-clearignore
+@clearignore
 
 
 ###################################
@@ -814,10 +832,6 @@ sysmsg '3'
 # this is just a print to inform char is under summon_limit and is getting ready to summon up
 # ADDED: only summon if not already going home to unload
 if recall_home_now != 1 and auto_summon == 1 and followers < summon_max_limit
-    if debug == 1
-        sysmsg '[DEBUG] SUMMONING ON START' debug_msg_color
-    endif
-
     if verbose == 1
         sysmsg 'UNDER SUMMON LIMIT. PREPARING TO SUMMON...' alert_msg_color
     endif
@@ -946,9 +960,6 @@ if recall_home_now != 1 and auto_summon == 1 and followers < summon_max_limit
             # we need to cast ig
             endif
         else
-            if debug == 1
-                sysmsg '[DEBUG] setting to cast summon spell ({{summon}} not found)' debug_msg_color
-            endif
             setvar! cast_summon_spell 1
         endif
 
@@ -959,8 +970,6 @@ if recall_home_now != 1 and auto_summon == 1 and followers < summon_max_limit
 
 
             foreach summonspell in 'summonspells'
-                sysmsg 'inside summonspell {{summonspell}}'
-
                 if summonspell in summon
                     sysmsg 'inside summonspell {{summonspell}} 2'
 
@@ -1065,7 +1074,7 @@ if recall_home_now != 1 and auto_summon == 1 and followers < summon_max_limit
             endfor
         endif
     endfor
-    # cooldown LUMBER resource_cooldown_value
+    # cooldown RESOURCES resource_cooldown_value
 # CLOSES auto_summon
 endif
 
@@ -1083,7 +1092,7 @@ setvar! possible_captcha_detected 0
 setvar! rune_number 10
 
 # trigger the cooldown once at start so char can start lumbering
-cooldown LUMBER 30000
+cooldown RESOURCES 30000
 
 foreach runebook in 'lumber_runebooks'
     sysmsg '>>> STARTING RUNEBOOK {{index}}: {{runebook}}'
@@ -1210,9 +1219,9 @@ foreach runebook in 'lumber_runebooks'
             endif
     
             # if timer 'last_sysmsg_timer' > max_wait_for_last_sysmsg_to_suspect_gump
-            if not cooldown LUMBER
+            if not cooldown RESOURCES
                 settimer 'waiting_cooldown_timer' 0
-                while not cooldown LUMBER
+                # while not cooldown RESOURCES
                     if timer 'waiting_cooldown_timer' < 2000
                         wait 10
                     else
@@ -1235,7 +1244,7 @@ foreach runebook in 'lumber_runebooks'
                             break
                         endif
                     endif
-                endwhile
+                # endwhile
             endif
 
             # TOGGLE LANTERN TO MAKE CHAR SKIP CURRENT RUNE
@@ -1490,7 +1499,7 @@ foreach runebook in 'lumber_runebooks'
                         endfor
 
                         setvar! reset_last_sysmsg_timer 1
-                        # cooldown LUMBER resource_cooldown_value
+                        # cooldown RESOURCES resource_cooldown_value
                     # CLOSES if varexist cast_summon_spell
                     endif
                 endfor
@@ -1538,7 +1547,7 @@ foreach runebook in 'lumber_runebooks'
                     endif
 
                     setvar! reset_last_sysmsg_timer 1
-                    # cooldown LUMBER resource_cooldown_value
+                    # cooldown RESOURCES resource_cooldown_value
                 endif
 
             endif
@@ -1571,7 +1580,7 @@ foreach runebook in 'lumber_runebooks'
                     endif
 
                     # setvar! reset_last_sysmsg_timer 1
-                    # cooldown LUMBER resource_cooldown_value
+                    # cooldown RESOURCES resource_cooldown_value
                 endif
             endif
 
@@ -1595,8 +1604,7 @@ foreach runebook in 'lumber_runebooks'
 
             # this piece has to run after using detecting hiden to find the player revealed
             if auto_escape_thiefs == 1
-                sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
-                hotkey 'Clear Target Queue'
+                # sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
                 hotkey 'Next Grey Player Target'
                 if insysmsg 'New target'
                     sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
@@ -1610,9 +1618,8 @@ foreach runebook in 'lumber_runebooks'
 
             # try to get pks that already appeared on screen and couldnt get tracked first
             if auto_escape_pks == 1
-                sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
-                hotkey 'Clear Target Queue'
-                hotkey 'Next Murderer Player Target'
+                # sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+                @hotkey 'Next Murderer Player Target'
                 if insysmsg 'New target'
                     sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
                     sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
@@ -1656,7 +1663,7 @@ foreach runebook in 'lumber_runebooks'
             # if reset_last_sysmsg_timer == 0 and timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_suspect_gump
 
 
-            if cooldown LUMBER and recall_home_now != 1
+            if cooldown RESOURCES and recall_home_now != 1
 
                 if possible_captcha_detected == 1
                     setvar! possible_captcha_detected 0
@@ -1680,13 +1687,13 @@ foreach runebook in 'lumber_runebooks'
     
                 settimer 'waiting_hatchet_target_timer' 0
 
-                while not targetexists 'neutral' and cooldown LUMBER
+                while not lhandempty and not targetexists 'neutral' and cooldown RESOURCES
                     if timer 'waiting_hatchet_target_timer' > max_wait_for_hatchet_target
                         sysmsg 'BREAKING CLICKING HATCHET' 37
                         break
                     endif
 
-                    sysmsg 'USING ITEM IN HAND'
+                    # sysmsg 'USING ITEM IN HAND'
                     hotkey 'Use item in Hand'
                     waitfortarget action_delay
                     # waitfortarget max_wait_for_last_sysmsg_to_use_hatchet
@@ -1695,7 +1702,7 @@ foreach runebook in 'lumber_runebooks'
                 if targetexists 'neutral'
                     # sysmsg 'Lumbering...' 65
                     target 'self'
-                    cooldown LUMBER 0
+                    cooldown RESOURCES 0
                 endif
     
                 # TESTING: REMOVING THIS WAIT
@@ -1729,7 +1736,7 @@ foreach runebook in 'lumber_runebooks'
                     else
                         sysmsg 'Doing Lumber Map...' 49
                         # setvar! reset_last_sysmsg_timer 1
-                        # cooldown LUMBER resource_cooldown_value
+                        # cooldown RESOURCES resource_cooldown_value
                     endif
                 endif
         
@@ -1750,7 +1757,7 @@ foreach runebook in 'lumber_runebooks'
             ##############################################
             # HIDE COLORED WOOD IN CHAR_LOOT_POUCH
             if recall_home_now != 1 and hide_colored_resources_in_char_loot_pouch == 1 and varexist CHAR_LOOT_POUCH
-                sysmsg 'ENTERING HIDING COLORED WOOD'
+                # sysmsg 'ENTERING HIDING COLORED WOOD'
                 while findtype 7133|7127 backpack as found
                     if hue found != 0
                         getlabel found flabel
@@ -1770,7 +1777,7 @@ foreach runebook in 'lumber_runebooks'
                     endif
                     @ignore found
                 endwhile
-                clearignore
+                @clearignore
             endif
     
             ####################################
@@ -1824,16 +1831,16 @@ foreach runebook in 'lumber_runebooks'
                     settimer 'waiting_world_save_timer' 0
                     while not insysmsg 'World save complete'
                         wait 100
-                        if timer 'waiting_world_save_timer' >= 5000
+                        if timer 'waiting_world_save_timer' >= world_save_delay
                             sysmsg 'BREAKING WAITING FOR SAVE' 49
                             break
                         endif
                     endwhile
             
-                    if insysmsg 'World save complete in {{waiting_world_save_timer}}'
+                    if insysmsg 'World save complete'
                         overhead '*save complete!*' 90
                         # setvar! reset_last_sysmsg_timer 1
-                        # cooldown LUMBER resource_cooldown_value
+                        # cooldown RESOURCES resource_cooldown_value
                     endif
             
                 # handle tools breaking
@@ -1857,7 +1864,7 @@ foreach runebook in 'lumber_runebooks'
                     endif
         
                     # setvar! reset_last_sysmsg_timer 1
-                    # cooldown LUMBER resource_cooldown_value
+                    # cooldown RESOURCES resource_cooldown_value
             
             
                 # no resources where char is
@@ -1923,7 +1930,7 @@ foreach runebook in 'lumber_runebooks'
                     endif
             
                     # setvar! reset_last_sysmsg_timer 1
-                    # cooldown LUMBER resource_cooldown_value
+                    # cooldown RESOURCES resource_cooldown_value
                     overhead '| NO WOOD HERE |' 54
             
                     if auto_walk_randomly == 1
@@ -1962,7 +1969,6 @@ foreach runebook in 'lumber_runebooks'
                             endfor
                         endif
                     endif
-                    sysmsg 'AFTER WALK'
             
             
             
@@ -2054,7 +2060,6 @@ foreach runebook in 'lumber_runebooks'
         
                 endif
         
-                sysmsg 'DEPOIS SYSCHECKS'
         
         
         
@@ -2105,7 +2110,6 @@ foreach runebook in 'lumber_runebooks'
         
         
         
-                sysmsg 'BEFORE MAINTAIN CHAR HP'
                 ########################################
                 # MAINTAIN CHAR HP
                 ########################################
@@ -2385,18 +2389,8 @@ foreach runebook in 'lumber_runebooks'
         
                     if dead 'last' and varexist found_mob
                         unsetvar found_mob
-        
-                        if debug == 1
-                            sysmsg '[DEBUG]: RESET 017 DEFEND 4 AFTER LOOP' debug_msg_color
-                        endif
-        
                         setvar! reset_last_sysmsg_timer 1
                     endif
-        
-                    if debug == 1
-                        sysmsg '[DEBUG]: LAST ENDIF DEFEND ROUTINE' debug_msg_color
-                    endif
-        
                     # setvar! reset_last_sysmsg_timer 1
           
                 # END if diffhits > max_diffhits_before_starting_defense_routine
@@ -2409,8 +2403,7 @@ foreach runebook in 'lumber_runebooks'
             ########################################
             # GO HOME AND UNLOAD ROUTINE
             ########################################
-            sysmsg 'BEFORE RECALL HOME'
-            if recall_home_now == 1 and cooldown LUMBER
+            if recall_home_now == 1 and cooldown RESOURCES
     
                 setvar! use_charges 0
                 if skill 'magery' == 0 or counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "Mandrake Root%s%" == 0
@@ -2425,7 +2418,7 @@ foreach runebook in 'lumber_runebooks'
     
     
                 if use_charges == 1
-                    sysmsg 'TRAVELLING VIA CHARGES'
+                    sysmsg 'TRAVELLING HOME VIA CHARGES. RUNEBOOK {{home_book}}'
                     dclick home_book
                     waitforgump recall_book_gump_id action_delay
                     gumpresponse recall_rune_btn_number recall_book_gump_id
@@ -2434,7 +2427,7 @@ foreach runebook in 'lumber_runebooks'
                     # dclick recall_book
                     # waitforgump recall_book_gump_id action_delay
                     # gumpresponse recall_rune_btn_number recall_book_gump_id
-                    sysmsg 'TRAVELLING VIA SPELL WITH RUNEBOOK {{home_book}}'
+                    sysmsg 'TRAVELLING HOME VIA SPELL. RUNEBOOK {{home_book}}'
                     hotkey 'Recall'
 
                     clearsysmsg
@@ -2478,8 +2471,8 @@ foreach runebook in 'lumber_runebooks'
 
                 if use_hotel_room == 1
                     say 'room'
-                    waitforgump 2393832411 action_delay
-                    if ingump 'Your Room' 2393832411 action_delay
+                    waitforgump 2393832411 1500
+                    if gumpexists 2393832411
                         if use_own_room == 1
                             overhead 'entering own room'
                             gumpresponse 4 2393832411
@@ -2489,11 +2482,6 @@ foreach runebook in 'lumber_runebooks'
                             waitforgump 2393832411 action_delay
                             gumpresponse 100 2393832411
                         endif
-                    else
-                        overhead 'entering friend room'
-                        gumpresponse 5 2393832411
-                        waitforgump 2393832411 action_delay
-                        gumpresponse 100 2393832411
                     endif
     
                     wait 1500
@@ -2543,12 +2531,12 @@ foreach runebook in 'lumber_runebooks'
             ########################################
     
             # check if we got any sysmsg that should reset the timer in each iteration
-            if reset_last_sysmsg_timer == 1
-                setvar! reset_last_sysmsg_timer 0
-                # RESET THE TIMER
-                settimer 'last_sysmsg_timer' 0
-                clearsysmsg
-            endif
+            # if reset_last_sysmsg_timer == 1
+            #     setvar! reset_last_sysmsg_timer 0
+            #     # RESET THE TIMER
+            #     settimer 'last_sysmsg_timer' 0
+            #     clearsysmsg
+            # endif
             clearsysmsg
     
             
@@ -2556,7 +2544,6 @@ foreach runebook in 'lumber_runebooks'
     
             # breaks from the loop and pops the current rune from front of list into the back, so we can
             # bypass the razor bug that keeps on same iteration when you from from a while inside a for
-            sysmsg 'BEFORE NEXT RUNE'
             if go_to_next_rune == 1
                 setvar! go_to_next_rune 0
                 sysmsg 'GOING TO NEXT RUNE' 54

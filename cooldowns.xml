@@ -1,0 +1,404 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<cooldowns>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# GENERAL #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Criminal" defaultcooldown="0" cooldownbartype="Criminal" hue="1000" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Proc" defaultcooldown="0" cooldownbartype="Regular" hue="25" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# ACTIONS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Next Mushroom" defaultcooldown="60" cooldownbartype="Regular" hue="245" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="You consume a magic mushroom" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="You may now use another magic mushroom" />
+	</cooldownentry>
+	<cooldownentry name="Heal Potion" defaultcooldown="10" cooldownbartype="Regular" hue="53" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="MR Potion" defaultcooldown="0" cooldownbartype="Regular" hue="741" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="120" triggertext="You increase your damage resistance to creature-casted spells" />
+	</cooldownentry>
+	<cooldownentry name="Rope" defaultcooldown="15" cooldownbartype="Regular" hue="51" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="1" triggertext="you must wait another 1s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="2" triggertext="you must wait another 2s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="3" triggertext="you must wait another 3s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="4" triggertext="you must wait another 4s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="5" triggertext="you must wait another 5s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="6" triggertext="you must wait another 6s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="7" triggertext="you must wait another 7s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="8" triggertext="you must wait another 8s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="9" triggertext="you must wait another 9s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="10" triggertext="you must wait another 10s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="11" triggertext="you must wait another 11s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="12" triggertext="you must wait another 12s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="13" triggertext="you must wait another 13s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="14" triggertext="you must wait another 14s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="15" triggertext="you must wait another 15s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="105" triggertext="you must wait another 1m 45s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="106" triggertext="you must wait another 1m 46s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="107" triggertext="you must wait another 1m 47s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="108" triggertext="you must wait another 1m 48s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="109" triggertext="you must wait another 1m 49s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="110" triggertext="you must wait another 1m 50s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="111" triggertext="you must wait another 1m 51s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="112" triggertext="you must wait another 1m 52s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="113" triggertext="you must wait another 1m 53s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="114" triggertext="you must wait another 1m 54s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="115" triggertext="you must wait another 1m 55s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="116" triggertext="you must wait another 1m 56s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="117" triggertext="you must wait another 1m 57s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="118" triggertext="you must wait another 1m 58s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="119" triggertext="you must wait another 1m 59s before you may use this again while in combat." />
+		<trigger triggertype="SysMessage" duration="120" triggertext="you must wait another 2m before you may use this again while in combat." />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# ASPECT #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Artisan Proc" defaultcooldown="120" cooldownbartype="Regular" hue="637" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="120" triggertext="your melee damage dealt to creatures as well" />
+	</cooldownentry>
+	<cooldownentry name="Next Void Stamina" defaultcooldown="0" cooldownbartype="Regular" hue="21" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="20" triggertext="Hits Restored (next allowed in" />
+	</cooldownentry>
+	<cooldownentry name="Next Void HP" defaultcooldown="0" cooldownbartype="Regular" hue="21" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="Stamina Restored (next allowed in" />
+	</cooldownentry>
+	<cooldownentry name="Next Void Mana" defaultcooldown="0" cooldownbartype="Regular" hue="21" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="60" triggertext="Mana Restored (next allowed in" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# SKILLS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Skill Cooldown" defaultcooldown="0" cooldownbartype="Regular" hue="88" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="10" triggertext="enter a meditative trance" />
+		<trigger triggertype="OverheadMessage" duration="10" triggertext="You have hidden yourself well" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, disrupting" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You play successfully, provoking" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You play successfully, pacifying" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You play successfully, briefly pacifying" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, briefly discording" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to incite" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to pacify" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to discord" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="effect of a song" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, disrupting" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, provoking" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, pacifying" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, briefly pacifying" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, briefly discording" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to incite" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to pacify" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="you fail to discord" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="effect of a song" />
+	</cooldownentry>
+	<cooldownentry name="Meditating" defaultcooldown="8000" cooldownbartype="Regular" hue="88" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="enter a meditative trance" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="stop meditating" />
+	</cooldownentry>
+	<cooldownentry name="Bandage" defaultcooldown="0" cooldownbartype="Bandage" hue="88" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Stealth Start" defaultcooldown="0" cooldownbartype="Regular" hue="793" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="10" triggertext="You have hidden yourself well" />
+	</cooldownentry>
+	<cooldownentry name="Restealth" defaultcooldown="0" cooldownbartype="Regular" hue="793" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="10" triggertext="You begin to move quietly" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# BARDING #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Peace-Provo" defaultcooldown="10" cooldownbartype="Regular" hue="340" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="0" triggertext="Your barding skill cooldowns reset." />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, disrupting" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You play successfully, provoking" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You play successfully, pacifying" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You play successfully, briefly pacifying" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, briefly discording" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to incite" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to pacify" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to discord" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="effect of a song" />
+	</cooldownentry>
+	<cooldownentry name="Disco" defaultcooldown="5" cooldownbartype="Regular" hue="57" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, disrupting" />
+		<trigger triggertype="OverheadMessage" duration="0" triggertext="Your barding skill cooldowns reset." />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, provoking" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, pacifying" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, briefly pacifying" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You play successfully, briefly discording" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to incite" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="You fail to pacify" />
+		<trigger triggertype="SysMessage" duration="5" triggertext="you fail to discord" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="effect of a song" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# GRIMOIRE SPELLS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="MANA DRAIN/VAMPIRE" defaultcooldown="60" cooldownbartype="Regular" hue="49" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="" triggertext="[mana drain]" />
+	</cooldownentry>
+	<cooldownentry name="CURSE" defaultcooldown="60" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="" triggertext="[curse]" />
+	</cooldownentry>
+	<cooldownentry name="MAGIC ARROW" defaultcooldown="60" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry magic arrow spell again." />
+		<trigger triggertype="SysMessage" duration="" triggertext="Wizardry magic arrow activated" />
+	</cooldownentry>
+	<cooldownentry name="HARM" defaultcooldown="40" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry harm spell again." />
+		<trigger triggertype="SysMessage" duration="" triggertext="Wizardry harm activated" />
+	</cooldownentry>
+	<cooldownentry name="FIREBALL" defaultcooldown="60" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry fireball spell again." />
+		<trigger triggertype="SysMessage" duration="" triggertext="Wizardry fireball" />
+	</cooldownentry>
+	<cooldownentry name="LIGHTNING" defaultcooldown="20" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry lightning spell again." />
+		<trigger triggertype="SysMessage" duration="" triggertext="Wizardry lightning activated" />
+		<trigger triggertype="SysMessage" duration="" triggertext="your lightning spell hinders your target." />
+	</cooldownentry>
+	<cooldownentry name="CHAIN LIGHTNING" defaultcooldown="20" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="Wizardry chain lightning activated" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry chain lightning spell again." />
+	</cooldownentry>
+	<cooldownentry name="METEOR SWARM" defaultcooldown="20" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="Wizardry meteor swarm activated" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry meteor swarm spell again." />
+	</cooldownentry>
+	<cooldownentry name="EARTHQUAKE" defaultcooldown="0" cooldownbartype="Regular" hue="49" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="20" triggertext="Wizardry earthquake activated" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now cast a wizardry earthquake spell again." />
+	</cooldownentry>
+	<cooldownentry name="REACTIVE ARMOR" defaultcooldown="6" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="6" triggertext="your reactive armor spell has expired." />
+		<trigger triggertype="SysMessage" duration="6" triggertext="your reactive armor spell has been nullified" />
+	</cooldownentry>
+	<cooldownentry name="MAGIC REFLECT" defaultcooldown="30" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="32" triggertext="You remove your magic reflect spell." />
+		<trigger triggertype="SysMessage" duration="32" triggertext="That spell will not adhere to you at this time." />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# OTHER SPELLS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="TELEKINESIS SELF" defaultcooldown="0" cooldownbartype="Regular" hue="39" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="has applied telekinesis to you" />
+	</cooldownentry>
+	<cooldownentry name="CASTING RECALL" defaultcooldown="0" cooldownbartype="Regular" hue="50" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="3" triggertext="Kal Ort Por" />
+		<trigger triggertype="OverheadMessage" duration="0" triggertext="Select Market item" />
+	</cooldownentry>
+	<cooldownentry name="TARGET STICKY" defaultcooldown="0" cooldownbartype="Regular" hue="50" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="Your next explosion potion thrown at that player" />
+	</cooldownentry>
+	<cooldownentry name="POISONED!" defaultcooldown="0" cooldownbartype="Regular" hue="63" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="5" triggertext="You feel a bit nauseous" />
+	</cooldownentry>
+	<cooldownentry name="LETHAL POISON" defaultcooldown="0" cooldownbartype="Regular" hue="68" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="25" triggertext="upgraded to Lethal" />
+		<trigger triggertype="OverheadMessage" duration="0" triggertext="upgraded to Greater" />
+	</cooldownentry>
+	<cooldownentry name="GREATER POISON" defaultcooldown="0" cooldownbartype="Regular" hue="163" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="0" triggertext="upgraded to Lethal" />
+		<trigger triggertype="OverheadMessage" duration="25" triggertext="upgraded to Greater" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# NECROMANCY #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Necro Ability" defaultcooldown="30" cooldownbartype="Regular" hue="901" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="Unholy Symbols Remaining" />
+	</cooldownentry>
+	<cooldownentry name="POISON STRIKE" defaultcooldown="30" cooldownbartype="Regular" hue="63" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="PAIN SPIKE" defaultcooldown="30" cooldownbartype="Regular" hue="43" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="VAMPIRIC EMBRACE" defaultcooldown="0" cooldownbartype="Regular" hue="1001" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="WITHER" defaultcooldown="30" cooldownbartype="Regular" hue="1001" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# CHIVALRY #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="CHIVALRY ABILITY" defaultcooldown="0" cooldownbartype="Regular" hue="96" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3" triggertext="You have been hamstrung" />
+	</cooldownentry>
+	<cooldownentry name="Holy Light" defaultcooldown="0" cooldownbartype="Regular" hue="50" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="HEAL POTION" defaultcooldown="10" cooldownbartype="Regular" hue="53" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="N.Sacrifice" defaultcooldown="30" cooldownbartype="Regular" hue="48" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="## PVP ##" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="NEXT EVENT TICK" defaultcooldown="30" cooldownbartype="Regular" hue="49" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="control points earned for current beacon" />
+	</cooldownentry>
+	<cooldownentry name="PvP FLAGGED" defaultcooldown="0" cooldownbartype="PvP" hue="49" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="HAMSTRUNG" defaultcooldown="0" cooldownbartype="Regular" hue="38" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3" triggertext="You have been hamstrung" />
+	</cooldownentry>
+	<cooldownentry name="HAMSTRING" defaultcooldown="30" cooldownbartype="Regular" hue="53" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="hamstrings your target" />
+		<trigger triggertype="SysMessage" duration="15" triggertext="fail to hamstring" />
+	</cooldownentry>
+	<cooldownentry name="NEXT HAMSTRING" defaultcooldown="0" cooldownbartype="Regular" hue="59" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="hamstrings your target" />
+		<trigger triggertype="SysMessage" duration="15" triggertext="you fail to hamstring your" />
+	</cooldownentry>
+	<cooldownentry name="HAMSTRING ON" defaultcooldown="8000" cooldownbartype="Regular" hue="70" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="You will now attempt to hamstring your opponents" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="You refrain from making hamstring attempts" />
+	</cooldownentry>
+	<cooldownentry name="HAMSTRING OFF" defaultcooldown="8000" cooldownbartype="Regular" hue="37" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="You will now attempt to hamstring your opponents" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You refrain from making hamstring attempts" />
+	</cooldownentry>
+	<cooldownentry name="DISARM ON" defaultcooldown="8000" cooldownbartype="Regular" hue="70" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="You will now attempt to disarm your opponents" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="You refrain from making disarm attempts" />
+	</cooldownentry>
+	<cooldownentry name="DISARM OFF" defaultcooldown="8000" cooldownbartype="Regular" hue="37" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="You will now attempt to disarm your opponents" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You refrain from making disarm attempts" />
+	</cooldownentry>
+	<cooldownentry name="Disarmed!" defaultcooldown="30" cooldownbartype="Regular" hue="906" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="30" triggertext="disarms your target" />
+	</cooldownentry>
+	<cooldownentry name="Disarme Fail" defaultcooldown="30" cooldownbartype="Regular" hue="906" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="15" triggertext="fail to disarm" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="## FACTIONS ##" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="Faction Control" defaultcooldown="0" cooldownbartype="Regular" hue="148" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="have a faction penalty in place" />
+		<trigger triggertype="SysMessage" duration="30" triggertext="control." />
+		<trigger triggertype="SysMessage" duration="30" triggertext="control over waypost" />
+		<trigger triggertype="SysMessage" duration="30" triggertext="waypost has reverted" />
+		<trigger triggertype="SysMessage" duration="30" triggertext="steal progress" />
+		<trigger triggertype="SysMessage" duration="30" triggertext="secure progress" />
+	</cooldownentry>
+	<cooldownentry name="FACTION PENALITY" defaultcooldown="0" cooldownbartype="Regular" hue="33" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="have a faction penalty in place" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# SHIPS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="CANNONS" defaultcooldown="0" cooldownbartype="Regular" hue="38" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="9" triggertext="Hull remaining" />
+	</cooldownentry>
+	<cooldownentry name="RELOADING" defaultcooldown="0" cooldownbartype="Regular" hue="88" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="29" triggertext="Reloading cannons!" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="No cannons require reloading" />
+	</cooldownentry>
+	<cooldownentry name="CREW READY" defaultcooldown="600" cooldownbartype="Regular" hue="53" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="Your crew has been sent below decks" />
+	</cooldownentry>
+	<cooldownentry name="SHIP REPAIR" defaultcooldown="25" cooldownbartype="Regular" hue="88" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="repaired for" />
+	</cooldownentry>
+	<cooldownentry name="REPAIRING SHIP" defaultcooldown="10" cooldownbartype="Regular" hue="88" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="SHIP LAUNCH" defaultcooldown="180" cooldownbartype="Regular" hue="254" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="180" triggertext="Kal Ort Por" />
+	</cooldownentry>
+	<cooldownentry name="SPYGLASS" defaultcooldown="0" cooldownbartype="Regular" hue="53" pauseduringworldsaves="True" hidewheninactive="True" />
+	<cooldownentry name="RAM" defaultcooldown="0" cooldownbartype="Regular" hue="88" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="10" triggertext="rammed their ship!" />
+	</cooldownentry>
+	<cooldownentry name="CONTESTED OCEAN" defaultcooldown="0" cooldownbartype="Regular" hue="83" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="300" triggertext="A contested ocean boss is spawning soon" />
+	</cooldownentry>
+	<cooldownentry name="OCEAN MAIN" defaultcooldown="0" cooldownbartype="Regular" hue="83" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="300" triggertext="Your guild has summoned the boss of The Ocean" />
+	</cooldownentry>
+	<cooldownentry name="OCEAN MINI" defaultcooldown="0" cooldownbartype="Regular" hue="83" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="300" triggertext="Your guild has summoned the mini boss of The Ocean" />
+	</cooldownentry>
+	<cooldownentry name="FIRING CANNONS" defaultcooldown="0" cooldownbartype="Regular" hue="1001" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="8" triggertext="Firing heavy ordinance" />
+		<trigger triggertype="SysMessage" duration="7" triggertext="Firing explosive ammunition" />
+		<trigger triggertype="SysMessage" duration="6" triggertext="Firing smokeshot" />
+	</cooldownentry>
+	<cooldownentry name="COMBAT LIKELY" defaultcooldown="0" cooldownbartype="Regular" hue="49" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="60" triggertext="Hull remaining:" />
+	</cooldownentry>
+	<cooldownentry name="NEXT BOARDING" defaultcooldown="0" cooldownbartype="Regular" hue="54" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="18" triggertext="Your boarding party fails to board the ship" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# GAME MECHANICS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="SCROLL USAGE" defaultcooldown="0" cooldownbartype="Regular" hue="183" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3600" triggertext="You will now automatically attempt to search for and use spell scrolls when casting a spell" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="You no longer will attempt to automatically search and use spell scrolls when casting a spell" />
+	</cooldownentry>
+	<cooldownentry name="No Scroll Usage" defaultcooldown="0" cooldownbartype="Regular" hue="1001" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3600" triggertext="You no longer will attempt to automatically search and use spell scrolls when casting a spell" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="You will now automatically attempt to search for and use spell scrolls when casting a spell" />
+	</cooldownentry>
+	<cooldownentry name="Criminal Looting" defaultcooldown="0" cooldownbartype="Regular" hue="33" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3600" triggertext="criminal looting will now be allowed" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="criminal looting will now be prevented" />
+	</cooldownentry>
+	<cooldownentry name="No Looting" defaultcooldown="0" cooldownbartype="Regular" hue="1001" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3600" triggertext="criminal looting will now be prevented" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="criminal looting will now be allowed" />
+	</cooldownentry>
+	<cooldownentry name="Emote Cooldown" defaultcooldown="120" cooldownbartype="Regular" hue="49" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="" triggertext="huh" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="looks sick" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="cries" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="burp" />
+	</cooldownentry>
+	<cooldownentry name="Spell Target" defaultcooldown="0" cooldownbartype="Regular" hue="48" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="32" triggertext="Select Marked item" />
+	</cooldownentry>
+	<cooldownentry name="Lottery Draw" defaultcooldown="0" cooldownbartype="Regular" hue="48" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="3600" triggertext="will be drawn in 1 hour" />
+	</cooldownentry>
+	<cooldownentry name="Main Boss Active" defaultcooldown="0" cooldownbartype="Regular" hue="88" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="300" triggertext="has summoned the boss of" />
+	</cooldownentry>
+	<cooldownentry name="Mini Boss Active" defaultcooldown="0" cooldownbartype="Regular" hue="88" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="300" triggertext="has summoned the mini boss of" />
+	</cooldownentry>
+	<cooldownentry name="Travel Resource" defaultcooldown="0" cooldownbartype="Regular" hue="1001" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="120" triggertext="You have recently traveled and must wait" />
+	</cooldownentry>
+	<cooldownentry name="Boarding" defaultcooldown="15" cooldownbartype="Regular" hue="53" pauseduringworldsaves="True" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="boarding party fail" />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# NEGATIVE EFFECTS #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="HINDERED" defaultcooldown="0" cooldownbartype="Regular" hue="39" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="no longer hindered" />
+	</cooldownentry>
+	<cooldownentry name="ENTANGLED" defaultcooldown="0" cooldownbartype="Regular" hue="39" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="OverheadMessage" duration="10" triggertext="repairs" />
+		<trigger triggertype="SysMessage" duration="0" triggertext="You are no longer entangled" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You are entangled" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You have been caught in a net" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="Swamp vines entangle you" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="Your feet sink in mud" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You have been caught in a net" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You have been shocked and cannot move" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="You are trapped and helpess in a web" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="Your feet sink in the mud" />
+	</cooldownentry>
+	<cooldownentry name="BLEEDING" defaultcooldown="0" cooldownbartype="Regular" hue="39" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="You are no longer bleeding" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="cause you to bleed" />
+		<trigger triggertype="SysMessage" duration="10" triggertext="begin to bleed" />
+	</cooldownentry>
+	<cooldownentry name="DISEASE" defaultcooldown="0" cooldownbartype="Regular" hue="39" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="You are no longer diseased" />
+	</cooldownentry>
+	<cooldownentry name="BLYTHED" defaultcooldown="0" cooldownbartype="Regular" hue="39" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="10" triggertext="You have been blighted" />
+	</cooldownentry>
+	<cooldownentry name="TAUNT" defaultcooldown="0" cooldownbartype="Regular" hue="906" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="0" triggertext="you may now perform taunt again." />
+		<trigger triggertype="OverheadMessage" duration="5" triggertext="you do not find any nearby creatures to taunt." />
+	</cooldownentry>
+	<cooldownentry name="--------------------" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="# SCRIPT RELATED #" defaultcooldown="0" cooldownbartype="Regular" hue="55" pauseduringworldsaves="False" hidewheninactive="True" />
+	<cooldownentry name="RESOURCES" defaultcooldown="30" cooldownbartype="Regular" hue="73" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="You have worn out your tool" />
+		<trigger triggertype="SysMessage" duration="" triggertext="before you may begin harvesting" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You do not see any harvestable resources nearby" />
+		<trigger triggertype="SysMessage" duration="" triggertext="Harvesting is not allowed in this area" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You have worn out your tool" />
+		<trigger triggertype="SysMessage" duration="" triggertext="before you may begin harvesting" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="You gather some" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="Captcha successful" />
+		<trigger triggertype="SysMessage" duration="" triggertext="loosen some rocks but fail" />
+		<trigger triggertype="SysMessage" duration="" triggertext="dig some" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You hack" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You chop some" />
+	</cooldownentry>
+	<cooldownentry name="FISHING" defaultcooldown="10000" cooldownbartype="Regular" hue="800" pauseduringworldsaves="False" hidewheninactive="True">
+		<trigger triggertype="SysMessage" duration="" triggertext="fish" />
+		<trigger triggertype="SysMessage" duration="" triggertext="You retrieve a" />
+		<trigger triggertype="SysMessage" duration="" triggertext="before you may begin harvesting" />
+		<trigger triggertype="SysMessage" duration="" triggertext="Harvesting is not allowed in this area" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="You catch" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="You gather some" />
+		<trigger triggertype="OverheadMessage" duration="" triggertext="Captcha successful" />
+	</cooldownentry>
+</cooldowns>

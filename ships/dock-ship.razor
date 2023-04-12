@@ -3,61 +3,113 @@ setvar! warning_msg_color 54
 setvar! dockmaster_gump_id 3287496917
 setvar! action_delay 600
 
-if not listexists 'dockmasters_serials'
-    createlist 'dockmasters_serials'
-    clearlist 'dockmasters_serials'
+clearignore
+overhead "Docking"
 
-    # PUBLIC DOCKMASTERS
-    #
-    # shelter docks Uriah the Dockmaster
-    pushlist 'dockmasters_serials' 0x11A32F
-    # Horseshoe Bay Beaumont the Dockmaster
-    pushlist 'dockmasters_serials' 0x80600
-    # Prevalia Kisa the Dockmaster
-    pushlist 'dockmasters_serials' 0x80788
-    # Prevalia Vanda the Dockmaster
-    pushlist 'dockmasters_serials' 0x80786
-    # Prevalia Meta the Dockmaster
-    pushlist 'dockmasters_serials' 0x80782
-    # Ivar the Dockmaster (GH)
-    pushlist 'dockmasters_serials' 0x19E66B
-    # Calandra Granite Docks dockmaster
-    pushlist 'dockmasters_serials' 0x54B3
-    # Winona Terran Dockmaster
-    pushlist 'dockmasters_serials' 0x805EF
-    # Marvin Terran Dockmaster
-    pushlist 'dockmasters_serials' 0xA3F
-    # Winona Terran Dockmaster
-    pushlist 'dockmasters_serials' 0x805EF
-    # Keane Winter Harbor dockmaster
-    pushlist 'dockmasters_serials' 0x5A40
-    # a dockmaster from the void (NW corner of the map in a floating concrete platform)
-    pushlist 'dockmasters_serials' 0x26290
+# shelter docks Uriah the Dockmaster
+menu 0x11A32F 1
+# Horseshoe Bay Beaumont the Dockmaster
+menu 0x80600 1
+# Prevalia Kisa the Dockmaster
+menu 0x80788 1
+# Prevalia Vanda the Dockmaster
+menu 0x80786 1
+# Prevalia Meta the Dockmaster
+menu 0x80782 1
+# Ivar the Dockmaster (GH)
+menu 0x19E66 1
+# Calandra Granite Docks dockmaster
+menu 0x54B 1
+# Winona Terran Dockmaster
+menu 0x805E 1
+# Marvin Terran Dockmaster
+menu 0xA3 1
+# Winona Terran Dockmaster
+menu 0x805E 1
+# Keane Winter Harbor dockmaster
+menu 0x5A4 1
+# a dockmaster from the void (NW corner of the map in a floating concrete platform)
+menu 0x2629 1
 
-    # FS DOCKMASTERS
-    #
-    # FS-00
-    pushlist 'dockmasters_serials' 0x20CE8
+# FS DOCKMASTERS
+#
+# FS-00
+menu 0x20CE 1
 
+menu 0x20CE8 1
+menu 0x553084 1
+menu 0x7C0D 1
+menu 0x14E58D 1
+menu 0x165F9E 1
+menu 0x29D6A2 1
+menu 0xD9FA7 1
+menu 0x164E93 1
+menu 0x2816F7 1
+menu 0x51479 1
+menu 0xD19CD 1
+menu 0xB741A 1
+menu 0x151BAA 1
+menu 0x4D471 1
+menu 0x1F7436 1
+menu 0xEA3F0 1
+menu 0xCB2D0 1
+menu 0xCED00 1
+menu 0x215C36 1
+menu 0x6196AB 1
+menu 0xDC15A 1
+menu 0x16A76E 1
+menu 0xC610F 1
+menu 0x65948 1
+menu 0x20004F 1
+menu 0x702D8C 1
+menu 0xA6DEB 1
+menu 0xCE6E1 1
+menu 0x319A9C 1
+menu 0x13D2DE 1
+menu 0xE3E63 1
+menu 0xA92A8 1
+menu 0xA368EB 1
+menu 0x288E7 1
+menu 0x208C10 1
+menu 0x22EA10 1
+menu 0xCB7E3 1
+menu 0x34841 1
+menu 0x806DF 1
+menu 0x806DB 1
+menu 0x1D912B 1
+menu 0x8065E 1
+menu 0x80606 1
+menu 0x80667 1
+menu 0x4009D 1
+menu 0x1474FA 1
+menu 0x22EA10 1
+menu 0x46786 1
+menu 0x114B8E 1
+menu 0x3599B5 1
+menu 0x223B1F 1
+menu 0x23E9F2 1
+menu 0xE4764 1
+menu 0x192EF0 1
+
+waitforgump 3287496917 action_delay
+
+
+if not gumpexists 3287496917
+    sysmsg 'COUNDNT FIND ANY KNOWN DOCKMASTER' 39
+    stop
 endif
 
+sysmsg '>> FOUND DOCKMASTER!' success_msg_color
+overhead '* FOUND DOCKMASTER *' success_msg_color
+gumpresponse 7 3287496917
+wait 300
+
+while insysmsg "The ship has not been"
+    waitforgump 3287496917
+    gumpresponse 7 3287496917
+    wait 300
+endwhile
+@setvar onABoat 0
 
 
-foreach dockmaster in 'dockmasters_serials'
-    if find dockmaster ground any any 25
-        sysmsg '>> FOUND DOCKMASTER!' success_msg_color
-        overhead '* FOUND DOCKMASTER *' success_msg_color
-        menu dockmaster 1
-        waitforgump dockmaster_gump_id action_delay
 
-        if gumpexists dockmaster_gump_id
-            sysmsg '>>> DOCKING SHIP!' warning_msg_color
-            gumpresponse 7
-            waitforgump dockmaster_gump_id action_delay
-            waitforgump 4216593270
-            waitforgump dockmaster_gump_id action_delay
-        endif
-    endif
-endfor
-
-sysmsg 'COUNDNT FIND ANY KNOWN DOCKMASTER' 39
