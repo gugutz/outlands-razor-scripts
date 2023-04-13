@@ -243,7 +243,7 @@ if not varexist setting_rail
     setvar! alert_msg_color 37
     setvar! success_msg_color 1272
     setvar! action_msg_color 90
-    setvar! rail_msg_color 116
+    setvar! rail_msg_color 89
     setvar! on_cooldown_msg_color 53
     setvar! reset_timer_msg_color 1258
     setvar! boating_msg_color 84
@@ -2226,7 +2226,7 @@ foreach runebook in 'mining_runetomes'
 
                     # check if packie is actually empty
                     elseif counttype ORES packanimal any any == 0 and counttype INGOTS packanimal any any == 0
-                        sysmsg 'COUNT ORE EMPTY' 92
+                        # sysmsg 'COUNT ORE EMPTY' 92
                         rename packanimal 'emptypackie'
                     # if its not heavy and its not empty, its "light"
                     elseif counttype ORES packanimal any any > 0 or counttype INGOTS packanimal any any >= 0
@@ -2496,7 +2496,8 @@ foreach runebook in 'mining_runetomes'
                         # before moving check if we got to previous destinatiojn and if so, remove destination from front of list to go to next
                         if varexist rail_x and varexist rail_y
                             if position rail_x rail_y
-                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
+                                sysmsg '[RAIL] GOT TO PREVIOUS POINT {{rail_x}}, {{rail_y}}!' rail_msg_color
+                                # sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
     
                                 poplist moveList 'front'
                                 poplist xCoord 'front'
@@ -2549,16 +2550,16 @@ foreach runebook in 'mining_runetomes'
                                     walk 'up'
                                 endif
 
-                                # wait movement_delay
+                                wait movement_delay
             
                             endif
 
                             if position rail_x rail_y
-                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
+                                # sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
     
-                                poplist moveList 'front'
-                                poplist xCoord 'front'
-                                poplist yCoord 'front'
+                                # poplist moveList 'front'
+                                # poplist xCoord 'front'
+                                # poplist yCoord 'front'
                             endif
     
                         else
@@ -3331,7 +3332,7 @@ foreach runebook in 'mining_runetomes'
 
                     # move current runebook to back of the list
                     poplist 'mining_runetomes' 'front'
-                    pushlist 'mining_runetomes' page_number 'back'
+                    pushlist 'mining_runetomes' runebook 'back'
                     say 'all follow me'
 
                     # reset the page numbers to original format including all rune positions to start from the first rune
@@ -3424,7 +3425,7 @@ endfor
 #
 # v0.0.7
 # - Adds missing variables containing rune positions in runetome and runebook
-#
+ 
 # v0.0.6
 # - Adds survival routine to defend char against closed-ranged combat creatures
 # - Adds sysmsg check to see if char got far from forge while inside the smelting loop
