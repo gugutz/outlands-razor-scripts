@@ -13,8 +13,9 @@ if not varexist setting_rail
     # GENERAL SETTINGS
     ###################################
     
+    setvar! AVERAGE_PING 150
     setvar! action_delay 600
-    setvar! movement_delay 100
+    setvar! movement_delay 2
     setvar! spell_recovery_delay 120
     
     setvar! auto_escape_pks 1
@@ -1885,12 +1886,12 @@ foreach runebook in 'mining_runetomes'
                     # clearsysmsg
                     # settimer 'last_sysmsg_timer' 0
                     cooldown RESOURCES 0
-                    wait 400
+                    # wait 400
                     hotkey 'Use Item in Right Hand'
                     settimer 'waiting_journal_timer' 0
 
                     # trying to speedup the clicking on the pickaxe and still give time to detect the cooldown
-                    while not cooldown RESOURCES and timer 'waiting_journal_timer' < action_delay and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled'
+                    while not cooldown RESOURCES and timer 'waiting_journal_timer' < AVERAGE_PING and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled'
                         wait 1
                     endwhile
                     wait 10
