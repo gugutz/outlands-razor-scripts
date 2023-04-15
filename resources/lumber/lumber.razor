@@ -22,19 +22,23 @@ sysmsg '***********************' 90
 cooldown RESOURCES 3000
 
 if not cooldown RESOURCES
+    overhead "REQUIRED COOLDOWNS DONT EXIST" 34
     overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
-    sysmsg "PLEASE SETUP A COOLDOWN NAMED:" 34
-    sysmsg "LUMBER" 88
+
+    sysmsg "REQUIRED COOLDOWNS DONT EXIST" 34
+    sysmsg "PLEASE READ INSTRUCTIONS AT:" 34
+    sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/lumber" 88
     sysmsg "." 88
-    sysmsg "Add these triggers each with a 10 second cooldown:" 66
-    sysmsg "Type: sysmsg | Text: You hack"
-    sysmsg "Type: sysmsg | Text: You chop some"
-    sysmsg "Type: sysmsg | Text: You have worn out your tool"
-    sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby"
-    sysmsg "Type: sysmsg | Text: before you may begin harvesting"
-    sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area"
-    sysmsg "Type: OverheadMessage | Text: You gather some"
-    sysmsg "Type: OverheadMessage | Text: Captcha successful"
+
+    sysmsg "OR SETUP A COOLDOWN NAMED 'RESOURCES' WITH DEFAULT 60 SECONDS DEFAULT TIMER AND THE FOLLOWING TRIGGERS:" 88
+    sysmsg "Type: sysmsg | Text: You hack" 87
+    sysmsg "Type: sysmsg | Text: You chop some" 87
+    sysmsg "Type: sysmsg | Text: You have worn out your tool" 87
+    sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby" 87
+    sysmsg "Type: sysmsg | Text: before you may begin harvesting" 87
+    sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area" 87
+    sysmsg "Type: OverheadMessage | Text: You gather some" 87
+    sysmsg "Type: OverheadMessage | Text: Captcha successful" 87
     sysmsg "." 88
     stop
 endif
@@ -62,7 +66,7 @@ setvar! world_save_delay 8000
 setvar! spell_recovery_delay 120
 
 # max ores a packie can have before being set as full
-setvar! max_boards_before_unloading 1000
+setvar! max_boards_before_unloading 50
 
 # set if char should escape home when tracking PKs
 setvar! auto_escape_pks 1
@@ -815,7 +819,7 @@ endif
 sysmsg '8'
 
 if counttype LOGS >= max_boards_before_unloading or counttype BOARDS >= max_boards_before_unloading
-    sysmsg 'OVER 1k LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
+    sysmsg 'OVER {{max_boards_before_unloading}} LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
     setvar recall_home_now 1
 endif
 
@@ -1699,10 +1703,10 @@ foreach runebook in 'lumber_runebooks'
                     # waitfortarget max_wait_for_last_sysmsg_to_use_hatchet
                 endwhile
     
-                if targetexists 'neutral'
+                if targetexists 'neutral' and followers >= summon_max_limit
                     # sysmsg 'Lumbering...' 65
-                    target 'self'
                     cooldown RESOURCES 0
+                    target 'self'
                 endif
     
                 # TESTING: REMOVING THIS WAIT
@@ -1982,7 +1986,7 @@ foreach runebook in 'lumber_runebooks'
         #         # when char is on cooldown for having traveled recently
                 elseif insysmsg 'You have recently traveled and must wait'
         #             setvar! reset_last_sysmsg_timer 1
-                    overhead '! travel harvest cooldown !' 43
+                    overhead '!travel cooldown!' 43
         #     
         #     
         #         # action cooldowns (when sysmsg prints 'You must wait...') will break the macro, so we need to get them as well
@@ -2559,8 +2563,6 @@ foreach runebook in 'lumber_runebooks'
                     setvar! rune_number 20
                 elseif rune_number == 20
                     setvar! rune_number 10
-                    poplist 'runetome_page_numbers' 'front'
-                    pushlist 'runetome_page_numbers' page_number 'back'
                 endif
 
 
@@ -2578,7 +2580,7 @@ foreach runebook in 'lumber_runebooks'
                 if page_number == 224
                     sysmsg 'GOING TO NEXT RUNETOME'
                     poplist 'lumber_runebooks' 'front'
-                    pushlist 'lumber_runebooks' page_number 'back'
+                    pushlist 'lumber_runebooks' runebook 'back'
                     say 'all follow me'
                     break
                 endif

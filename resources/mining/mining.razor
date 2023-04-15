@@ -1888,11 +1888,13 @@ foreach runebook in 'mining_runetomes'
                     cooldown RESOURCES 0
                     wait 400
                     hotkey 'Use Item in Right Hand'
-                    settimer 'waiting_journal_timer' 0
 
                     # trying to speedup the clicking on the pickaxe and still give time to detect the cooldown
-                    while not cooldown RESOURCES and timer 'waiting_journal_timer' < AVERAGE_PING and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled'
-                        wait 1
+                    settimer 'waiting_journal_timer' 0
+                    clearsysmsg
+                    while not cooldown RESOURCES and timer 'waiting_journal_timer' < action_delay and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled'
+                        wait 10
+                        clearsysmsg
                     endwhile
                     wait 10
                     # wait max_wait_for_last_sysmsg_to_use_pickaxe

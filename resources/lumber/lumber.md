@@ -4,17 +4,22 @@
 
 ```md
 - First run far from other friends pack animals
+- A **runebook** named **HOME** with your home rune set as default
+- 1 or more **runetomes** with the word **LUMBER** on their names
+- Enable Cooldowns in Client Options
+  ![Cooldowns - Enabling](./cooldowns-enable.png)
 - Uncheck option 'filter repeating system messages' on razor
+  ![Razor Text Filter Options](./razor-txt-filters.png)- Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
 - Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
+  ![Cooldowns - Enabling](./razor-disable-autostack.png)
 ```
 
 **Features**
 
 ```md
-- Tries to detects AFK Captchas and awaits for user input before continuing
-- Auto turns on tracking on start if not already Hunting
+- Stops at Captcha Gumps and awaits for user response to continue
+- Auto turns tracking on
 - Auto re-equips pickaxe whenever needed
-- Informs what color ore is being gathered
 - Auto finds all char packies and use them to unload.
 - Auto names packies according to weight ('emptypackie', 'lightpackie', 'fullpackie')
 - Detects when a packie is heavy and skips to next packie in list
