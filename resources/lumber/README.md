@@ -2,22 +2,22 @@
 
 **Requirements**
 
-```md
-- First run far from other friends pack animals
 - A **runebook** named **HOME** with your home rune set as default
 - 1 or more **runetomes** with the word **LUMBER** on their names
 - Enable Cooldowns in Client Options
-  ![Cooldowns - Enabling](./cooldowns-enable.png)
+  ![Cooldowns - Enabling](./img/cooldowns-enable.png)
 - Uncheck option 'filter repeating system messages' on razor
-  ![Razor Text Filter Options](./razor-txt-filters.png)- Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
+  ![Razor Text Filter Options](./img/razor-txt-filters.png)
 - Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
   ![Cooldowns - Enabling](./razor-disable-autostack.png)
-```
+- First run far from other friends pack animals
 
 **Features**
 
-```md
 - Stops at Captcha Gumps and awaits for user response to continue
+- Auto walk randomly (default: **on**)
+- Auto walk to specific diretion (default: **off**)
+
 - Auto turns tracking on
 - Auto re-equips pickaxe whenever needed
 - Auto finds all char packies and use them to unload.
@@ -27,16 +27,7 @@
 - Auto travel home to escape PKs
 - Auto travel home when all packies are full
 - Configurable rune position to auto travel (runetome or runebook)
-- Auto use recall charges to travel if char doenst have magery
-- Monitors and maintain char health (cure poison, heal pots, bandages, mage heals...)
-- Autoheals with best skills available (pot > bandage (with timer) > mageheals)
-- Auto smelt ores when: (default: on)
-  - Within 2 tiles of player forges
-  - Close to some hardcoded map forges locations
-- Option to not smelt colored ores (PKs cant smelt colored ores so makes it hard for them to take em)
-- Fights mobs in scenario (auto equips best weapon based on char weapon skill)
-- Auto walk randomly (default: off)
-- Auto walk to specific diretion (default: off)
-- Waits world saves
-- Detects when char is resource locked (by failing a previous captcha) and stops script
-```
+- Recall via charges for non-magery characters
+- Auto heal/cure
+- Fights mobs in scenario for non magery chars
+- Auto equips best weapon based on char weapon skill)
