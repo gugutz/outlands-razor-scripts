@@ -110,7 +110,7 @@ setvar! use_void_aspect 0
 # set if char uses a hotel room instead of a house
 setvar! use_hotel_room 0
 # set if characters should use own rooms or enter a friends room
-setvar! use_own_room 0
+setvar! use_own_room 1
 
 # this requires you to run before my loot-organizer script to set the variable CHAR_LOOT_POUCH
 setvar! hide_colored_resources_in_char_loot_pouch 1
@@ -1078,7 +1078,6 @@ if recall_home_now != 1 and auto_summon == 1 and followers < summon_max_limit
             endfor
         endif
     endfor
-    # cooldown RESOURCES resource_cooldown_value
 # CLOSES auto_summon
 endif
 
@@ -1179,9 +1178,6 @@ foreach runebook in 'lumber_runebooks'
             endif
         endif
     
-        # after travelling, hide and wait for the cooldown to end
-        # wait 60000
-    
     
         # BEFORE EVERY START
         say 'all guard me'
@@ -1225,30 +1221,28 @@ foreach runebook in 'lumber_runebooks'
             # if timer 'last_sysmsg_timer' > max_wait_for_last_sysmsg_to_suspect_gump
             if not cooldown RESOURCES
                 settimer 'waiting_cooldown_timer' 0
-                # while not cooldown RESOURCES
-                    if timer 'waiting_cooldown_timer' < 2000
-                        wait 10
-                    else
-                        if possible_captcha_detected == 0
-                            setvar! possible_captcha_detected 1
-                            settimer 'last_gump_tracking_timer' 0
-                        endif
-        
-                        overhead "✩ GUMP PRESENT or LAGGED ✩" 33
-                        sysmsg "✩ GUMP PRESENT or LAGGED ✩" 33
-                        sysmsg "✩ GUMP PRESENT or LAGGED ✩" 34
-                        sysmsg "✩ GUMP PRESENT or LAGGED ✩" 35
-        
-        
-                        # play an instrument as a way of playing a sound to notify about the captcha
-                        if findtype 3763|3740|10245|3742|3762 backpack as instrument
-                            wait action_delay
-                            dclick instrument
-                            wait action_delay
-                            break
-                        endif
+                if timer 'waiting_cooldown_timer' < 2000
+                    wait 10
+                else
+                    if possible_captcha_detected == 0
+                        setvar! possible_captcha_detected 1
+                        settimer 'last_gump_tracking_timer' 0
                     endif
-                # endwhile
+    
+                    overhead "✩ GUMP PRESENT or LAGGED ✩" 33
+                    sysmsg "✩ GUMP PRESENT or LAGGED ✩" 33
+                    sysmsg "✩ GUMP PRESENT or LAGGED ✩" 34
+                    sysmsg "✩ GUMP PRESENT or LAGGED ✩" 35
+    
+    
+                    # play an instrument as a way of playing a sound to notify about the captcha
+                    if findtype 3763|3740|10245|3742|3762 backpack as instrument
+                        wait action_delay
+                        dclick instrument
+                        wait action_delay
+                        break
+                    endif
+                endif
             endif
 
             # TOGGLE LANTERN TO MAKE CHAR SKIP CURRENT RUNE
@@ -1503,7 +1497,6 @@ foreach runebook in 'lumber_runebooks'
                         endfor
 
                         setvar! reset_last_sysmsg_timer 1
-                        # cooldown RESOURCES resource_cooldown_value
                     # CLOSES if varexist cast_summon_spell
                     endif
                 endfor
@@ -1551,7 +1544,6 @@ foreach runebook in 'lumber_runebooks'
                     endif
 
                     setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
                 endif
 
             endif
@@ -1584,7 +1576,6 @@ foreach runebook in 'lumber_runebooks'
                     endif
 
                     # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
                 endif
             endif
 
@@ -1609,7 +1600,7 @@ foreach runebook in 'lumber_runebooks'
             # this piece has to run after using detecting hiden to find the player revealed
             if auto_escape_thiefs == 1
                 # sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
-                hotkey 'Next Grey Player Target'
+                # hotkey 'Next Grey Player Target'
                 if insysmsg 'New target'
                     sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
                     setvar! recall_home_now 1
@@ -1623,7 +1614,7 @@ foreach runebook in 'lumber_runebooks'
             # try to get pks that already appeared on screen and couldnt get tracked first
             if auto_escape_pks == 1
                 # sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
-                @hotkey 'Next Murderer Player Target'
+                # @hotkey 'Next Murderer Player Target'
                 if insysmsg 'New target'
                     sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
                     sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
