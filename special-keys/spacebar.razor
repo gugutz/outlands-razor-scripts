@@ -41,10 +41,14 @@ endif
 # ENTER MOONGATE
 ###############################
 
-if gumpexists magery_moongate_gump or gumpexists omni_moongate_gump
+if gumpexists magery_moongate_gump
+    gumpresponse 2 magery_moongate_gump
+endif
+if gumpexists omni_moongate_gump
+    gumpresponse 2 omni_moongate_gump
 endif
 
-if findtype "'blue moongate'|27754" ground any any 2
+if findtype 3948|27754 ground any any 2
     script 'actions\enter-moongate'
 endif
 

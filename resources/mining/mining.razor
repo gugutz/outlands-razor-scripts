@@ -207,8 +207,8 @@ if not varexist setting_rail
     
     
     if list 'mining_runetomes' == 0
-        sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'MINING' ON ITS NAME TO RUN THIS SCRIPT" 54
-        stop
+        sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'MINING' ON ITS NAME IF YOU WANT TO CYCLE RUNES" 54
+        # stop
     endif
     
     foreach x in 'mining_runetomes'
@@ -704,76 +704,6 @@ if not varexist setting_rail
         endif
     endif
     
-    
-    
-    
-    
-    #############################
-    # SET THE HOME RUNEBOOK
-    #############################
-    
-    
-    #############################
-    # SET THE MINING RUNEBOOKS
-    #############################
-    if not listexists 'mining_runetomes'
-        createlist 'mining_runetomes'
-        if name == 'Nazareno'
-            sysmsg 'ADDING BOOKS FOR Nazareno'
-            setvar! home_runebook 0x41AB2A39
-        endif
-    
-        if name == 'Emacs'
-            sysmsg 'ADDING BOOKS FOR Emacs'
-            setvar! home_runebook 0x40F3CFF3
-            pushlist 'mining_runetomes' 0x402D79F6
-            pushlist 'mining_runetomes' 0x49818230
-        endif
-    
-        if name == 'Heduardoh'
-            sysmsg 'ADDING BOOKS FOR Heduardoh'
-            setvar! home_runebook 0x467A80ED
-            pushlist 'mining_runetomes' 0x42EB8054
-            pushlist 'mining_runetomes' 0x42EB79B6
-        endif
-    endif
-    
-    
-    if list 'mining_runetomes' > 0
-        foreach x in 'mining_runetomes'
-            sysmsg 'MINING RUNEBOOK {{index}}: {{x}}'
-        endfor
-    else
-        pushlist 'mining_runetomes' 0
-    endif
-        #     # unsetvar! next_pouch_index
-        # if index == 0
-        #     sysmsg 'LIST 0'
-        # elseif index == 1
-        #     sysmsg 'LIST 1'
-        # elseif index == 2
-        #     sysmsg 'LIST 2'
-        # elseif index == 3
-        #     sysmsg 'LIST 3'
-        # elseif index == 4
-        #     sysmsg 'LIST 4'
-        # elseif index == 5
-        #     sysmsg 'LIST 0'
-        # elseif index == 6
-        #     sysmsg 'LIST 0'
-        # elseif index == 7
-        #     sysmsg 'LIST 0'
-        # elseif index == 8
-        #     sysmsg 'LIST 8'
-        # elseif index == 9
-        #     sysmsg 'LIST 9'
-        # elseif index == 10
-        #     sysmsg 'LIST 10'
-        # elseif index == 11
-        #     sysmsg 'LIST 11'
-        # elseif index == 12
-        #     sysmsg 'LIST 12'
-        # endif
     
     #############################
     # SET THE MINING RUNEBOOK BUTTONS TO PRESS TO RECALL

@@ -65,6 +65,8 @@ setvar! action_delay 600
 setvar! world_save_delay 8000
 setvar! spell_recovery_delay 120
 
+setvar! manual_lumber_mode 0
+
 # max ores a packie can have before being set as full
 setvar! max_boards_before_unloading 50
 
@@ -218,14 +220,14 @@ endif
 # SET THE LUMBER RUNEBOOKS
 #############################
 
-clearlist 'lumber_runebooks'
-createlist 'lumber_runebooks'
+clearlist 'lumber_runetomes'
+createlist 'lumber_runetomes'
 
 while findtype 'runetome' backpack as found
     getlabel found rbook_label
     if 'lumber' in rbook_label or 'Lumber' in rbook_label or 'LUMBER' in rbook_label
         sysmsg 'ADDING RUNEBOOK {{found}} TO LIST' 54
-        pushlist 'lumber_runebooks' found
+        pushlist 'lumber_runetomes' found
     endif
 
     @ignore found
@@ -234,12 +236,12 @@ endwhile
 @clearignore
 
 
-if list 'lumber_runebooks' == 0
-    sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'LUMBER' ON ITS NAME TO RUN THIS SCRIPT" 54
-    stop
+if manual_lumber_mode != 1 and list 'lumber_runetomes' == 0
+    sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'LUMBER' ON ITS NAME IF YOU WANNA CYCLE RUNES" 54
+    # stop
  endif
 
-foreach x in 'lumber_runebooks'
+foreach x in 'lumber_runetomes'
     sysmsg 'LUMBER RUNEBOOK {{index}}: {{x}}'
 endfor
 
@@ -272,7 +274,7 @@ setvar! max_wait_for_hatchet_target 2000
 # delay between pickaxes uses
 # setvar! max_wait_for_last_sysmsg_to_use_hatchet  1000
 # delay before suspecting captcha gump
-setvar! max_wait_for_last_sysmsg_to_suspect_gump 7000
+setvar! max_wait_for_last_sysmsg_to_suspect_gump 5000
 # how oftect captcha gump usually pops up (default: 600000ms (10 minutes))
 setvar! average_captcha_gump_interval 600000
 
@@ -749,6 +751,14 @@ setvar! 4th_circle_spell_mana_cost 12
 sysmsg 'STARTING...' 87
 ###################################
 
+if manual_lumber_mode == 1
+    sysmsg 'MANUAL LUMBER MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
+    setvar! auto_walk_randomly 0
+    setvar! auto_walk_to_direction 1
+    clearlist 'lumber_runetomes'
+    pushlist 'lumber_runetome' 0
+endif
+
 
 # all guard right now so summons protect char if we start script in the middle of a fight
 if followers > 0
@@ -1097,46 +1107,85 @@ setvar! rune_number 10
 # trigger the cooldown once at start so char can start lumbering
 cooldown RESOURCES 30000
 
-foreach runebook in 'lumber_runebooks'
-    sysmsg '>>> STARTING RUNEBOOK {{index}}: {{runebook}}'
+foreach runebook in 'lumber_runetomes'
+    if runebook != 0
+        sysmsg '>>> STARTING RUNETOME {{index}}: {{runebook}}'
+    endif
+
+    if index == 1
+        setvar! runebook_number 1
+    elseif index == 2
+        setvar! runebook_number 2
+    elseif index == 3
+        setvar! runebook_number 3
+    elseif index == 4
+        setvar! runebook_number 4
+    endif
 
     foreach page_number in 'runetome_page_numbers'
-        if page_number == 11
+        if page_number == 200
+            setvar! current_rune_position 1
+        elseif page_number == 201
             setvar! current_rune_position 2
-        elseif page_number == 17
+        elseif page_number == 202
             setvar! current_rune_position 3
-        elseif page_number == 23
+        elseif page_number == 203
             setvar! current_rune_position 4
-        elseif page_number == 29
+        elseif page_number == 204
             setvar! current_rune_position 5
-        elseif page_number == 35
+        elseif page_number == 205
             setvar! current_rune_position 6
-        elseif page_number == 41
+        elseif page_number == 206
             setvar! current_rune_position 7
-        elseif page_number == 47
+        elseif page_number == 207
             setvar! current_rune_position 8
-        
-        # runebook page 2
-        elseif page_number == 53
+        elseif page_number == 208
             setvar! current_rune_position 9
-        elseif page_number == 59
+        elseif page_number == 209
             setvar! current_rune_position 10
-        elseif page_number == 65
+        elseif page_number == 210
             setvar! current_rune_position 11
-        elseif page_number == 71
-            setvar! current_rune_position 11
-        elseif page_number == 77
+        elseif page_number == 211
             setvar! current_rune_position 12
-        elseif page_number == 83
+        elseif page_number == 212
             setvar! current_rune_position 13
-        elseif page_number == 89
+
+        # runebook page 2
+        elseif page_number == 213
             setvar! current_rune_position 14
-        elseif page_number == 95
+        elseif page_number == 214
             setvar! current_rune_position 15
+        elseif page_number == 215
+            setvar! current_rune_position 16
+        elseif page_number == 216
+            setvar! current_rune_position 17
+        elseif page_number == 217
+            setvar! current_rune_position 18
+        elseif page_number == 218
+            setvar! current_rune_position 19
+        elseif page_number == 219
+            setvar! current_rune_position 20
+        elseif page_number == 220
+            setvar! current_rune_position 21
+        elseif page_number == 221
+            setvar! current_rune_position 22
+        elseif page_number == 222
+            setvar! current_rune_position 23
+        elseif page_number == 223
+            setvar! current_rune_position 24
+        elseif page_number == 224
+            setvar! current_rune_position 25
+        elseif page_number == 225
+            setvar! current_rune_position 26
         endif
-    # foreach rune_number in 'runebook_rune_btns'
+
+        if runebook != 0
+            sysmsg 'RUNE: {{current_rune_position}} (PAGE: {{page_number}})' 90
+        endif
+
+
+        # travel to the rune
         if recall_home_now != 1
-            # travel to the rune
 
             while mana <= 11
                 sysmsg 'MEDITATING TO RECALL' warning_msg_color
@@ -1218,12 +1267,9 @@ foreach runebook in 'lumber_runebooks'
 
             endif
     
-            # if timer 'last_sysmsg_timer' > max_wait_for_last_sysmsg_to_suspect_gump
             if not cooldown RESOURCES
-                settimer 'waiting_cooldown_timer' 0
-                if timer 'waiting_cooldown_timer' < 2000
-                    wait 10
-                else
+                if timer 'waiting_cooldown_timer' > max_wait_for_last_sysmsg_to_suspect_gump
+                    settimer 'waiting_cooldown_timer' 0
                     if possible_captcha_detected == 0
                         setvar! possible_captcha_detected 1
                         settimer 'last_gump_tracking_timer' 0
@@ -1242,6 +1288,8 @@ foreach runebook in 'lumber_runebooks'
                         wait action_delay
                         break
                     endif
+                else
+                    wait 10
                 endif
             endif
 
@@ -1280,22 +1328,16 @@ foreach runebook in 'lumber_runebooks'
                     endif
         
                     if list 'summons' == 1 and followers == 4
-                        if verbose == 1
-                            sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 4 HAVE FOLLOWERS {{summon}}' warning_msg_color
-                        endif
+                        sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 4 HAVE FOLLOWERS {{summon}}' warning_msg_color
         
-                        if debug == 1
-                            sysmsg 'BREAKING 1 ON CHECKING SUMMON {{summon}}' warning_msg_color
-                        endif
+                        sysmsg 'BREAKING 1 ON CHECKING SUMMON {{summon}}' warning_msg_color
                         break
                     elseif list 'summons' > 1 and followers == 5
                         if verbose == 1
                             sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 5 HAVE FOLLOWERS {{summon}}' warning_msg_color
                         endif
         
-                        if debug == 1
-                            sysmsg 'BREAKING 2 ON CHECKING SUMMON {{summon}}' warning_msg_color
-                        endif
+                        sysmsg 'BREAKING 2 ON CHECKING SUMMON {{summon}}' warning_msg_color
                         break
                     endif
         
@@ -2570,8 +2612,8 @@ foreach runebook in 'lumber_runebooks'
 
                 if page_number == 224
                     sysmsg 'GOING TO NEXT RUNETOME'
-                    poplist 'lumber_runebooks' 'front'
-                    pushlist 'lumber_runebooks' runebook 'back'
+                    poplist 'lumber_runetomes' 'front'
+                    pushlist 'lumber_runetomes' runebook 'back'
                     say 'all follow me'
                     break
                 endif
@@ -2582,7 +2624,7 @@ foreach runebook in 'lumber_runebooks'
     
         endwhile
     endfor
-    # CLOSES foreach runebook in 'lumber_runebooks'
+    # CLOSES foreach runebook in 'lumber_runetomes'
 endfor
 
 

@@ -25,7 +25,7 @@ To run the script you need to have:
 - A **runebook** named **HOME** with your home rune set as default
 - 1 or more **runetomes** with the word **LUMBER** on their names
 - Some cooldowns set up on your client. [Download the cooldowns.xml with all the required cooldowns here](../../cooldowns.xml)
-- After downloading, place the **cooldowns.xml** file on your lumber character profile folder (<outlands setup folder>/Data/Profiles/<char name>)
+- After downloading, place the **cooldowns.xml** file on your lumber character profile folder `(Outlands\Data\Profiles\Your Char Name)`
 - Enable Cooldowns in Client Options
 
   ![Cooldowns - Enabling](./img/cooldowns-enable.png)
