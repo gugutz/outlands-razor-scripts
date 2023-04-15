@@ -5,11 +5,17 @@
 - A **runebook** named **HOME** with your home rune set as default
 - 1 or more **runetomes** with the word **LUMBER** on their names
 - Enable Cooldowns in Client Options
+
   ![Cooldowns - Enabling](./img/cooldowns-enable.png)
+
 - Uncheck option 'filter repeating system messages' on razor
+
   ![Razor Text Filter Options](./img/razor-txt-filters.png)
+
 - Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
+
   ![Cooldowns - Enabling](./razor-disable-autostack.png)
+
 - First run far from other friends pack animals
 
 **Features**
