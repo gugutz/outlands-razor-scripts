@@ -703,6 +703,7 @@ if name == 'gugutz'
     setvar! auto_rail 0
     setvar! lure_mobs_closer_before_killing 1
     setvar! use_ma 1
+    setvar! auto_skin_corpses 1
     setvar! use_harm 1
     setvar! use_fireball 1
     setvar! use_lightning 1
@@ -2478,20 +2479,21 @@ while not dead 'self'
     endif
 
     # try to detect GMs on screen and say 'hi'
-    if auto_detect_gms == 1
-        sysmsg '▷ SEARCHING FOR GMs ON SCREEN'
-        hotkey 'Clear Target Queue'
-        hotkey 'Next Grey Player Target'
-        if insysmsg 'New target'
-            sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
-            setvar! recall_home_now 1
-        endif
-    endif
+    # if auto_detect_gms == 1
+    #     sysmsg '▷ SEARCHING FOR GMs ON SCREEN'
+    #     hotkey 'Clear Target Queue'
+    #     hotkey 'Next Grey Player Target'
+    #     if insysmsg 'New target'
+    #         sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
+    #         setvar! recall_home_now 1
+    #     endif
+    # endif
 
     # this piece has to run after using detecting hiden to find the player revealed
     if auto_escape_thiefs == 1
         sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
-        hotkey 'Clear Target Queue'
+        # hotkey 'Clear Target Queue'
+        clearsysmsg
         hotkey 'Next Grey Player Target'
         if insysmsg 'New target'
             sysmsg '> FOUND THIEF! ESCAPING!' alert_msg_color
@@ -2501,7 +2503,8 @@ while not dead 'self'
 
     if auto_escape_pks == 1
         sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
-        hotkey 'Clear Target Queue'
+        # hotkey 'Clear Target Queue'
+        clearsysmsg
         hotkey 'Next Murderer Player Target'
         if insysmsg 'New target'
             sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color

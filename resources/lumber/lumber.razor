@@ -274,7 +274,7 @@ setvar! max_wait_for_hatchet_target 2000
 # delay between pickaxes uses
 # setvar! max_wait_for_last_sysmsg_to_use_hatchet  1000
 # delay before suspecting captcha gump
-setvar! max_wait_for_last_sysmsg_to_suspect_gump 5000
+setvar! max_wait_for_last_sysmsg_to_suspect_gump 8000
 # how oftect captcha gump usually pops up (default: 600000ms (10 minutes))
 setvar! average_captcha_gump_interval 600000
 
@@ -1179,13 +1179,14 @@ foreach runebook in 'lumber_runetomes'
             setvar! current_rune_position 26
         endif
 
-        if runebook != 0
-            sysmsg 'RUNE: {{current_rune_position}} (PAGE: {{page_number}})' 90
-        endif
 
 
         # travel to the rune
         if recall_home_now != 1
+
+            if runebook != 0
+                sysmsg 'RUNE: {{current_rune_position}} (PAGE: {{page_number}})' 90
+            endif
 
             while mana <= 11
                 sysmsg 'MEDITATING TO RECALL' warning_msg_color
@@ -1235,6 +1236,7 @@ foreach runebook in 'lumber_runetomes'
         setvar! attempts_to_find_new_tree_with_logs 0
         setvar! reset_last_sysmsg_timer 0
         settimer 'last_sysmsg_timer' 0
+        settimer 'waiting_cooldown_timer' 0
         while not dead 'self'
     
             ########################################
@@ -1286,7 +1288,6 @@ foreach runebook in 'lumber_runetomes'
                         wait action_delay
                         dclick instrument
                         wait action_delay
-                        break
                     endif
                 else
                     wait 10
@@ -1531,7 +1532,8 @@ foreach runebook in 'lumber_runetomes'
                                             say 'all guard me'
                                         endif
         
-                                        break
+                                        # NOTE: SEE IF ITS THIS FUCKER THAT WAS FUCKING SHIT UP
+                                        # break
         
                                     endif
                                 endif
@@ -1701,6 +1703,7 @@ foreach runebook in 'lumber_runetomes'
 
 
             if cooldown RESOURCES and recall_home_now != 1
+                settimer 'waiting_cooldown_timer' 0
 
                 if possible_captcha_detected == 1
                     setvar! possible_captcha_detected 0
@@ -1723,23 +1726,21 @@ foreach runebook in 'lumber_runetomes'
                 # if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_hatchet and not lhandempty
     
                 settimer 'waiting_hatchet_target_timer' 0
-
-                while not lhandempty and not targetexists 'neutral' and cooldown RESOURCES
-                    if timer 'waiting_hatchet_target_timer' > max_wait_for_hatchet_target
-                        sysmsg 'BREAKING CLICKING HATCHET' 37
-                        break
-                    endif
-
+                while not lhandempty and not targetexists 'neutral' and cooldown RESOURCES and timer 'waiting_hatchet_target_timer' < max_wait_for_hatchet_target and followers >= summon_max_limit
+                    # if timer 'waiting_hatchet_target_timer' > max_wait_for_hatchet_target
+                    #     sysmsg 'BREAKING CLICKING HATCHET' 37
+                    #     break
+                    # endif
                     # sysmsg 'USING ITEM IN HAND'
                     hotkey 'Use item in Hand'
                     waitfortarget action_delay
                     # waitfortarget max_wait_for_last_sysmsg_to_use_hatchet
                 endwhile
     
-                if targetexists 'neutral' and followers >= summon_max_limit
+                if not lhandempty and targetexists 'neutral' and followers >= summon_max_limit
                     # sysmsg 'Lumbering...' 65
-                    cooldown RESOURCES 0
                     target 'self'
+                    cooldown RESOURCES 0
                 endif
     
                 # TESTING: REMOVING THIS WAIT
@@ -1794,27 +1795,29 @@ foreach runebook in 'lumber_runetomes'
             ##############################################
             # HIDE COLORED WOOD IN CHAR_LOOT_POUCH
             if recall_home_now != 1 and hide_colored_resources_in_char_loot_pouch == 1 and varexist CHAR_LOOT_POUCH
-                # sysmsg 'ENTERING HIDING COLORED WOOD'
-                while findtype 7133|7127 backpack as found
-                    if hue found != 0
-                        getlabel found flabel
-
-                        if not find found CHAR_LOOT_POUCH
-                            sysmsg 'HIDING {{flabel}}'
-                            lift found 60000
-                            wait 50
-                            while queued
-                            endwhile
-
-                            drop CHAR_LOOT_POUCH
-                            wait 50
-                            while queued
-                            endwhile
+                if find CHAR_LOOT_POUCH self
+                    # sysmsg 'ENTERING HIDING COLORED WOOD'
+                    while findtype 7133|7127 backpack as found
+                        if hue found != 0
+                            getlabel found flabel
+    
+                            if not find found CHAR_LOOT_POUCH
+                                sysmsg 'HIDING {{flabel}}'
+                                lift found 60000
+                                wait 50
+                                while queued
+                                endwhile
+    
+                                drop CHAR_LOOT_POUCH
+                                wait 50
+                                while queued
+                                endwhile
+                            endif
                         endif
-                    endif
-                    @ignore found
-                endwhile
-                @clearignore
+                        @ignore found
+                    endwhile
+                    @clearignore
+                endif
             endif
     
             ####################################

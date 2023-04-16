@@ -1342,12 +1342,8 @@ foreach runebook in 'mining_runetomes'
             endif
 
             if not cooldown RESOURCES
-                settimer 'waiting_cooldown_timer' 0
-                while not cooldown RESOURCES and timer 'waiting_cooldown_timer' < 2000
-                    wait 10
-                endwhile
-
-                if not cooldown RESOURCES
+                if timer 'waiting_cooldown_timer' > max_wait_for_last_sysmsg_to_suspect_gump
+                    settimer 'waiting_cooldown_timer' 0
                     if possible_captcha_detected == 0
                         setvar! possible_captcha_detected 1
                         settimer 'last_gump_tracking_timer' 0
@@ -1361,11 +1357,12 @@ foreach runebook in 'mining_runetomes'
     
                     # play an instrument as a way of playing a sound to notify about the captcha
                     if findtype 3763|3740|10245|3742|3762 backpack as instrument
-                        wait 1000
+                        wait action_delay
                         dclick instrument
-                        wait 1500
-                        # break
+                        wait action_delay
                     endif
+                else
+                    wait 10
                 endif
             endif
 
@@ -1785,6 +1782,7 @@ foreach runebook in 'mining_runetomes'
             # endif
 
             if cooldown RESOURCES and recall_home_now != 1
+                settimer 'waiting_cooldown_timer' 0
 
                 if possible_captcha_detected == 1
                     setvar! possible_captcha_detected 0
