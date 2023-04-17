@@ -55,7 +55,7 @@ endif
 # VERBOSITY SETTINGS
 setvar! debug 0
 setvar! stack_trace 0
-setvar! verbose 1
+setvar! verbose 0
 setvar! use_script_overhead_messages 1
 
 # GENERAL SETTINGS
@@ -1895,9 +1895,11 @@ while not dead 'self'
                 if findtype 'veterinary supplies' as vet_supplies
                     settimer 'heal_pets_timer' 0
                     useobject vet_supplies
-                    sysmsg ">>> USING VET SUPPLIES ON PET" 55
-                    overhead '*vetting*' 75 pet
-                    overhead '*vetting player pet*' 75 'self'
+                    if verbose == 1
+                        sysmsg ">>> USING VET SUPPLIES ON PET" 55
+                        overhead '*vetting*' 75 pet
+                        overhead '*vetting player pet*' 75 'self'
+                    endif
                 # elseif findtype 'clean bandage%s%' as bands
                 #     useobject bands
                 #     wft 1000
@@ -2278,7 +2280,9 @@ while not dead 'self'
             wait action_delay
 
             if insysmsg 'you consume'
-                sysmsg '>>> [TIMER] RESETING MUSHROOM (NEXT IN {{use_mushroom_delay}})' reset_timer_msg_color
+                if verbose == 1
+                    sysmsg '>>> [TIMER] RESETING MUSHROOM (NEXT IN {{use_mushroom_delay}})' reset_timer_msg_color
+                endif
                 settimer 'use_mushroom_timer' 0
             endif
         else
@@ -2491,7 +2495,9 @@ while not dead 'self'
 
     # this piece has to run after using detecting hiden to find the player revealed
     if auto_escape_thiefs == 1
-        sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
+        if verbose == 1
+            sysmsg '▷ SEARCHING FOR GREY PLAYERS ON SCREEN'
+        endif
         # hotkey 'Clear Target Queue'
         clearsysmsg
         hotkey 'Next Grey Player Target'
@@ -2502,7 +2508,9 @@ while not dead 'self'
     endif
 
     if auto_escape_pks == 1
-        sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+        if verbose == 1
+            sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+        endif
         # hotkey 'Clear Target Queue'
         clearsysmsg
         hotkey 'Next Murderer Player Target'
@@ -3369,7 +3377,6 @@ while not dead 'self'
     endif
 
 
-sysmsg 'chegou main attack routine'
 
     #########################################
     # MAIN ATTACK ROUTINE
@@ -3778,7 +3785,9 @@ sysmsg 'chegou kill close to loot'
                                         if not dead 'last' and find 'last' ground any any find_last_target_max_range
 
                                             if last_target_serial == last_mana_drained_serial and timer 'mana_drain_timer' <= mana_drain_delay
-                                                sysmsg '!!! THIS MOB WAS MANA DRAINED {{mana_drain_timer}}ms AGO' warning_msg_color
+                                                if verbose == 1
+                                                    sysmsg '!!! THIS MOB WAS MANA DRAINED {{mana_drain_timer}}ms AGO' warning_msg_color
+                                                endif
                                             elseif last_target_serial != last_mana_drained_serial and timer 'mana_drain_timer' >= mana_drain_delay
                                                 # overhead '> mana drain <' spell_overhead_color
                                                 if verbose == 1
@@ -4084,9 +4093,11 @@ sysmsg 'chegou kill close to loot'
                                         if findtype 'veterinary supplies' as vet_supplies
                                             settimer 'heal_pets_timer' 0
                                             useobject vet_supplies
-                                            sysmsg ">>> USING VET SUPPLIES ON PET" 76
-                                            overhead '*vetting*' 76 pet
-                                            overhead '*vetting player pet*' 77 'self'
+                                            if verbose == 1
+                                                sysmsg ">>> USING VET SUPPLIES ON PET" 76
+                                                overhead '*vetting*' 76 pet
+                                                overhead '*vetting player pet*' 77 'self'
+                                            endif
                                         # elseif findtype 'clean bandage%s%' as bands
                                         #     useobject bands
                                         #     wft 1000
