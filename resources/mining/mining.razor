@@ -184,11 +184,6 @@ if not varexist setting_rail
     setvar! max_wait_for_last_sysmsg_to_use_pickaxe  1300
     # delay before suspecting captcha gump
     setvar! max_wait_for_last_sysmsg_to_suspect_gump 8000
-    # max ores a packie can have before being set as full
-    # the actual value is 1000 ores, but we set a little bit less to char doenst try to fill it, which could result in exceeding the limit and droping ores on the ground
-    # the value set a bit less than the actual max works as a safety to make sure it will skip to next packie before trying to unload and risking droping ores on the ground
-    setvar! max_ores_in_packie 600
-    setvar! max_ingots_in_packie 600
     
     setvar! max_diffhits_before_starting_heal_routine 0
     setvar! max_diffhits_before_starting_defense_routine 2

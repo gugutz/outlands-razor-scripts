@@ -3,28 +3,47 @@
 ## Features
 
 - Stops at Captcha Gumps and awaits for user response to continue
-- Auto walk randomly (default: **on**)
-- Auto walk to specific diretion (default: **off**)
-- Auto turns tracking on
+- Auto Cycle Runetomes
+- Auto turns tracking on at start
 - Auto re-equips pickaxe whenever needed
-- Auto finds all char packies and use them to unload.
-- Auto names packies according to weight ('emptypackie', 'lightpackie', 'fullpackie')
-- Detects when a packie is heavy and skips to next packie in list
-- Option to use Hotel Room (own or friend's)
+- Use Hotel Room (own or friend's)
 - Auto travel home to escape PKs
-- Auto travel home when all packies are full
+- Auto use recall charges to travel if char doenst have magery
+- Auto smelt ores when close to known or player forges: (default: on)
 - Configurable rune position to auto travel (runetome or runebook)
 - Auto heal/cure
 - Recall via charges for non-mage characters
 - Fights mobs in scenario for non-mage chars (auto equips best weapon based on char weapon skill)
+- Monitors and maintain char health (cure poison, heal pots, bandages, mage heals...)
+
+### _Walk Modes_
+
+- Auto rails (default: off).
+- Auto walk randomly (default: off)
+- Auto walk to specific diretion (default: off)
+- Manual walk (default: on)
+
+### _Packies Features_
+
+- Auto finds all char packies and use them to unload.
+- Auto names packies according to weight: `emptypackie`, `lightpackie`, `fullpackie`
+- Detects when a packie is heavy and skips to next packie in list
+- Auto travel home when all packies are full
+
+### _Other Features_
+
+- Informs what color ore is being gathered
+- Configurable rune position to auto travel (runetome or runebook)
+- Option to not smelt colored ores (PKs cant smelt colored ores so makes it hard for them to take em)
 
 ## Running the Script
 
 To run the script you need to have:
 
-- A **runebook** named **HOME** with your home rune set as default
+- A **runebook** named **HOME** with your home rune set as default.
+  If your char doenst have magery and uses Recall Charges, the home rune needs to be the first rune in the runebook
 - 1 or more **runetomes** with the word **MINING** on their names
-- Some cooldowns set up on your client. [Download the cooldowns.xml with all the required cooldowns here](../../cooldowns.xml)
+- Some cooldowns set up on your client. [Download my cooldowns.xml with all the required cooldowns here](../../cooldowns.xml)
 - After downloading, place the **cooldowns.xml** file on your lumber character profile folder `(Outlands\Data\Profiles\Your Char Name)`
 - Enable Cooldowns in Client Options
 
@@ -101,7 +120,9 @@ To use auto rail, you need to record a macro for every rune you intend to use on
 
 These macros are very simple macros where you just click Record and walk the route you desire your char to walk when traveling to that rune. After creating the macro and fishing walking the desired route, you have to convert that macro using the awesome Razor2Rail by @maldogi.
 
-**Here are detailed steps on how to set your rails**
+I have compiled a version of Maldogi's Razor2Rail that changes the script being called at the end of each rail to point to where my script is located (`resources\mining\mining`). [You can download it here](../razor-to-rail.zip) (PS: you need dotnet 6.0.10 installed to run it)
+
+**HOW TO SET YOUR RAILS**
 
 1. Travel to the rune you want to record a rail to
 2. Leave your character at the exact spots it recalls into
@@ -145,45 +166,3 @@ These macros are very simple macros where you just click Record and walk the rou
 If you want to just manually control your character while enjoying all the benefits of the script, set `walk_mode` to `4` in script **mining_config.razor**
 
 Then move the rail file into the same folder as the mining script (in the above exemple: 'resources\mining')
-
-## Features
-
-**_Movement Types_**
-
-```md
-- Auto rails (default: off).
-- Auto walk randomly (default: off)
-- Auto walk to specific diretion (default: off)
-- Manual walk (default: on)
-```
-
-**_Packies Features_**
-
-```md
-- Auto finds all char packies and use them to unload.
-- Auto names packies according to weight ('emptypackie', 'lightpackie', 'fullpackie')
-- Detects when a packie is heavy and skips to next packie in list
-```
-
-**_Other Features_**
-
-```md
-- Tries to detects AFK Captchas and awaits for user input before continuing
-- Auto turns on tracking on start if not already Hunting
-- Auto re-equips pickaxe whenever needed
-- Informs what color ore is being gathered
-- Auto grabs ores found on ground
-- Auto travel home to escape PKs
-- Auto travel home when all packies are full
-- Configurable rune position to auto travel (runetome or runebook)
-- Auto use recall charges to travel if char doenst have magery
-- Monitors and maintain char health (cure poison, heal pots, bandages, mage heals...)
-- Autoheals with best skills available (pot > bandage (with timer) > mageheals)
-- Auto smelt ores when: (default: on)
-  - Within 2 tiles of player forges
-  - Close to some hardcoded map forges locations
-- Option to not smelt colored ores (PKs cant smelt colored ores so makes it hard for them to take em)
-- Fights mobs in scenario (auto equips best weapon based on char weapon skill)
-- Waits world saves
-- Detects when char is resource locked (by failing a previous captcha) and stops script
-```
