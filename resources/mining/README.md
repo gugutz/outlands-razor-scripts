@@ -2,39 +2,58 @@
 
 ## Features
 
+All features listed here are configurable. You can turn each of them on and off by switching zeroes and ones inside the **mining_config.razor** file.
+
 - Stops at Captcha Gumps and awaits for user response to continue
 - Auto Cycle Runetomes
 - Auto turns tracking on at start
+- Auto summon
+- Auto drain nearby corpses to increase summons duration
+- Auto detect and escape nearby thiefs
 - Auto re-equips pickaxe whenever needed
 - Use Hotel Room (own or friend's)
 - Auto travel home to escape PKs
 - Auto use recall charges to travel if char doenst have magery
 - Auto smelt ores when close to known or player forges: (default: on)
 - Configurable rune position to auto travel (runetome or runebook)
-- Auto heal/cure
 - Recall via charges for non-mage characters
 - Fights mobs in scenario for non-mage chars (auto equips best weapon based on char weapon skill)
 - Monitors and maintain char health (cure poison, heal pots, bandages, mage heals...)
+- Informs what color ore is being gathered
+- Option to not smelt colored ores (makes it harder for PKs to take em)
 
-### _Walk Modes_
+#### _Walk Modes_
 
 - Auto rails (default: off).
 - Auto walk randomly (default: off)
 - Auto walk to specific diretion (default: off)
 - Manual walk (default: on)
 
-### _Packies Features_
+#### _Packies Features_
 
 - Auto finds all char packies and use them to unload.
 - Auto names packies according to weight: `emptypackie`, `lightpackie`, `fullpackie`
 - Detects when a packie is heavy and skips to next packie in list
 - Auto travel home when all packies are full
 
-### _Other Features_
+#### _Other Features_
 
-- Informs what color ore is being gathered
-- Configurable rune position to auto travel (runetome or runebook)
-- Option to not smelt colored ores (PKs cant smelt colored ores so makes it hard for them to take em)
+## Character config overides
+
+At the very bottom of the script **mining_config.razor** you will notice some `if`s that check for the character name and sets some variables.
+
+Those `if` blocks are placed at the end so that any variable set in them will override the "default" ones set at the beggining of the file.
+
+This way you can use use those blocks to set different script options for each of your characters without having to create different copies of the script.
+
+Example of a config override that sets `walk_mode` to manual and disables auto summon for a character named Newbie
+
+```py
+if name == 'Newbie'
+    setvar! walk_mode 4
+    setvar! auto_summon 0
+endif
+```
 
 ## Running the Script
 
@@ -42,18 +61,17 @@ To run the script you need to have:
 
 - A **runebook** named **HOME** with your home rune set as default.
   If your char doenst have magery and uses Recall Charges, the home rune needs to be the first rune in the runebook
-- 1 or more **runetomes** with the word **MINING** on their names
-- Some cooldowns set up on your client. [Download my cooldowns.xml with all the required cooldowns here](../../cooldowns.xml)
-- After downloading, place the **cooldowns.xml** file on your lumber character profile folder `(Outlands\Data\Profiles\Your Char Name)`
+- 1 or more **runetomes** with the word **MINING** on their names _(not required for manual walk mode)_
+- Some cooldowns set up on your client. [Download my cooldowns.xml with all the required cooldowns here](../../cooldowns.xml). After downloading, place the **cooldowns.xml** file on your mining character profile folder `(Outlands\Data\Profiles\Your Char Name)`
 - Enable Cooldowns in Client Options
 
   ![Cooldowns - Enabling](./img/cooldowns-enable.png)
 
-- Uncheck option 'filter repeating system messages' on razor
+- Uncheck option `Filter repeating system messages` on razor
 
   ![Razor Text Filter Options](./img/razor-txt-filters.png)
 
-- Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
+- Uncheck option `Auto Stack Ore/Fish/Logs at feet` on razor
 
   ![Razor - Disable Auto Stack Ores/Logs at feet](./img/razor-disable-autostack.png)
 
@@ -103,22 +121,31 @@ Type: sysmsg | Text: Harvesting is not allowed in this area
 
 # WALK MODES
 
-This script supports 4 walking modes:
+This script supports 4 walking modes.
+
+To select the walking mode, open the script **mining_config.razor** and on your character config, set the variable `walk_mode` acording to the mode you want:
+
+0.  **Manual walking**
+
+    Turn off movement. You can control how your character move
 
 1.  **Auto Rail**
+
     Char walks a specific router you define at each rune.
+
 2.  **Auto Walk Randomly**
+
     Char walks X steps at a random direction everytime a tree is empty. It tries to find 20 trees and goes to next rune.
+
 3.  **Auto Walk To Specific Direction**
+
     Char walks only to 1 direction that you set in script config.
-4.  **Manual walking**
-    Your control your character movement, script does all the rest.
 
 ## Auto Rail
 
 To use auto rail, you need to record a macro for every rune you intend to use on your mining runetome. If you use 5 runes, you will need to record 5 macros.
 
-These macros are very simple macros where you just click Record and walk the route you desire your char to walk when traveling to that rune. After creating the macro and fishing walking the desired route, you have to convert that macro using the awesome Razor2Rail by @maldogi.
+These macros are very simple macros where you just click Record and walk the route you desire your char to walk when traveling to that rune. After creating the macro and finishing walking the desired route, you have to convert that macro using the awesome Razor2Rail by @maldogi.
 
 I have compiled a version of Maldogi's Razor2Rail that changes the script being called at the end of each rail to point to where my script is located (`resources\mining\mining`). [You can download it here](../razor-to-rail.zip) (PS: you need dotnet 6.0.10 installed to run it)
 
