@@ -1446,6 +1446,11 @@ foreach runebook in 'lumber_runetomes'
                     #########################
                     # prepare to cast the summon spell for this summon
                     if cast_summon_spell == 1
+                        if cooldown RESOURCES
+                            sysmsg 'COOLDOWN ACTIVE WHEN CASTING SUMMON SPELL' 75
+                        else
+                            sysmsg 'COOLDOWN ACTIVE WHEN CASTING SUMMON SPELL' 40
+                        endif
         
         
                         foreach summonspell in 'summonspells'
@@ -1566,8 +1571,13 @@ foreach runebook in 'lumber_runetomes'
             ########################################
         
             # reflect buff
-            if followers >= summon_max_limit and diffhits < max_diffhits_before_buffing
-                if use_magic_reflection == 1 and not findbuff 'magic reflection' and mana >= 4th_circle_spell_mana_cost
+            if use_magic_reflection == 1 and not findbuff 'magic reflection' and mana >= 4th_circle_spell_mana_cost
+                setvar! ok 1
+                if auto_summon == 1 and followers < summon_max_limit and diffhits < max_diffhits_before_buffing
+                    setvar! ok 0
+                endif
+
+                if ok == 1
                     sysmsg '>>> MAGIC REFLECT' spell_msg_color
                     cast 'magic reflection'
     
@@ -1586,15 +1596,20 @@ foreach runebook in 'lumber_runetomes'
                     if findbuff 'magic reflection'
                         overhead '+MAGIC REFLECT' buff_msg_color
                     endif
-
+    
                     setvar! reset_last_sysmsg_timer 1
                 endif
-
             endif
 
+
             # reactive armor buff
-            if followers >= summon_max_limit and diffhits < max_diffhits_before_buffing
-                if use_reactive_armor == 1 and not findbuff 'reactive armor' and mana >= 3rd_circle_spell_mana_cost
+            if use_reactive_armor == 1 and not findbuff 'reactive armor' and mana >= 3rd_circle_spell_mana_cost
+                setvar! ok 1
+                if auto_summon == 1 and followers < summon_max_limit and diffhits < max_diffhits_before_buffing
+                    setvar! ok 0
+                endif
+
+                if ok == 1
                     if verbose == 1
                         sysmsg '>>> REACTIVE ARMOR' spell_msg_color
                     endif
@@ -1703,78 +1718,83 @@ foreach runebook in 'lumber_runetomes'
 
 
             if cooldown RESOURCES and recall_home_now != 1
-                settimer 'waiting_cooldown_timer' 0
+                setvar! ok 1
 
-                if possible_captcha_detected == 1
-                    setvar! possible_captcha_detected 0
+                if auto_summon == 1 and followers < summon_max_limit and diffhits < max_diffhits_before_buffing
+                    setvar! ok 0
                 endif
-                # sysmsg 'Timer low...' 65
-        
-                if lhandempty
-                    if not findtype 'hatchet' backpack
-                        overhead "| You are out of hatchets|"
-                        sysmsg "OUT OF HATCHETS! GOING HOME TO RESSUPLY!" warning_msg_color
-                        setvar! recall_home_now 1
-                        # script "WaitAndWatch"
-                    else
-                        dclicktype 'hatchet'
-                        overhead "|equipped new hatchet|"
-                        wait action_delay
+
+                if ok == 1
+                    settimer 'waiting_cooldown_timer' 0
+    
+                    if possible_captcha_detected == 1
+                        setvar! possible_captcha_detected 0
+                    endif
+            
+                    if lhandempty
+                        if not findtype 'hatchet' backpack
+                            overhead "| You are out of hatchets|"
+                            sysmsg "OUT OF HATCHETS! GOING HOME TO RESSUPLY!" warning_msg_color
+                            setvar! recall_home_now 1
+                            # script "WaitAndWatch"
+                        else
+                            dclicktype 'hatchet'
+                            overhead "|equipped new hatchet|"
+                            wait action_delay
+                        endif
+                    endif
+            
+                    settimer 'waiting_hatchet_target_timer' 0
+                    while not lhandempty and not targetexists 'neutral' and cooldown RESOURCES and timer 'waiting_hatchet_target_timer' < max_wait_for_hatchet_target and followers >= summon_max_limit
+                        hotkey 'Use item in Hand'
+                        waitfortarget action_delay
+                    endwhile
+                endif
+
+                if auto_summon == 1 and followers < summon_max_limit and diffhits < max_diffhits_before_buffing
+                    setvar! ok 0
+                endif
+
+                if ok == 1
+                    if not lhandempty and targetexists 'neutral'
+                        cooldown RESOURCES 0
+                        target 'self'
                     endif
                 endif
-        
-                # if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_hatchet and not lhandempty
-    
-                settimer 'waiting_hatchet_target_timer' 0
-                while not lhandempty and not targetexists 'neutral' and cooldown RESOURCES and timer 'waiting_hatchet_target_timer' < max_wait_for_hatchet_target and followers >= summon_max_limit
-                    # if timer 'waiting_hatchet_target_timer' > max_wait_for_hatchet_target
-                    #     sysmsg 'BREAKING CLICKING HATCHET' 37
-                    #     break
-                    # endif
-                    # sysmsg 'USING ITEM IN HAND'
-                    hotkey 'Use item in Hand'
-                    waitfortarget action_delay
-                    # waitfortarget max_wait_for_last_sysmsg_to_use_hatchet
-                endwhile
-    
-                if not lhandempty and targetexists 'neutral' and followers >= summon_max_limit
-                    # sysmsg 'Lumbering...' 65
-                    target 'self'
-                    cooldown RESOURCES 0
+            
+                if auto_summon == 1 and followers < summon_max_limit and diffhits < max_diffhits_before_buffing
+                    setvar! ok 0
                 endif
-    
-                # TESTING: REMOVING THIS WAIT
-                # wait max_wait_for_last_sysmsg_to_use_hatchet
-                # endif
-        
-    
+
                 ##############################################
                 # LUMBER MAPS ROUTINE
-                # if heavy and there are packies nearby, unload
-    
-                if findtype 'map' backpack 2799 any as lumber_map
-                    getlabel lumber_map lumber_map_label
-                    if "completed by" in lumber_map_label
-                        overhead 'LUMBER MAP COMPLETE!' 90
-    
-                        # drop completed ore map
-                        lift lumber_map 1
-                        wait action_delay
-                        overhead "dropping completed lumber map"
-                        if findtype 'barrel' ground 0 1 2 as trashcan
-                            sysmsg "Dropping Completed Map On Trash Barrel" sysmsgs_color
-                            drop trashcan -1 -1 0
+                ##############################################
+
+                if ok == 1
+                    if findtype 'map' backpack 2799 any as lumber_map
+                        getlabel lumber_map lumber_map_label
+                        if "completed by" in lumber_map_label
+                            overhead 'LUMBER MAP COMPLETE!' 90
+        
+                            # drop completed ore map
+                            lift lumber_map 1
+                            wait action_delay
+                            overhead "dropping completed lumber map"
+                            if findtype 'barrel' ground 0 1 2 as trashcan
+                                sysmsg "Dropping Completed Map On Trash Barrel" sysmsgs_color
+                                drop trashcan -1 -1 0
+                            else
+                                sysmsg "Dropping Completed Map On The Ground" sysmsgs_color
+                                droprelloc 0 0
+                            endif
+        
+                            clearsysmsg
+                            stop
                         else
-                            sysmsg "Dropping Completed Map On The Ground" sysmsgs_color
-                            droprelloc 0 0
+                            sysmsg 'Doing Lumber Map...' 49
+                            # setvar! reset_last_sysmsg_timer 1
+                            # cooldown RESOURCES resource_cooldown_value
                         endif
-    
-                        clearsysmsg
-                        stop
-                    else
-                        sysmsg 'Doing Lumber Map...' 49
-                        # setvar! reset_last_sysmsg_timer 1
-                        # cooldown RESOURCES resource_cooldown_value
                     endif
                 endif
         

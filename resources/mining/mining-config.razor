@@ -1,0 +1,72 @@
+###################################
+# GENERAL SETTINGS
+
+setvar! average_ping 200
+setvar! movement_delay 1
+
+# should script recall home when tracking pks
+setvar! auto_escape_pks 1
+# should script autosmelt if close to a forge
+setvar! auto_smelt_ores_when_close_to_forges 1
+# should script smelt colored ores or just regular ones
+setvar! smelt_colored_ores 0
+# set to 1 to activate void armor on start
+setvar! use_void_aspect 0
+# should script try to enter hotel room when traveling home
+setvar! use_hotel_room 0
+# set if characters should use own rooms or enter a friends room
+setvar! use_own_room 0
+
+
+###################################
+# MOVEMENT SETTINGS
+
+# CHOOSE WALK MODE
+# 1 - auto rail
+# 2 - auto walk randomly
+# 3 - auto walk to direction
+# 4 - manual walking
+
+setvar! walk_mode 4
+
+# if using auto walk randomly, how many
+# walk attempts before going to next rune
+setvar! max_walk_attempts_per_rune 20
+
+# if using auto walk randomly, how many
+# steps should char take per walk
+for 6
+    pushlist number_of_steps_per_walk index
+endfor
+
+# if using auto walk to specific direction
+# choose which direction to walk
+pushlist 'direction_to_walk' 'right'
+
+
+#############################
+# CHARACTER SETTING OVERRIDES
+
+if name == 'Emacs'
+    setvar! use_void_aspect 1
+    setvar! walk_mode 1
+    setvar! max_runes_to_use_per_runebook 6
+endif
+
+if name == 'Darren'
+    setvar! walk_mode 4
+    setvar! auto_smelt_ores_when_close_to_forges 0
+    setvar! smelt_colored_ores 0
+    setvar! auto_escape_pks 0
+endif
+
+
+#############################
+# CHARACTER SETTING OVERRIDES
+
+
+sysmsg '> MINING CONFIG LOADED!' 75
+overhead '*mining config loaded!*' 75
+
+setvar! mining_config_loaded 1
+script 'resources\mining\mining'

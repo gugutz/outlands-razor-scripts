@@ -1,71 +1,73 @@
 #################################
 # CREATE ALL LISTS FOR CONFIG
 #################################
-#
-if not varexist super_space_state_lists_first_run_done
-    createlist 'super_space_state_lists'
-    pushlist 'super_space_state_lists' 'packies'
 
-    foreach list in 'super_space_state_lists'
-        if not listexists list
-            createlist list
-        endif
-    endfor
+clearsysmsg
 
-    #################################
-    # CONFIGURATION
-    #################################
-    setvar! action_delay 350
-
-    # moongate gump ids
-    setvar! public_moongate_gump 3773199800
-    setvar! magery_moongate_gump 3773199800
-    setvar! omni_moongate_gump 687547349
-
-    # moongate btns
-    setvar! corpse_creek_moongate_btn 17
-    setvar! regular_moongate_confirm_btn 2
-    setvar! omni_moongate_confirm_btn 10
-
-    # moongate graphics and colors
-    setvar! chivalry_moongate_graphic 27754
-    setvar! chivalry_moongate_hue 2091
-
-    setvar! ship_abilities_gump 1774462345
-    setvar! ship_targetting_mode_gump 3329337894
-
-    setvar! super_space_state_lists_first_run_done 1
+if not targetexists 'any'
+    interrupt
 endif
 
-###############################
-# ENTER MOONGATE
-###############################
 
-if gumpexists magery_moongate_gump
-    gumpresponse 2 magery_moongate_gump
-endif
-if gumpexists omni_moongate_gump
-    gumpresponse 2 omni_moongate_gump
-endif
-
-if findtype 3948|27754 ground any any 2
-    script 'actions\enter-moongate'
-endif
+setvar! action_delay 350
 
 
 ###############################
-# ENTER/HIT FACTION GATE
+# ENTER MOONGATES
 ###############################
 
-
-if findtype 36317|36327 ground any any 1 as found
-    dclick found
+if findtype 3948|27754 ground any any 2 as gate
+    while not gumpexists 3773199800 and not gumpexists 687547349
+        dclick gate
+        waitforgump any 600
+        # script 'actions\enter-moongate'
+    endif
 endif
+
+# PLAYER AND PUBLIC MOONGATES
+while gumpexists 3773199800
+    if noto self == hostile
+        sysmsg 'CLICKING CORPSE CREEK BUTTON...' 54
+        gumpresponse 17 3773199800
+        waitforgump 3773199800 action_delay
+    endif
+
+    gumpresponse 2 3773199800
+    waitforgump 3773199800 action_delay
+endwhile
+
+# OMNI GATES
+while gumpexists 687547349
+    if noto self == hostile
+        sysmsg 'CLICKING CORPSE CREEK BUTTON...' 54
+        gumpresponse 17 687547349
+        waitforgump 687547349 action_delay
+    endif
+
+    gumpresponse 10 687547349
+    waitforgump 3773199800 action_delay
+endwhile
+
+
+###############################
+# HANDLE PARALYZE
+###############################
+
+if findbuff 'paralyze'
+    if not findtype pouch backpack 38
+        overhead '┃ NO TRAPPED POUCHES ┃' 39
+        stop
+    endif
+
+    say '[pouch'
+    overhead '*using trap pouch*' 52
+endif
+
+
 
 ###############################
 # SOLVE CHAR OVERWEIGHT
 ###############################
-
 
 if stam < 5
     if weigth >= maxweigth
@@ -88,29 +90,20 @@ if stam < 5
     endif
 endif
 
-if not targetexists 'any'
-    interrupt
-endif
+
+
 
 
 
 ###############################
-# HANDLE PARALYZE
+# ENTER/HIT FACTION GATE
 ###############################
 
-if findbuff 'paralyze'
-    if not findtype pouch backpack 38
-        overhead '┃ NO TRAPPED POUCHES ┃' 39
-        stop
-    endif
-
-    say '[pouch'
-    overhead '*using trap pouch*' 52
+if findtype 36317|36327 ground any any 1 as found
+    sysmsg 'BREAKING FACTION GATE!' 70
+    dclick found
 endif
 
-
-# the idea here is to execute only 1 action per key press
-clearsysmsg
 
 
 ###############################
@@ -187,6 +180,23 @@ if findtype 2578 self
 elseif findtype 3947 self
     sysmsg 'BOATING MODE OFF'
     setvar! boating_mode 0
+endif
+
+
+###############################
+# maintain food satisfaction buff
+###############################
+
+if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
+    setvar! done_something 1
+
+    if not findtype 'tray' backpack
+        overhead '! no delectable !' 39
+    elseif findtype 'tray' backpack as food
+        overhead '*eating delectable*' 65
+        dclick food
+        wait action_delay
+    endif
 endif
 
 ###############################

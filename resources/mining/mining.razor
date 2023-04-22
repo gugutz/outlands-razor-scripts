@@ -9,118 +9,49 @@ if varexist setting_rail
 endif
 
 if not varexist setting_rail
-    ###################################
-    # GENERAL SETTINGS
-    ###################################
-    
-    setvar! AVERAGE_PING 200
-    setvar! action_delay 600
-    setvar! movement_delay 1
-    setvar! spell_recovery_delay 120
-    
-    setvar! auto_escape_pks 1
-    setvar! auto_smelt_ores_when_close_to_forges 1
-    setvar! smelt_colored_ores 0
-    setvar! use_void_aspect 0
-
-    setvar! use_hotel_room 0
-    # set if characters should use own rooms or enter a friends room
-    setvar! use_own_room 0
-
-    ###################################
-    # RECALL SETTINGS
-    ###################################
-
-    # how many runes per runebook should be used
-    setvar! max_runes_to_use_per_runebook 26
-
-    # button number to use charges for your home rune in runetomes or runebooks
-    setvar! runetome_home_rune_use_charge_btn_number 100
-    setvar! runebook_home_rune_use_charge_btn_number 2
-    
-
-    ###################################
-    # MOVEMENT SETTINGS (CHOOSE 1 ONLY)
-    ###################################
-    
-    # RAIL
-    setvar! auto_rail 1
-
-    # AUTO WALK RANDOMLY
-    setvar! auto_walk_randomly 0
-    setvar! max_walk_attempts_per_rune 20
-
-    # how many steps should char take per attempt when walking randomly
+    removelist 'direction_to_walk'
+    createlist 'direction_to_walk'
     clearlist number_of_steps_per_walk
     createlist number_of_steps_per_walk
-    pushlist number_of_steps_per_walk 1
-    pushlist number_of_steps_per_walk 2
-    pushlist number_of_steps_per_walk 3
-    pushlist number_of_steps_per_walk 4
-    pushlist number_of_steps_per_walk 5
-    pushlist number_of_steps_per_walk 6
 
-
-    # AUTO WALK TO DIRECTION
-    setvar! auto_walk_to_specific_direction 0
-    if auto_walk_to_specific_direction == 1
-        removelist 'direction_to_walk'
-        createlist 'direction_to_walk'
-        pushlist 'direction_to_walk' 'right'
+    if mining_config_loaded == 0
+        script 'resources\mining\mining-config'
     endif
+    setvar! mining_config_loaded 0
     
+    setvar! action_delay 600
+    setvar! spell_recovery_delay 120
 
-    ###################################
-    # UNLOAD HOME SETTINGS
-    ###################################
-
-
-
-
-
-
-    #############################
-    # CHARACTER SETTING OVERRIDES
-    #############################
-
-    if name == 'Emacs'
-        setvar! use_void_aspect 1
+    if walk_mode == 1
         setvar! auto_rail 1
-        setvar! max_runes_to_use_per_runebook 6
+    elseif walk_mode == 2
+        setvar! auto_walk_randomly 1
+    elseif walk_mode == 3
+        setvar! auto_walk_to_specific_direction 1
+    elseif walk_mode == 4
+        setvar! manual_mining 1
     endif
 
-    if name == 'Darren'
-        setvar! auto_smelt_ores_when_close_to_forges 0
-        setvar! smelt_colored_ores 0
-        setvar! auto_escape_pks 0
+    setvar! runetome_home_rune_use_charge_btn_number 100
+    setvar! runebook_home_rune_use_charge_btn_number 2
+
+    if not varexist mining_first_run_done
+        sysmsg '#########################' 90
+        sysmsg '>>> MINING BOT' 55
+        sysmsg 'by gugutz' 45
+        sysmsg 'version v0.3.2' 31
+        sysmsg '########################' 90
+        
+        #################################
+        # IN GAME INSTRUCTIONS / OBSERVATIONS
+        #################################
+        sysmsg '************************' 90
+        sysmsg 'FOR THIS SCRIPT TO WORK PROPERLY, YOU MUST:' 53
+        sysmsg "* uncheck option 'filter repeating system messages' on razor" 55
+        sysmsg "* uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor" 55
+        sysmsg "* first run far from other friends pack animals" 55
+        sysmsg '***********************' 90
     endif
-    
-
-
-
-    # END SETTINGS (DO NOT EDIT FROM HERE!!)
-    ###################################
-
-
-
-
-
-
-    sysmsg '#########################' 90
-    sysmsg '>>> MINING BOT' 55
-    sysmsg 'by gugutz' 45
-    sysmsg 'version v0.3.2' 31
-    sysmsg '########################' 90
-    
-    #################################
-    # IN GAME INSTRUCTIONS / OBSERVATIONS
-    #################################
-    sysmsg '************************' 90
-    sysmsg 'FOR THIS SCRIPT TO WORK PROPERLY, YOU MUST:' 53
-    sysmsg "* uncheck option 'filter repeating system messages' on razor" 55
-    sysmsg "* uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor" 55
-    sysmsg "* first run far from other friends pack animals" 55
-    sysmsg '***********************' 90
     
     setvar! mining_cooldown_delay 10000
     setvar! world_save_delay 8000
@@ -225,7 +156,7 @@ if not varexist setting_rail
     setvar! recall_casting_time 4500
 
     # SET CURRENT RAIL INDEX TO 0 IF FIRST RUN
-    if auto_rail == 1 and not varexist first_run_done
+    if auto_rail == 1 and not varexist mining_first_run_done
         setvar! current_rail_index 0
     endif
 
@@ -2385,15 +2316,16 @@ foreach runebook in 'mining_runetomes'
             elseif insysmsg "You have worn out your tool"
                 overhead 'PICKAXE BROKE!' 90
 
-                if not rhandempty and not findtype 'pickaxe' righthand
+                while not rhandempty
                     overhead 'undressing hands for pickaxe'
                     hotkey "Undress Both Hands"
                     wait action_delay
-                endif
+                endwhile
 
                 if rhandempty
                     if findtype 'pickaxe' backpack
                         dclicktype 'pickaxe'
+                        wait action_delay
                         overhead "✩equiped new pickaxe✩"
                     else
                         overhead "✩ You are out of pickaxes✩"
@@ -3285,6 +3217,8 @@ foreach runebook in 'mining_runetomes'
             # sysmsg 'UPTIME: {{mining_uptime}}' 90
 
         endwhile
+
+        setvar! mining_first_run_done 1
 
     endfor
     # CLOSES foreach runebook in 'mining_runetomes'
