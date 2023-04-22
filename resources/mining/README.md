@@ -107,11 +107,14 @@ These macros are very simple macros where you just click Record and walk the rou
 2. Leave your character at the exact spots it recalls into
 3. Go to Razor > Macros, and click **New** to start a new macro
 4. Name the macro with the following information:
+
    - the rune number
    - char X
    - char Y
    - the directiojn the char is facing for its first step
-     ![Create a new Razor Rail macro](./img/creating-razor-macro.png)
+
+     ![Create a new Razor Rail macro](./img/creating-new-macro.png)
+
 5. After creating the macro, select it and click **Record**
 6. Walk the route you want your char to walk. **Be very careful here!!** If you take a wrong turn and suddently hit a rock or a tree, or if you moved your character to a direction but it hit something and ended up moving to a different direction, stop the recording, recall to starting point and start recording over again. The rail should be a safe path or else the script will bug!
 7. After reachign the end of your desired route, click Stop to stop the recording.
@@ -122,7 +125,9 @@ These macros are very simple macros where you just click Record and walk the rou
 12. Mark the **Mining** box
 13. Choose the starting direction for your rail.
 14. Click **Convert**.
-    ![Create a new Razor Rail macro](./img/converting-macro-to-rail.png)
+
+    ![Create a new Razor Rail macro](./img/converting-macro-to-rail.gif)
+
 15. After that go to Razor2Rail folder and there should be a razor script there named with the starting coordinates of your rail (your character starting X and Y)
 16. Rename that razor script in this **exact** format:
     **book-X-rail-X.razor**
