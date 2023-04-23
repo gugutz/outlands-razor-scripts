@@ -65,7 +65,7 @@ setvar! action_delay 600
 setvar! world_save_delay 8000
 setvar! spell_recovery_delay 120
 
-setvar! manual_lumber_mode 0
+setvar! manual_walk_mode 0
 
 # max ores a packie can have before being set as full
 setvar! max_boards_before_unloading 1000
@@ -236,7 +236,7 @@ endwhile
 @clearignore
 
 
-if manual_lumber_mode != 1 and list 'lumber_runetomes' == 0
+if manual_walk_mode != 1 and list 'lumber_runetomes' == 0
     sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'LUMBER' ON ITS NAME IF YOU WANNA CYCLE RUNES" 54
     # stop
  endif
@@ -751,7 +751,7 @@ setvar! 4th_circle_spell_mana_cost 12
 sysmsg 'STARTING...' 87
 ###################################
 
-if manual_lumber_mode == 1
+if manual_walk_mode == 1
     sysmsg 'MANUAL LUMBER MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
     setvar! auto_walk_randomly 0
     setvar! auto_walk_to_direction 1

@@ -8,28 +8,37 @@ if varexist setting_rail
     endif
 endif
 
-if not varexist setting_rail
+if not varexist setting_rail or manual_walk_mode == 1
     removelist 'direction_to_walk'
     createlist 'direction_to_walk'
     clearlist number_of_steps_per_walk
     createlist number_of_steps_per_walk
 
-    if mining_config_loaded == 0
+    if not varexist mining_config_loaded
         script 'resources\mining\mining-config'
     endif
-    setvar! mining_config_loaded 0
+    unsetvar! mining_config_loaded
     
     setvar! action_delay 600
     setvar! spell_recovery_delay 120
 
-    if walk_mode == 1
-        setvar! auto_rail 1
-    elseif walk_mode == 2
+    # SET WALK MODE BASED ON CONFIG
+    setvar! manual_walk_mode 0
+    setvar! auto_walk_randomly 0
+    setvar! auto_walk_to_specific_direction 0
+    setvar! auto_rail 0
+    if walk_mode == 0
+        sysmsg 'SETTING WALK MODE TO MANUAL' 54
+        setvar! manual_walk_mode 1
+    elseif walk_mode == 1
+        sysmsg 'SETTING WALK MODE TO RANDOM' 54
         setvar! auto_walk_randomly 1
-    elseif walk_mode == 3
+    elseif walk_mode == 2
+        sysmsg 'SETTING WALK MODE TO DIRECTION' 54
         setvar! auto_walk_to_specific_direction 1
-    elseif walk_mode == 4
-        setvar! manual_mining 1
+    elseif walk_mode == 3
+        sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
+        setvar! auto_rail 1
     endif
 
     setvar! runetome_home_rune_use_charge_btn_number 100
@@ -41,19 +50,8 @@ if not varexist setting_rail
         sysmsg 'by gugutz' 45
         sysmsg 'version v0.3.2' 31
         sysmsg '########################' 90
-        
-        #################################
-        # IN GAME INSTRUCTIONS / OBSERVATIONS
-        #################################
-        sysmsg '************************' 90
-        sysmsg 'FOR THIS SCRIPT TO WORK PROPERLY, YOU MUST:' 53
-        sysmsg "* uncheck option 'filter repeating system messages' on razor" 55
-        sysmsg "* uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor" 55
-        sysmsg "* first run far from other friends pack animals" 55
-        sysmsg '***********************' 90
     endif
     
-    setvar! mining_cooldown_delay 10000
     setvar! world_save_delay 8000
     
     cooldown RESOURCES 3000
@@ -119,32 +117,34 @@ if not varexist setting_rail
     # SET THE MINING RUNEBOOKS
     #############################
     
-    clearlist 'mining_runetomes'
-    createlist 'mining_runetomes'
-    clearlist 'original_mining_runetomes'
-    createlist 'original_mining_runetomes'
-    
-    while findtype 'runetome' backpack as found
-        getlabel found rbook_label
-        if 'mining' in rbook_label or 'Mining' in rbook_label or 'MINING' in rbook_label
-            pushlist 'mining_runetomes' found
-            pushlist 'original_mining_runetomes' found
+    if auto_cycle_runetomes == 1
+        clearlist 'mining_runetomes'
+        createlist 'mining_runetomes'
+        clearlist 'original_mining_runetomes'
+        createlist 'original_mining_runetomes'
+        
+        while findtype 'runetome' backpack as found
+            getlabel found rbook_label
+            if 'mining' in rbook_label or 'Mining' in rbook_label or 'MINING' in rbook_label
+                pushlist 'mining_runetomes' found
+                pushlist 'original_mining_runetomes' found
+            endif
+        
+            @ignore found
+        endwhile
+        
+        @clearignore
+        
+        
+        if manual_walk_mode != 1 and list 'mining_runetomes' == 0
+            sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'MINING' ON ITS NAME IF YOU WANT TO CYCLE RUNES" 54
+            # stop
         endif
-    
-        @ignore found
-    endwhile
-    
-    @clearignore
-    
-    
-    if list 'mining_runetomes' == 0
-        sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'MINING' ON ITS NAME IF YOU WANT TO CYCLE RUNES" 54
-        # stop
+        
+        foreach x in 'mining_runetomes'
+            sysmsg 'MINING RUNEBOOK {{index}}: {{x}}'
+        endfor
     endif
-    
-    foreach x in 'mining_runetomes'
-        sysmsg 'MINING RUNEBOOK {{index}}: {{x}}'
-    endfor
     
     ###################################
     # SCRIPT ROUTINE RELATED VARIABLES
@@ -473,7 +473,7 @@ if not varexist setting_rail
         wait action_delay
     
         # check packie weight to determine if its full or not
-        if counttype ORES packanimal >= max_ores_in_packie
+        if counttype ORES packanimal >= max_resources_in_packie
             # sysmsg 'COUNT ORE 1' 92
             setvar! packie_heavy 1
         elseif counttype ORES packanimal >= 200 and counttype INGOTS packanimal >= 500
@@ -695,6 +695,14 @@ if not varexist setting_rail
     ###################################
     sysmsg 'STARTING...' 18
     ###################################
+
+    if manual_walk_mode == 1
+        sysmsg 'MANUAL WALK MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
+        setvar! auto_walk_randomly 0
+        setvar! auto_walk_to_direction 1
+        clearlist 'mining_runetomes'
+        pushlist 'mining_runetomes' 0
+    endif
     
     # all guard right now so summons protect char if we start script in the middle of a fight
     if followers > 0
@@ -790,23 +798,9 @@ if not varexist setting_rail
     # PS: this is important so char do3enst recall first then summon later, having chance to recall into a mob and dying without summons to guard him
     # this is just a print to inform char is under summon_limit and is getting ready to summon up
     if auto_summon == 1 and followers < summon_max_limit
-        if debug == 1
-            sysmsg '[DEBUG] PREPARING TO RESUMMON' debug_msg_color
-        endif
-    
-        if verbose == 1
-            sysmsg 'UNDER SUMMON LIMIT. PREPARING TO SUMMON...' alert_msg_color
-        endif
-    
-    
-    
+        sysmsg 'UNDER SUMMON LIMIT. PREPARING TO SUMMON...' alert_msg_color
     
         foreach summon in 'summons'
-    
-            # if debug == 1
-            #     sysmsg 'CHECKING {{summon}}: {{index}}' default_sysmsg_color
-            # endif
-    
             if list 'summons' == 1 and followers == 4
                 if verbose == 1
                     sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 4 HAVE FOLLOWERS {{summon}}' warning_msg_color
@@ -915,28 +909,25 @@ if not varexist setting_rail
                 # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
                 # summon before actually casting summ.creature
                 elseif list 'summons' == 2 and followers <= 3 and inlist 'summons' 'summ. creature'
-                    setvar! cast_summon_spell true
+                    setvar! cast_summon_spell 1
                 elseif list 'summons' >= 3 and followers <= 1
-                    setvar! cast_summon_spell true
+                    setvar! cast_summon_spell 1
                 # else if theres more than one summon in 'summons' list and we didnt find this specific summon
                 # we need to cast ig
                 endif
             else
-                if debug == 1
-                    sysmsg '[DEBUG] setting to cast summon spell (summon not found)' debug_msg_color
+                if verbose == 1
+                    sysmsg '[DEBUG] {{summon}} NOT FOUND. CASTING' debug_msg_color
                 endif
-                setvar! cast_summon_spell true
+
+                setvar! cast_summon_spell 1
             endif
     
             #########################
             # prepare to cast the summon spell for this summon
-            if varexist cast_summon_spell
-    
-    
+            if cast_summon_spell == 1
                 foreach summonspell in 'summonspells'
-    
                     if summonspell in summon
-    
                         unsetvar! summon_spell_required_mana
     
                         # first make a mana check for this specific summon spell
@@ -1041,6 +1032,7 @@ if not varexist setting_rail
 
 endif
 # END if varexist setting_rail
+
 ###########################################
 
 foreach runebook in 'mining_runetomes'
@@ -1190,7 +1182,7 @@ foreach runebook in 'mining_runetomes'
             endif
         endif
 
-        if recall_home_now != 1
+        if auto_cycle_runetomes == 1 and recall_home_now != 1
             # travel to the rune
 
            # meditate before travel if needed
@@ -1257,9 +1249,9 @@ foreach runebook in 'mining_runetomes'
 
                 # sysmsg '************************' 90
 
-                sysmsg 'Mining Bot by gugutz. Uptime: {{mining_uptime}}ms' 89
+                sysmsg 'Mining Bot by gugutz.' 89
                 sysmsg 'Last captcha was: {{last_gump_tracking_timer}}ms ago' 90
-                sysmsg 'Uptime: {{mining_uptime}}'
+                sysmsg 'Uptime: {{mining_uptime}}ms'
                 sysmsg 'Current Runebook: {{runebook_number}}'
                 sysmsg 'Current Rune: {{current_rune_position}}'
 
@@ -1338,7 +1330,7 @@ foreach runebook in 'mining_runetomes'
                     endif
         
                     unsetvar! found_summon
-                    unsetvar! cast_summon_spell
+                    setvar! cast_summon_spell 0
         
                     # determine summon name by whether char has necromancy or not
                     if use_undead_summons == 1
@@ -1421,13 +1413,13 @@ foreach runebook in 'mining_runetomes'
                         # if theres only one summon in the 'summons' list, even if we found the summon above,
                         # we still need to cast it again
                         if list 'summons' == 1 and followers < 4
-                            setvar! cast_summon_spell true
+                            setvar! cast_summon_spell 1
                         # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
                         # summon before actually casting summ.creature
                         elseif list 'summons' == 2 and followers <= 3 and inlist 'summons' 'summ. creature'
-                            setvar! cast_summon_spell true
+                            setvar! cast_summon_spell 1
                         elseif list 'summons' >= 3 and followers <= 1
-                            setvar! cast_summon_spell true
+                            setvar! cast_summon_spell 1
                         # else if theres more than one summon in 'summons' list and we didnt find this specific summon
                         # we need to cast ig
                         endif
@@ -1435,18 +1427,14 @@ foreach runebook in 'mining_runetomes'
                         if debug == 1
                             sysmsg '[DEBUG] setting to cast summon spell (summon not found)' debug_msg_color
                         endif
-                        setvar! cast_summon_spell true
+                        setvar! cast_summon_spell 1
                     endif
         
                     #########################
                     # prepare to cast the summon spell for this summon
-                    if varexist cast_summon_spell
-        
-        
+                    if cast_summon_spell == 1
                         foreach summonspell in 'summonspells'
-        
                             if summonspell in summon
-        
                                 unsetvar! summon_spell_required_mana
         
                                 # first make a mana check for this specific summon spell
@@ -1707,6 +1695,24 @@ foreach runebook in 'mining_runetomes'
             #     setvar! recall_home_now 1
             # endif
 
+            # check and equip pickaxe if needed
+            if rhandempty
+                if findtype 'pickaxe' true
+                    dclicktype 'pickaxe'
+                    overhead "✩equiped new pickaxe✩"
+                    wait 1500
+                    if debug == 1
+                    endif
+                    # setvar! reset_last_sysmsg_timer 1
+                    # cooldown RESOURCES resource_cooldown_value
+                else
+                    overhead "✩OUT OF PICKAXES✩" 40
+                    sysmsg "OUT OF PICKAXES! GOING HOME TO RESSUPLY!" warning_msg_color
+                    setvar! recall_home_now 1
+                    # stop
+                endif
+            endif
+
             if cooldown RESOURCES and recall_home_now != 1
                 settimer 'waiting_cooldown_timer' 0
 
@@ -1714,44 +1720,36 @@ foreach runebook in 'mining_runetomes'
                     setvar! possible_captcha_detected 0
                 endif
 
-                # check and equip pickaxe if needed
-                if rhandempty
-                    if findtype 'pickaxe' true
-                        dclicktype 'pickaxe'
-                        overhead "✩equiped new pickaxe✩"
-                        wait 1500
-                        if debug == 1
-                        endif
-                        # setvar! reset_last_sysmsg_timer 1
-                        # cooldown RESOURCES resource_cooldown_value
-                    else
-                        overhead "✩OUT OF PICKAXES✩" 40
-                        sysmsg "OUT OF PICKAXES! GOING HOME TO RESSUPLY!" warning_msg_color
-                        setvar! recall_home_now 1
-                        # stop
-                    endif
-                endif
 
                 # mine
                 # if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_pickaxe and not rhandempty and diffweight > 10
                 if not rhandempty and cooldown RESOURCES
                 # if not rhandempty
-                    # sysmsg '>>> ITEM IN RIGHT HAND... ' 87
-                    # clearsysmsg
                     # settimer 'last_sysmsg_timer' 0
-                    cooldown RESOURCES 0
                     wait 50
-                    hotkey 'Use Item in Right Hand'
-                    wait 450
+                    cooldown RESOURCES 0
 
-                    # trying to speedup the clicking on the pickaxe and still give time to detect the cooldown
-                    # settimer 'waiting_journal_timer' 0
+                    sysmsg '>>> ITEM IN RIGHT HAND... ' 87
+                    clearsysmsg
+
+                    settimer 'waiting_journal_timer' 0
+                    hotkey 'Use Item in Right Hand'
+
+                    while not cooldown RESOURCES and timer 'waiting_journal_timer' < 400 and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled' and not insysmsg 'must wait'
+                        # clearsysmsg
+                        sysmsg 'aqui dentro'
+                        wait 10
+                    endwhile
+
+                    while insysmsg 'must wait'
+                        clearsysmsg
+                        sysmsg '>>> ITEM IN RIGHT HAND (MUST WAIT... ' 87
+                        hotkey 'Use Item in Right Hand'
+                        wait action_delay
+                    endwhile
+                    # wait 50
+
                     # clearsysmsg
-                    # while not cooldown RESOURCES and timer 'waiting_journal_timer' < 400 and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled'
-                    # sysmsg 'aqui dentro'
-                    #     wait 10
-                    #     clearsysmsg
-                    # endwhile
                     # wait 10
                     # wait max_wait_for_last_sysmsg_to_use_pickaxe
                 endif
@@ -2067,22 +2065,18 @@ foreach runebook in 'mining_runetomes'
                     endif
 
                     # check packie weight to determine if its full or not
-                    if counttype INGOTS packanimal any any >= max_ingots_in_packie
+                    setvar! ores_in_packie 0
+                    setvar! ingots_in_packie 0
+                    if counttype ORES packanimal any any as amount
+                        setvar! ores_in_packie amount
+                    endif
+                    if counttype INGOTS packanimal any any as amount
+                        setvar! ingots_in_packie amount
+                    endif
+
+                    if ores_in_packie >= max_resources_in_packie or ingots_in_packie >= max_resources_in_packie
                         sysmsg 'COUNT INGOTS 1' 92
                         setvar! packie_heavy 1
-                    elseif counttype ORES packanimal any any >= max_ores_in_packie
-                        sysmsg 'COUNT ORE 1' 92
-                        setvar! packie_heavy 1
-                    elseif counttype ORES packanimal any any >= 200 and counttype INGOTS packanimal any any >= 500
-                        sysmsg 'COUNT ORE 2' 92
-                        setvar! packie_heavy 1
-                    elseif counttype ORES packanimal any any >= 150 and counttype INGOTS packanimal any any >= 800
-                        sysmsg 'COUNT ORE 3' 92
-                        setvar! packie_heavy 1
-                    elseif counttype ORES packanimal any any >= 100 and counttype INGOTS packanimal any any >= 1100
-                        sysmsg 'COUNT ORE 4' 92
-                        setvar! packie_heavy 1
-
                     # check if packie is actually empty
                     elseif counttype ORES packanimal any any == 0 and counttype INGOTS packanimal any any == 0
                         # sysmsg 'COUNT ORE EMPTY' 92
@@ -2164,9 +2158,14 @@ foreach runebook in 'mining_runetomes'
                                         overhead '*unloading {{resource_label}}*' 56 packanimal
 
                                         lift resource_serial 999
-                                        wait action_delay
+                                        wait 100
+                                        while queued
+                                        endwhile
+
                                         drop packanimal -1 -1 0
-                                        wait action_delay
+                                        wait 100
+                                        while queued
+                                        endwhile
 
                                         if findtype resource_type ground any any 1
                                             # put this animal to the end of the list so we use the next one next time
@@ -2197,36 +2196,6 @@ foreach runebook in 'mining_runetomes'
                                         endif
 
                                     endwhile
-
-#                                     # check packie weight after unloading it to see if its heavy now
-#                                     if counttype ORES packanimal any any >= max_ores_in_packie
-#                                         setvar! packie_heavy 1
-#                                     elseif counttype ORES packanimal any any >= 200 and counttype INGOTS packanimal any any >= 500
-#                                         setvar! packie_heavy 1
-#                                     elseif counttype ORES packanimal any any >= 150 and counttype INGOTS packanimal any any >= 800
-#                                         setvar! packie_heavy 1
-#                                     elseif counttype ORES packanimal any any >= 100 and counttype INGOTS packanimal any any >= 1100
-#                                         setvar! packie_heavy 1
-# 
-#                                     # check if packie is actually empty
-#                                     elseif counttype ORES packanimal any any == 0 and counttype INGOTS packanimal any any == 0
-#                                         rename packanimal 'emptypackie'
-#                                     # if its not heavy and its not empty, its "light"
-#                                     elseif counttype ORES packanimal any any > 0 or counttype INGOTS packanimal any any >= 0
-#                                         rename packanimal 'lightpackie'
-#                                     endif
-
-#                                     # add or remove packie to full 0packies list based on if its heavy or not
-#                                     if packie_heavy == 1
-#                                         overhead '! packie heavy !' 37 packanimal
-#                                         rename packanimal 'fullpackie'
-# 
-#                                         if not inlist 'full_packies' packanimal
-#                                             overhead 'adding to full list' 54 packanimal
-#                                             pushlist 'full_packies' packanimal
-#                                         endif
-#                                     endif
-
                                 endfor
 
                             endif
@@ -2351,7 +2320,10 @@ foreach runebook in 'mining_runetomes'
         #                 setvar! current_rail_index 0
         #             endif
         
-                    if list 'moveList' > 0
+                    if list 'moveList' == 0
+                        sysmsg 'RAIL COMPLETE!!' success_msg_color
+                        setvar! go_to_next_rune 1
+                    else
                         # sysmsg 'ENTERED WALK RAIL!!' 90
 
                         # before moving check if we got to previous destinatiojn and if so, remove destination from front of list to go to next
@@ -2427,9 +2399,6 @@ foreach runebook in 'mining_runetomes'
                         else
                             sysmsg 'COULDNT SET RAIL VARIABLES' alert_msg_color
                         endif
-                    else
-                        sysmsg 'RAIL COMPLETE!!' success_msg_color
-                        setvar! go_to_next_rune 1
                     endif
             
                 endif
@@ -2546,7 +2515,7 @@ foreach runebook in 'mining_runetomes'
 
             # when char is on cooldown for having traveled recently
             elseif insysmsg "You have recently traveled"
-                overhead '! travel harvest cooldown !' 43
+                overhead '! travel cooldown !' 43
 
 
             # action cooldown

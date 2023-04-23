@@ -18,20 +18,22 @@ setvar! use_hotel_room 0
 setvar! use_own_room 0
 
 # max resources a packie can have before being set as full
-setvar! max_ores_in_packie 600
-setvar! max_ingots_in_packie 600
+setvar! max_resources_in_packie 600
+
+# should script use runetomes to travel to mine
+setvar! auto_cycle_runetomes 0
 
 
 ###################################
 # MOVEMENT SETTINGS
 
 # CHOOSE WALK MODE
+# 0 - off (manual walking)
 # 1 - auto rail
 # 2 - auto walk randomly
 # 3 - auto walk to direction
-# 4 - manual walking
 
-setvar! walk_mode 4
+setvar! walk_mode 0
 
 # if using auto walk randomly, how many
 # walk attempts before going to next rune
@@ -57,8 +59,15 @@ if name == 'Emacs'
     setvar! max_runes_to_use_per_runebook 6
 endif
 
+if name == 'Nazareno'
+    setvar! use_void_aspect 1
+    setvar! walk_mode 3
+    setvar! max_runes_to_use_per_runebook 6
+    setvar! auto_cycle_runetomes 1
+endif
+
 if name == 'Darren'
-    setvar! walk_mode 4
+    setvar! walk_mode 0
     setvar! auto_smelt_ores_when_close_to_forges 0
     setvar! smelt_colored_ores 0
     setvar! auto_escape_pks 0

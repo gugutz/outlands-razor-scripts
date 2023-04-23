@@ -6,8 +6,9 @@ All features listed here are configurable. You can turn each of them on and off 
 
 - Stops at Captcha Gumps and awaits for user response to continue
 - Auto Cycle Runetomes
-- Auto turns tracking on at start
 - Auto summon
+- Skip to next rune by turning off a lantern
+- Auto turns tracking on at start
 - Auto drain nearby corpses to increase summons duration
 - Auto detect and escape nearby thiefs
 - Auto re-equips pickaxe whenever needed
@@ -24,10 +25,10 @@ All features listed here are configurable. You can turn each of them on and off 
 
 #### _Walk Modes_
 
-- Auto rails (default: off).
-- Auto walk randomly (default: off)
-- Auto walk to specific diretion (default: off)
-- Manual walk (default: on)
+- Manual walk
+- Auto rails
+- Auto walk randomly
+- Auto walk to specific diretion
 
 #### _Packies Features_
 
@@ -38,31 +39,45 @@ All features listed here are configurable. You can turn each of them on and off 
 
 #### _Other Features_
 
-## Character config overides
+## Sript Configuration
 
-At the very bottom of the script **mining_config.razor** you will notice some `if`s that check for the character name and sets some variables.
+All settings are inside the separate file `mining_config.razor`.
 
-Those `if` blocks are placed at the end so that any variable set in them will override the "default" ones set at the beggining of the file.
-
-This way you can use use those blocks to set different script options for each of your characters without having to create different copies of the script.
-
-Example of a config override that sets `walk_mode` to manual and disables auto summon for a character named Newbie
+At the very bottom of this file you will notice some `if`s that check for the character name and sets some variables, for instance:
 
 ```py
-if name == 'Newbie'
-    setvar! walk_mode 4
-    setvar! auto_summon 0
+if name == 'Emacs'
+    setvar! walk_mode 3
+    setvar! auto_summon 1
 endif
 ```
+
+`Emacs` is my character name, and that `if` block is his personalized config. The variables set inside this `if` block will override all the "default" variables set at the beggining of the file.
+
+You can change the character names in those blocks or make copy of them to set specific script options for each of your characters without having to create different copies of the script.
+
+This is also usefull for when the main mining script gets updated, you wont have to configure it to your liking again.
 
 ## Running the Script
 
 To run the script you need to have:
 
-- A **runebook** named **HOME** with your home rune set as default.
+- A **runebook** named `HOME` with your home rune set as default.
   If your char doenst have magery and uses Recall Charges, the home rune needs to be the first rune in the runebook
-- 1 or more **runetomes** with the word **MINING** on their names _(not required for manual walk mode)_
+- 1 or more **runetomes** with the word `MINING` on their names _(not required for manual walk mode)_
 - Some cooldowns set up on your client. [Download my cooldowns.xml with all the required cooldowns here](../../cooldowns.xml). After downloading, place the **cooldowns.xml** file on your mining character profile folder `(Outlands\Data\Profiles\Your Char Name)`
+
+  If you prefer to set them manually, create a new cooldown called RESOURCES with the following triggers:
+
+  - Type: sysmsg | Text: you dig some
+  - Type: sysmsg | Text: You have recently traveled
+  - Type: sysmsg | Text: You have worn out your tool
+  - Type: sysmsg | Text: The world is saving
+  - Type: sysmsg | Text: You do not see any harvestable resources nearby
+  - Type: sysmsg | Text: loosen some rocks but fail
+  - Type: sysmsg | Text: You must wait to perform another action
+  - Type: sysmsg | Text: Harvesting is not allowed in this area
+
 - Enable Cooldowns in Client Options
 
   ![Cooldowns - Enabling](./img/cooldowns-enable.png)
@@ -94,52 +109,33 @@ To run the script you need to have:
     setvar! use_own_room 1
     ```
 
-## Requirements
-
-```md
-- First run far from other friends pack animals
-- Uncheck option 'filter repeating system messages' on razor
-- Uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor
-```
-
-## COOLDOWNS
-
-This script needs cooldowns set up in the client in order to work
-You can download the **cooldowns.xml** file at the root of my repo with all the cooldowns set up.
-
-The main cooldown is the 'RESOURCES' cooldown
-
-ADD THESE TRIGGERS TO THE COOLDOWN:
-Type: sysmsg | Text: you dig some
-Type: sysmsg | Text: You have recently traveled
-Type: sysmsg | Text: You have worn out your tool
-Type: sysmsg | Text: The world is saving
-Type: sysmsg | Text: You do not see any harvestable resources nearby
-Type: sysmsg | Text: loosen some rocks but fail
-Type: sysmsg | Text: You must wait to perform another action
-Type: sysmsg | Text: Harvesting is not allowed in this area
-
 # WALK MODES
 
 This script supports 4 walking modes.
 
-To select the walking mode, open the script **mining_config.razor** and on your character config, set the variable `walk_mode` acording to the mode you want:
+To select the walking mode, open the script `mining_config.razor` and on your character config, set the variable `walk_mode` acording to the mode you want:
 
-0.  **Manual walking**
+0.  **Manual walking** `setvar! walk_mode 0`
 
     Turn off movement. You can control how your character move
 
-1.  **Auto Rail**
+1.  **Auto Walk Randomly** `setvar! walk_mode 1`
 
-    Char walks a specific router you define at each rune.
+    Char walks X steps at a random direction everytime a ore vein is empty. It tries to find 20 ore veins and goes to next rune.
 
-2.  **Auto Walk Randomly**
-
-    Char walks X steps at a random direction everytime a tree is empty. It tries to find 20 trees and goes to next rune.
-
-3.  **Auto Walk To Specific Direction**
+2.  **Auto Walk To Specific Direction** `setvar! walk_mode 2`
 
     Char walks only to 1 direction that you set in script config.
+
+3.  **Auto Rail** `setvar! walk_mode 3`
+
+    Char walks a specific router you define at each rune. REQUIRES SETTING UP!
+
+The first 2 modes, **Manual Walking** and **Auto Walk Randomly**, required no setting up other then enabling them (setting to `1`) `mining_config.razor`
+
+If you want to use `Auto Walk to Specific Direction`, you also need to choose which direction to walk to in `mining_config.razor`
+
+If you want to use Auto Rail, follow the instructions bellow.
 
 ## Auto Rail
 
@@ -149,7 +145,7 @@ These macros are very simple macros where you just click Record and walk the rou
 
 I have compiled a version of Maldogi's Razor2Rail that changes the script being called at the end of each rail to point to where my script is located (`resources\mining\mining`). [You can download it here](../razor-to-rail.zip) (PS: you need dotnet 6.0.10 installed to run it)
 
-**HOW TO SET YOUR RAILS**
+#### How To Set Your Rails
 
 1. Travel to the rune you want to record a rail to
 2. Leave your character at the exact spots it recalls into
@@ -159,7 +155,7 @@ I have compiled a version of Maldogi's Razor2Rail that changes the script being 
    - the rune number
    - char X
    - char Y
-   - the directiojn the char is facing for its first step
+   - the direction the char is facing for its first step
 
      ![Create a new Razor Rail macro](./img/creating-new-macro.png)
 
@@ -185,11 +181,7 @@ I have compiled a version of Maldogi's Razor2Rail that changes the script being 
     The second rune of the same book would be:
     **book-1-rail-2.razor**
     and so on...
-17. After renaming the script acoordingly, put it int he same folder with the mining script (which should be inside the `resources\mining` folder)
-18. Reapeat above steps for each rune you want to setup a rail for. After finishing, just hit **Play** and the script should recall to each rune and walk the rail you set!
-
-## Manual Mining
-
-If you want to just manually control your character while enjoying all the benefits of the script, set `walk_mode` to `4` in script **mining_config.razor**
+17. After renaming the script acoordingly, put it in the same folder with the mining script (which should be inside the `resources\mining` folder)
+18. Repeat above steps for each rune you want to setup a rail for. After finishing, just hit **Play** and the script should recall to each rune and walk the rail you set!
 
 Then move the rail file into the same folder as the mining script (in the above exemple: 'resources\mining')
