@@ -645,7 +645,7 @@ if varexist chest
         endwhile
 
         sysmsg 'SEARCHING REAGENTS...' 54
-        while findtype 3333 chest as found
+        while findtype 3980|3974|3963|3976|3973|3972|3962|3981 chest as found
             getlabel found item_label
             sysmsg '>>> LOOTING {{item_label}}...' 53
 
@@ -680,7 +680,7 @@ if varexist chest
         endwhile
 
         sysmsg 'SEARCHING SCROLLS...' 54
-        while findtype 8006 chest as found
+        while findtype 8006|8005 chest as found
             getlabel found item_label
             sysmsg '>>> LOOTING {{item_label}}...' 53
 

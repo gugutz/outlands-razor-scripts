@@ -2,7 +2,7 @@
 # GENERAL SETTINGS
 
 setvar! average_ping 200
-setvar! movement_delay 1
+setvar! movement_delay 150
 
 # should script recall home when tracking pks
 setvar! auto_escape_pks 1
@@ -68,9 +68,17 @@ endif
 
 if name == 'Darren'
     setvar! walk_mode 0
+    setvar! auto_summon 0
     setvar! auto_smelt_ores_when_close_to_forges 0
     setvar! smelt_colored_ores 0
     setvar! auto_escape_pks 0
+endif
+
+if name == 'Minerationtion'
+    setvar! use_void_aspect 1
+    setvar! walk_mode 3
+    setvar! max_runes_to_use_per_runebook 6
+    setvar! auto_cycle_runetomes 1
 endif
 
 

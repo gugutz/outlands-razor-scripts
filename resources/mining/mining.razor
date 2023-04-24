@@ -15,7 +15,7 @@ if not varexist setting_rail
     createlist number_of_steps_per_walk
 
     if not varexist mining_config_loaded
-        script 'resources\mining\mining-config'
+        script 'resources\mining\config'
     endif
     unsetvar! mining_config_loaded
     
@@ -39,6 +39,15 @@ if not varexist setting_rail
     elseif walk_mode == 3
         sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
         setvar! auto_rail 1
+    endif
+
+    if skill 'magery' < 90 and auto_summon == 1
+        sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
+        setvar! auto_summon 0
+    endif
+
+    if auto_summon == 0
+        setvar! summon_max_limit 0
     endif
 
     setvar! runetome_home_rune_use_charge_btn_number 100
@@ -364,6 +373,8 @@ if not varexist setting_rail
     pushlist 'mining_script_timers' 'waiting_cooldown_timer'
     pushlist 'mining_script_timers' 'waiting_journal_timer'
     pushlist 'mining_script_timers' 'waiting_runebook_gump_timer'
+
+    pushlist 'mining_script_timers' 'walking_the_rail'
 
     
     
@@ -778,7 +789,7 @@ if not varexist setting_rail
             setvar! recall_home_now 0
         endif
     else
-        sysmsg 'ORE OR INGOT NOT FOUND TO UNLOAD IN STOCKPILE' 39
+        sysmsg 'NO RESOURCES TO UNLOAD IN STOCKPILE' 54
     endif
     
     
@@ -786,7 +797,7 @@ if not varexist setting_rail
     # same conditions as bellow to check if needs to go home and unload
     setvar! recall_home_now 0
     if diffweight <= max_diffweight_before_unloading and findtype ORES backpack or findtype INGOTS backpack
-        sysmsg 'HEAVY. GOING HOME TO UNLOAD WEIGTH' 54
+        sysmsg 'HEAVY. GOING HOME TO UNLOAD' 54
         setvar! recall_home_now 1
     endif
     
@@ -1734,10 +1745,10 @@ foreach runebook in 'mining_runetomes'
 
                     cooldown RESOURCES 0
 
-                    settimer 'waiting_journal_timer' 0
 
-                    hotkey 'Use Item in Right Hand'
                     clearsysmsg
+                    settimer 'waiting_journal_timer' 0
+                    hotkey 'Use Item in Right Hand'
                     while timer 'waiting_journal_timer' < action_delay
                         if insysmsg 'must wait'
                             sysmsg 'break 4'
@@ -1756,13 +1767,35 @@ foreach runebook in 'mining_runetomes'
                         # sysmsg 'aqui dentro'
                         wait 10
                     endwhile
+                    sysmsg 'SAIU MUST WAIT 1'
 
                     while insysmsg 'must wait'
                         clearsysmsg
-                        sysmsg '>>> ITEM IN RIGHT HAND (MUST WAIT... ' 89
+                        sysmsg '>>>>>>>>>>>>> ITEM IN HAND (MUST WAIT... ' 89
+
+                        clearsysmsg
+                        settimer 'waiting_journal_timer' 0
                         hotkey 'Use Item in Right Hand'
-                        wait action_delay
+                        while timer 'waiting_journal_timer' < action_delay
+                            if insysmsg 'must wait'
+                                sysmsg 'break 4'
+                                break
+                            elseif insysmsg 'dig some'
+                                sysmsg 'break 1'
+                                break
+                            elseif insysmsg 'loosen some rocks'
+                                sysmsg 'break 2'
+                                break
+                            elseif insysmsg 'You have recently traveled'
+                                sysmsg 'break 3'
+                                break
+                            endif
+                            # clearsysmsg
+                            # sysmsg 'aqui dentro'
+                            wait 10
+                        endwhile
                     endwhile
+                    sysmsg 'SAIU MUST WAIT 2'
 
                     # wait 50
 
@@ -2348,29 +2381,30 @@ foreach runebook in 'mining_runetomes'
                         # before moving check if we got to previous destinatiojn and if so, remove destination from front of list to go to next
                         if varexist rail_x and varexist rail_y
                             if position rail_x rail_y
-                                sysmsg '[RAIL] REACHED POINT {{rail_x}}, {{rail_y}}!' 49
+                                # sysmsg '[RAIL] REACHED POINT {{rail_x}}, {{rail_y}}!' 49
                                 # sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
     
                                 poplist moveList 'front'
                                 poplist xCoord 'front'
                                 poplist yCoord 'front'
-                            else
-                                if failed_rail_attempts == 0
-                                    setvar! failed_rail_attempts 1
-                                elseif failed_rail_attempts == 1
-                                    setvar! failed_rail_attempts 2
-                                elseif failed_rail_attempts == 2
-                                    setvar! failed_rail_attempts 3
-                                elseif failed_rail_attempts == 3
-                                    setvar! failed_rail_attempts 4
-                                elseif failed_rail_attempts == 4
-                                    setvar! failed_rail_attempts 5
-                                endif
+                            # else
+                            #     if failed_rail_attempts == 0
+                            #         setvar! failed_rail_attempts 1
+                            #     elseif failed_rail_attempts == 1
+                            #         setvar! failed_rail_attempts 2
+                            #     elseif failed_rail_attempts == 2
+                            #         setvar! failed_rail_attempts 3
+                            #     elseif failed_rail_attempts == 3
+                            #         setvar! failed_rail_attempts 4
+                            #     elseif failed_rail_attempts == 4
+                            #         setvar! failed_rail_attempts 5
+                            #     endif
 
-                                if failed_rail_attempts == 5
-                                    sysmsg 'FAILED TO REACH POINT 5 times' 54
-                                    setvar! go_to_next_rune 1
-                                endif
+                            #     if failed_rail_attempts == 5
+                            #         sysmsg 'FAILED TO REACH POINT 5 times' 54
+                            #         setvar! failed_rail_attempts 0
+                            #         setvar! go_to_next_rune 1
+                            #     endif
                             endif
                         endif
 
@@ -2393,7 +2427,9 @@ foreach runebook in 'mining_runetomes'
             
                         # WALK THE RAIL!
                         if varexist rail_direction and varexist rail_x and varexist rail_y
-                            if not position rail_x rail_y
+                            settimer 'walking_the_rail' 0
+                            setvar! failed_rail_attempts 0
+                            while not position rail_x rail_y and timer 'walking_the_rail' < 1500
                                 sysmsg '[RAIL] WALKING TO POS: {{rail_x}}, {{rail_y}}' rail_msg_color
                                 if rail_direction == 1
                                     walk 'north'
@@ -2421,11 +2457,32 @@ foreach runebook in 'mining_runetomes'
                                 endif
 
                                 wait movement_delay
+
+                                if not position rail_x rail_y
+                                    if failed_rail_attempts == 0
+                                        setvar! failed_rail_attempts 1
+                                    elseif failed_rail_attempts == 1
+                                        setvar! failed_rail_attempts 2
+                                    elseif failed_rail_attempts == 2
+                                        setvar! failed_rail_attempts 3
+                                    elseif failed_rail_attempts == 3
+                                        setvar! failed_rail_attempts 4
+                                    elseif failed_rail_attempts == 4
+                                        setvar! failed_rail_attempts 5
+                                    endif
+
+                                    if failed_rail_attempts == 5
+                                        sysmsg 'FAILED TO REACH POINT 5 times' 54
+                                        setvar! failed_rail_attempts 0
+                                        setvar! go_to_next_rune 1
+                                        break
+                                    endif
+                                endif
             
-                            endif
+                            endwhile
 
                             if position rail_x rail_y
-                                # sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
+                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' 49
     
                                 # poplist moveList 'front'
                                 # poplist xCoord 'front'
