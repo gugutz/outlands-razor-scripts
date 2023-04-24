@@ -560,7 +560,7 @@ if not varexist setting_rail or manual_walk_mode == 1
     
         if gumpexists tracking_gump_id
             if not ingump 'Stop Hunting' 4267467659
-                overhead 'STARTING HUNTING' 65
+                sysmsg 'STARTING HUNTING' 65
                 gumpresponse 6 tracking_gump_id
                 waitforgump tracking_gump_id action_delay
             else
@@ -1726,27 +1726,42 @@ foreach runebook in 'mining_runetomes'
                 if not rhandempty and cooldown RESOURCES
                 # if not rhandempty
                     # settimer 'last_sysmsg_timer' 0
-                    wait 50
-                    cooldown RESOURCES 0
+                    # wait 50
 
                     sysmsg '>>> ITEM IN RIGHT HAND... ' 87
-                    clearsysmsg
+
+                    cooldown RESOURCES 0
 
                     settimer 'waiting_journal_timer' 0
-                    hotkey 'Use Item in Right Hand'
 
-                    while not cooldown RESOURCES and timer 'waiting_journal_timer' < 400 and not insysmsg 'dig some' and not insysmsg 'loosen some rocks' and not insysmsg 'You have recently traveled' and not insysmsg 'must wait'
+                    hotkey 'Use Item in Right Hand'
+                    clearsysmsg
+                    while timer 'waiting_journal_timer' < action_delay
+                        if insysmsg 'must wait'
+                            sysmsg 'break 4'
+                            break
+                        elseif insysmsg 'dig some'
+                            sysmsg 'break 1'
+                            break
+                        elseif insysmsg 'loosen some rocks'
+                            sysmsg 'break 2'
+                            break
+                        elseif insysmsg 'You have recently traveled'
+                            sysmsg 'break 3'
+                            break
+                        endif
                         # clearsysmsg
-                        sysmsg 'aqui dentro'
+                        # sysmsg 'aqui dentro'
                         wait 10
                     endwhile
 
                     while insysmsg 'must wait'
                         clearsysmsg
-                        sysmsg '>>> ITEM IN RIGHT HAND (MUST WAIT... ' 87
+                        sysmsg '>>> ITEM IN RIGHT HAND (MUST WAIT... ' 89
                         hotkey 'Use Item in Right Hand'
                         wait action_delay
                     endwhile
+
                     # wait 50
 
                     # clearsysmsg
@@ -1931,7 +1946,9 @@ foreach runebook in 'mining_runetomes'
                                     setvar! reset_last_sysmsg_timer 1
                                     # cooldown RESOURCES resource_cooldown_value
                                 endif
+                                @ignore ores
                             endwhile
+                            @clearignore
 
                             # smelt ores in pack animals
                             foreach packanimal in 'packies'
@@ -2075,15 +2092,15 @@ foreach runebook in 'mining_runetomes'
                     endif
 
                     if ores_in_packie >= max_resources_in_packie or ingots_in_packie >= max_resources_in_packie
-                        sysmsg 'COUNT INGOTS 1' 92
+                        # sysmsg 'COUNT INGOTS 1' 92
                         setvar! packie_heavy 1
                     # check if packie is actually empty
-                    elseif counttype ORES packanimal any any == 0 and counttype INGOTS packanimal any any == 0
+                    elseif ores_in_packie == 0 and ingots_in_packie == 0
                         # sysmsg 'COUNT ORE EMPTY' 92
                         rename packanimal 'emptypackie'
                     # if its not heavy and its not empty, its "light"
-                    elseif counttype ORES packanimal any any > 0 or counttype INGOTS packanimal any any >= 0
-                        sysmsg 'COUNT ORE LIGHT' 92
+                    elseif ores_in_packie > 0 or ingots_in_packie >= 0
+                        # sysmsg 'COUNT ORE LIGHT' 92
                         rename packanimal 'lightpackie'
                     endif
 
@@ -2311,7 +2328,7 @@ foreach runebook in 'mining_runetomes'
                 #########################################
             
                 if auto_rail == 1
-                    sysmsg 'FAILED TO MINE. MOVING'
+                    # sysmsg 'FAILED TO MINE. MOVING'
             
         #             sysmsg 'DOING RAIL INDEX {{current_rail_index}}' rail_msg_color
         # 
@@ -2321,7 +2338,7 @@ foreach runebook in 'mining_runetomes'
         #             endif
         
                     if list 'moveList' == 0
-                        sysmsg 'RAIL COMPLETE!!' success_msg_color
+                        sysmsg 'RAIL COMPLETE! GOING TO NEXT RUNE!' success_msg_color
                         setvar! go_to_next_rune 1
                     else
                         # sysmsg 'ENTERED WALK RAIL!!' 90
@@ -3119,6 +3136,11 @@ foreach runebook in 'mining_runetomes'
             # breaks from the loop and pops the current rune from front of list into the back, so we can
             # bypass the razor bug that keeps on same iteration when you from from a while inside a for
             if go_to_next_rune == 1
+                # increase the cooldown timer to make sure it wont be gone after we recall
+                if cooldown RESOURCES
+                    cooldown RESOURCES 60000
+                endif
+
                 setvar! go_to_next_rune 0
 
 

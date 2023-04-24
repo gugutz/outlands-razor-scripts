@@ -810,8 +810,12 @@ if findtype 'book' tomes_location_serial 2990 1 2 as treasure_map_tome
         @clearignore
     endif
 
-    if findtype 'map' backpack 0 any as tmap
+    while findtype 'map' backpack 0 any as tmap
         getlabel tmap tmap_label
+
+        if "in progress" in tmap_label
+            @ignore tmap
+        endif
 
         if "completed by" in tmap_label
             lift tmap 1
@@ -832,7 +836,7 @@ if findtype 'book' tomes_location_serial 2990 1 2 as treasure_map_tome
             sysmsg '> Unloading treasure maps...' sysmsgs_color
             menu treasure_map_tome 0
         endif
-    endif
+    endwhile
 endif
 
 
@@ -1108,7 +1112,7 @@ if findtype 'book' tomes_location_serial 1494 1 2 as dyes_tome
         # endfor
     endif
 
-    if findtype '3838|3839|3842|3843|29025|29036' backpack any any as dye_bottle
+    if findtype '3838|3839|3842|3843|29025|29036|15296' backpack any any as dye_bottle
         if verbose_mode  == 1
             sysmsg '> Unloading Dyes' sysmsgs_color
         endif
@@ -1419,7 +1423,7 @@ if findtype 'garden shelf' ground any any 2 as gardenshelf
         @clearignore
     endif
 
-    if findtype 'seed|bag of seeds|seed of renewal'
+    if findtype "2323|seed|bag of seeds|seed of renewal"
         menu gardenshelf 0
         wft action_delay
         if targetexists 'neutral'
@@ -1635,6 +1639,8 @@ sysmsg '>> FINISHED IN {{execution_timer}} ms' 97
 # CHANGELOG
 #################################
 #
+# v1.8.1
+# - Added Mount Gear Dyes
 #
 # v1.8.0
 # - Improved execution at 600ms removing unecessary wait after ressuplying from shelf
