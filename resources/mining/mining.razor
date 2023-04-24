@@ -8,7 +8,7 @@ if varexist setting_rail
     endif
 endif
 
-if not varexist setting_rail or walk_mode != 3
+if not varexist setting_rail
     removelist 'direction_to_walk'
     createlist 'direction_to_walk'
     clearlist number_of_steps_per_walk
@@ -1238,6 +1238,7 @@ foreach runebook in 'mining_runetomes'
 
         say 'all guard me'
         wait action_delay
+        setvar! failed_rail_attempts 0
 
 
         while not dead 'self'
@@ -2353,6 +2354,23 @@ foreach runebook in 'mining_runetomes'
                                 poplist moveList 'front'
                                 poplist xCoord 'front'
                                 poplist yCoord 'front'
+                            else
+                                if failed_rail_attempts == 0
+                                    setvar! failed_rail_attempts 1
+                                elseif failed_rail_attempts == 1
+                                    setvar! failed_rail_attempts 2
+                                elseif failed_rail_attempts == 2
+                                    setvar! failed_rail_attempts 3
+                                elseif failed_rail_attempts == 3
+                                    setvar! failed_rail_attempts 4
+                                elseif failed_rail_attempts == 4
+                                    setvar! failed_rail_attempts 5
+                                endif
+
+                                if failed_rail_attempts == 5
+                                    sysmsg 'FAILED TO REACH POINT 5 times' 54
+                                    setvar! go_to_next_rune 1
+                                endif
                             endif
                         endif
 
