@@ -8,7 +8,7 @@ if varexist setting_rail
     endif
 endif
 
-if not varexist setting_rail or manual_walk_mode == 1
+if not varexist setting_rail or walk_mode != 3
     removelist 'direction_to_walk'
     createlist 'direction_to_walk'
     clearlist number_of_steps_per_walk
@@ -700,7 +700,8 @@ if not varexist setting_rail or manual_walk_mode == 1
         sysmsg 'MANUAL WALK MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
         setvar! auto_walk_randomly 0
         setvar! auto_walk_to_direction 1
-        clearlist 'mining_runetomes'
+        removelist 'mining_runetomes'
+        createlist 'mining_runetomes'
         pushlist 'mining_runetomes' 0
     endif
     
