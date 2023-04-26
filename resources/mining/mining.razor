@@ -168,6 +168,8 @@ if not varexist setting_rail
     if auto_rail == 1 and not varexist mining_first_run_done
         setvar! current_rail_index 0
     endif
+    removelist 'problematic_rails'
+    createlist 'problematic_rails'
 
     setvar! use_strength 1
     setvar! max_diffhits_before_buffing 5
@@ -177,6 +179,7 @@ if not varexist setting_rail
     setvar! script_msg_color 2213
     setvar! default_sysmsg_color 1360
     setvar! default_overhead_color 1360
+    setvar! status_msg_color 91
     
     setvar! spell_msg_color 49
     setvar! buff_msg_color 92
@@ -1263,10 +1266,16 @@ foreach runebook in 'mining_runetomes'
                 # sysmsg '************************' 90
 
                 sysmsg 'Mining Bot by gugutz.' 89
-                sysmsg 'Last captcha was: {{last_gump_tracking_timer}}ms ago' 90
-                sysmsg 'Uptime: {{mining_uptime}}ms'
-                sysmsg 'Current Runebook: {{runebook_number}}'
-                sysmsg 'Current Rune: {{current_rune_position}}'
+                sysmsg 'Last captcha was: {{last_gump_tracking_timer}}ms ago' stats_msg_color
+                sysmsg 'Uptime: {{mining_uptime}}ms' stats_msg_color
+                sysmsg 'Current Runebook: {{runebook_number}}' stats_msg_color
+                sysmsg 'Current Rune: {{current_rune_position}}' stats_msg_color
+                if list 'problematic_rails' > 0
+                    sysmsg 'Problematic Rails:'
+                    foreach x in 'problematic_rails'
+                        sysmsg x stats_msg_color
+                    endfor
+                endif
 
 
                 # sysmsg '************************' 90
@@ -1751,6 +1760,12 @@ foreach runebook in 'mining_runetomes'
                     hotkey 'Use Item in Right Hand'
                     while timer 'waiting_journal_timer' < action_delay
                         if insysmsg 'must wait'
+                            while insysmsg 'must wait'
+                                sysmsg 'MUST WAIT FIX!!!!!!!!!!!!!'
+                                clearsysmsg
+                                hotkey 'Use Item in Right Hand'
+                                wait action_delay
+                            endwhile
                             sysmsg 'break 4'
                             break
                         elseif insysmsg 'dig some'
@@ -2475,6 +2490,12 @@ foreach runebook in 'mining_runetomes'
                                         sysmsg 'FAILED TO REACH POINT 5 times' 54
                                         setvar! failed_rail_attempts 0
                                         setvar! go_to_next_rune 1
+
+                                        if current_rune_position in 'problematic_rails'
+                                        else
+                                            pushlist 'problematic_rails' current_rune_position
+                                        endif
+
                                         break
                                     endif
                                 endif
