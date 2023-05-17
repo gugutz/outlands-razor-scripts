@@ -23,14 +23,14 @@ if counttype 'clean bandage%s%' == 0
     stop
 endif
 
-if diffhits == 0
+if diffhits == 0 and not findbuff "bleed" and not findbuff "disease" and not poisoned
     overhead 'no need for bandages!' 54
     stop
 endif
 
 # use bandage
 if healing >= 20
-    if diffhits > 0
+    if diffhits > 0 or findbuff "bleed" or findbuff "disease" or poisoned
 
         if bandaging == 0
             overhead '*applying bandages*' 65
