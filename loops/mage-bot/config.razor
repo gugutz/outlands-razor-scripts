@@ -1,0 +1,223 @@
+# VERBOSITY SETTINGS
+setvar! debug 0
+setvar! stack_trace 0
+setvar! verbose 0
+setvar! use_script_overhead_messages 1
+
+# GENERAL SETTINGS
+setvar! auto_configure_script_based_on_skills 1
+
+setvar! auto_rail 0
+
+setvar! auto_heal 1
+setvar! auto_cure_poison 1
+setvar! auto_delectable 0
+setvar! hide_valuables_in_char_loot_pouch 1
+setvar! auto_move_regs_to_satchel 1
+setvar! recall_home_to_restock 1
+setvar! auto_escape_pks 1
+setvar! auto_escape_thiefs 1
+setvar! auto_meditate 1
+setvar! auto_escape_ground_burning_flames 0
+setvar! juggle_mode 0
+
+setvar! use_mushroom_delay 60000
+setvar! all_guard_delay 5000
+setvar! all_patrol_delay 6000
+setvar! cast_summons_delay 3300
+
+# SKILL BUFF SETTINGS
+setvar! auto_spirit_speak 0
+setvar! auto_skin_corpses 0
+
+# TARGETING SETTINGS
+setvar! auto_get_new_targets 0
+setvar! auto_attack_targets 1
+setvar! hold_targets 0
+setvar! keep_getting_closest_target 0
+setvar! get_players_on_auto_target 0
+setvar! lure_mobs_closer_before_killing 0
+setvar! lure_mobs_distance_to_lure 2
+setvar! offensive_mode 1
+
+
+# FOLLOWER SETTINGS
+setvar! auto_herd_mobs 0
+setvar! patrol_first_relative_direction 0
+setvar! patrol_second_relative_direction -10
+
+
+# SPELLS TO AUTO CAST
+setvar! use_reactive_armor 1
+setvar! use_magic_reflection 1
+setvar! use_protection 1
+setvar! use_arch_protection 0
+setvar! use_strength 1
+setvar! use_incognito 0
+setvar! use_mana_drain 1
+setvar! use_curse 1
+setvar! use_mass_curse 0
+setvar! use_ma 1
+setvar! use_harm 1
+setvar! use_fireball 0
+setvar! use_lightning 1
+setvar! use_mind_blast 0
+setvar! use_eb 0
+setvar! use_flamestrike 1
+setvar! use_pain_spike 0
+setvar! use_chain_lightning 1
+setvar! use_meteor_swarm 0
+setvar! use_earthquake 0
+if skill 'poisoning' >= 100
+    setvar! use_poison 1
+endif
+
+
+# SPELL GRIMOIRE INTERVALS
+setvar! mana_drain_delay 60000
+setvar! curse_delay 60000
+setvar! mass_curse_delay 300000
+setvar! poison_delay 60000
+setvar! eb_delay 10000
+setvar! ma_delay 60000
+setvar! harm_delay 60000
+setvar! fireball_delay 60000
+setvar! lightning_delay 60000
+setvar! chain_lightning_delay 20000
+setvar! meteor_swarm_delay 20000
+setvar! earthquake_delay 60000
+
+# PACKIES SETTINGS
+setvar! auto_unload_items_in_pack_animal 0
+setvar! auto_unload_reagents_in_pack_animal 1
+setvar! move_gold 1
+setvar! move_resources 1
+setvar! move_gems 1
+setvar! move_food 1
+setvar! move_reagents 1
+setvar! min_reagents_to_leave_on_char 160
+setvar! amount_of_regs_to_move 40
+
+
+# BOATING SETTINGS
+setvar! boating_mode 0
+setvar! auto_defuse_bombs 1
+setvar! auto_repair_ship 1
+setvar! auto_reload_cannons 1
+setvar! auto_fire_cannons 1
+setvar! auto_heal_crew 1
+setvar! auto_open_enemy_boat_holds 1
+setvar! auto_dock_when_close_to_dockmaster 1
+
+
+# BOATING DELAYS
+setvar! search_ships_delay 15000
+setvar! reload_cannons_delay 10000
+setvar! fire_cannons_delay 12000
+setvar! repair_ship_cooldown 10000
+# we create individual delays for each part so we can increase the delay when ship is full health
+setvar! repair_ship_hull_delay repair_ship_cooldown
+setvar! repair_ship_sails_delay repair_ship_cooldown
+setvar! repair_ship_guns_delay repair_ship_cooldown
+setvar! heal_ship_crew_delay 20000
+setvar! ship_lesser_ability_delay 113000
+
+
+# AUTO RAIL DIRECTIONS
+clearlist rail_directions
+createlist rail_directions
+pushlist rail_directions 2
+pushlist rail_directions 6
+pushlist rail_directions 4
+pushlist rail_directions 4
+pushlist rail_directions 10
+pushlist rail_directions 10
+
+# AUTO RAIL X POSITIONS
+clearlist rail_x_positions
+createlist rail_x_positions
+pushlist rail_x_positions 5644
+pushlist rail_x_positions 5641
+pushlist rail_x_positions 5641
+pushlist rail_x_positions 5641
+pushlist rail_x_positions 5641
+pushlist rail_x_positions 5641
+
+
+# AUTO RAIL Y POSITIONS
+clearlist rail_y_positions
+createlist rail_y_positions
+pushlist rail_y_positions 1010
+pushlist rail_y_positions 1010
+pushlist rail_y_positions 1019
+pushlist rail_y_positions 1029
+pushlist rail_y_positions 1021
+pushlist rail_y_positions 1010
+
+if debug == 1
+    sysmsg '[DEBUG] FINISHED PLAYER SETTINGS IN {{script_settings_timer}} ms' debug_msg_color
+endif
+
+
+#######################################################
+# CHAR BASED CUSTOMIZATIONS
+#######################################################
+
+if name == 'Neron'
+    sysmsg '[OPTS] APPLYING CONFIG FOR Neron' script_msg_color
+    setvar! debug 1
+    setvar! use_incognito 0
+    setvar! juggle_mode 0
+    setvar! auto_patrol_when_no_active_lasttarget 1
+    setvar! auto_rail 0
+    setvar! lure_mobs_closer_before_killing 1
+    setvar! boating_mode 1
+endif
+
+if name == 'gugutz'
+    sysmsg '[OPTS] APPLYING CONFIG FOR gugutz' script_msg_color
+    setvar! auto_configure_script_based_on_skills 0
+
+    setvar! debug 1
+    setvar! use_incognito 0
+    setvar! auto_patrol_when_no_active_lasttarget 1
+    setvar! lure_mobs_closer_before_killing 1
+    setvar! auto_skin_corpses 1
+
+# char grimoire spells
+    setvar! use_ma 1
+    setvar! use_harm 1
+    setvar! use_fireball 1
+    setvar! use_lightning 1
+    setvar! use_mind_blast 1
+    setvar! use_eb 0
+    setvar! use_flamestrike 0
+    setvar! use_pain_spike 0
+    setvar! use_chain_lightning 0
+    setvar! use_meteor_swarm 0
+    setvar! use_earthquake 0
+
+    setvar! mana_drain_delay 60000
+    setvar! curse_delay 180000
+    setvar! ma_delay 60000
+    setvar! harm_delay 60000
+    setvar! fireball_delay 60000
+    setvar! lightning_delay 60000
+    setvar! chain_lightning_delay 20000
+    setvar! meteor_swarm_delay 20000
+    setvar! earthquake_delay 60000
+endif
+
+# BUGUEI SETTINGS
+if name == 'Yorixiriamori-'
+    sysmsg '[OPTS] APPLYING CONFIG FOR Yorixiriamori-' script_msg_color
+    setvar! boating_mode 0
+    setvar! use_mind_blast 0
+    setvar! use_fireball 1
+    setvar! use_incognito 1
+    setvar! auto_get_new_targets 0
+    setvar! kill_close_to_loot 0
+endif
+
+setvar! mage_bot_config_loaded 1
+script 'loops\mage-bot\mage-bot'

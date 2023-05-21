@@ -9,6 +9,8 @@
 # SCRIPT CONFIGURATION
 ################################
 
+hotkey 'Attack Last Target'
+
 setvar! action_delay 350
 
 
@@ -32,32 +34,32 @@ if not timerexists 'painspike_timer'
 endif
 
 
-###############################
-# apply bandages if has healing
-###############################
+# ###############################
+# # apply bandages if has healing
+# ###############################
 
-if diffhits > 0 and skill 'healing' >= 20 and findtype 'clean bandage%s%' backpack
-    if not timerexists 'bandage_timer'
-        createtimer 'bandage_timer'
-        settimer 'bandage_timer' 99999
-    endif
+# if diffhits > 0 and skill 'healing' >= 20 and findtype 'clean bandage%s%' backpack
+#     if not timerexists 'bandage_timer'
+#         createtimer 'bandage_timer'
+#         settimer 'bandage_timer' 99999
+#     endif
 
-    # set bandage_delay based on char dex
-    removelist 'bandage_delay'
-    createlist 'bandage_delay'
+#     # set bandage_delay based on char dex
+#     removelist 'bandage_delay'
+#     createlist 'bandage_delay'
 
-    if dex >= 100
-        pushlist 'bandage_delay' 10000
-    elseif dex <= 80
-        pushlist 'bandage_delay' 15000
-    endif
+#     if dex >= 100
+#         pushlist 'bandage_delay' 10000
+#     elseif dex <= 80
+#         pushlist 'bandage_delay' 15000
+#     endif
 
-    if atlist 'bandage_delay' 0 as bandage_delay
-        if timer 'bandage_timer' >= bandage_delay
-            script 'items\bandage-self'
-        endif
-    endif
-endif
+#     if atlist 'bandage_delay' 0 as bandage_delay
+#         if timer 'bandage_timer' >= bandage_delay
+#             script 'items\bandage-self'
+#         endif
+#     endif
+# endif
 
 ###########################################
 # IF LAST TARGET DEAD OR NOT SET, WE NEED TO SET IT

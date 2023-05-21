@@ -341,104 +341,104 @@ if varexist chest
         if unlock_chest == 1
             sysmsg 'ENTERED UNLOCK CHEST' 54
 
-            while not dead and not insysmsg 'You have successfully cleared it of traps'
-
-                sysmsg 'CLEARING TRAPS...' 54
-                if auto_hide == 1
-                    if only_start_chest_if_hidden == 1
-                        while not hidden
-                            sysmsg 'TRYING TO HIDE...' 54
-
-                            if skill 'hiding' >= 50
-                                useskill 'hiding'
-                                wait 1000
-                            elseif skill 'magery' >= 75
-                                cast 'invisibility'
-                                wft 3500
-                                if targetexists 'neutral'
-                                    target 'self'
-                                endif
-                                wait action_delay
-                            endif
-                        endwhile
-                    else
-                        if not hidden
-                            if skill 'hiding' >= 70
-                                useskill 'hiding'
-                                wait 1000
-                            elseif skill 'magery' >= 75
-                                cast 'invisibility'
-                                wft 3500
-                                if targetexists 'neutral'
-                                    target 'self'
-                                endif
-                                wait action_delay
-                            endif
-                        endif
-                    endif
-                endif
-
-
-                # Skip ahead if devoid of traps
-                if insysmsg 'You have successfully cleared it of traps'
-                    overhead '* TRAPS CLEARED * ' 72
-                    break
-                endif
-
-
-                if findtype drill backpack as tool
-                    # unlock using tool instead of using the chest gump (this allows the char to remain hidden)
-                    if use_tools_instead_of_chest_gump == 1
-                        sysmsg 'Removing Chest Traps...' 54
-                        dclick tool
-                        waitfortarget action_delay
-                        target chest
-
-                        wait action_delay
-
-                    # unlock using the chest gump instead of directly clicking tool
-                    elseif use_tools_instead_of_chest_gump == 0
-                        if not gumpexists locked_chest_gump
-                            sysmsg 'Clicking chest to open gump...'
-                            dclick chest
-                            waitforgump locked_chest_gump action_delay
-                        else
-                            gumpresponse 7 736038070
-                            wait action_delay
-                        endif
-                    endif
-
-                    if ingump 'Cleared of Traps' 736038070 or insysmsg 'appears to be devoid'
-                        sysmsg 'CHEST ALREADY CLARED OF TRAPS....'
-                        break
-                    endif
-
-
-                    if insysmsg 'You do not have any trap tools of that material on hand'
-                        if use_tools_instead_of_chest_gump == 1
-                            overhead 'NO MORE DRILLS' 55
-                            stop
-                        elseif use_tools_instead_of_chest_gump == 0
-                            sysmsg '> Switching Tool Material Color...' 54
-                            gumpresponse 5 736038070
-                            waitforgump locked_chest_gump action_delay
-                        endif
-                    else
-                        while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
-                            wait 100
-                            if timer 'wait_for_progress' >= 5000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress' or insysmsg 'cleared it of traps'
-                                settimer 'wait_for_progress' 0
-                                break
-                            endif
-                        endwhile
-                    endif
-                else
-                    overhead 'NO MORE DRILLS' 37
-                    stop
-                endif
-
-
-            endwhile
+#             while not dead and not insysmsg 'You have successfully cleared it of traps'
+# 
+#                 sysmsg 'CLEARING TRAPS...' 54
+#                 if auto_hide == 1
+#                     if only_start_chest_if_hidden == 1
+#                         while not hidden
+#                             sysmsg 'TRYING TO HIDE...' 54
+# 
+#                             if skill 'hiding' >= 50
+#                                 useskill 'hiding'
+#                                 wait 1000
+#                             elseif skill 'magery' >= 75
+#                                 cast 'invisibility'
+#                                 wft 3500
+#                                 if targetexists 'neutral'
+#                                     target 'self'
+#                                 endif
+#                                 wait action_delay
+#                             endif
+#                         endwhile
+#                     else
+#                         if not hidden
+#                             if skill 'hiding' >= 70
+#                                 useskill 'hiding'
+#                                 wait 1000
+#                             elseif skill 'magery' >= 75
+#                                 cast 'invisibility'
+#                                 wft 3500
+#                                 if targetexists 'neutral'
+#                                     target 'self'
+#                                 endif
+#                                 wait action_delay
+#                             endif
+#                         endif
+#                     endif
+#                 endif
+# 
+# 
+#                 # Skip ahead if devoid of traps
+#                 if insysmsg 'You have successfully cleared it of traps'
+#                     overhead '* TRAPS CLEARED * ' 72
+#                     break
+#                 endif
+# 
+# 
+#                 if findtype drill backpack as tool
+#                     # unlock using tool instead of using the chest gump (this allows the char to remain hidden)
+#                     if use_tools_instead_of_chest_gump == 1
+#                         sysmsg 'Removing Chest Traps...' 54
+#                         dclick tool
+#                         waitfortarget action_delay
+#                         target chest
+# 
+#                         wait action_delay
+# 
+#                     # unlock using the chest gump instead of directly clicking tool
+#                     elseif use_tools_instead_of_chest_gump == 0
+#                         if not gumpexists locked_chest_gump
+#                             sysmsg 'Clicking chest to open gump...'
+#                             dclick chest
+#                             waitforgump locked_chest_gump action_delay
+#                         else
+#                             gumpresponse 7 736038070
+#                             wait action_delay
+#                         endif
+#                     endif
+# 
+#                     if ingump 'Cleared of Traps' 736038070 or insysmsg 'appears to be devoid'
+#                         sysmsg 'CHEST ALREADY CLARED OF TRAPS....'
+#                         break
+#                     endif
+# 
+# 
+#                     if insysmsg 'You do not have any trap tools of that material on hand'
+#                         if use_tools_instead_of_chest_gump == 1
+#                             overhead 'NO MORE DRILLS' 55
+#                             stop
+#                         elseif use_tools_instead_of_chest_gump == 0
+#                             sysmsg '> Switching Tool Material Color...' 54
+#                             gumpresponse 5 736038070
+#                             waitforgump locked_chest_gump action_delay
+#                         endif
+#                     else
+#                         while not insysmsg 'You make some progress' and not insysmsg 'You fail to make any progress'
+#                             wait 100
+#                             if timer 'wait_for_progress' >= 5000 or insysmsg 'You make some progress' or insysmsg 'You fail to make any progress' or insysmsg 'cleared it of traps'
+#                                 settimer 'wait_for_progress' 0
+#                                 break
+#                             endif
+#                         endwhile
+#                     endif
+#                 else
+#                     overhead 'NO MORE DRILLS' 37
+#                     stop
+#                 endif
+# 
+# 
+#             endwhile
 
             #################################
             # LOCKPICK CHEST

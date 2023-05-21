@@ -9,10 +9,10 @@ if varexist setting_rail
 endif
 
 if not varexist setting_rail
-    removelist 'direction_to_walk'
-    createlist 'direction_to_walk'
-    clearlist number_of_steps_per_walk
-    createlist number_of_steps_per_walk
+    # removelist 'direction_to_walk'
+    # createlist 'direction_to_walk'
+    # clearlist number_of_steps_per_walk
+    # createlist number_of_steps_per_walk
 
     if not varexist mining_config_loaded
         script 'resources\mining\config'
@@ -23,23 +23,23 @@ if not varexist setting_rail
     setvar! spell_recovery_delay 120
 
     # SET WALK MODE BASED ON CONFIG
-    setvar! manual_walk_mode 0
+    setvar! manual_walk_mode 1
     setvar! auto_walk_randomly 0
     setvar! auto_walk_to_specific_direction 0
     setvar! auto_rail 0
-    if walk_mode == 0
-        sysmsg 'SETTING WALK MODE TO MANUAL' 54
-        setvar! manual_walk_mode 1
-    elseif walk_mode == 1
-        sysmsg 'SETTING WALK MODE TO RANDOM' 54
-        setvar! auto_walk_randomly 1
-    elseif walk_mode == 2
-        sysmsg 'SETTING WALK MODE TO DIRECTION' 54
-        setvar! auto_walk_to_specific_direction 1
-    elseif walk_mode == 3
-        sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
-        setvar! auto_rail 1
-    endif
+    # if walk_mode == 0
+    #     sysmsg 'SETTING WALK MODE TO MANUAL' 54
+    #     setvar! manual_walk_mode 1
+    # elseif walk_mode == 1
+    #     sysmsg 'SETTING WALK MODE TO RANDOM' 54
+    #     setvar! auto_walk_randomly 1
+    # elseif walk_mode == 2
+    #     sysmsg 'SETTING WALK MODE TO DIRECTION' 54
+    #     setvar! auto_walk_to_specific_direction 1
+    # elseif walk_mode == 3
+    #     sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
+    #     setvar! auto_rail 1
+    # endif
 
     if skill 'magery' < 90 and auto_summon == 1
         sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
@@ -2399,9 +2399,9 @@ foreach runebook in 'mining_runetomes'
                                 # sysmsg '[RAIL] REACHED POINT {{rail_x}}, {{rail_y}}!' 49
                                 # sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
     
-                                poplist moveList 'front'
-                                poplist xCoord 'front'
-                                poplist yCoord 'front'
+                                # poplist moveList 'front'
+                                # poplist xCoord 'front'
+                                # poplist yCoord 'front'
                             # else
                             #     if failed_rail_attempts == 0
                             #         setvar! failed_rail_attempts 1
@@ -2444,71 +2444,83 @@ foreach runebook in 'mining_runetomes'
                         if varexist rail_direction and varexist rail_x and varexist rail_y
                             settimer 'walking_the_rail' 0
                             setvar! failed_rail_attempts 0
-                            while not position rail_x rail_y and timer 'walking_the_rail' < 1500
-                                sysmsg '[RAIL] WALKING TO POS: {{rail_x}}, {{rail_y}}' rail_msg_color
-                                if rail_direction == 1
-                                    walk 'north'
-                                endif
-                                if rail_direction == 2
-                                    walk 'right'
-                                endif
-                                if rail_direction == 3
-                                    walk 'east'
-                                endif
-                                if rail_direction == 4
-                                    walk 'down'
-                                endif
-                                if rail_direction == 5
-                                    walk 'south'
-                                endif
-                                if rail_direction == 6
-                                    walk 'left'
-                                endif
-                                if rail_direction == 7
-                                    walk 'west'
-                                endif
-                                if rail_direction == 8
-                                    walk 'up'
-                                endif
 
-                                wait movement_delay
-
+                            while cooldown RESOURCES and not insysmsg 'you dig' and not insysmsg 'loosen some rocks but fail' and not insysmsg 'you must wait' and not insysmsg 'Harvesting is not allowed in this area' and not insysmsg 'You have recently traveled'
                                 if not position rail_x rail_y
-                                    if failed_rail_attempts == 0
-                                        setvar! failed_rail_attempts 1
-                                    elseif failed_rail_attempts == 1
-                                        setvar! failed_rail_attempts 2
-                                    elseif failed_rail_attempts == 2
-                                        setvar! failed_rail_attempts 3
-                                    elseif failed_rail_attempts == 3
-                                        setvar! failed_rail_attempts 4
-                                    elseif failed_rail_attempts == 4
-                                        setvar! failed_rail_attempts 5
+                                    sysmsg '[RAIL] WALKING TO POS: {{rail_x}}, {{rail_y}}' rail_msg_color
+                                    if rail_direction == 1
+                                        walk 'north'
+                                    endif
+                                    if rail_direction == 2
+                                        walk 'right'
+                                    endif
+                                    if rail_direction == 3
+                                        walk 'east'
+                                    endif
+                                    if rail_direction == 4
+                                        walk 'down'
+                                    endif
+                                    if rail_direction == 5
+                                        walk 'south'
+                                    endif
+                                    if rail_direction == 6
+                                        walk 'left'
+                                    endif
+                                    if rail_direction == 7
+                                        walk 'west'
+                                    endif
+                                    if rail_direction == 8
+                                        walk 'up'
                                     endif
 
-                                    if failed_rail_attempts == 5
-                                        sysmsg 'FAILED TO REACH POINT 5 times' 54
-                                        setvar! failed_rail_attempts 0
-                                        setvar! go_to_next_rune 1
+                                    while not position rail_x rail_y and timer 'walking_the_rail' < movement_delay
+                                        wait 10
+                                    endwhile
+    
+                                    # wait movement_delay
 
-                                        if current_rune_position in 'problematic_rails'
-                                        else
-                                            pushlist 'problematic_rails' current_rune_position
+                                    if not position rail_x rail_y
+                                        if failed_rail_attempts == 0
+                                            setvar! failed_rail_attempts 1
+                                        elseif failed_rail_attempts == 1
+                                            setvar! failed_rail_attempts 2
+                                        elseif failed_rail_attempts == 2
+                                            setvar! failed_rail_attempts 3
+                                        elseif failed_rail_attempts == 3
+                                            setvar! failed_rail_attempts 4
+                                        elseif failed_rail_attempts == 4
+                                            setvar! failed_rail_attempts 5
                                         endif
 
-                                        break
+                                        if failed_rail_attempts == 5
+                                            sysmsg 'FAILED TO REACH POINT 5 times' 54
+                                            setvar! failed_rail_attempts 0
+                                            setvar! go_to_next_rune 1
+
+                                            if current_rune_position in 'problematic_rails'
+                                            else
+                                                pushlist 'problematic_rails' current_rune_position
+                                            endif
+
+                                            break
+                                        endif
                                     endif
+                
                                 endif
-            
                             endwhile
 
                             if position rail_x rail_y
                                 sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' 49
-    
-                                # poplist moveList 'front'
-                                # poplist xCoord 'front'
-                                # poplist yCoord 'front'
+
+                                poplist moveList 'front'
+                                poplist xCoord 'front'
+                                poplist yCoord 'front'
                             endif
+
+                            clearsysmsg
+                            sysmsg 'IN HAND INSIDE RAIL'
+                            hotkey 'Use Item in Right Hand'
+                            wait action_delay
     
                         else
                             sysmsg 'COULDNT SET RAIL VARIABLES' alert_msg_color

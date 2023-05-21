@@ -187,7 +187,6 @@ if varexist pack_animal and find pack_animal 'ground' 0 any 7
             while findtype item_graphic backpack as item
                 getlabel item item_label
                 overhead "unloading {{item_label}}" 56 pack_animal
-                hotkey 'Drop What You Are Currently Holding'
                 lift item 60000
                 wait action_delay
                 drop pack_animal -1 -1 0
@@ -261,7 +260,6 @@ if varexist pack_animal and find pack_animal 'ground' 0 any 7
 
                     overhead 'unloading {{amount_of_regs_to_move}} {{reagent_graphic}}' 53 pack_animal
 
-                    hotkey 'Drop What You Are Currently Holding'
                     lifttype reagent_graphic amount_of_regs_to_move backpack
                     wait action_delay
                     drop pack_animal -1 -1 0

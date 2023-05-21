@@ -137,9 +137,20 @@ while findtype 'a bag of gems' ship_loot_backpack as booty
 endwhile
 
 # deposit pirate booty in specific chest
-lifttype 'bag of gems' ship_loot_backpack 2
-drop 0x492B36D3 -1 -1 0
+if findtype 'bag of gems' backpack as gems
+    lift gems 9999
+    while queued
+    endwhile
+
+    drop 0x492B36D3 -1 -1 0
+    while queued
+    endwhile
+endif
 
 # put the ship loot backpack back in char backpack
 lift 0x403EB002 1
+while queued
+endwhile
 drop 0x4803E76E 91 72 0
+while queued
+endwhile

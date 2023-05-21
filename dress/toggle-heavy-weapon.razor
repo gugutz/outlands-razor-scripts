@@ -126,7 +126,7 @@ if find heavy_weapon backpack as weap
 
                 wait 70
                 while queued
-            sysmsg 'BEFORE DROP '
+                    sysmsg 'BEFORE DROP '
                 endwhile
             elseif not lhandempty
                 hotkey 'Toggle Peace Only'
@@ -134,12 +134,11 @@ if find heavy_weapon backpack as weap
 
                 wait 70
                 while queued
-            sysmsg 'BEFORE DROP '
+                   sysmsg 'BEFORE DROP '
                 endwhile
             endif
 
             sysmsg 'LIFT'
-            hotkey 'Drop What You Are Currently Holding'
 
             lift weap 1
             wait 100
@@ -154,6 +153,7 @@ if find heavy_weapon backpack as weap
                 sysmsg 'drop 1'
             endwhile
             sysmsg 'LIFT END '
+            wait 20
         else
             sysmsg 'DCLICK'
 
@@ -170,7 +170,7 @@ if find heavy_weapon backpack as weap
         #     sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
         #     break
         # endif
-            sysmsg 'LIFT END 2'
+        sysmsg 'LIFT END 2'
     endwhile
 
     if not lhandempty or not rhandempty
@@ -185,8 +185,5 @@ if find heavy_weapon backpack as weap
     endif
 endif
 # endfor
-
-
-hotkey "Resynchronize Client"
 
 sysmsg 'FINISHED IN {{toggle_heavy_weapon_timer}}' 90

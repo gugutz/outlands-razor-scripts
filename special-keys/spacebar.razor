@@ -16,13 +16,21 @@ setvar! action_delay 350
 # ENTER MOONGATES
 ###############################
 
+
 if findtype 3948|27754 ground any any 2 as gate
-    while not gumpexists 3773199800 and not gumpexists 687547349
+    while not gumpexists 3773199800 and not gumpexists 687547349 and not gumpexists 3899019871
+        sysmsg 'OPENING GATE' 54
         dclick gate
-        waitforgump any 600
+        waitforgump any 1000
         # script 'actions\enter-moongate'
-    endif
+    endwhile
 endif
+
+# enter gate confirmation gump
+while gumpexists 3899019871
+    sysmsg 'ENTERING GATE' 54
+    gumpresponse 2 3899019871
+endwhile
 
 # PLAYER AND PUBLIC MOONGATES
 while gumpexists 3773199800
@@ -32,6 +40,7 @@ while gumpexists 3773199800
         waitforgump 3773199800 action_delay
     endif
 
+    sysmsg 'ENTERING GATE' 54
     gumpresponse 2 3773199800
     waitforgump 3773199800 action_delay
 endwhile
@@ -61,6 +70,18 @@ if findbuff 'paralyze'
 
     say '[pouch'
     overhead '*using trap pouch*' 52
+endif
+
+
+###############################
+# PICK SHIP BOMBS ON GROUND
+###############################
+
+if findtype 5188 ground 2825 any 2 as found
+    dclick found
+    sysmsg 'PICKING BOMB!' 54
+    overhead 'PICKING BOMB!' 54
+    stop
 endif
 
 
@@ -120,7 +141,6 @@ if skill 'archery' >= 80 and lhandempty and findtype 'bow' backpack as weap
 
     if targetexists
         sysmsg 'LIFT'
-        hotkey 'Drop What You Are Currently Holding'
         lift weap 1
         wait 50
         while queued
@@ -143,7 +163,6 @@ elseif skill 'swordsmanship' >= 80 and rhandempty and findtype 'katana' backpack
 
     if targetexists
         sysmsg 'LIFT'
-        hotkey 'Drop What You Are Currently Holding'
         lift weap 1
         wait 50
         while queued
@@ -462,7 +481,6 @@ endif
 if not find '0x40000ECB' ground any any 20
     if findtype 3854 'backpack' as bottles and counttype 3854 > 3
         overhead '✩ droping bottles ✩' 55
-        wait action_delay
         lift bottles 999
         wait 50
         while queued

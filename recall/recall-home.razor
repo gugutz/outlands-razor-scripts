@@ -62,13 +62,13 @@ if not varexist recall_book
             setvar! recall_book found
             setvar! recall_book_gump_id 167090027
             setvar! home_rune_btn_number runetome_rune_position
-    
+
             setvar! recall_book rtome
             # setvar! recall_by_charge_btn_number runetome_rune_position
             setvar! recall_by_charge_btn_number 100
-    
+
         endif
-    
+
         @ignore found
     endwhile
 endif
@@ -215,7 +215,7 @@ if use_charges == 0
 
         if targetexists 'harmful'
             # sysmsg 'reseting spell timer 1...'
-            settimer spell 0
+            settimer 'waiting_spell_timer' 0
             break
         endif
     endwhile

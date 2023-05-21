@@ -52,82 +52,22 @@ if stack_trace == 1
     sysmsg '[STACK] Setting General Configuration...' script_msg_color
 endif
 
-# VERBOSITY SETTINGS
-setvar! debug 0
-setvar! stack_trace 0
-setvar! verbose 0
-setvar! use_script_overhead_messages 1
-
-# GENERAL SETTINGS
-setvar! auto_configure_script_based_on_skills 1
-setvar! auto_rail 0
-setvar! auto_heal 1
-setvar! auto_cure_poison 1
-setvar! auto_delectable 0
-setvar! hide_valuables_in_char_loot_pouch 1
-setvar! auto_move_regs_to_satchel 1
-setvar! recall_home_to_restock 1
-setvar! auto_escape_pks 1
-setvar! auto_escape_thiefs 1
-setvar! auto_meditate 1
-setvar! auto_escape_ground_burning_flames 0
-setvar! juggle_mode 0
-
-# SKILL BUFF SETTINGS
-setvar! auto_spirit_speak 0
-setvar! auto_skin_corpses 0
-
-# TARGETING SETTINGS
-setvar! auto_get_new_targets 0
-setvar! auto_attack_targets 1
-setvar! hold_targets 0
-setvar! keep_getting_closest_target 0
-setvar! get_players_on_auto_target 0
-setvar! lure_mobs_closer_before_killing 0
-setvar! lure_mobs_distance_to_lure 2
-setvar! offensive_mode 1
+if not varexist mage_bot_config_loaded
+    script 'loops\mage-bot\config'
+endif
+unsetvar! mage_bot_config_loaded
 
 
-# FOLLOWER SETTINGS
-setvar! auto_herd_mobs 0
-setvar! patrol_first_relative_direction 0
-setvar! patrol_second_relative_direction -10
-
+############################################################################
+# SET FLAGS FOR CHAR TEMPLATE/SKILLS
+############################################################################
 
 setvar! is_summoner 0
 setvar! is_tamer 0
+setvar! is_herder 0
+setvar! is_veterinarian 0
+setvar! is_detecter 0
 
-# SUMMON SETTINGS
-if skill 'magery' >= 90 and skill 'taming' == 0
-    setvar! is_summoner 1
-    sysmsg 'MAGE DETECTED. OPTIMIZING...' script_msg_color
-    sysmsg '[STACK] Setting Summons Options...' script_msg_color
-    
-    if not listexists 'summons'
-        createlist 'summons'
-    endif
-    
-    clearlist 'summons'
-    pushlist 'summons' 'an earth elemental'
-    pushlist 'summons' 'a fire elemental'
-    pushlist 'summons' 'summ. creature'
-    
-    setvar! auto_summon 1
-    setvar! use_undead_summons 1
-    setvar! auto_all_guard 1
-    setvar! auto_patrol_when_no_active_lasttarget 0
-    setvar! auto_vampiric_embrace 1
-
-    # if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
-    # if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
-    if inlist 'summons' 'summ. creature'
-        setvar! followers_max_limit 5
-    else
-        setvar! followers_max_limit 4
-    endif
-endif
-
-# TAMER SETINGS
 if skill 'taming' >= 100
     setvar! is_tamer 1
     sysmsg 'TAMMER DETECTED. OPTIMIZING...' script_msg_color
@@ -138,8 +78,6 @@ endif
 if skill 'veterinary' >= 50
     sysmsg 'VETERINARY DETECTED. OPTIMIZING...' script_msg_color
     setvar! is_veterinarian 1
-    setvar! auto_vet_pets 1
-    setvar! vet_pets_delay 5000
 endif
 
 if skill 'herding' >= 80
@@ -153,124 +91,114 @@ if skill 'detectinghidden' >= 80
     setvar! is_detecter 1
 endif
 
-setvar! use_mushroom_delay 60000
-setvar! all_guard_delay 5000
-setvar! all_patrol_delay 6000
-setvar! cast_summons_delay 3300
+if skill 'magery' >= 90 and skill 'taming' == 0
+    sysmsg 'SUMMONER DETECTED. OPTIMIZING...' script_msg_color
+    setvar! is_summoner 1
+endif
 
-
-
-
-# SPELLS TO AUTO CAST
-setvar! use_reactive_armor 1
-setvar! use_magic_reflection 1
-setvar! use_protection 1
-setvar! use_arch_protection 0
-setvar! use_strength 1
-setvar! use_incognito 0
-setvar! use_mana_drain 1
-setvar! use_curse 1
-setvar! use_mass_curse 0
-setvar! use_ma 1
-setvar! use_harm 1
-setvar! use_fireball 0
-setvar! use_lightning 1
-setvar! use_mind_blast 0
-setvar! use_eb 0
-setvar! use_flamestrike 1
-setvar! use_pain_spike 0
-setvar! use_chain_lightning 1
-setvar! use_meteor_swarm 0
-setvar! use_earthquake 0
-if skill 'poisoning' >= 100
-    setvar! use_poison 1
+if skill 'necromancy' == 0
+    sysmsg 'NECROMANCER DETECTED. OPTIMIZING...' script_msg_color
+    setvar! is_necromancer 1
 endif
 
 
-# SPELL GRIMOIRE INTERVALS
-setvar! mana_drain_delay 60000
-setvar! curse_delay 60000
-setvar! mass_curse_delay 300000
-setvar! poison_delay 60000
-setvar! eb_delay 10000
-setvar! ma_delay 60000
-setvar! harm_delay 60000
-setvar! fireball_delay 60000
-setvar! lightning_delay 60000
-setvar! chain_lightning_delay 20000
-setvar! meteor_swarm_delay 20000
-setvar! earthquake_delay 60000
+############################################################################
+# AUTO SETUP SCRIPT SETTINGS BASED ON TEMPLATE
+############################################################################
 
-# PACKIES SETTINGS
-setvar! auto_unload_items_in_pack_animal 0
-setvar! auto_unload_reagents_in_pack_animal 1
-setvar! move_gold 1
-setvar! move_resources 1
-setvar! move_gems 1
-setvar! move_food 1
-setvar! move_reagents 1
-setvar! min_reagents_to_leave_on_char 160
-setvar! amount_of_regs_to_move 40
-
-
-# BOATING SETTINGS
-setvar! boating_mode 0
-setvar! auto_defuse_bombs 1
-setvar! auto_repair_ship 1
-setvar! auto_reload_cannons 1
-setvar! auto_fire_cannons 1
-setvar! auto_heal_crew 1
-setvar! auto_open_enemy_boat_holds 1
-setvar! auto_dock_when_close_to_dockmaster 1
-
-
-# BOATING DELAYS
-setvar! search_ships_delay 15000
-setvar! reload_cannons_delay 10000
-setvar! fire_cannons_delay 12000
-setvar! repair_ship_cooldown 10000
-# we create individual delays for each part so we can increase the delay when ship is full health
-setvar! repair_ship_hull_delay repair_ship_cooldown
-setvar! repair_ship_sails_delay repair_ship_cooldown
-setvar! repair_ship_guns_delay repair_ship_cooldown
-setvar! heal_ship_crew_delay 20000
-setvar! ship_lesser_ability_delay 113000
-
-
-# AUTO RAIL DIRECTIONS
-clearlist rail_directions
-createlist rail_directions
-pushlist rail_directions 2
-pushlist rail_directions 6
-pushlist rail_directions 4
-pushlist rail_directions 4
-pushlist rail_directions 10
-pushlist rail_directions 10
-
-# AUTO RAIL X POSITIONS
-clearlist rail_x_positions
-createlist rail_x_positions
-pushlist rail_x_positions 5644
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-
-
-# AUTO RAIL Y POSITIONS
-clearlist rail_y_positions
-createlist rail_y_positions
-pushlist rail_y_positions 1010
-pushlist rail_y_positions 1010
-pushlist rail_y_positions 1019
-pushlist rail_y_positions 1029
-pushlist rail_y_positions 1021
-pushlist rail_y_positions 1010
-
-if debug == 1
-    sysmsg '[DEBUG] FINISHED PLAYER SETTINGS IN {{script_settings_timer}} ms' debug_msg_color
+if not listexists 'summons'
+    createlist 'summons'
 endif
+
+#####################################
+# SET MAX SUMMONS LIMIT
+# if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
+# if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
+if inlist 'summons' 'summ. creature'
+    setvar! followers_max_limit 5
+else
+    setvar! followers_max_limit 4
+endif
+
+if auto_configure_script_based_on_skills == 1
+    # SUMMONER AUTO SETUP
+    if is_summoner == 1
+        sysmsg 'SUMMONER DETECTED. OPTIMIZING...' script_msg_color
+
+        sysmsg '[STACK] Setting Summons Options...' script_msg_color
+        
+        
+        clearlist 'summons'
+        pushlist 'summons' 'an earth elemental'
+        pushlist 'summons' 'a fire elemental'
+        pushlist 'summons' 'summ. creature'
+        
+        sysmsg '[OPTIONS] ENABLING auto_summon' script_msg_color
+        sysmsg '[OPTIONS] APPLYING SUMMON OPTIONS' script_msg_color
+        setvar! auto_summon 1
+        setvar! use_undead_summons 1
+        setvar! auto_all_guard 1
+        setvar! auto_patrol_when_no_active_lasttarget 0
+        setvar! auto_vampiric_embrace 1
+    
+        # if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
+        # if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
+        if inlist 'summons' 'summ. creature'
+            setvar! followers_max_limit 5
+        else
+            setvar! followers_max_limit 4
+        endif
+    endif
+
+    # TAMER AUTO SETUP
+    if is_tamer == 1
+        if auto_summon == 1
+            sysmsg '[OPTIONS] DISABLING auto_summon' script_msg_color
+            setvar! auto_summon 0
+        endif
+    
+        # for tamers we dont want the char to think its under max summons right?
+        setvar! followers_max_limit 1
+    endif
+
+    if is_veterinarian == 1
+        setvar! auto_vet_pets 1
+        setvar! vet_pets_delay 5000
+    endif
+
+    if is_herder == 0 and auto_herd_mobs == 1
+        sysmsg '[OPTIONS] DISABLING auto_herd_mobs' script_msg_color
+        setvar! auto_herd_mobs 0
+    elseif is_herder == 1 and auto_herd_mobs == 0
+        sysmsg '[OPTIONS] ENABLING auto_herd_mobs' script_msg_color
+        setvar! auto_herd_mobs 1
+    endif
+
+    # NECRO AUTO SETUP
+    if is_necromancer == 0 use_undead_summons == 1
+        sysmsg '[OPTIONS] DISABLING use_undead_summons' script_msg_color
+        setvar! use_undead_summons 0
+    elseif is_necromancer == 1 and use_undead_summons == 0
+        sysmsg '[OPTIONS] ENABLING use_undead_summons' script_msg_color
+        setvar! use_undead_summons 1
+    endif
+endif
+
+# WARN IF SET TO HIDE VALUABLES BUT NO CHAR_LOOT_POUCH SET
+if hide_valuables_in_CHAR_LOOT_POUCH == 1
+    if not varexist CHAR_LOOT_POUCH
+        sysmsg 'LOOT POUCH IS NOT SET. PLEASE SELECT A POUCH TO HIDE VALUABLE LOOT:' warning_msg_color
+        setvar CHAR_LOOT_POUCH
+    elseif varexist CHAR_LOOT_POUCH and not find CHAR_LOOT_POUCH backpack
+        sysmsg 'CANT FIND PREVIOUSLY SET LOOT POUCH. PLEASE SELECT A NEW ONE:' warning_msg_color
+        setvar CHAR_LOOT_POUCH
+    endif
+endif
+
+
+
+
+
 
 
 ############################################################################
@@ -349,16 +277,8 @@ setvar! 2nd_circle_spell_mana_cost 9
 setvar! 3rd_circle_spell_mana_cost 10
 setvar! 4th_circle_spell_mana_cost 12
 
+
 if is_summoner == 1
-    #####################################
-    # SET MAX SUMMONS LIMIT
-    # if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
-    # if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
-    if inlist 'summons' 'summ. creature'
-        setvar! followers_max_limit 5
-    else
-        setvar! followers_max_limit 4
-    endif
     
     #####################################
     # SUMMONS SPELL LISTS
@@ -679,54 +599,6 @@ if debug == 1
     settimer 'script_stats_msg_timer' 0
 endif
 
-#######################################################
-# CHAR BASED CUSTOMIZATIONS
-#######################################################
-
-if name == 'Neron'
-    sysmsg '[OPTS] APPLYING CONFIG FOR Neron' script_msg_color
-    setvar! debug 1
-    setvar! use_incognito 0
-    setvar! juggle_mode 0
-    setvar! auto_patrol_when_no_active_lasttarget 1
-    setvar! auto_rail 0
-    setvar! lure_mobs_closer_before_killing 1
-    setvar! boating_mode 1
-endif
-
-if name == 'gugutz'
-    sysmsg '[OPTS] APPLYING CONFIG FOR gugutz' script_msg_color
-    setvar! debug 1
-    setvar! use_incognito 0
-    setvar! juggle_mode 0
-    setvar! auto_patrol_when_no_active_lasttarget 1
-    setvar! auto_rail 0
-    setvar! lure_mobs_closer_before_killing 1
-    setvar! use_ma 1
-    setvar! auto_skin_corpses 1
-    setvar! use_harm 1
-    setvar! use_fireball 1
-    setvar! use_lightning 1
-    setvar! use_mind_blast 1
-    setvar! use_eb 0
-    setvar! use_flamestrike 0
-    setvar! use_pain_spike 0
-    setvar! use_chain_lightning 0
-    setvar! use_meteor_swarm 0
-    setvar! use_earthquake 0
-endif
-
-# BUGUEI SETTINGS
-if name == 'Yorixiriamori-'
-    sysmsg '[OPTS] APPLYING CONFIG FOR Yorixiriamori-' script_msg_color
-    setvar! boating_mode 0
-    setvar! use_mind_blast 0
-    setvar! use_fireball 1
-    setvar! use_incognito 1
-    setvar! auto_get_new_targets 0
-    setvar! kill_close_to_loot 0
-endif
-
 
 
 #######################################################
@@ -746,45 +618,6 @@ if not varexist tillerman or varexist tillerman and not find tillerman ground an
     endif
 endif
 
-if skill 'taming' > 0
-    if auto_summon == 1
-        sysmsg 'CHAR IS TAMER. DISABLING AUTO SUMMON' 39
-        setvar! auto_summon 0
-    endif
-
-    # for tamers we dont want the char to think its under max summons right?
-    setvar! followers_max_limit 1
-endif
-
-
-if auto_configure_script_based_on_skills == 1
-    if skill 'herding' == 0 and auto_herd_mobs == 1
-        sysmsg '[OPTIONS] DISABLING auto_herd_mobs' script_msg_color
-        setvar! auto_herd_mobs 0
-    elseif skill 'herding' > 0 and auto_herd_mobs == 0
-        sysmsg '[OPTIONS] ENABLING auto_herd_mobs' script_msg_color
-        setvar! auto_herd_mobs 1
-    endif
-
-    if skill 'necromancy' == 0 use_undead_summons == 1
-        sysmsg '[OPTIONS] DISABLING use_undead_summons' script_msg_color
-        setvar! use_undead_summons 0
-    elseif skill 'necromancy' > 0 and use_undead_summons == 0
-        sysmsg '[OPTIONS] ENABLING auto_herd_mobs' script_msg_color
-        setvar! use_undead_summons 1
-    endif
-endif
-
-# WARN IF SET TO HIDE VALUABLES BUT NO CHAR_LOOT_POUCH SET
-if hide_valuables_in_CHAR_LOOT_POUCH == 1
-    if not varexist CHAR_LOOT_POUCH
-        sysmsg 'LOOT POUCH IS NOT SET. PLEASE SELECT A POUCH TO HIDE VALUABLE LOOT:' warning_msg_color
-        setvar CHAR_LOOT_POUCH
-    elseif varexist CHAR_LOOT_POUCH and not find CHAR_LOOT_POUCH backpack
-        sysmsg 'CANT FIND PREVIOUSLY SET LOOT POUCH. PLEASE SELECT A NEW ONE:' warning_msg_color
-        setvar CHAR_LOOT_POUCH
-    endif
-endif
 
 
 
@@ -1366,7 +1199,7 @@ while not dead 'self'
 
     # LIGHT SOURCES OFF
     # dungeon torches have to be undressed (they have to be in the backpack since they cant be turned off)
-    elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
+    elseif findtype 2597|3947 self or findtype 'dungeon torch' backpack
         # sysmsg 'FOUND LIGHTSOURCE OFF' debug_msg_color
         if auto_get_new_targets == 1
             sysmsg '[LANTERN] TURNING AUTO GET NEW TARGETS OFF' script_msg_color

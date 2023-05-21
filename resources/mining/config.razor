@@ -41,17 +41,17 @@ setvar! walk_mode 0
 
 # if using auto walk randomly, how many
 # walk attempts before going to next rune
-setvar! max_walk_attempts_per_rune 20
+# setvar! max_walk_attempts_per_rune 20
 
 # if using auto walk randomly, how many
 # steps should char take per walk
-for 6
-    pushlist number_of_steps_per_walk index
-endfor
+# for 6
+#     pushlist number_of_steps_per_walk index
+# endfor
 
 # if using auto walk to specific direction
 # choose which direction to walk
-pushlist 'direction_to_walk' 'right'
+# pushlist 'direction_to_walk' 'right'
 
 
 #############################
@@ -59,19 +59,16 @@ pushlist 'direction_to_walk' 'right'
 
 if name == 'Emacs'
     setvar! use_void_aspect 1
-    setvar! walk_mode 1
     setvar! max_runes_to_use_per_runebook 6
 endif
 
 if name == 'Nazareno'
     setvar! use_void_aspect 1
-    setvar! walk_mode 3
     setvar! max_runes_to_use_per_runebook 6
     setvar! auto_cycle_runetomes 1
 endif
 
 if name == 'Darren'
-    setvar! walk_mode 0
     setvar! auto_summon 0
     setvar! auto_smelt_ores_when_close_to_forges 0
     setvar! smelt_colored_ores 0
@@ -80,7 +77,6 @@ endif
 
 if name == 'Minerationtion'
     setvar! use_void_aspect 1
-    setvar! walk_mode 3
     setvar! max_runes_to_use_per_runebook 6
     setvar! auto_cycle_runetomes 1
 endif

@@ -123,7 +123,6 @@ sysmsg 'CHAR BACKPACK: {{CHAR_BACKPACK}}'
 
 # AWAIT FOR ANY CURRENT QUEUE TO FINISH
 hotkey "Clear Drag/Drop Queue"
-hotkey "Drop What You Are Currently Holding"
 while queued
     sysmsg 'QUEUE STILL HAS ITEMS FINISHING...'
     wait action_delay
@@ -313,8 +312,6 @@ if varexist CHAR_LOOT_POUCH
             sysmsg 'MOVING CHAR_LOOT_POUCH ON FIRST RUN TO DETECT ITS ITEMS' warning_msg_color
             # lift CHAR_LOOT_POUCH
             lift CHAR_LOADOUT_CONTAINER
-            wait action_delay
-            hotkey 'Drop What You Are Currently Holding'
             wait action_delay
             setvar hide_loot_first_run_done 1
         endif

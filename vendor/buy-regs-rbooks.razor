@@ -581,7 +581,6 @@ foreach runetome in 'vendor_runetomes'
                                     getlabel reg_serial reg_label
                                     sysmsg '>> FOUND {{reg}} AT GROUND!' 90
                                     sysmsg '>> TRYING TO MOVE {{reg_label}} FROM GROUND TO PACKIE!' 90
-                                    # hotkey 'Drop What You Are Currently Holding'
                                     overhead 'dumping {{reg_label}}' 53 packie
             
                                     lifttype reg 999 ground
@@ -628,7 +627,6 @@ foreach runetome in 'vendor_runetomes'
                                     while find reg_serial backpack and not find reg_serial packie any any
                                         overhead "*unloading {{reg}} from backpack" 56 packie
             
-                                        # hotkey 'Drop What You Are Currently Holding'
                                         lift reg_serial 999
                                         wait action_delay
                                         drop packie -1 -1 0

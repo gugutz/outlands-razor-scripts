@@ -23,7 +23,6 @@ if findtype 'heavy crossbow' backpack as weap
 
     if targetexists
         sysmsg 'LIFT'
-        hotkey 'Drop What You Are Currently Holding'
         lift weap 1
         wait action_delay
         drop 'self' LeftHand
@@ -41,7 +40,6 @@ elseif findtype 'crossbow' backpack as weap
 
     if targetexists
         sysmsg 'LIFT'
-        hotkey 'Drop What You Are Currently Holding'
         lift weap 1
         wait action_delay
         drop 'self' RightHand

@@ -810,7 +810,6 @@ if not findlayer self onehandedsecondary
             sysmsg 'Equipping Pipe!' equipping_items_msg_color
 
             while not findlayer self onehandedsecondary
-                hotkey "Drop What You Are Currently Holding"
                 hotkey "Clear Drag/Drop Queue"
 
                 lift found
@@ -877,7 +876,6 @@ if not findlayer self quiver
                 sysmsg 'Equipping Quiver!' equipping_items_msg_color
             endif
             while not findlayer self quiver
-                hotkey "Drop What You Are Currently Holding"
                 hotkey "Clear Drag/Drop Queue"
 
                 lift found
@@ -910,7 +908,6 @@ if not findlayer self outerbody
             while not findlayer self outerbody
             if type == 'reagent satchel'
                 hotkey "Clear Drag/Drop Queue"
-                hotkey "Drop What You Are Currently Holding"
 
                 lift found
                 wait action_delay
@@ -971,7 +968,6 @@ if not findlayer self underarms
             while not findlayer self outerbody
             if type == 'reagent satchel'
                 hotkey "Clear Drag/Drop Queue"
-                hotkey "Drop What You Are Currently Holding"
 
                 lift found
                 wait action_delay
