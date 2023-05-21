@@ -65,7 +65,7 @@ setvar! action_delay 600
 setvar! world_save_delay 8000
 setvar! spell_recovery_delay 120
 
-setvar! manual_walk_mode 0
+setvar! manual_walk_mode 1
 
 # max ores a packie can have before being set as full
 setvar! max_boards_before_unloading 1000
@@ -81,28 +81,28 @@ setvar! runetome_rune_position 100
 setvar! runebook_rune_position 5
 
 # set to make char walk randomly to find new trees
-setvar! auto_walk_randomly 1
+# setvar! auto_walk_randomly 0
 
 # how many attempts should char make to find new trees
-setvar! max_walk_attempts_per_rune 20
+# setvar! max_walk_attempts_per_rune 20
 
 # how many steps should char take per attempt when walking randomly
-clearlist number_of_steps_per_walk
-createlist number_of_steps_per_walk
-pushlist number_of_steps_per_walk 1
-pushlist number_of_steps_per_walk 2
-pushlist number_of_steps_per_walk 3
-pushlist number_of_steps_per_walk 4
-pushlist number_of_steps_per_walk 5
-pushlist number_of_steps_per_walk 6
+# clearlist number_of_steps_per_walk
+# createlist number_of_steps_per_walk
+# pushlist number_of_steps_per_walk 1
+# pushlist number_of_steps_per_walk 2
+# pushlist number_of_steps_per_walk 3
+# pushlist number_of_steps_per_walk 4
+# pushlist number_of_steps_per_walk 5
+# pushlist number_of_steps_per_walk 6
 
 
-setvar! auto_walk_to_direction 0
+# setvar! auto_walk_to_direction 0
 # direction to walk to when 'auto_walk_to_direction' is ON!
-if auto_walk_to_direction == 1 and not listexists 'direction_to_walk'
-    createlist 'direction_to_walk'
-    pushlist 'direction_to_walk' 'right'
-endif
+# if auto_walk_to_direction == 1 and not listexists 'direction_to_walk'
+#     createlist 'direction_to_walk'
+#     pushlist 'direction_to_walk' 'right'
+# endif
 
 setvar! use_strength 1
 setvar! max_diffhits_before_buffing 5
