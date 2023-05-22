@@ -14,10 +14,14 @@
 # clearlist number_of_steps_per_walk
 # createlist number_of_steps_per_walk
 
+
 if not varexist mining_config_loaded
     script 'resources\mining\config'
 endif
+
 unsetvar! mining_config_loaded
+
+setvar! max_resources_in_packie 600
 
 setvar! action_delay 600
 setvar! spell_recovery_delay 120
