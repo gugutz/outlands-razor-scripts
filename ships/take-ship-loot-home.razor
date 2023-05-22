@@ -137,20 +137,25 @@ while findtype 'a bag of gems' ship_loot_backpack as booty
 endwhile
 
 # deposit pirate booty in specific chest
-if findtype 'bag of gems' backpack as gems
+if findtype 'bag of gems' ship_loot_backpack as gems
     lift gems 9999
     while queued
     endwhile
 
-    drop 0x492B36D3 -1 -1 0
+    drop pirate_booty_container -1 -1 0
     while queued
     endwhile
 endif
 
 # put the ship loot backpack back in char backpack
-lift 0x403EB002 1
+lift ship_loot_backpack 1
+wait 100
 while queued
 endwhile
-drop 0x4803E76E 91 72 0
+
+drop backpack
+wait 100
 while queued
 endwhile
+
+script 'utility\loot-dropoff\loot-dropoff'

@@ -1,619 +1,637 @@
-if varexist setting_rail
-    sysmsg 'COMING FROM SETTING RAIL!' 85
+# if varexist setting_rail
+#     sysmsg 'COMING FROM SETTING RAIL!' 85
+# 
+#     if list 'moveList' == 0
+#         sysmsg 'SOMETHING WRONG HAPPENED WHEN SETTING RAIL LIST!'
+#         unsetvar! setting_rail
+#         stop
+#     endif
+# endif
 
-    if list 'moveList' == 0
-        sysmsg 'SOMETHING WRONG HAPPENED WHEN SETTING RAIL LIST!'
-        unsetvar! setting_rail
-        stop
-    endif
+# if not varexist setting_rail
+# removelist 'direction_to_walk'
+# createlist 'direction_to_walk'
+# clearlist number_of_steps_per_walk
+# createlist number_of_steps_per_walk
+
+if not varexist mining_config_loaded
+    script 'resources\mining\config'
+endif
+unsetvar! mining_config_loaded
+
+setvar! action_delay 600
+setvar! spell_recovery_delay 120
+
+# SET WALK MODE BASED ON CONFIG
+setvar! manual_walk_mode 1
+setvar! auto_walk_randomly 0
+setvar! auto_walk_to_specific_direction 0
+setvar! auto_rail 0
+# if walk_mode == 0
+#     sysmsg 'SETTING WALK MODE TO MANUAL' 54
+#     setvar! manual_walk_mode 1
+# elseif walk_mode == 1
+#     sysmsg 'SETTING WALK MODE TO RANDOM' 54
+#     setvar! auto_walk_randomly 1
+# elseif walk_mode == 2
+#     sysmsg 'SETTING WALK MODE TO DIRECTION' 54
+#     setvar! auto_walk_to_specific_direction 1
+# elseif walk_mode == 3
+#     sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
+#     setvar! auto_rail 1
+# endif
+
+if skill 'magery' < 90 and auto_summon == 1
+    sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
+    setvar! auto_summon 0
 endif
 
-if not varexist setting_rail
-    # removelist 'direction_to_walk'
-    # createlist 'direction_to_walk'
-    # clearlist number_of_steps_per_walk
-    # createlist number_of_steps_per_walk
+if auto_summon == 0
+    setvar! summon_max_limit 0
+endif
 
-    if not varexist mining_config_loaded
-        script 'resources\mining\config'
+setvar! runetome_home_rune_use_charge_btn_number 100
+setvar! runebook_home_rune_use_charge_btn_number 2
+
+if not varexist mining_first_run_done
+    sysmsg '#########################' 90
+    sysmsg '>>> MINING BOT' 55
+    sysmsg 'by gugutz' 45
+    sysmsg 'version v0.3.2' 31
+    sysmsg '########################' 90
+endif
+
+setvar! world_save_delay 8000
+
+cooldown RESOURCES 3000
+
+# TEST IF REQUIRED COOLDOWN WAS CREATED
+if not cooldown RESOURCES
+    overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
+    sysmsg "PLEASE SETUP A COOLDOWN NAMED 'RESOURCES' WITH DEFAULT TIMER OF 30 SECONDS" 88
+    sysmsg "." 88
+    sysmsg "ADD THESE TRIGGERS TO THE COOLDOWN:" 66
+    sysmsg "Type: sysmsg | Text: you dig some"
+    sysmsg "Type: sysmsg | Text: You have recently traveled"
+    sysmsg "Type: sysmsg | Text: You have worn out your tool"
+    sysmsg "Type: sysmsg | Text: The world is saving"
+    sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby"
+    sysmsg "Type: sysmsg | Text: loosen some rocks but fail"
+    sysmsg "Type: sysmsg | Text: You must wait to perform another action"
+    sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area"
+    sysmsg "." 88
+    stop
+endif
+
+
+
+#############################
+# SET THE HOME BOOK
+#############################
+
+# search runetomes first
+while findtype 'runetome' backpack as found
+    getlabel found rtome_label
+    if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
+        setvar! home_book found
+        setvar! home_book_gump_id 167090027
+        setvar! home_rune_btn_number runetome_home_rune_use_charge_btn_number
     endif
-    unsetvar! mining_config_loaded
-    
-    setvar! action_delay 600
-    setvar! spell_recovery_delay 120
 
-    # SET WALK MODE BASED ON CONFIG
-    setvar! manual_walk_mode 1
-    setvar! auto_walk_randomly 0
-    setvar! auto_walk_to_specific_direction 0
-    setvar! auto_rail 0
-    # if walk_mode == 0
-    #     sysmsg 'SETTING WALK MODE TO MANUAL' 54
-    #     setvar! manual_walk_mode 1
-    # elseif walk_mode == 1
-    #     sysmsg 'SETTING WALK MODE TO RANDOM' 54
-    #     setvar! auto_walk_randomly 1
-    # elseif walk_mode == 2
-    #     sysmsg 'SETTING WALK MODE TO DIRECTION' 54
-    #     setvar! auto_walk_to_specific_direction 1
-    # elseif walk_mode == 3
-    #     sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
-    #     setvar! auto_rail 1
-    # endif
+    @ignore found
+endwhile
+@clearignore
 
-    if skill 'magery' < 90 and auto_summon == 1
-        sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
-        setvar! auto_summon 0
-    endif
-
-    if auto_summon == 0
-        setvar! summon_max_limit 0
-    endif
-
-    setvar! runetome_home_rune_use_charge_btn_number 100
-    setvar! runebook_home_rune_use_charge_btn_number 2
-
-    if not varexist mining_first_run_done
-        sysmsg '#########################' 90
-        sysmsg '>>> MINING BOT' 55
-        sysmsg 'by gugutz' 45
-        sysmsg 'version v0.3.2' 31
-        sysmsg '########################' 90
-    endif
-    
-    setvar! world_save_delay 8000
-    
-    cooldown RESOURCES 3000
-    
-    # TEST IF REQUIRED COOLDOWN WAS CREATED
-    if not cooldown RESOURCES
-        overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
-        sysmsg "PLEASE SETUP A COOLDOWN NAMED 'RESOURCES' WITH DEFAULT TIMER OF 30 SECONDS" 88
-        sysmsg "." 88
-        sysmsg "ADD THESE TRIGGERS TO THE COOLDOWN:" 66
-        sysmsg "Type: sysmsg | Text: you dig some"
-        sysmsg "Type: sysmsg | Text: You have recently traveled"
-        sysmsg "Type: sysmsg | Text: You have worn out your tool"
-        sysmsg "Type: sysmsg | Text: The world is saving"
-        sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby"
-        sysmsg "Type: sysmsg | Text: loosen some rocks but fail"
-        sysmsg "Type: sysmsg | Text: You must wait to perform another action"
-        sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area"
-        sysmsg "." 88
-        stop
-    endif
-    
-    
-    
-    #############################
-    # SET THE HOME BOOK
-    #############################
-    
-    # search runetomes first
-    while findtype 'runetome' backpack as found
-        getlabel found rtome_label
-        if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
+# if we couldnt find a home runetome, search for a home runebook
+if not varexist home_book
+    while findtype 'runebook' backpack as found
+        getlabel found rbook_label
+        if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
             setvar! home_book found
             setvar! home_book_gump_id 167090027
             setvar! home_rune_btn_number runetome_home_rune_use_charge_btn_number
         endif
-    
+
         @ignore found
     endwhile
     @clearignore
+endif
+
+if not varexist home_book
+    sysmsg "YOU NEED A RUNEBOOK OR RUNETOME NAMED 'HOME' WITH YOUR HOME RUNE SET TO DEFAULT TO RUN THIS SCRIPT" 54
+    stop
+endif
+
+#############################
+# SET THE MINING RUNEBOOKS
+#############################
+
+if auto_cycle_runetomes == 1
+    clearlist 'mining_runetomes'
+    createlist 'mining_runetomes'
+    clearlist 'original_mining_runetomes'
+    createlist 'original_mining_runetomes'
     
-    # if we couldnt find a home runetome, search for a home runebook
-    if not varexist home_book
-        while findtype 'runebook' backpack as found
-            getlabel found rbook_label
-            if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
-                setvar! home_book found
-                setvar! home_book_gump_id 167090027
-                setvar! home_rune_btn_number runetome_home_rune_use_charge_btn_number
-            endif
-    
-            @ignore found
-        endwhile
-        @clearignore
-    endif
-    
-    if not varexist home_book
-        sysmsg "YOU NEED A RUNEBOOK OR RUNETOME NAMED 'HOME' WITH YOUR HOME RUNE SET TO DEFAULT TO RUN THIS SCRIPT" 54
-        stop
-    endif
-    
-    #############################
-    # SET THE MINING RUNEBOOKS
-    #############################
-    
-    if auto_cycle_runetomes == 1
-        clearlist 'mining_runetomes'
-        createlist 'mining_runetomes'
-        clearlist 'original_mining_runetomes'
-        createlist 'original_mining_runetomes'
-        
-        while findtype 'runetome' backpack as found
-            getlabel found rbook_label
-            if 'mining' in rbook_label or 'Mining' in rbook_label or 'MINING' in rbook_label
-                pushlist 'mining_runetomes' found
-                pushlist 'original_mining_runetomes' found
-            endif
-        
-            @ignore found
-        endwhile
-        
-        @clearignore
-        
-        
-        if manual_walk_mode != 1 and list 'mining_runetomes' == 0
-            sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'MINING' ON ITS NAME IF YOU WANT TO CYCLE RUNES" 54
-            # stop
+    while findtype 'runetome' backpack as found
+        getlabel found rbook_label
+        if 'mining' in rbook_label or 'Mining' in rbook_label or 'MINING' in rbook_label
+            pushlist 'mining_runetomes' found
+            pushlist 'original_mining_runetomes' found
         endif
-        
-        foreach x in 'mining_runetomes'
-            sysmsg 'MINING RUNEBOOK {{index}}: {{x}}'
-        endfor
+    
+        @ignore found
+    endwhile
+    
+    @clearignore
+    
+    
+    if list 'mining_runetomes' == 0
+        sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'MINING' ON ITS NAME IF YOU WANT TO CYCLE RUNES" 54
+        # stop
     endif
     
-    ###################################
-    # SCRIPT ROUTINE RELATED VARIABLES
-    # (USUALLY THERES NO NEED TO EDIT THESE)
-    ###################################
-    
-    setvar! debug 1
-    setvar! resource_cooldown_value 10000
-    setvar! recall_casting_time 4500
+    foreach x in 'mining_runetomes'
+        sysmsg 'MINING RUNEBOOK {{index}}: {{x}}'
+    endfor
+endif
 
-    # SET CURRENT RAIL INDEX TO 0 IF FIRST RUN
-    if auto_rail == 1 and not varexist mining_first_run_done
-        setvar! current_rail_index 0
+###################################
+# SCRIPT ROUTINE RELATED VARIABLES
+# (USUALLY THERES NO NEED TO EDIT THESE)
+###################################
+
+setvar! debug 1
+setvar! resource_cooldown_value 10000
+setvar! recall_casting_time 4500
+
+# SET CURRENT RAIL INDEX TO 0 IF FIRST RUN
+if auto_rail == 1 and not varexist mining_first_run_done
+    setvar! current_rail_index 0
+endif
+removelist 'problematic_rails'
+createlist 'problematic_rails'
+
+setvar! use_strength 1
+setvar! max_diffhits_before_buffing 5
+
+# VARIABLES FOR MESSAGE COLORS
+setvar! debug_msg_color 41
+setvar! script_msg_color 2213
+setvar! default_sysmsg_color 1360
+setvar! default_overhead_color 1360
+setvar! status_msg_color 91
+
+setvar! spell_msg_color 49
+setvar! buff_msg_color 92
+setvar! warning_msg_color 1196
+setvar! alert_msg_color 37
+setvar! success_msg_color 1272
+setvar! action_msg_color 90
+setvar! rail_msg_color 89
+setvar! on_cooldown_msg_color 53
+setvar! reset_timer_msg_color 1258
+setvar! boating_msg_color 84
+
+# delay between pickaxes uses
+setvar! max_wait_for_last_sysmsg_to_use_pickaxe  1300
+# delay before suspecting captcha gump
+setvar! max_wait_for_last_sysmsg_to_suspect_gump 8000
+
+setvar! max_diffhits_before_starting_heal_routine 0
+setvar! max_diffhits_before_starting_defense_routine 2
+
+setvar! max_diffhits_before_healing_with_potion 20
+setvar! max_diffhits_before_healing_with_magery 20
+setvar! max_diffhits_before_healing_with_bandages 10
+setvar! min_healing_to_use_bandages 30
+
+setvar! max_diffweight_before_unloading 50
+
+
+
+
+setvar! max_mob_range_to_attack 2
+if skill 'archery' >= 50
+    setvar! max_mob_range_to_attack 12
+endif
+
+
+# runetomes recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
+if not listexists 'runetome_page_numbers'
+    createlist 'runetome_page_numbers'
+
+    # runetome page 1
+    # we dont push the first rune since its the home rune
+    pushlist 'runetome_page_numbers' 200
+    pushlist 'runetome_page_numbers' 201
+    pushlist 'runetome_page_numbers' 202
+    pushlist 'runetome_page_numbers' 203
+    pushlist 'runetome_page_numbers' 204
+    pushlist 'runetome_page_numbers' 205
+    pushlist 'runetome_page_numbers' 206
+    pushlist 'runetome_page_numbers' 207
+    pushlist 'runetome_page_numbers' 208
+    pushlist 'runetome_page_numbers' 209
+    pushlist 'runetome_page_numbers' 210
+    pushlist 'runetome_page_numbers' 211
+    pushlist 'runetome_page_numbers' 212
+    pushlist 'runetome_page_numbers' 213
+    
+    # runetome page 2
+    pushlist 'runetome_page_numbers' 214
+    pushlist 'runetome_page_numbers' 215
+    pushlist 'runetome_page_numbers' 216
+    pushlist 'runetome_page_numbers' 217
+    pushlist 'runetome_page_numbers' 218
+    pushlist 'runetome_page_numbers' 219
+    pushlist 'runetome_page_numbers' 220
+    pushlist 'runetome_page_numbers' 221
+    pushlist 'runetome_page_numbers' 222
+    pushlist 'runetome_page_numbers' 223
+    pushlist 'runetome_page_numbers' 224
+endif
+
+# create a duplicate list so we can restore the main list when needed (like when reaching max rune set to use on runetome)
+if not listexists 'runetome_page_numbers_unchanged'
+    createlist 'runetome_page_numbers_unchanged'
+
+    foreach x in 'runetome_page_numbers'
+        pushlist 'runetome_page_numbers_unchanged' x
+    endfor
+endif
+
+#####################################
+# CONSTANTS FOR IN-GAME TYPES
+#####################################
+
+setvar! ORES 6585
+setvar! INGOTS 7154
+
+setvar! max_mob_range_to_attack 2
+
+
+
+#####################################
+# SUMMON SETTINGS
+#####################################
+
+
+if not listexists 'summons'
+    createlist 'summons'
+endif
+
+clearlist 'summons'
+pushlist 'summons' 'an earth elemental'
+pushlist 'summons' 'a fire elemental'
+pushlist 'summons' 'summ. creature'
+
+
+if skill 'magery' > 90
+
+    # SPELLS TO AUTO CAST
+    setvar! use_reactive_armor 1
+    setvar! use_magic_reflection 1
+
+    setvar! auto_summon 1
+    setvar! use_undead_summons 0
+    setvar! auto_all_guard 1
+    setvar! auto_patrol_when_no_active_lasttarget 0
+    setvar! auto_vampiric_embrace 1
+    setvar! patrol_first_relative_direction 0
+    setvar! patrol_second_relative_direction -10
+    setvar! find_summon_range 8
+    
+    setvar! use_mushroom_delay 60000
+    setvar! all_guard_delay 15000
+    setvar! all_patrol_delay 6000
+    setvar! cast_summons_delay 6000
+endif
+
+# if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
+# if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
+if inlist 'summons' 'summ. creature'
+    setvar! summon_max_limit 5
+else
+    setvar! summon_max_limit 4
+endif
+
+# SUMMONS SPELL LISTS
+if not listexists 'summonspells'
+    createlist 'summonspells'
+endif
+clearlist 'summonspells'
+
+if inlist 'summons' 'an air elemental'
+    @pushlist 'summonspells' 'air elemental'
+endif
+if inlist 'summons' 'an earth elemental'
+    @pushlist 'summonspells' 'earth elemental'
+endif
+if inlist 'summons' 'a water elemental'
+    @pushlist 'summonspells' 'water elemental'
+endif
+if inlist 'summons' 'a fire elemental'
+    @pushlist 'summonspells' 'fire elemental'
+endif
+if inlist 'summons' 'a daemon'
+    @pushlist 'summonspells' 'summon daemon'
+endif
+if inlist 'summons' 'an energy vortex'
+    @pushlist 'summonspells' 'energy vortex'
+endif
+if inlist 'summons' 'a blade spirit'
+    @pushlist 'summonspells' 'blade spirits'
+endif
+if inlist 'summons' 'summ. creature'
+    @pushlist 'summonspells' 'summ. creature'
+endif
+
+
+# LIST TO CONTROL WHICH CORPSES HAVE ALREADY BEEN DRAINED BY SPIRIT SPEAK
+if skill 'spirit' > 0 and not listexists 'drained_corpses'
+    sysmsg '$$$ Creating list to control drained corpses...' script_msg_color
+    createlist 'drained_corpses'
+endif
+
+
+###################################
+# TIMERS
+###################################
+sysmsg 'Creating timers...'
+
+createlist 'mining_script_timers'
+pushlist 'mining_script_timers' 'waiting_save'
+pushlist 'mining_script_timers' 'last_sysmsg_timer'
+pushlist 'mining_script_timers' 'waiting_target_timer'
+pushlist 'mining_script_timers' 'loop_on_warning_msg'
+pushlist 'mining_script_timers' 'last_gump_warning_timer'
+pushlist 'mining_script_timers' 'mining_uptime'
+pushlist 'mining_script_timers' 'last_gump_tracking_timer'
+
+pushlist 'mining_script_timers' 'all_guard_timer'
+pushlist 'mining_script_timers' 'low_mana_for_summoning_warning_msg_timer'
+
+pushlist 'mining_script_timers' 'spirit_speak_cooldown_timer'
+
+pushlist 'mining_script_timers' 'waiting_cooldown_timer'
+pushlist 'mining_script_timers' 'waiting_journal_timer'
+pushlist 'mining_script_timers' 'waiting_runebook_gump_timer'
+
+pushlist 'mining_script_timers' 'walking_the_rail'
+
+
+
+
+foreach timer in 'mining_script_timers'
+    if not timerexists timer
+        createtimer timer
+        settimer timer 100000
     endif
-    removelist 'problematic_rails'
-    createlist 'problematic_rails'
+endfor
 
-    setvar! use_strength 1
-    setvar! max_diffhits_before_buffing 5
 
-    # VARIABLES FOR MESSAGE COLORS
-    setvar! debug_msg_color 41
-    setvar! script_msg_color 2213
-    setvar! default_sysmsg_color 1360
-    setvar! default_overhead_color 1360
-    setvar! status_msg_color 91
-    
-    setvar! spell_msg_color 49
-    setvar! buff_msg_color 92
-    setvar! warning_msg_color 1196
-    setvar! alert_msg_color 37
-    setvar! success_msg_color 1272
-    setvar! action_msg_color 90
-    setvar! rail_msg_color 89
-    setvar! on_cooldown_msg_color 53
-    setvar! reset_timer_msg_color 1258
-    setvar! boating_msg_color 84
-    
-    # delay between pickaxes uses
-    setvar! max_wait_for_last_sysmsg_to_use_pickaxe  1300
-    # delay before suspecting captcha gump
-    setvar! max_wait_for_last_sysmsg_to_suspect_gump 8000
-    
-    setvar! max_diffhits_before_starting_heal_routine 0
-    setvar! max_diffhits_before_starting_defense_routine 2
-    
-    setvar! max_diffhits_before_healing_with_potion 20
-    setvar! max_diffhits_before_healing_with_magery 20
-    setvar! max_diffhits_before_healing_with_bandages 10
-    setvar! min_healing_to_use_bandages 30
-    
-    setvar! max_diffweight_before_unloading 50
-    
-    
-    
-    
-    setvar! max_mob_range_to_attack 2
+###################################
+# POPULATE SOME LISTS
+###################################
+
+if not listexists 'resource_types'
+    createlist 'resource_types'
+    pushlist 'resource_types' ORES
+    pushlist 'resource_types' INGOTS
+endif
+
+
+# CREATE A LIST WITH ALL POSSIBLE WEAPONS CHAR
+# CAN EQUIP BASED ON HIS WEAPON SKILL
+if not listexists 'char_combat_skill_weapons'
+    createlist 'char_combat_skill_weapons'
     if skill 'archery' >= 50
-        setvar! max_mob_range_to_attack 12
+        pushlist 'char_combat_skill_weapons' 'bow'
+        pushlist 'char_combat_skill_weapons' 'crossbow'
+        pushlist 'char_combat_skill_weapons' 'heavy crossbow'
+    elseif skill 'swordsmanship' >= 50
+        pushlist 'char_combat_skill_weapons' 'halberd'
+        pushlist 'char_combat_skill_weapons' 'bardiche'
+        pushlist 'char_combat_skill_weapons' 'katana'
+        pushlist 'char_combat_skill_weapons' 'axe'
+        pushlist 'char_combat_skill_weapons' 'viking sword'
+        pushlist 'char_combat_skill_weapons' 'longsword'
+        pushlist 'char_combat_skill_weapons' 'broadsword'
+        pushlist 'char_combat_skill_weapons' 'double axe'
+        pushlist 'char_combat_skill_weapons' "executioner's axe"
+    # elseif skill 'mace fighting' >= 50
+    #     pushlist 'char_combat_skill_weapons' 'war mace'
+    #     pushlist 'char_combat_skill_weapons' 'mace'
+    #     pushlist 'char_combat_skill_weapons' 'club'
+    #     pushlist 'char_combat_skill_weapons' 'black staff'
+    #     pushlist 'char_combat_skill_weapons' 'gnarled staff'
+    #     pushlist 'char_combat_skill_weapons' 'war hammer'
     endif
-    
-    
-    # runetomes recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
-    if not listexists 'runetome_page_numbers'
-        createlist 'runetome_page_numbers'
-    
-        # runetome page 1
-        # we dont push the first rune since its the home rune
-        pushlist 'runetome_page_numbers' 200
-        pushlist 'runetome_page_numbers' 201
-        pushlist 'runetome_page_numbers' 202
-        pushlist 'runetome_page_numbers' 203
-        pushlist 'runetome_page_numbers' 204
-        pushlist 'runetome_page_numbers' 205
-        pushlist 'runetome_page_numbers' 206
-        pushlist 'runetome_page_numbers' 207
-        pushlist 'runetome_page_numbers' 208
-        pushlist 'runetome_page_numbers' 209
-        pushlist 'runetome_page_numbers' 210
-        pushlist 'runetome_page_numbers' 211
-        pushlist 'runetome_page_numbers' 212
-        pushlist 'runetome_page_numbers' 213
-        
-        # runetome page 2
-        pushlist 'runetome_page_numbers' 214
-        pushlist 'runetome_page_numbers' 215
-        pushlist 'runetome_page_numbers' 216
-        pushlist 'runetome_page_numbers' 217
-        pushlist 'runetome_page_numbers' 218
-        pushlist 'runetome_page_numbers' 219
-        pushlist 'runetome_page_numbers' 220
-        pushlist 'runetome_page_numbers' 221
-        pushlist 'runetome_page_numbers' 222
-        pushlist 'runetome_page_numbers' 223
-        pushlist 'runetome_page_numbers' 224
-    endif
+endif
 
-    # create a duplicate list so we can restore the main list when needed (like when reaching max rune set to use on runetome)
-    if not listexists 'runetome_page_numbers_unchanged'
-        createlist 'runetome_page_numbers_unchanged'
+###################################
+# PACK ANIMALS
+###################################
 
-        foreach x in 'runetome_page_numbers'
-            pushlist 'runetome_page_numbers_unchanged' x
-        endfor
-    endif
-    
-    #####################################
-    # CONSTANTS FOR IN-GAME TYPES
-    #####################################
-    
-    setvar! ORES 6585
-    setvar! INGOTS 7154
-    
-    setvar! max_mob_range_to_attack 2
-    
-    
-    
-    #####################################
-    # SUMMON SETTINGS
-    #####################################
-    
-    
-    if not listexists 'summons'
-        createlist 'summons'
-    endif
-    
-    clearlist 'summons'
-    pushlist 'summons' 'an earth elemental'
-    pushlist 'summons' 'a fire elemental'
-    pushlist 'summons' 'summ. creature'
-    
-    
-    if skill 'magery' > 90
-    
-        # SPELLS TO AUTO CAST
-        setvar! use_reactive_armor 1
-        setvar! use_magic_reflection 1
-    
-        setvar! auto_summon 1
-        setvar! use_undead_summons 0
-        setvar! auto_all_guard 1
-        setvar! auto_patrol_when_no_active_lasttarget 0
-        setvar! auto_vampiric_embrace 1
-        setvar! patrol_first_relative_direction 0
-        setvar! patrol_second_relative_direction -10
-        setvar! find_summon_range 8
-        
-        setvar! use_mushroom_delay 60000
-        setvar! all_guard_delay 15000
-        setvar! all_patrol_delay 6000
-        setvar! cast_summons_delay 6000
-    endif
-    
-    # if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
-    # if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
-    if inlist 'summons' 'summ. creature'
-        setvar! summon_max_limit 5
-    else
-        setvar! summon_max_limit 4
-    endif
-    
-    # SUMMONS SPELL LISTS
-    if not listexists 'summonspells'
-        createlist 'summonspells'
-    endif
-    clearlist 'summonspells'
-    
-    if inlist 'summons' 'an air elemental'
-        @pushlist 'summonspells' 'air elemental'
-    endif
-    if inlist 'summons' 'an earth elemental'
-        @pushlist 'summonspells' 'earth elemental'
-    endif
-    if inlist 'summons' 'a water elemental'
-        @pushlist 'summonspells' 'water elemental'
-    endif
-    if inlist 'summons' 'a fire elemental'
-        @pushlist 'summonspells' 'fire elemental'
-    endif
-    if inlist 'summons' 'a daemon'
-        @pushlist 'summonspells' 'summon daemon'
-    endif
-    if inlist 'summons' 'an energy vortex'
-        @pushlist 'summonspells' 'energy vortex'
-    endif
-    if inlist 'summons' 'a blade spirit'
-        @pushlist 'summonspells' 'blade spirits'
-    endif
-    if inlist 'summons' 'summ. creature'
-        @pushlist 'summonspells' 'summ. creature'
-    endif
-    
-    
-    # LIST TO CONTROL WHICH CORPSES HAVE ALREADY BEEN DRAINED BY SPIRIT SPEAK
-    if skill 'spirit' > 0 and not listexists 'drained_corpses'
-        sysmsg '$$$ Creating list to control drained corpses...' script_msg_color
-        createlist 'drained_corpses'
-    endif
-    
-    
-    ###################################
-    # TIMERS
-    ###################################
-    sysmsg 'Creating timers...'
-    
-    createlist 'mining_script_timers'
-    pushlist 'mining_script_timers' 'waiting_save'
-    pushlist 'mining_script_timers' 'last_sysmsg_timer'
-    pushlist 'mining_script_timers' 'waiting_target_timer'
-    pushlist 'mining_script_timers' 'loop_on_warning_msg'
-    pushlist 'mining_script_timers' 'last_gump_warning_timer'
-    pushlist 'mining_script_timers' 'mining_uptime'
-    pushlist 'mining_script_timers' 'last_gump_tracking_timer'
-    
-    pushlist 'mining_script_timers' 'all_guard_timer'
-    pushlist 'mining_script_timers' 'low_mana_for_summoning_warning_msg_timer'
-    
-    pushlist 'mining_script_timers' 'spirit_speak_cooldown_timer'
-    
-    pushlist 'mining_script_timers' 'waiting_cooldown_timer'
-    pushlist 'mining_script_timers' 'waiting_journal_timer'
-    pushlist 'mining_script_timers' 'waiting_runebook_gump_timer'
+sysmsg 'Searching for pack animals...' 87
 
-    pushlist 'mining_script_timers' 'walking_the_rail'
+if not listexists 'packies'
+    createlist 'packies'
+endif
 
-    
-    
-    
-    foreach timer in 'mining_script_timers'
-        if not timerexists timer
-            createtimer timer
-            settimer timer 100000
+# if we cant find the saved packies, its time to remake the list
+# this also prevents the script from re-adding the same packies over and over
+# when player re-plays the script several times with the same client open
+
+if list 'packies' == 0
+    setvar! remake_packies_list 1
+else
+    foreach packie in 'packies'
+        if find packie ground any any 20
+            overhead '*found previous saved packie*' 72 packie
+        else
+            overhead '*cant find packie {{packie}}. resetting list*' 54
+            setvar! remake_packies_list 1
         endif
     endfor
-    
-    
-    ###################################
-    # POPULATE SOME LISTS
-    ###################################
-    
-    if not listexists 'resource_types'
-        createlist 'resource_types'
-        pushlist 'resource_types' ORES
-        pushlist 'resource_types' INGOTS
-    endif
-    
-    
-    # CREATE A LIST WITH ALL POSSIBLE WEAPONS CHAR
-    # CAN EQUIP BASED ON HIS WEAPON SKILL
-    if not listexists 'char_combat_skill_weapons'
-        createlist 'char_combat_skill_weapons'
-        if skill 'archery' >= 50
-            pushlist 'char_combat_skill_weapons' 'bow'
-            pushlist 'char_combat_skill_weapons' 'crossbow'
-            pushlist 'char_combat_skill_weapons' 'heavy crossbow'
-        elseif skill 'swordsmanship' >= 50
-            pushlist 'char_combat_skill_weapons' 'halberd'
-            pushlist 'char_combat_skill_weapons' 'bardiche'
-            pushlist 'char_combat_skill_weapons' 'katana'
-            pushlist 'char_combat_skill_weapons' 'axe'
-            pushlist 'char_combat_skill_weapons' 'viking sword'
-            pushlist 'char_combat_skill_weapons' 'longsword'
-            pushlist 'char_combat_skill_weapons' 'broadsword'
-            pushlist 'char_combat_skill_weapons' 'double axe'
-            pushlist 'char_combat_skill_weapons' "executioner's axe"
-        # elseif skill 'mace fighting' >= 50
-        #     pushlist 'char_combat_skill_weapons' 'war mace'
-        #     pushlist 'char_combat_skill_weapons' 'mace'
-        #     pushlist 'char_combat_skill_weapons' 'club'
-        #     pushlist 'char_combat_skill_weapons' 'black staff'
-        #     pushlist 'char_combat_skill_weapons' 'gnarled staff'
-        #     pushlist 'char_combat_skill_weapons' 'war hammer'
+endif
+
+
+if varexist remake_packies_list
+    unsetvar! remake_packies_list
+    clearlist 'packies'
+    sysmsg 'POPULATING PACKIES LIST...' 54
+
+    while findtype 292 ground any any 2 as packie
+        if noto packie = friend
+            pushlist 'packies' packie
+            overhead '*adding to packies list*' 56 packie
         endif
-    endif
-    
-    ###################################
-    # PACK ANIMALS
-    ###################################
-    
-    sysmsg 'Searching for pack animals...' 87
-    
-    if not listexists 'packies'
-        createlist 'packies'
-    endif
-    
-    # if we cant find the saved packies, its time to remake the list
-    # this also prevents the script from re-adding the same packies over and over
-    # when player re-plays the script several times with the same client open
-    
-    if list 'packies' == 0
-        setvar! remake_packies_list 1
-    else
-        foreach packie in 'packies'
-            if find packie ground any any 20
-                overhead '*found previous saved packie*' 72 packie
-            else
-                overhead '*cant find packie {{packie}}. resetting list*' 54
-                setvar! remake_packies_list 1
-            endif
-        endfor
-    endif
-    
-    
-    if varexist remake_packies_list
-        unsetvar! remake_packies_list
-        clearlist 'packies'
-        sysmsg 'POPULATING PACKIES LIST...' 54
-    
-        while findtype 292 ground any any 2 as packie
-            if noto packie = friend
-                pushlist 'packies' packie
-                overhead '*adding to packies list*' 56 packie
-            endif
-            @ignore packie
-        endwhile
-    
-        while findtype 291 ground any any 2 as packie
-            if noto packie = friend
-                pushlist 'packies' packie
-                overhead '*adding to packies list*' 56 packie
-            endif
-            @ignore packie
-        endwhile
-    
-        clearignore
-    endif
-    
-    foreach packanimal in 'packies'
-        overhead '*opening bag*' 91 packanimal
-        dclick packanimal
-        wait action_delay
-    
-        # check packie weight to determine if its full or not
-        if counttype ORES packanimal >= max_resources_in_packie
-            # sysmsg 'COUNT ORE 1' 92
-            setvar! packie_heavy 1
-        elseif counttype ORES packanimal >= 200 and counttype INGOTS packanimal >= 500
-            # sysmsg 'COUNT ORE 2' 92
-            setvar! packie_heavy 1
-        elseif counttype ORES packanimal >= 150 and counttype INGOTS packanimal >= 800
-            # sysmsg 'COUNT ORE 3' 92
-            setvar! packie_heavy 1
-        elseif counttype ORES packanimal >= 100 and counttype INGOTS packanimal >= 1100
-            # sysmsg 'COUNT ORE 4' 92
-            setvar! packie_heavy 1
-    
-        # check if packie is actually empty
-        elseif counttype ORES packanimal == 0 and counttype INGOTS packanimal == 0
-            overhead '*empty*' 56 packanimal
-            rename packanimal 'emptypackie'
-        # if its not heavy and its not empty, its "light"
-        elseif counttype ORES packanimal > 0 or counttype INGOTS packanimal >= 0
-            overhead '*empty*' 56 packanimal
-            rename packanimal 'lightpackie'
+        @ignore packie
+    endwhile
+
+    while findtype 291 ground any any 2 as packie
+        if noto packie = friend
+            pushlist 'packies' packie
+            overhead '*adding to packies list*' 56 packie
         endif
-    
-        # add or remove packie to full 0packies list based on if its heavy or not
-        if varexist packie_heavy
-            overhead '*heavy*' 56 packanimal
-            unsetvar! packie_heavy
-            rename packie 'fullpackie'
+        @ignore packie
+    endwhile
+
+    clearignore
+endif
+
+foreach packanimal in 'packies'
+    overhead '*opening bag*' 91 packanimal
+    dclick packanimal
+    wait action_delay
+
+    # check packie weight to determine if its full or not
+    if counttype ORES packanimal >= max_resources_in_packie
+        # sysmsg 'COUNT ORE 1' 92
+        setvar! packie_heavy 1
+    elseif counttype ORES packanimal >= 200 and counttype INGOTS packanimal >= 500
+        # sysmsg 'COUNT ORE 2' 92
+        setvar! packie_heavy 1
+    elseif counttype ORES packanimal >= 150 and counttype INGOTS packanimal >= 800
+        # sysmsg 'COUNT ORE 3' 92
+        setvar! packie_heavy 1
+    elseif counttype ORES packanimal >= 100 and counttype INGOTS packanimal >= 1100
+        # sysmsg 'COUNT ORE 4' 92
+        setvar! packie_heavy 1
+
+    # check if packie is actually empty
+    elseif counttype ORES packanimal == 0 and counttype INGOTS packanimal == 0
+        overhead '*empty*' 56 packanimal
+        rename packanimal 'emptypackie'
+    # if its not heavy and its not empty, its "light"
+    elseif counttype ORES packanimal > 0 or counttype INGOTS packanimal >= 0
+        overhead '*empty*' 56 packanimal
+        rename packanimal 'lightpackie'
+    endif
+
+    # add or remove packie to full 0packies list based on if its heavy or not
+    if varexist packie_heavy
+        overhead '*heavy*' 56 packanimal
+        unsetvar! packie_heavy
+        rename packie 'fullpackie'
+    endif
+endfor
+
+###################################
+# PREPARING TO START
+###################################
+
+
+# IF THERES A SHELF NEARBY, RESSUPLY
+if findtype 'storage shelf' ground any any 2 as shelf
+    sysmsg 'RESSUPLYING...' 55
+    menu shelf 1
+    waitforgump 3232825965 600
+else
+    overhead 'NO SHELFS FOUND TO RESSUPLY!'
+endif
+
+
+
+if list 'packies' >= 1
+    say 'all follow me'
+endif
+
+if list 'packies' == 0
+    overhead '!COULDNT FIND ANY PACKIES!' 43
+    overhead '!COULDNT FIND ANY PACKIES!' 43
+    sysmsg '!COULDNT FIND ANY PACKIES!' 43
+    sysmsg '!COULDNT FIND ANY PACKIES!' 43
+endif
+
+# check and equip pickaxe if needed before starting so we dont waist the main timer equiping the axe
+# which was causing the timer to be greater then the mining value and the char wouldnt mine when that happened
+#
+if not rhandempty and not findtype 'pickaxe' righthand
+    overhead 'undressing hands for pickaxe'
+    hotkey "Undress Both Hands"
+    wait action_delay
+endif
+
+
+###################################
+# TRACKING - BEGIN HUNTING
+###################################
+
+
+if not varexist tracking_gump_id
+    @setvar tracking_gump_id 4267467659
+endif
+
+
+if not findbuff 'Tracking Hunting'
+    while not gumpexists tracking_gump_id
+        sysmsg 'Opening tracking gump...' 53
+        skill 'tracking'
+        waitforgump tracking_gump_id 600
+    endwhile
+
+    if gumpexists tracking_gump_id
+        if not ingump 'Stop Hunting' 4267467659
+            sysmsg 'STARTING HUNTING' 65
+            gumpresponse 6 tracking_gump_id
+            waitforgump tracking_gump_id action_delay
+        else
+            overhead 'already hunting' 55
         endif
-    endfor
-    
-    ###################################
-    # PREPARING TO START
-    ###################################
-    
-    
-    # IF THERES A SHELF NEARBY, RESSUPLY
-    if findtype 'storage shelf' ground any any 2 as shelf
-        sysmsg 'RESSUPLYING...' 55
-        menu shelf 1
-        waitforgump 3232825965 600
-    else
-        overhead 'NO SHELFS FOUND TO RESSUPLY!'
+
+        gumpclose tracking_gump_id
+    endif
+
+else
+    overhead 'Tracking already ON!' 55
+endif
+# endif
+
+#############################
+# ACTIVATE VOID ASPECT IF NEEDED
+#############################
+
+
+if use_harvest_aspect == 1
+    setvar! activate_aspect 1
+    setvar! aspect_color 2086
+elseif use_void_aspect == 1
+    setvar! activate_aspect 1
+    setvar! aspect_color 2599
+endif
+
+if activate_aspect == 1
+    if not varexist aspect_gump_id
+        @setvar aspect_gump_id 2424293173
     endif
     
+    setvar! switch_aspect_btn_number 15
+    setvar! activate_aspect_btn_number 17
     
+    if findlayer 'self' innertorso as tunic
+        if hue tunic != aspect_color
+            sysmsg 'ASPECT NOT ACTIVE. ACTIVATING IT'
     
-    if list 'packies' >= 1
-        say 'all follow me'
-    endif
+            # OPEN ASPECT GUMP
+            while not gumpexists aspect_gump_id
+                sysmsg 'Opening Aspect Gump'
+                say '[aspects'
+                waitforgump aspect_gump_id action_delay
+            endwhile
     
-    if list 'packies' == 0
-        overhead '!COULDNT FIND ANY PACKIES!' 43
-        overhead '!COULDNT FIND ANY PACKIES!' 43
-        sysmsg '!COULDNT FIND ANY PACKIES!' 43
-        sysmsg '!COULDNT FIND ANY PACKIES!' 43
-    endif
-    
-    # check and equip pickaxe if needed before starting so we dont waist the main timer equiping the axe
-    # which was causing the timer to be greater then the mining value and the char wouldnt mine when that happened
-    #
-    if not rhandempty and not findtype 'pickaxe' righthand
-        overhead 'undressing hands for pickaxe'
-        hotkey "Undress Both Hands"
-        wait action_delay
-    endif
-    
-    
-    ###################################
-    # TRACKING - BEGIN HUNTING
-    ###################################
-    
-    
-    if not varexist tracking_gump_id
-        @setvar tracking_gump_id 4267467659
-    endif
-    
-    
-    if not findbuff 'Tracking Hunting'
-        while not gumpexists tracking_gump_id
-            sysmsg 'Opening tracking gump...' 53
-            skill 'tracking'
-            waitforgump tracking_gump_id 600
-        endwhile
-    
-        if gumpexists tracking_gump_id
-            if not ingump 'Stop Hunting' 4267467659
-                sysmsg 'STARTING HUNTING' 65
-                gumpresponse 6 tracking_gump_id
-                waitforgump tracking_gump_id action_delay
-            else
-                overhead 'already hunting' 55
-            endif
-    
-            gumpclose tracking_gump_id
-        endif
-    
-    else
-        overhead 'Tracking already ON!' 55
-    endif
-    # endif
-    
-    #############################
-    # ACTIVATE VOID ASPECT IF NEEDED
-    #############################
-    
-    if use_void_aspect == 1
-        if not varexist aspect_gump_id
-            @setvar aspect_gump_id 2424293173
-        endif
-        
-        setvar! aspect_color 2599
-        setvar! switch_aspect_btn_number 15
-        setvar! activate_aspect_btn_number 17
-        
-        if findlayer 'self' innertorso as tunic
-            if hue tunic != 2599
-                sysmsg 'VOID ASPECT NOT ACTIVE. ACTIVATING IT'
-        
-                # OPEN ASPECT GUMP
-                while not gumpexists aspect_gump_id
-                    sysmsg 'Opening Aspect Gump'
-                    say '[aspects'
-                    waitforgump aspect_gump_id action_delay
-                endwhile
-        
-                # CHANGE ARMOR ASPECT TO CORRECT ASPECT
+            # CHANGE ARMOR ASPECT TO CORRECT ASPECT
+            if use_harvest_aspect == 1
+                if not ingump 'Harvest or Chests' 2424293173
+                    overhead "Changing aspect to {{aspect_name}}"
+                    # while not ingump aspect_unique_text 2424293173
+                    while not ingump 'Harvest or Chests' 2424293173
+                        gumpresponse switch_aspect_btn_number aspect_gump_id
+                        waitforgump aspect_gump_id action_delay
+                    endwhile
+                endif
+            elseif use_void_aspect == 1
                 if not ingump 'Auto Stats Restoration' 2424293173
                     overhead "Changing aspect to {{aspect_name}}"
                     # while not ingump aspect_unique_text 2424293173
@@ -622,430 +640,432 @@ if not varexist setting_rail
                         waitforgump aspect_gump_id action_delay
                     endwhile
                 endif
-        
-        
-                # ACTIVATE ASPECT ON ARMOR
-                waitforgump aspect_gump_id action_delay
-                gumpresponse activate_aspect_btn_number aspect_gump_id
-                waitforgump aspect_gump_id action_delay
-                gumpresponse activate_aspect_btn_number aspect_gump_id
-                waitforgump aspect_gump_id action_delay
-        
-        
-                # CHECK IF ASPECT IN FACT ACTIVATED
-                if findlayer 'self' innertorso as tunic
-                    if hue tunic == aspect_color
-                        overhead "activated void on armor!" 48
-                        sysmsg "Activated void On Armor!" 48
-                    endif
+    
+    
+            # ACTIVATE ASPECT ON ARMOR
+            waitforgump aspect_gump_id action_delay
+            gumpresponse activate_aspect_btn_number aspect_gump_id
+            waitforgump aspect_gump_id action_delay
+            gumpresponse activate_aspect_btn_number aspect_gump_id
+            waitforgump aspect_gump_id action_delay
+    
+    
+            # CHECK IF ASPECT IN FACT ACTIVATED
+            if findlayer 'self' innertorso as tunic
+                if hue tunic == aspect_color
+                    overhead "activated void on armor!" 48
+                    sysmsg "Activated void On Armor!" 48
                 endif
-        
             endif
+    
         endif
     endif
-    
-    
-    #############################
-    # SET THE MINING RUNEBOOK BUTTONS TO PRESS TO RECALL
-    #############################
-    
-    # runebooks recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
-    if not listexists 'runebook_rune_btns'
-        createlist 'runebook_rune_btns'
-    
-        # runebook page 1
-        # we dont push the first rune since its the home rune
-        pushlist 'runebook_rune_btns' 11
-        pushlist 'runebook_rune_btns' 17
-        pushlist 'runebook_rune_btns' 23
-        pushlist 'runebook_rune_btns' 29
-        pushlist 'runebook_rune_btns' 35
-        pushlist 'runebook_rune_btns' 41
-        pushlist 'runebook_rune_btns' 47
-        
-        # runebook page 2
-        pushlist 'runebook_rune_btns' 53
-        pushlist 'runebook_rune_btns' 59
-        pushlist 'runebook_rune_btns' 65
-        pushlist 'runebook_rune_btns' 71
-        pushlist 'runebook_rune_btns' 77
-        pushlist 'runebook_rune_btns' 83
-        pushlist 'runebook_rune_btns' 89
-        pushlist 'runebook_rune_btns' 95
-    endif
-    
-    setvar! runetome_gump_id 167090027
-    setvar! runebook_gump_id 1551740969
-    
-    setvar! recall_travel_time 3000
-    
-    setvar! 1st_circle_spell_mana_cost 8
-    setvar! 2nd_circle_spell_mana_cost 9
-    setvar! 3rd_circle_spell_mana_cost 10
-    setvar! 4th_circle_spell_mana_cost 12
-    
-    
-    
-    ###################################
-    sysmsg 'Opening Reg Bag...' 18
-    ###################################
-    
-    
-    if findtype 'bag' backpack as reg_bag
-        sysmsg 'Opening reagent bag first time...' 91
-        overhead 'opening reg bag...' 91
-        dclick reg_bag
-        wait 550
-        if insysmsg 'You must wait to perform another action'
-            overhead 'failed to open reg bag!' 41
-            while insysmsg 'You must wait to perform another action'
-                dclick reg_bag
-                wait 550
-            endwhile
-        endif
-        setvar! reg_bag_opened_once 1
-    endif
-    
-    ###################################
-    sysmsg 'STARTING...' 18
-    ###################################
 
-    if manual_walk_mode == 1
-        sysmsg 'MANUAL WALK MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
-        setvar! auto_walk_randomly 0
-        setvar! auto_walk_to_direction 1
-        removelist 'mining_runetomes'
-        createlist 'mining_runetomes'
-        pushlist 'mining_runetomes' 0
+    setvar! activate_aspect 0
+endif
+
+
+#############################
+# SET THE MINING RUNEBOOK BUTTONS TO PRESS TO RECALL
+#############################
+
+# runebooks recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
+if not listexists 'runebook_rune_btns'
+    createlist 'runebook_rune_btns'
+
+    # runebook page 1
+    # we dont push the first rune since its the home rune
+    pushlist 'runebook_rune_btns' 11
+    pushlist 'runebook_rune_btns' 17
+    pushlist 'runebook_rune_btns' 23
+    pushlist 'runebook_rune_btns' 29
+    pushlist 'runebook_rune_btns' 35
+    pushlist 'runebook_rune_btns' 41
+    pushlist 'runebook_rune_btns' 47
+    
+    # runebook page 2
+    pushlist 'runebook_rune_btns' 53
+    pushlist 'runebook_rune_btns' 59
+    pushlist 'runebook_rune_btns' 65
+    pushlist 'runebook_rune_btns' 71
+    pushlist 'runebook_rune_btns' 77
+    pushlist 'runebook_rune_btns' 83
+    pushlist 'runebook_rune_btns' 89
+    pushlist 'runebook_rune_btns' 95
+endif
+
+setvar! runetome_gump_id 167090027
+setvar! runebook_gump_id 1551740969
+
+setvar! recall_travel_time 3000
+
+setvar! 1st_circle_spell_mana_cost 8
+setvar! 2nd_circle_spell_mana_cost 9
+setvar! 3rd_circle_spell_mana_cost 10
+setvar! 4th_circle_spell_mana_cost 12
+
+
+
+###################################
+sysmsg 'Opening Reg Bag...' 18
+###################################
+
+
+if findtype 'bag' backpack as reg_bag
+    sysmsg 'Opening reagent bag first time...' 91
+    overhead 'opening reg bag...' 91
+    dclick reg_bag
+    wait 550
+    if insysmsg 'You must wait to perform another action'
+        overhead 'failed to open reg bag!' 41
+        while insysmsg 'You must wait to perform another action'
+            dclick reg_bag
+            wait 550
+        endwhile
     endif
-    
-    # all guard right now so summons protect char if we start script in the middle of a fight
-    if followers > 0
-        say 'all guard me'
-    endif
-    
-    clearsysmsg
-    
-    # if stockpile nearby, check if logs or boards to unload before starting
-    if findtype ORES backpack or findtype INGOTS backpack
-        if findtype 'resource container' ground any any 2 as stockpile
-            sysmsg 'UNLOADING AT START ON STOCKPILE.' 90
-            # smelt ores in backpack
-            while findtype ORES backpack as ores
-                overhead 'smelting!'
-                dclick ores
-                wait action_delay
-                setvar! reset_last_sysmsg_timer 1
-    
-                if insysmsg 'You do not see any nearby forges to smelt this ore on'
-                    overhead 'got far from forge!' 41
-                    sysmsg 'Got Far From Forge! Breaking smelting loop...' 41
-                    break
-                endif
-            endwhile
-    
-            # smelt ores in pack animals
-            foreach packanimal in 'packies'
-                dclick packanimal
-                wait action_delay
-    
-                if findtype ORES packanimal as ores and diffweight > 10
-                    overhead 'smelting ores in animal' 56 packanimal
-                    while findtype ORES packanimal as ores and diffweight > 10
-                        sysmsg 'smelting ore in packie' 56
-                        overhead 'smelting ores' 56 packanimal
-                        dclick ores
-                        wait action_delay
-    
-                        setvar! reset_last_sysmsg_timer 1
-    
-                        if insysmsg 'You do not see any nearby forges to smelt this ore on'
-                            overhead 'got far from forge!' 41
-                            sysmsg 'Got Far From Forge! Breaking smelting loop...' 41
-                            setvar! escape_parent_loop 1
-                            break
-                        endif
-    
-                    endwhile
-                endif
-    
-                if varexist escape_parent_loop
-                    unsetvar escape_parent_loop
-                    break
-                endif
-    
-            endfor
-    
-            setvar! resource_stockpile stockpile
-            menu resource_stockpile 0
-            wft 600
-            if targetexists 'neutral'
-                sysmsg '> Restocking Resource Stockpile...' sysmsgs_color
-                target 'self'
-            endif
-        
-            if gumpexists 1859005118
-                gumpclose 1859005118
-            endif
-    
-            # since char is alredy home, make sure to not try to recall there
-            setvar! recall_home_now 0
-        endif
-    else
-        sysmsg 'NO RESOURCES TO UNLOAD IN STOCKPILE' 54
-    endif
-    
-    
-    # before starting check if char is not heavy and go home unload
-    # same conditions as bellow to check if needs to go home and unload
-    setvar! recall_home_now 0
-    if diffweight <= max_diffweight_before_unloading and findtype ORES backpack or findtype INGOTS backpack
-        sysmsg 'HEAVY. GOING HOME TO UNLOAD' 54
-        setvar! recall_home_now 1
-    endif
-    
-    
-    
-    ########################################
-    # SUMMON BEFORE STARTING
-    ########################################
-    
-    # PS: this is important so char do3enst recall first then summon later, having chance to recall into a mob and dying without summons to guard him
-    # this is just a print to inform char is under summon_limit and is getting ready to summon up
-    if auto_summon == 1 and followers < summon_max_limit
-        sysmsg 'UNDER SUMMON LIMIT. PREPARING TO SUMMON...' alert_msg_color
-    
-        foreach summon in 'summons'
-            if list 'summons' == 1 and followers == 4
-                if verbose == 1
-                    sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 4 HAVE FOLLOWERS {{summon}}' warning_msg_color
-                endif
-    
-                if debug == 1
-                    sysmsg 'BREAKING 1 ON CHECKING SUMMON {{summon}}' warning_msg_color
-                endif
-                break
-            elseif list 'summons' > 1 and followers == 5
-                if verbose == 1
-                    sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 5 HAVE FOLLOWERS {{summon}}' warning_msg_color
-                endif
-    
-                if debug == 1
-                    sysmsg 'BREAKING 2 ON CHECKING SUMMON {{summon}}' warning_msg_color
-                endif
+    setvar! reg_bag_opened_once 1
+endif
+
+###################################
+sysmsg 'STARTING...' 18
+###################################
+
+if manual_walk_mode == 1
+    sysmsg 'MANUAL WALK MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
+    setvar! auto_walk_randomly 0
+    setvar! auto_walk_to_direction 0
+    # removelist 'mining_runetomes'
+    # createlist 'mining_runetomes'
+    # pushlist 'mining_runetomes' 0
+endif
+
+# all guard right now so summons protect char if we start script in the middle of a fight
+if followers > 0
+    say 'all guard me'
+endif
+
+clearsysmsg
+
+# if stockpile nearby, check if logs or boards to unload before starting
+if findtype ORES backpack or findtype INGOTS backpack
+    if findtype 'resource container' ground any any 2 as stockpile
+        sysmsg 'UNLOADING AT START ON STOCKPILE.' 90
+        # smelt ores in backpack
+        while findtype ORES backpack as ores
+            overhead 'smelting!'
+            dclick ores
+            wait action_delay
+            setvar! reset_last_sysmsg_timer 1
+
+            if insysmsg 'You do not see any nearby forges to smelt this ore on'
+                overhead 'got far from forge!' 41
+                sysmsg 'Got Far From Forge! Breaking smelting loop...' 41
                 break
             endif
-    
-            unsetvar! found_summon
-            unsetvar! cast_summon_spell
-    
-            # determine summon name by whether char has necromancy or not
-            if use_undead_summons == 1
-                # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
-                if not listexists 'undead_summons'
-                    createlist 'undead_summons'
-                endif
-                clearlist 'undead_summons'
-    
-                if 'earth' in summon
-                    pushlist 'undead_summons' 'an ancient mummy'
-                elseif 'fire' in summon
-                    pushlist 'undead_summons' 'a lich'
-                elseif 'air' in summon
-                    pushlist 'undead_summons' 'a skeletal fiend'
-                elseif 'daemon' in summon
-                    pushlist 'undead_summons' 'a vampire thrall'
-                elseif 'water' in summon
-                    pushlist 'undead_summons' 'a rag witch'
-                endif
-    
-                # if char is necro, make sure vengeful spirit is activated before summoning
-                if list 'undead_summons' > 0
-                    if timer 'vengeful_spirit_timer' >= 30000
-                        if verbose == 1
-                            sysmsg '>>> VENGEFUL SPIRIT...' spell_msg_color
-                        endif
-                        say '[vengefulspirit'
-    
-                        wait action_delay
-    
-                        if verbose == 1
-                            sysmsg '>>> WITHER...' spell_msg_color
-                        endif
-    
-                        say '[wither'
-                        settimer 'vengeful_spirit_timer' 0
-                    else
-                        if verbose == 1
-                            sysmsg 'Vengeful Spirit Cooldown..' on_cooldown_msg_color
-                        endif
+        endwhile
+
+        # smelt ores in pack animals
+        foreach packanimal in 'packies'
+            dclick packanimal
+            wait action_delay
+
+            if findtype ORES packanimal as ores and diffweight > 10
+                overhead 'smelting ores in animal' 56 packanimal
+                while findtype ORES packanimal as ores and diffweight > 10
+                    sysmsg 'smelting ore in packie' 56
+                    overhead 'smelting ores' 56 packanimal
+                    dclick ores
+                    wait action_delay
+
+                    setvar! reset_last_sysmsg_timer 1
+
+                    if insysmsg 'You do not see any nearby forges to smelt this ore on'
+                        overhead 'got far from forge!' 41
+                        sysmsg 'Got Far From Forge! Breaking smelting loop...' 41
+                        setvar! escape_parent_loop 1
+                        break
                     endif
-                endif
+
+                endwhile
             endif
+
+            if varexist escape_parent_loop
+                unsetvar escape_parent_loop
+                break
+            endif
+
+        endfor
+
+        setvar! resource_stockpile stockpile
+        menu resource_stockpile 0
+        wft 600
+        if targetexists 'neutral'
+            sysmsg '> Restocking Resource Stockpile...' sysmsgs_color
+            target 'self'
+        endif
     
-    
-            #########################
-            # try to find a similir creature summon to see if we need to cast this one or skip to next one
-    
-    
-            if findtype summon ground any 1 find_summon_range as summonserial
-                if noto summonserial = friend
+        if gumpexists 1859005118
+            gumpclose 1859005118
+        endif
+
+        # since char is alredy home, make sure to not try to recall there
+        setvar! recall_home_now 0
+    endif
+else
+    sysmsg 'NO RESOURCES TO UNLOAD IN STOCKPILE' 54
+endif
+
+
+# before starting check if char is not heavy and go home unload
+# same conditions as bellow to check if needs to go home and unload
+setvar! recall_home_now 0
+if diffweight <= max_diffweight_before_unloading and findtype ORES backpack or findtype INGOTS backpack
+    sysmsg 'HEAVY. GOING HOME TO UNLOAD' 54
+    setvar! recall_home_now 1
+endif
+
+
+
+########################################
+# SUMMON BEFORE STARTING
+########################################
+
+# PS: this is important so char do3enst recall first then summon later, having chance to recall into a mob and dying without summons to guard him
+# this is just a print to inform char is under summon_limit and is getting ready to summon up
+if auto_summon == 1 and followers < summon_max_limit
+    sysmsg 'UNDER SUMMON LIMIT. PREPARING TO SUMMON...' alert_msg_color
+
+    foreach summon in 'summons'
+        if list 'summons' == 1 and followers == 4
+            if verbose == 1
+                sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 4 HAVE FOLLOWERS {{summon}}' warning_msg_color
+            endif
+
+            if debug == 1
+                sysmsg 'BREAKING 1 ON CHECKING SUMMON {{summon}}' warning_msg_color
+            endif
+            break
+        elseif list 'summons' > 1 and followers == 5
+            if verbose == 1
+                sysmsg 'SUMMONS LIST ONLY HAS 1 SUMMON TYPE AND CHAR ALREADY HAVE 5 HAVE FOLLOWERS {{summon}}' warning_msg_color
+            endif
+
+            if debug == 1
+                sysmsg 'BREAKING 2 ON CHECKING SUMMON {{summon}}' warning_msg_color
+            endif
+            break
+        endif
+
+        unsetvar! found_summon
+        unsetvar! cast_summon_spell
+
+        # determine summon name by whether char has necromancy or not
+        if use_undead_summons == 1
+            # on each iteration, clear and populate this list to set the undead alternative summon based on current summon
+            if not listexists 'undead_summons'
+                createlist 'undead_summons'
+            endif
+            clearlist 'undead_summons'
+
+            if 'earth' in summon
+                pushlist 'undead_summons' 'an ancient mummy'
+            elseif 'fire' in summon
+                pushlist 'undead_summons' 'a lich'
+            elseif 'air' in summon
+                pushlist 'undead_summons' 'a skeletal fiend'
+            elseif 'daemon' in summon
+                pushlist 'undead_summons' 'a vampire thrall'
+            elseif 'water' in summon
+                pushlist 'undead_summons' 'a rag witch'
+            endif
+
+            # if char is necro, make sure vengeful spirit is activated before summoning
+            if list 'undead_summons' > 0
+                if timer 'vengeful_spirit_timer' >= 30000
                     if verbose == 1
-                        overhead '*found {{summon}}*' 91 summonserial
+                        sysmsg '>>> VENGEFUL SPIRIT...' spell_msg_color
                     endif
-    
-                    setvar! found_summon true
-                endif
-            # if the 'undead_summons' list has elements, we need to check for those undead summons as well
-            elseif use_undead_summons == 1
-                if list 'undead_summons' > 0
-                    foreach necro_summon in 'undead_summons'
-                        if findtype necro_summon ground any 1 find_summon_range as summonserial
-                            if noto summonserial = friend
-                                overhead '*found {{summon}}*' 91 summonserial
-                                setvar! found_summon true
-    
-                                # TESTING HERE (this break was disabled before)
-                                # break
-                            endif
-                        endif
-                    endfor
+                    say '[vengefulspirit'
+
+                    wait action_delay
+
+                    if verbose == 1
+                        sysmsg '>>> WITHER...' spell_msg_color
+                    endif
+
+                    say '[wither'
+                    settimer 'vengeful_spirit_timer' 0
+                else
+                    if verbose == 1
+                        sysmsg 'Vengeful Spirit Cooldown..' on_cooldown_msg_color
+                    endif
                 endif
             endif
-    
-            # even if we found this summon type, we still might need to cast it (if only 1 summon in list for instance)
-            if varexist found_summon
-                # clearlist 'found_summon'
-    
-                # if theres only one summon in the 'summons' list, even if we found the summon above,
-                # we still need to cast it again
-                if list 'summons' == 1 and followers < 4
-                    setvar! cast_summon_spell true
-                # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
-                # summon before actually casting summ.creature
-                elseif list 'summons' == 2 and followers <= 3 and inlist 'summons' 'summ. creature'
-                    setvar! cast_summon_spell 1
-                elseif list 'summons' >= 3 and followers <= 1
-                    setvar! cast_summon_spell 1
-                # else if theres more than one summon in 'summons' list and we didnt find this specific summon
-                # we need to cast ig
-                endif
-            else
+        endif
+
+
+        #########################
+        # try to find a similir creature summon to see if we need to cast this one or skip to next one
+
+
+        if findtype summon ground any 1 find_summon_range as summonserial
+            if noto summonserial = friend
                 if verbose == 1
-                    sysmsg '[DEBUG] {{summon}} NOT FOUND. CASTING' debug_msg_color
+                    overhead '*found {{summon}}*' 91 summonserial
                 endif
 
-                setvar! cast_summon_spell 1
+                setvar! found_summon true
             endif
-    
-            #########################
-            # prepare to cast the summon spell for this summon
-            if cast_summon_spell == 1
-                foreach summonspell in 'summonspells'
-                    if summonspell in summon
-                        unsetvar! summon_spell_required_mana
-    
-                        # first make a mana check for this specific summon spell
-                        if 'creature' in summonspell or 'blade' in summonspell
-                            setvar! 'summon_spell_required_mana' 14
-                        else
-                            setvar! 'summon_spell_required_mana' 50
-                        endif
-    
-                        if varexist summon_spell_required_mana
-                            if mana < summon_spell_required_mana
-    
-                                if timer 'low_mana_for_summoning_warning_msg_timer' >= 2000
-                                    if verbose == 1
-                                        sysmsg "!!! LOW MANA FOR SUMMONING {{summon}}. (NEEDS {{summon_spell_required_mana}})..." alert_msg_color
-                                        overhead "low mana for summoning" alert_msg_color
-                                    endif
-    
-                                    settimer 'low_mana_for_summoning_warning_msg_timer' 0
-                                endif
-                            else
-                                if verbose == 1
-                                    sysmsg ">>> SUMMONING {{summon}}..." action_msg_color
-                                endif
+        # if the 'undead_summons' list has elements, we need to check for those undead summons as well
+        elseif use_undead_summons == 1
+            if list 'undead_summons' > 0
+                foreach necro_summon in 'undead_summons'
+                    if findtype necro_summon ground any 1 find_summon_range as summonserial
+                        if noto summonserial = friend
+                            overhead '*found {{summon}}*' 91 summonserial
+                            setvar! found_summon true
 
-                                # temporary fix for bug when char keeps trying to cast a 2 slot summon when only 1 slot available
-                                if followers == 4 and inlist 'summons' 'summ. creature'
-                                    cast 'Summ. Creature'
-                                else
-                                    cast summonspell
-                                endif
-    
-                                if 'blade' in summonspell or 'vortex' in summonspell
-                                    if verbose == 1
-                                        sysmsg 'WAITING FOR {{summonspell}} TARGET..' alert_msg_color
-                                        overhead 'Waiting for {{summonspell}} target..' alert_msg_color
-                                    endif
-    
-                                    @settimer 'waiting_summon_timer' 0
-                                    while not targetexists 'neutral' and timer 'waiting_summon_timer' < cast_summons_delay
-                                        wft 10
-                                        if insysmsg 'disturbed'
-                                            @settimer 'waiting_summon_timer' 0
-                                            if verbose == 1
-                                                sysmsg 'BREAKING WHILE WAITING FOR SUMMONING {{summon}}' alert_msg_color
-                                            endif
-    
-                                            wait spell_recovery_delay
-                                            break
-                                        endif
-                                    endwhile
-    
-                                    if targetexists 'neutral'
-                                        if verbose == 1
-                                            sysmsg 'CASTING BLADE OR VORTEX IN GROUND' 55
-                                        endif
-    
-                                        targetrelloc 0 1
-                                        break
-                                    endif
-                                else
-                                    @settimer 'waiting_summon_timer' 0
-                                    while timer 'waiting_summon_timer' < cast_summons_delay
-                                        wait 10
-                                        if insysmsg 'disturbed'
-                                            @settimer 'waiting_summon_timer' 0
-                                            if verbose == 1
-                                                sysmsg 'BREAKING WHILE WAITING FOR SUMMONING {{summon}}' alert_msg_color
-                                            endif
-    
-                                            wait spell_recovery_delay
-                                            break
-                                        endif
-                                    endwhile
-    
-                                    say 'all guard me'
-                                endif
-    
-                                break
-    
-                            endif
+                            # TESTING HERE (this break was disabled before)
+                            # break
                         endif
                     endif
                 endfor
             endif
-        endfor
-    # CLOSES auto_summon
-    endif
-    
-    
-    ########################################
-    # STARTING LOOPING THE RUNEBOOKS
-    ########################################
-    
-    settimer 'mining_uptime' 0
-    setvar! possible_captcha_detected 0
-    
-    setvar! rune_number 10
-    
-    # trigger the cooldown once at start so char can start mining
-    cooldown RESOURCES 30000
+        endif
 
+        # even if we found this summon type, we still might need to cast it (if only 1 summon in list for instance)
+        if varexist found_summon
+            # clearlist 'found_summon'
+
+            # if theres only one summon in the 'summons' list, even if we found the summon above,
+            # we still need to cast it again
+            if list 'summons' == 1 and followers < 4
+                setvar! cast_summon_spell true
+            # if one of our summons is summ creature and we only have 3 followers, we can still cast another more usefull
+            # summon before actually casting summ.creature
+            elseif list 'summons' == 2 and followers <= 3 and inlist 'summons' 'summ. creature'
+                setvar! cast_summon_spell 1
+            elseif list 'summons' >= 3 and followers <= 1
+                setvar! cast_summon_spell 1
+            # else if theres more than one summon in 'summons' list and we didnt find this specific summon
+            # we need to cast ig
+            endif
+        else
+            if verbose == 1
+                sysmsg '[DEBUG] {{summon}} NOT FOUND. CASTING' debug_msg_color
+            endif
+
+            setvar! cast_summon_spell 1
+        endif
+
+        #########################
+        # prepare to cast the summon spell for this summon
+        if cast_summon_spell == 1
+            foreach summonspell in 'summonspells'
+                if summonspell in summon
+                    unsetvar! summon_spell_required_mana
+
+                    # first make a mana check for this specific summon spell
+                    if 'creature' in summonspell or 'blade' in summonspell
+                        setvar! 'summon_spell_required_mana' 14
+                    else
+                        setvar! 'summon_spell_required_mana' 50
+                    endif
+
+                    if varexist summon_spell_required_mana
+                        if mana < summon_spell_required_mana
+
+                            if timer 'low_mana_for_summoning_warning_msg_timer' >= 2000
+                                if verbose == 1
+                                    sysmsg "!!! LOW MANA FOR SUMMONING {{summon}}. (NEEDS {{summon_spell_required_mana}})..." alert_msg_color
+                                    overhead "low mana for summoning" alert_msg_color
+                                endif
+
+                                settimer 'low_mana_for_summoning_warning_msg_timer' 0
+                            endif
+                        else
+                            if verbose == 1
+                                sysmsg ">>> SUMMONING {{summon}}..." action_msg_color
+                            endif
+
+                            # temporary fix for bug when char keeps trying to cast a 2 slot summon when only 1 slot available
+                            if followers == 4 and inlist 'summons' 'summ. creature'
+                                cast 'Summ. Creature'
+                            else
+                                cast summonspell
+                            endif
+
+                            if 'blade' in summonspell or 'vortex' in summonspell
+                                if verbose == 1
+                                    sysmsg 'WAITING FOR {{summonspell}} TARGET..' alert_msg_color
+                                    overhead 'Waiting for {{summonspell}} target..' alert_msg_color
+                                endif
+
+                                @settimer 'waiting_summon_timer' 0
+                                while not targetexists 'neutral' and timer 'waiting_summon_timer' < cast_summons_delay
+                                    wft 10
+                                    if insysmsg 'disturbed'
+                                        @settimer 'waiting_summon_timer' 0
+                                        if verbose == 1
+                                            sysmsg 'BREAKING WHILE WAITING FOR SUMMONING {{summon}}' alert_msg_color
+                                        endif
+
+                                        wait spell_recovery_delay
+                                        break
+                                    endif
+                                endwhile
+
+                                if targetexists 'neutral'
+                                    if verbose == 1
+                                        sysmsg 'CASTING BLADE OR VORTEX IN GROUND' 55
+                                    endif
+
+                                    targetrelloc 0 1
+                                    break
+                                endif
+                            else
+                                @settimer 'waiting_summon_timer' 0
+                                while timer 'waiting_summon_timer' < cast_summons_delay
+                                    wait 10
+                                    if insysmsg 'disturbed'
+                                        @settimer 'waiting_summon_timer' 0
+                                        if verbose == 1
+                                            sysmsg 'BREAKING WHILE WAITING FOR SUMMONING {{summon}}' alert_msg_color
+                                        endif
+
+                                        wait spell_recovery_delay
+                                        break
+                                    endif
+                                endwhile
+
+                                say 'all guard me'
+                            endif
+
+                            break
+
+                        endif
+                    endif
+                endif
+            endfor
+        endif
+    endfor
+# CLOSES auto_summon
 endif
+
+
+########################################
+# STARTING LOOPING THE RUNEBOOKS
+########################################
+
+settimer 'mining_uptime' 0
+setvar! possible_captcha_detected 0
+
+setvar! rune_number 10
+
+# trigger the cooldown once at start so char can start mining
+cooldown RESOURCES 30000
+
+# endif
 # END if varexist setting_rail
 
 ###########################################

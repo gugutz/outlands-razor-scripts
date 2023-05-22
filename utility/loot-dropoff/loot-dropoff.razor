@@ -326,12 +326,14 @@ if findtype 'repair bench' ground any any 2 as bench
     sysmsg '> Reparing items...' sysmsgs_color
     overhead '*reparing items*' 65
     clearsysmsg
-    dclick bench
 
     if not timerexists 'waiting_repair_timer'
         createtimer 'waiting_repair_timer'
     endif
     settimer 'waiting_repair_timer' 0
+
+    dclick bench
+
     # from here we continue doing other unloads while the repair bench is repairing char items
     # we check in a sysmsg later if repair was successful
 endif
@@ -1214,7 +1216,7 @@ if findtype 'repair bench' ground any any 2 as bench
     sysmsg '> Searching for Repair Bench status...' sysmsgs_color
 
     if print_unloaded_items == 1
-        while not insysmsg 'in need of repairs' and not insysmsg 'item' and not insysmsg 'items'
+        while not insysmsg 'in need of repairs' and not insysmsg 'Repaired'
             wait 100
             if timer 'waiting_repair_timer' >= max_wait_for_repair_to_finish
                 break

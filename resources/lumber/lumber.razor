@@ -620,7 +620,15 @@ endif
 # ACTIVATE VOID ASPECT IF NEEDED
 #############################
 
-if use_void_aspect == 1
+if use_harvest_aspect == 1
+    setvar! activate_aspect 1
+    setvar! aspect_color 2086
+elseif use_void_aspect == 1
+    setvar! activate_aspect 1
+    setvar! aspect_color 2599
+endif
+
+if activate_aspect == 1
     if not varexist aspect_gump_id
         @setvar aspect_gump_id 2424293173
     endif
@@ -631,7 +639,7 @@ if use_void_aspect == 1
     
     if findlayer 'self' innertorso as tunic
         if hue tunic != 2599
-            sysmsg 'VOID ASPECT NOT ACTIVE. ACTIVATING IT'
+            sysmsg 'ASPECT NOT ACTIVE. ACTIVATING IT'
     
             # OPEN ASPECT GUMP
             while not gumpexists aspect_gump_id
@@ -641,14 +649,24 @@ if use_void_aspect == 1
             endwhile
     
             # CHANGE ARMOR ASPECT TO CORRECT ASPECT
-            if not ingump 'Auto Stats Restoration' 2424293173
-                overhead "Changing aspect to {{aspect_name}}"
-                # while not ingump aspect_unique_text 2424293173
-                while not ingump 'Auto Stats Restoration' 2424293173
-                    gumpresponse switch_aspect_btn_number aspect_gump_id
-                    waitforgump aspect_gump_id action_delay
-                endwhile
-            endif
+            if use_harvest_aspect == 1
+                if not ingump 'Harvest or Chests' 2424293173
+                    overhead "Changing aspect to {{aspect_name}}"
+                    # while not ingump aspect_unique_text 2424293173
+                    while not ingump 'Harvest or Chests' 2424293173
+                        gumpresponse switch_aspect_btn_number aspect_gump_id
+                        waitforgump aspect_gump_id action_delay
+                    endwhile
+                endif
+            elseif use_void_aspect == 1
+                if not ingump 'Auto Stats Restoration' 2424293173
+                    overhead "Changing aspect to {{aspect_name}}"
+                    # while not ingump aspect_unique_text 2424293173
+                    while not ingump 'Auto Stats Restoration' 2424293173
+                        gumpresponse switch_aspect_btn_number aspect_gump_id
+                        waitforgump aspect_gump_id action_delay
+                    endwhile
+                endif
     
     
             # ACTIVATE ASPECT ON ARMOR
@@ -669,8 +687,9 @@ if use_void_aspect == 1
     
         endif
     endif
-endif
 
+    setvar! activate_aspect 0
+endif
 
 #############################
 # SET THE HOME RUNEBOOK
@@ -755,8 +774,8 @@ if manual_walk_mode == 1
     sysmsg 'MANUAL LUMBER MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
     setvar! auto_walk_randomly 0
     setvar! auto_walk_to_direction 1
-    clearlist 'lumber_runetomes'
-    pushlist 'lumber_runetome' 0
+    # clearlist 'lumber_runetomes'
+    # pushlist 'lumber_runetome' 0
 endif
 
 

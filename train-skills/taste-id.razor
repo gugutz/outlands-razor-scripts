@@ -1,6 +1,15 @@
 useskill 'tasteidentification'
 waitfortarget 600
 #targettype 'dagger'
-targetrelloc 0 0
+#targetrelloc 0 0
+if findtype 2429 backpack as cheese
+    target cheese
+endif
+#targettype 2429 //wedge_of_chesse
 wait 1000
+if hp < 60
+    cast 'greater heal'
+    wft 3500
+    target self
+endif
 loop

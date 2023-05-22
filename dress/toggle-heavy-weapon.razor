@@ -30,8 +30,10 @@ settimer 'toggle_heavy_weapon_timer' 0
 
 if not varexist heavy_weapon
     setvar reset_weapon 1
-elseif not varexist heavy_weapon
+elseif varexist heavy_weapon and not find heavy_weapon
     setvar reset_weapon 1
+    hotkey "Drop What You Are Currently Holding"
+    hotkey "Resynchronize Client"
 endif
 
 if reset_weapon == 1
@@ -106,7 +108,7 @@ if not varexist heavy_weapon
     stop
 endif
 
-if find heavy_weapon backpack as weap
+if find heavy_weapon backpack
     sysmsg '000000'
 
     # EQUIP THE WEAPON
@@ -138,9 +140,13 @@ if find heavy_weapon backpack as weap
                 endwhile
             endif
 
+            # clear possible previous stuck queues
+            while queued
+                hotkey "Clear Drag/Drop Queue"
+            endwhile
             sysmsg 'LIFT'
 
-            lift weap 1
+            lift heavy_weapon
             wait 100
             while queued
                 sysmsg 'LIFT 1'
@@ -153,7 +159,8 @@ if find heavy_weapon backpack as weap
                 sysmsg 'drop 1'
             endwhile
             sysmsg 'LIFT END '
-            wait 20
+
+            wait 100
         else
             sysmsg 'DCLICK'
 
