@@ -325,9 +325,14 @@ if findlayer self outertorso
             sysmsg 'Removing Death Robe from Char First'
             while findtype robe outertorso as robe_serial
                 lift robe_serial 1
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
+
                 drop backpack
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
         endif
     endif
@@ -345,9 +350,14 @@ if not findlayer self righthand
                 sysmsg 'Equipping Magic Spellbook!' equipping_items_msg_color
             endif
             lift book
-            wait action_delay
+            wait 100
+            while queued
+            endwhile
+
             drop 'self' RightHand
-            wait action_delay
+            wait 100
+            while queued
+            endwhile
         endif
     elseif skill 'archery' >= 50 or skill 'swords' >= 50 or skill 'macefightning' >= 50 or skill 'fencing' >= 50
         if inform_when_searching_for_items == 1
@@ -379,6 +389,9 @@ if not findlayer self lefthand
                 endif
                 while not findlayer self lefthand
                     dclick found
+                    wait 100
+                    while queued
+                    endwhile
                 endwhile
                 wait action_delay
                 break
@@ -395,7 +408,9 @@ if not findlayer self lefthand
                 endif
                 while not findlayer self lefthand
                     dclick found
-                    wait action_delay
+                    wait 100
+                    while queued
+                    endwhile
                 endwhile
                 break
             endif
@@ -418,7 +433,9 @@ if not findlayer self head
             endif
             while not findlayer self head
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -437,7 +454,9 @@ if not findlayer self neck
             endif
             while not findlayer self neck
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -791,7 +810,9 @@ if not findlayer self talisman
             endif
             while not findlayer self talisman
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -813,9 +834,14 @@ if not findlayer self onehandedsecondary
                 hotkey "Clear Drag/Drop Queue"
 
                 lift found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
+
                 drop self onehandedsecondary
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
 
             break
@@ -879,9 +905,14 @@ if not findlayer self quiver
                 hotkey "Clear Drag/Drop Queue"
 
                 lift found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
+
                 drop self quiver
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -910,9 +941,14 @@ if not findlayer self outerbody
                 hotkey "Clear Drag/Drop Queue"
 
                 lift found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
+
                 drop self outerbody
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             else
                 dclick found
                 wait action_delay
@@ -970,9 +1006,14 @@ if not findlayer self underarms
                 hotkey "Clear Drag/Drop Queue"
 
                 lift found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
+
                 drop self outerbody
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             else
                 dclick found
                 wait action_delay

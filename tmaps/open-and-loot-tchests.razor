@@ -1,7 +1,7 @@
 sysmsg '#########################' 90
 sysmsg '>>> T-Chest Unlocker and Looter' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.1.0' 31
+sysmsg 'version 1.0.0' 31
 sysmsg '########################' 90
 #
 #################################
@@ -526,8 +526,50 @@ if varexist chest
             wait action_delay
         endif
 
+        sysmsg 'SEARCHING LINKS...' 54
+        while findtype 43206 chest as found
+
+            getlabel found item_label
+            sysmsg '>>> LOOTING {{item_label}}...' 53
+
+            if 'Link' in item_label
+                overhead 'found a link: {{item_label}}' 51 'self'
+                sysmsg 'FOUND A LINK: {{item_label}}' 51
+            endif
+
+            if varexist CHAR_LOOT_POUCH
+                setvar! destination_container CHAR_LOOT_POUCH
+            else
+                setvar! destination_container backpack
+            endif
+
+            hotkey "Set Grab Item HotBag"
+            wft action_delay
+            target destination_container
+
+            hotkey 'Grab Item'
+            wft 600
+            target found
+
+            wait 100
+            while queued
+                wait 20
+            endwhile
+
+            # check char container limit
+            if insysmsg 'That container cannot hold more weight'
+                if timer 'char_heavy_warning_msg_timer' >= 5000
+                    overhead 'BACKPACK FULL! UNLOAD!' 37
+                    settimer 'char_heavy_warning_msg_timer' 0
+                endif
+            endif
+
+            @ignore found
+        endwhile
+
         # while findtype "'chain link'|29833|42517|29040|52615|17083|map|48261|'bold and arrow keg'|'void orb'|'research materials'|'scroll of calling'|22336|'Book of Truth'|5359|'folded cloth'|sandals|'aspect core'|3836|17686|parchment|carpet|bottle|3838|3839|3843|3842|3843|29025|29036|'blank scroll%s%'|29030|'elven spellblade'" chest as found
-        while findtype 3821|3985|3836|29833|42517|29040|52615|17083|5356|48261|8826|3827|29036 chest as found
+        sysmsg 'SEARCHING RARES...' 54
+        while findtype 3985|3836|29833|42517|29040|52615|17083|5356|48261|8826|3827|29036 chest as found
 
             getlabel found item_label
             sysmsg '>>> LOOTING {{item_label}}...' 53
@@ -610,7 +652,42 @@ if varexist chest
         endwhile
 
         sysmsg 'SEARCHING COMMON TCHEST ITEMS...' 54
-        while findtype 5090|3834|2539|3821|3856|3742|3861|3862|5060|7179|45315|7177|3877|5205|5042|22187|5123|5105|3865|5089|5106|7035|3934|7031|3859|3903|7029|5063|5078|22326|2545|5070|3740|5076|5129|5146|5139|5061|5059|3885|3913|5125|3617|7163|5121|3719|7173|5179|7034|7033|3917|5203|7610|3573|5074|5204|3878|3920|5117|3911|5056|5143|3721|3762|5201|5085|10245|5103|5177|5119|5046|7027|5040|3932|5131|7181|5127|5132|5135|7169|3713|3937|3873|7175|3854|5101|5185|5207|4225|5182|3763|3909|5049|3938|3568|5115|9917|8012|5142|7170|5187|3915|39891|5138|5181|7026|29971|3191|5112|5044 chest as found
+        while findtype 5090|3834|2539|3856|3742|3861|3862|5060|7179|45315|7177|3877|5205|5042|22187|5123|5105|3865|5089|5106|7035|3934|7031|3859|3903|7029|5063|5078|22326|2545|5070|3740|5076|5129|5146|5139|5061|5059|3885|3913|5125|3617|7163|5121|3719|7173|5179|7034|7033|3917|5203|7610|3573|5074|5204|3878|3920|5117|3911|5056|5143|3721|3762|5201|5085|10245|5103|5177|5119|5046|7027|5040|3932|5131|7181|5127|5132|5135|7169|3713|3937|3873|7175|3854|5101|5185|5207|4225|5182|3763|3909|5049|3938|3568|5115|9917|8012|5142|7170|5187|3915|39891|5138|5181|7026|29971|3191|5112|5044 chest as found
+            getlabel found item_label
+            sysmsg '>>> LOOTING {{item_label}}...' 53
+
+            if varexist CHAR_LOOT_POUCH
+                setvar! destination_container CHAR_LOOT_POUCH
+            else
+                setvar! destination_container backpack
+            endif
+
+            hotkey "Set Grab Item HotBag"
+            wft action_delay
+            target destination_container
+
+            hotkey 'Grab Item'
+            wft 600
+            target found
+
+            wait 100
+            while queued
+                wait 20
+            endwhile
+
+            # check char container limit
+            if insysmsg 'That container cannot hold more weight'
+                if timer 'char_heavy_warning_msg_timer' >= 5000
+                    overhead 'BACKPACK FULL! UNLOAD!' 37
+                    settimer 'char_heavy_warning_msg_timer' 0
+                endif
+            endif
+
+            @ignore found
+        endwhile
+
+        sysmsg 'SEARCHING GOLD...' 54
+        while findtype 3821 chest as found
             getlabel found item_label
             sysmsg '>>> LOOTING {{item_label}}...' 53
 
@@ -801,7 +878,11 @@ endif
 # CHANGELOG
 #################################
 #
-# (unreleased)
+# v1.0.0
+# - Adds chain links as top priority search
+# - Removes gold search from top searches and move to bottom
+#
+# v0.0.4
 # - Switches list config to setvar! variables
 #
 # v0.0.3

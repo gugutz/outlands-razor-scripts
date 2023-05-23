@@ -33,7 +33,7 @@ if printed_instructions_once != 1
     sysmsg '########################' 90
     sysmsg '.' instructions_msg_color
 
-    wait 3000
+    # wait 3000
     setvar! printed_instructions_once 1
 endif
 
@@ -48,9 +48,7 @@ settimer 'script_settings_timer' 0
 # GENERAL SETTINGS
 ############################################################################
 
-if stack_trace == 1
-    sysmsg '[STACK] Setting General Configuration...' script_msg_color
-endif
+sysmsg '[OPS] READING AND APPLYING CONFIG...' script_msg_color
 
 if not varexist mage_bot_config_loaded
     script 'loops\mage-bot\config'
@@ -67,6 +65,7 @@ setvar! is_tamer 0
 setvar! is_herder 0
 setvar! is_veterinarian 0
 setvar! is_detecter 0
+setvar! is_noxxer 0
 
 if skill 'taming' >= 100
     setvar! is_tamer 1
@@ -99,6 +98,11 @@ endif
 if skill 'necromancy' == 0
     sysmsg 'NECROMANCER DETECTED. OPTIMIZING...' script_msg_color
     setvar! is_necromancer 1
+endif
+
+if skill 'poisoning' >= 80
+    sysmsg 'NOXXER DETECTED. OPTIMIZING...' script_msg_color
+    setvar! is_noxxer 1
 endif
 
 
@@ -149,6 +153,9 @@ if auto_configure_script_based_on_skills == 1
             setvar! followers_max_limit 4
         endif
     endif
+
+    # NOXXER AUTO SETUP
+    setvar use_poison 1
 
     # TAMER AUTO SETUP
     if is_tamer == 1

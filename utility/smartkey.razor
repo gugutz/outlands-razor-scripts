@@ -1,3 +1,7 @@
+# This is intended to be a smart 'one click - multiple actions' script, that triggers different actions based on different conditions
+# Order of checks and actions:
+# 1 -
+
 #################################
 # CREATE ALL LISTS FOR CONFIG
 #################################
@@ -77,7 +81,7 @@ endif
 # PICK SHIP BOMBS ON GROUND
 ###############################
 
-if findtype 5188 ground 2825 any 2 as found
+if findtype 5188|5189 ground 2825 any 2 as found
     dclick found
     sysmsg 'PICKING BOMB!' 54
     overhead 'PICKING BOMB!' 54

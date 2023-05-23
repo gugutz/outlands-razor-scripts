@@ -1,142 +1,69 @@
+#####################################
+# READ AND APPLY CONFIG FILE
+#####################################
+
+if not varexist mining_config_loaded
+    script 'resources\mining\config'
+endif
+
+unsetvar! mining_config_loaded
+
+#####################################
+
+setvar! debug 1
+setvar! world_save_delay 8000
+setvar! action_delay 600
+setvar! spell_recovery_delay 120
+
+
+if skill 'magery' < 90 and auto_summon == 1
+    sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
+    setvar! auto_summon 0
+endif
+
+if auto_summon == 0
+    setvar! summon_max_limit 0
+endif
+
 sysmsg '#########################' 90
 sysmsg '>>> LUMBERJACKING BOT' 55
 sysmsg 'by gugutz' 45
-sysmsg 'version 0.3.0-rc1' 31
+sysmsg 'version 0.4.0-rc1' 31
 sysmsg '########################' 90
 
 #################################
 # IN GAME INSTRUCTIONS / OBSERVATIONS
 #################################
 
-sysmsg '************************' 90
-sysmsg 'FOR THIS SCRIPT TO WORK PROPERLY, YOU MUST:' 53
-sysmsg "." 55
-sysmsg "* uncheck option 'filter repeating system messages' on razor" 55
-sysmsg "* uncheck option 'Auto Stack Ore/Fish/Logs at feet' on razor" 55
-sysmsg "* first run far from other friends pack animals" 55
-sysmsg "." 55
-sysmsg '***********************' 90
+sysmsg "PLEASE READ the instructions in the README file to avoid potential bugs/misbehaviors" 34
+sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/mining/README.md" 34
 
 
 # TEST IF REQUIRED COOLDOWN WAS CREATED
 cooldown RESOURCES 3000
-
 if not cooldown RESOURCES
-    overhead "REQUIRED COOLDOWNS DONT EXIST" 34
-    overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
-
-    sysmsg "REQUIRED COOLDOWNS DONT EXIST" 34
-    sysmsg "PLEASE READ INSTRUCTIONS AT:" 34
-    sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/lumber" 88
-    sysmsg "." 88
-
-    sysmsg "OR SETUP A COOLDOWN NAMED 'RESOURCES' WITH DEFAULT 60 SECONDS DEFAULT TIMER AND THE FOLLOWING TRIGGERS:" 88
-    sysmsg "Type: sysmsg | Text: You hack" 87
-    sysmsg "Type: sysmsg | Text: You chop some" 87
-    sysmsg "Type: sysmsg | Text: You have worn out your tool" 87
-    sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby" 87
-    sysmsg "Type: sysmsg | Text: before you may begin harvesting" 87
-    sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area" 87
-    sysmsg "Type: OverheadMessage | Text: You gather some" 87
-    sysmsg "Type: OverheadMessage | Text: Captcha successful" 87
-    sysmsg "." 88
+    sysmsg "Cooldown resources not found. Please read instructions in README file" 34
+    sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/mining/README.md" 34
     stop
 endif
+
 
 
 # make sure no old var is fucking up the script
 unsetvar runebook
 unsetvar runetome
-createlist 'void_characters'
-clearlist 'void_characters'
-createlist 'hotel_room_owners'
-clearlist 'hotel_room_owners'
-createlist 'hotel_room_renters'
-clearlist 'hotel_room_renters'
-
-###################################
-# SCRIPT CONFIGURATION
-###################################
-
-sysmsg 'Applying configuration...'
-
-setvar! debug 1
-setvar! action_delay 600
-setvar! world_save_delay 8000
-setvar! spell_recovery_delay 120
-
-setvar! manual_walk_mode 1
-
-# max ores a packie can have before being set as full
-setvar! max_boards_before_unloading 1000
-
-# set if char should escape home when tracking PKs
-setvar! auto_escape_pks 1
-setvar! auto_escape_thiefs 0
-
-# escape rune button number on runebook
-setvar! runetome_rune_position 100
-
-# escape rune button number on runebook
-setvar! runebook_rune_position 5
-
-# set to make char walk randomly to find new trees
-# setvar! auto_walk_randomly 0
-
-# how many attempts should char make to find new trees
-# setvar! max_walk_attempts_per_rune 20
-
-# how many steps should char take per attempt when walking randomly
-# clearlist number_of_steps_per_walk
-# createlist number_of_steps_per_walk
-# pushlist number_of_steps_per_walk 1
-# pushlist number_of_steps_per_walk 2
-# pushlist number_of_steps_per_walk 3
-# pushlist number_of_steps_per_walk 4
-# pushlist number_of_steps_per_walk 5
-# pushlist number_of_steps_per_walk 6
-
-
-# setvar! auto_walk_to_direction 0
-# direction to walk to when 'auto_walk_to_direction' is ON!
-# if auto_walk_to_direction == 1 and not listexists 'direction_to_walk'
-#     createlist 'direction_to_walk'
-#     pushlist 'direction_to_walk' 'right'
-# endif
-
-setvar! use_strength 1
-setvar! max_diffhits_before_buffing 5
-
-setvar! use_void_aspect 0
-
-# set if char uses a hotel room instead of a house
-setvar! use_hotel_room 0
-# set if characters should use own rooms or enter a friends room
-setvar! use_own_room 1
-
-# this requires you to run before my loot-organizer script to set the variable CHAR_LOOT_POUCH
-setvar! hide_colored_resources_in_char_loot_pouch 1
-
-# ADD YOUR CHAR TO THIS LIST IF IT USES VOID ASPECT
-pushlist 'void_characters' 'Nazareno'
-pushlist 'void_characters' 'Emacs'
-pushlist 'void_characters' 'Heduardoh'
-pushlist 'void_characters' 'Nonires'
-
-
-# ADD YOUR CHAR TO THIS LIST IF IT USES ANOTHER FRIEND HOTEL ROOM
-pushlist 'hotel_room_owners' 'Neron'
-pushlist 'hotel_room_owners' 'OTHER CHAR NAME'
-
-# ADD YOUR CHAR TO THIS LIST IF IT USES ANOTHER FRIEND HOTEL ROOM
-pushlist 'hotel_room_owners' 'Neron'
-pushlist 'hotel_room_owners' 'OTHER CHAR NAME'
-
 
 
 #############################
 # SET SCRIPT STUFF
 #############################
+
+setvar! use_strength 1
+setvar! max_diffhits_before_buffing 5
+# escape rune button number on runebook
+setvar! runetome_rune_position 100
+# escape rune button number on runebook
+setvar! runebook_rune_position 5
 
 if skill 'detectinghidden' >= 80
     sysmsg 'DETECTER DETECTED. OPTIMIZING...' script_msg_color
@@ -236,10 +163,6 @@ endwhile
 @clearignore
 
 
-if manual_walk_mode != 1 and list 'lumber_runetomes' == 0
-    sysmsg "YOU NEED AT LAST 1 RUNETOME WITH THE WORD 'LUMBER' ON ITS NAME IF YOU WANNA CYCLE RUNES" 54
-    # stop
- endif
 
 foreach x in 'lumber_runetomes'
     sysmsg 'LUMBER RUNEBOOK {{index}}: {{x}}'
@@ -264,7 +187,6 @@ setvar! warning_msg_color 1196
 setvar! alert_msg_color 37
 setvar! success_msg_color 1272
 setvar! action_msg_color 90
-setvar! rail_msg_color 116
 setvar! on_cooldown_msg_color 53
 setvar! reset_timer_msg_color 1258
 setvar! boating_msg_color 84
@@ -770,13 +692,6 @@ setvar! 4th_circle_spell_mana_cost 12
 sysmsg 'STARTING...' 87
 ###################################
 
-if manual_walk_mode == 1
-    sysmsg 'MANUAL LUMBER MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
-    setvar! auto_walk_randomly 0
-    setvar! auto_walk_to_direction 1
-    # clearlist 'lumber_runetomes'
-    # pushlist 'lumber_runetome' 0
-endif
 
 
 # all guard right now so summons protect char if we start script in the middle of a fight
@@ -847,8 +762,8 @@ if diffweight <= max_diffweight_before_unloading and findtype LOGS backpack
 endif
 sysmsg '8'
 
-if counttype LOGS >= max_boards_before_unloading or counttype BOARDS >= max_boards_before_unloading
-    sysmsg 'OVER {{max_boards_before_unloading}} LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
+if counttype LOGS >= max_resources_on_packie_before_unloading or counttype BOARDS >= max_resources_on_packie_before_unloading
+    sysmsg 'OVER {{max_resources_on_packie_before_unloading}} LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
     setvar recall_home_now 1
 endif
 
@@ -1262,8 +1177,8 @@ foreach runebook in 'lumber_runetomes'
             # PRINT LOOP ON MESSAGE AND SCRIPT STATS
             ########################################
     
-            # remember player the loop is active every 30s
-            if timer 'loop_on_warning_msg' >= 30000
+            # remember player the loop is active every 60s
+            if timer 'loop_on_warning_msg' >= 60000
                 settimer 'loop_on_warning_msg' 0
 
                 # sysmsg '************************' 90
@@ -1826,7 +1741,7 @@ foreach runebook in 'lumber_runetomes'
                 sysmsg 'HEAVY. GOING HOME TO UNLOAD WEIGTH' 54
                 setvar recall_home_now 1
             endif
-            if counttype LOGS >= max_boards_before_unloading or counttype BOARDS >= max_boards_before_unloading
+            if counttype LOGS >= max_resources_on_packie_before_unloading or counttype BOARDS >= max_resources_on_packie_before_unloading
                 sysmsg 'OVER 1k LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
                 setvar recall_home_now 1
             endif
@@ -1921,6 +1836,7 @@ foreach runebook in 'lumber_runetomes'
                         # setvar! reset_last_sysmsg_timer 1
                         # cooldown RESOURCES resource_cooldown_value
                     endif
+
             
                 # handle tools breaking
                 elseif insysmsg "You broke your axe"
@@ -1942,8 +1858,6 @@ foreach runebook in 'lumber_runetomes'
                         endif
                     endif
         
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
             
             
                 # no resources where char is
@@ -1951,110 +1865,66 @@ foreach runebook in 'lumber_runetomes'
                     # track how many empty trees we hit to decide whether to go to next rune
 
                     # update attempt number
-                    if attempts_to_find_new_tree_with_logs == 0
-                        setvar! attempts_to_find_new_tree_with_logs 1
-                    elseif attempts_to_find_new_tree_with_logs == 1
-                        setvar! attempts_to_find_new_tree_with_logs 2
-                    elseif attempts_to_find_new_tree_with_logs == 2
-                        setvar! attempts_to_find_new_tree_with_logs 3
-                    elseif attempts_to_find_new_tree_with_logs == 3
-                        setvar! attempts_to_find_new_tree_with_logs 4
-                    elseif attempts_to_find_new_tree_with_logs == 4
-                        setvar! attempts_to_find_new_tree_with_logs 5
-                    elseif attempts_to_find_new_tree_with_logs == 5
-                        setvar! attempts_to_find_new_tree_with_logs 6
-                    elseif attempts_to_find_new_tree_with_logs == 6
-                        setvar! attempts_to_find_new_tree_with_logs 7
-                    elseif attempts_to_find_new_tree_with_logs == 7
-                        setvar! attempts_to_find_new_tree_with_logs 8
-                    elseif attempts_to_find_new_tree_with_logs == 8
-                        setvar! attempts_to_find_new_tree_with_logs 9
-                    elseif attempts_to_find_new_tree_with_logs == 9
-                        setvar! attempts_to_find_new_tree_with_logs 10
-                    elseif attempts_to_find_new_tree_with_logs == 10
-                        setvar! attempts_to_find_new_tree_with_logs 11
-                    elseif attempts_to_find_new_tree_with_logs == 11
-                        setvar! attempts_to_find_new_tree_with_logs 12
-                    elseif attempts_to_find_new_tree_with_logs == 12
-                        setvar! attempts_to_find_new_tree_with_logs 13
-                    elseif attempts_to_find_new_tree_with_logs == 13
-                        setvar! attempts_to_find_new_tree_with_logs 14
-                    elseif attempts_to_find_new_tree_with_logs == 14
-                        setvar! attempts_to_find_new_tree_with_logs 15
-                    elseif attempts_to_find_new_tree_with_logs == 15
-                        setvar! attempts_to_find_new_tree_with_logs 16
-                    elseif attempts_to_find_new_tree_with_logs == 16
-                        setvar! attempts_to_find_new_tree_with_logs 17
-                    elseif attempts_to_find_new_tree_with_logs == 17
-                        setvar! attempts_to_find_new_tree_with_logs 18
-                    elseif attempts_to_find_new_tree_with_logs == 18
-                        setvar! attempts_to_find_new_tree_with_logs 19
-                    elseif attempts_to_find_new_tree_with_logs == 19
-                        setvar! attempts_to_find_new_tree_with_logs 20
-                    endif
-
-                    if attempts_to_find_new_tree_with_logs == max_walk_attempts_per_rune
-                        # sysmsg 'ATTEMPT 11'
-                        sysmsg '[RUNEBOOK {{runebook}} | RUNE {{rune_number}}] MAX ATTEMPTS REACHED: {{attempts_to_find_new_tree_with_logs}}' 40
-                        setvar! go_to_next_rune 1
-                    else
-                        sysmsg '[RUNEBOOK {{runebook}} | RUNE {{rune_number}}] ATTEMPT {{attempts_to_find_new_tree_with_logs}}' 90
-                    endif
-
-                    if auto_walk_to_direction == 1
-                        foreach direction in 'direction_to_walk'
-                            walk direction
-                            break
-                        endfor
-                    endif
-            
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
-                    overhead '| NO WOOD HERE |' 54
-            
-                    if auto_walk_randomly == 1
-                        random 8
-                        if insysmsg 'Random: 1'
-                            foreach x in number_of_steps_per_walk
-                                walk 'south'
-                            endfor
-                        elseif insysmsg  'Random: 2'
-                            foreach x in number_of_steps_per_walk
-                                walk 'down'
-                            endfor
-                        elseif insysmsg  'Random: 3'
-                            foreach x in number_of_steps_per_walk
-                                walk 'east'
-                            endfor
-                        elseif insysmsg  'Random: 4'
-                            foreach x in number_of_steps_per_walk
-                                walk 'right'
-                            endfor
-                        elseif insysmsg  'Random: 5'
-                            foreach x in number_of_steps_per_walk
-                                walk 'north'    
-                            endfor
-                        elseif insysmsg  'Random: 6'
-                            foreach x in number_of_steps_per_walk
-                                walk 'up'
-                            endfor
-                        elseif insysmsg  'Random: 7'
-                            foreach x in  number_of_steps_per_walk
-                                walk 'west'
-                            endfor
-                        elseif insysmsg  'Random: 8'
-                            foreach x in  number_of_steps_per_walk
-                                walk 'left'
-                            endfor
+                    if auto_skip_runes_after_fails == 1
+                        if attempts_to_find_new_tree_with_logs == 0
+                            setvar! attempts_to_find_new_tree_with_logs 1
+                        elseif attempts_to_find_new_tree_with_logs == 1
+                            setvar! attempts_to_find_new_tree_with_logs 2
+                        elseif attempts_to_find_new_tree_with_logs == 2
+                            setvar! attempts_to_find_new_tree_with_logs 3
+                        elseif attempts_to_find_new_tree_with_logs == 3
+                            setvar! attempts_to_find_new_tree_with_logs 4
+                        elseif attempts_to_find_new_tree_with_logs == 4
+                            setvar! attempts_to_find_new_tree_with_logs 5
+                        elseif attempts_to_find_new_tree_with_logs == 5
+                            setvar! attempts_to_find_new_tree_with_logs 6
+                        elseif attempts_to_find_new_tree_with_logs == 6
+                            setvar! attempts_to_find_new_tree_with_logs 7
+                        elseif attempts_to_find_new_tree_with_logs == 7
+                            setvar! attempts_to_find_new_tree_with_logs 8
+                        elseif attempts_to_find_new_tree_with_logs == 8
+                            setvar! attempts_to_find_new_tree_with_logs 9
+                        elseif attempts_to_find_new_tree_with_logs == 9
+                            setvar! attempts_to_find_new_tree_with_logs 10
+                        elseif attempts_to_find_new_tree_with_logs == 10
+                            setvar! attempts_to_find_new_tree_with_logs 11
+                        elseif attempts_to_find_new_tree_with_logs == 11
+                            setvar! attempts_to_find_new_tree_with_logs 12
+                        elseif attempts_to_find_new_tree_with_logs == 12
+                            setvar! attempts_to_find_new_tree_with_logs 13
+                        elseif attempts_to_find_new_tree_with_logs == 13
+                            setvar! attempts_to_find_new_tree_with_logs 14
+                        elseif attempts_to_find_new_tree_with_logs == 14
+                            setvar! attempts_to_find_new_tree_with_logs 15
+                        elseif attempts_to_find_new_tree_with_logs == 15
+                            setvar! attempts_to_find_new_tree_with_logs 16
+                        elseif attempts_to_find_new_tree_with_logs == 16
+                            setvar! attempts_to_find_new_tree_with_logs 17
+                        elseif attempts_to_find_new_tree_with_logs == 17
+                            setvar! attempts_to_find_new_tree_with_logs 18
+                        elseif attempts_to_find_new_tree_with_logs == 18
+                            setvar! attempts_to_find_new_tree_with_logs 19
+                        elseif attempts_to_find_new_tree_with_logs == 19
+                            setvar! attempts_to_find_new_tree_with_logs 20
+                        endif
+    
+                        if attempts_to_find_new_tree_with_logs == max_fails_before_going_to_next_rune
+                            # sysmsg 'ATTEMPT 11'
+                            sysmsg '[RUNEBOOK {{runebook}} | RUNE {{rune_number}}] MAX ATTEMPTS REACHED: {{attempts_to_find_new_tree_with_logs}}' 40
+                            setvar! go_to_next_rune 1
+                        else
+                            sysmsg '[RUNEBOOK {{runebook}} | RUNE {{rune_number}}] ATTEMPT {{attempts_to_find_new_tree_with_logs}}' 90
                         endif
                     endif
+
+                    overhead '| NO WOOD HERE |' 54
             
             
             
-        #         # lumber fail message
-        #         elseif insysmsg "You hack"
-        #             setvar! reset_last_sysmsg_timer 1
-        #             overhead '| hacked |'
+            
+                # lumber fail message
+                elseif insysmsg "You hack"
+                    overhead '| hacked |'
         #     
         #     
         #     
@@ -2124,10 +1994,10 @@ foreach runebook in 'lumber_runetomes'
         
         
         
-                # # catch captcha successful msgs
-                # elseif insysmsg "Captcha successful"
-                #     overhead 'captcha anwsered succesfully' 90
-                #     sysmsg 'Captcha Anwsered Succesfully!' 90
+                # catch captcha successful msgs
+                elseif insysmsg "Captcha successful"
+                    overhead 'captcha anwsered succesfully' 90
+                    sysmsg 'Captcha Anwsered Succesfully!' 90
         
         
                 # catch captcha failure msgs
@@ -2138,8 +2008,6 @@ foreach runebook in 'lumber_runetomes'
         
         
                 endif
-        
-        
         
         
         

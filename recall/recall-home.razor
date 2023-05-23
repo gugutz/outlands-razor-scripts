@@ -54,6 +54,7 @@ endif
 
 
 # search runetomes first
+unsetvar! recall_book
 if not varexist recall_book
     while findtype 'runetome' backpack as found
         getlabel found rtome_label

@@ -1,19 +1,6 @@
-# if varexist setting_rail
-#     sysmsg 'COMING FROM SETTING RAIL!' 85
-# 
-#     if list 'moveList' == 0
-#         sysmsg 'SOMETHING WRONG HAPPENED WHEN SETTING RAIL LIST!'
-#         unsetvar! setting_rail
-#         stop
-#     endif
-# endif
-
-# if not varexist setting_rail
-# removelist 'direction_to_walk'
-# createlist 'direction_to_walk'
-# clearlist number_of_steps_per_walk
-# createlist number_of_steps_per_walk
-
+#####################################
+# READ AND APPLY CONFIG FILE
+#####################################
 
 if not varexist mining_config_loaded
     script 'resources\mining\config'
@@ -21,29 +8,13 @@ endif
 
 unsetvar! mining_config_loaded
 
-setvar! max_resources_in_packie 600
 
+
+
+#####################################
 setvar! action_delay 600
 setvar! spell_recovery_delay 120
 
-# SET WALK MODE BASED ON CONFIG
-setvar! manual_walk_mode 1
-setvar! auto_walk_randomly 0
-setvar! auto_walk_to_specific_direction 0
-setvar! auto_rail 0
-# if walk_mode == 0
-#     sysmsg 'SETTING WALK MODE TO MANUAL' 54
-#     setvar! manual_walk_mode 1
-# elseif walk_mode == 1
-#     sysmsg 'SETTING WALK MODE TO RANDOM' 54
-#     setvar! auto_walk_randomly 1
-# elseif walk_mode == 2
-#     sysmsg 'SETTING WALK MODE TO DIRECTION' 54
-#     setvar! auto_walk_to_specific_direction 1
-# elseif walk_mode == 3
-#     sysmsg 'SETTING WALK MODE TO AUTO RAIL' 54
-#     setvar! auto_rail 1
-# endif
 
 if skill 'magery' < 90 and auto_summon == 1
     sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
@@ -67,23 +38,16 @@ endif
 
 setvar! world_save_delay 8000
 
-cooldown RESOURCES 3000
 
+
+#####################################
 # TEST IF REQUIRED COOLDOWN WAS CREATED
+#####################################
+
+cooldown RESOURCES 3000
 if not cooldown RESOURCES
-    overhead "READ SYSMSG INSTRUCTIONS AT CORNER OF YOUR SCREEN" 34
-    sysmsg "PLEASE SETUP A COOLDOWN NAMED 'RESOURCES' WITH DEFAULT TIMER OF 30 SECONDS" 88
-    sysmsg "." 88
-    sysmsg "ADD THESE TRIGGERS TO THE COOLDOWN:" 66
-    sysmsg "Type: sysmsg | Text: you dig some"
-    sysmsg "Type: sysmsg | Text: You have recently traveled"
-    sysmsg "Type: sysmsg | Text: You have worn out your tool"
-    sysmsg "Type: sysmsg | Text: The world is saving"
-    sysmsg "Type: sysmsg | Text: You do not see any harvestable resources nearby"
-    sysmsg "Type: sysmsg | Text: loosen some rocks but fail"
-    sysmsg "Type: sysmsg | Text: You must wait to perform another action"
-    sysmsg "Type: sysmsg | Text: Harvesting is not allowed in this area"
-    sysmsg "." 88
+    sysmsg "Cooldown resources not found. Please read instructions in README file" 34
+    sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/mining/README.md" 34
     stop
 endif
 
@@ -126,6 +90,8 @@ if not varexist home_book
     stop
 endif
 
+
+
 #############################
 # SET THE MINING RUNEBOOKS
 #############################
@@ -159,6 +125,8 @@ if auto_cycle_runetomes == 1
     endfor
 endif
 
+
+
 ###################################
 # SCRIPT ROUTINE RELATED VARIABLES
 # (USUALLY THERES NO NEED TO EDIT THESE)
@@ -168,12 +136,6 @@ setvar! debug 1
 setvar! resource_cooldown_value 10000
 setvar! recall_casting_time 4500
 
-# SET CURRENT RAIL INDEX TO 0 IF FIRST RUN
-if auto_rail == 1 and not varexist mining_first_run_done
-    setvar! current_rail_index 0
-endif
-removelist 'problematic_rails'
-createlist 'problematic_rails'
 
 setvar! use_strength 1
 setvar! max_diffhits_before_buffing 5
@@ -381,7 +343,6 @@ pushlist 'mining_script_timers' 'waiting_cooldown_timer'
 pushlist 'mining_script_timers' 'waiting_journal_timer'
 pushlist 'mining_script_timers' 'waiting_runebook_gump_timer'
 
-pushlist 'mining_script_timers' 'walking_the_rail'
 
 
 
@@ -734,14 +695,6 @@ endif
 sysmsg 'STARTING...' 18
 ###################################
 
-if manual_walk_mode == 1
-    sysmsg 'MANUAL WALK MODE SELECTED. ADJUSTING SCRIPT SETTINGS...' 90
-    setvar! auto_walk_randomly 0
-    setvar! auto_walk_to_direction 0
-    # removelist 'mining_runetomes'
-    # createlist 'mining_runetomes'
-    # pushlist 'mining_runetomes' 0
-endif
 
 # all guard right now so summons protect char if we start script in the middle of a fight
 if followers > 0
@@ -1150,81 +1103,11 @@ foreach runebook in 'mining_runetomes'
             sysmsg 'RUNE: {{current_rune_position}} (PAGE: {{page_number}})' 90
         endif
 
-        if auto_rail == 1
-            # if we just came from the rail script dont set it again
-            if setting_rail == 1
-                unsetvar! setting_rail
-            else
-                setvar! setting_rail 1
-
-                removelist 'moveList'
-                removelist 'xCoord'
-                removelist 'yCoord'
-                if current_rune_position == 1
-                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 1' 91
-                    script 'resources\mining\book-1-rail-1'
-                elseif current_rune_position == 2
-                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 2' 91
-                    script 'resources\mining\book-1-rail-2'
-                elseif current_rune_position == 3
-                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 3' 91
-                    script 'resources\mining\book-1-rail-3'
-                elseif current_rune_position == 4
-                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 4' 91
-                    script 'resources\mining\book-1-rail-4'
-                elseif current_rune_position == 5
-                    sysmsg '>>>>>>>>>>>>>> SETTING RAIL 5' 91
-                    script 'resources\mining\book-1-rail-5'
-                elseif current_rune_position == 6
-                    script 'resources\mining\book-1-rail-6'
-                elseif current_rune_position == 7
-                    script 'resources\mining\book-1-rail-7'
-                elseif current_rune_position == 8
-                    script 'resources\mining\book-1-rail-8'
-                elseif current_rune_position == 9
-                    script 'resources\mining\book-1-rail-9'
-                elseif current_rune_position == 10
-                    script 'resources\mining\book-1-rail-10'
-                elseif current_rune_position == 11
-                    script 'resources\mining\book-1-rail-11'
-                elseif current_rune_position == 12
-                    script 'resources\mining\book-1-rail-12'
-                elseif current_rune_position == 13
-                    script 'resources\mining\book-1-rail-13'
-                elseif current_rune_position == 14
-                    script 'resources\mining\book-1-rail-14'
-                elseif current_rune_position == 15
-                    script 'resources\mining\book-1-rail-15'
-                elseif current_rune_position == 16
-                    script 'resources\mining\book-1-rail-16'
-                elseif current_rune_position == 17
-                    script 'resources\mining\book-1-rail-17'
-                elseif current_rune_position == 18
-                    script 'resources\mining\book-1-rail-18'
-                elseif current_rune_position == 19
-                    script 'resources\mining\book-1-rail-19'
-                elseif current_rune_position == 20
-                    script 'resources\mining\book-1-rail-20'
-                elseif current_rune_position == 21
-                    script 'resources\mining\book-1-rail-20'
-                elseif current_rune_position == 22
-                    script 'resources\mining\book-1-rail-20'
-                elseif current_rune_position == 23
-                    script 'resources\mining\book-1-rail-20'
-                elseif current_rune_position == 24
-                    script 'resources\mining\book-1-rail-20'
-                elseif current_rune_position == 25
-                    script 'resources\mining\book-1-rail-20'
-                elseif current_rune_position == 26
-                    script 'resources\mining\book-1-rail-20'
-                endif
-            endif
-        endif
 
         if auto_cycle_runetomes == 1 and recall_home_now != 1
             # travel to the rune
 
-           # meditate before travel if needed
+            # meditate before travel if needed
             while mana <= 11
                 sysmsg 'MEDITATING TO RECALL' warning_msg_color
                 if not findbuff 'actively meditating'
@@ -1265,9 +1148,6 @@ foreach runebook in 'mining_runetomes'
             endif
         endif
     
-        # after travelling, hide and wait for the cooldown to end
-        # wait 60000
-
         # BEFORE EVERY START
         setvar! reset_last_sysmsg_timer 0
         settimer 'last_sysmsg_timer' 0
@@ -1283,12 +1163,9 @@ foreach runebook in 'mining_runetomes'
 
             setvar! main_loop_index index
 
-            # remember player the loop is active every 30s
-            if timer 'loop_on_warning_msg' >= 30000
+            # remember player the loop is active every 60s
+            if timer 'loop_on_warning_msg' >= 60000
                 settimer 'loop_on_warning_msg' 0
-
-                # sysmsg '************************' 90
-
                 sysmsg 'Mining Bot by gugutz.' 89
                 sysmsg 'Last captcha was: {{last_gump_tracking_timer}}ms ago' stats_msg_color
                 sysmsg 'Uptime: {{mining_uptime}}ms' stats_msg_color
@@ -1567,7 +1444,6 @@ foreach runebook in 'mining_runetomes'
                         endfor
 
                         setvar! reset_last_sysmsg_timer 1
-                        # cooldown RESOURCES resource_cooldown_value
                     # CLOSES if varexist cast_summon_spell
 
                     endif
@@ -1636,9 +1512,6 @@ foreach runebook in 'mining_runetomes'
                     if findbuff 'magic reflection'
                         overhead '+MAGIC REFLECT' buff_msg_color
                     endif
-
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
                 endif
 
             endif
@@ -1670,8 +1543,6 @@ foreach runebook in 'mining_runetomes'
                         overhead '+reactive' buff_msg_color
                     endif
 
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
                 endif
             endif
 
@@ -1747,15 +1618,10 @@ foreach runebook in 'mining_runetomes'
                     dclicktype 'pickaxe'
                     overhead "✩equiped new pickaxe✩"
                     wait 1500
-                    if debug == 1
-                    endif
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
                 else
                     overhead "✩OUT OF PICKAXES✩" 40
                     sysmsg "OUT OF PICKAXES! GOING HOME TO RESSUPLY!" warning_msg_color
                     setvar! recall_home_now 1
-                    # stop
                 endif
             endif
 
@@ -1768,16 +1634,9 @@ foreach runebook in 'mining_runetomes'
 
 
                 # mine
-                # if timer 'last_sysmsg_timer' < max_wait_for_last_sysmsg_to_use_pickaxe and not rhandempty and diffweight > 10
                 if not rhandempty and cooldown RESOURCES
-                # if not rhandempty
-                    # settimer 'last_sysmsg_timer' 0
-                    # wait 50
-
                     sysmsg '>>> ITEM IN RIGHT HAND... ' 87
-
                     cooldown RESOURCES 0
-
 
                     clearsysmsg
                     settimer 'waiting_journal_timer' 0
@@ -1836,11 +1695,6 @@ foreach runebook in 'mining_runetomes'
                     endwhile
                     sysmsg 'SAIU MUST WAIT 2'
 
-                    # wait 50
-
-                    # clearsysmsg
-                    # wait 10
-                    # wait max_wait_for_last_sysmsg_to_use_pickaxe
                 endif
 
                 #############################################
@@ -2018,7 +1872,6 @@ foreach runebook in 'mining_runetomes'
                                     dclick ores
                                     wait action_delay
                                     setvar! reset_last_sysmsg_timer 1
-                                    # cooldown RESOURCES resource_cooldown_value
                                 endif
                                 @ignore ores
                             endwhile
@@ -2055,8 +1908,6 @@ foreach runebook in 'mining_runetomes'
                                             overhead 'smelting ores' 56 packanimal
                                             dclick ores
                                             wait action_delay
-                                            # setvar! reset_last_sysmsg_timer 1
-                                            # cooldown RESOURCES resource_cooldown_value
                                         endif
 
                                         @ignore ore
@@ -2082,17 +1933,14 @@ foreach runebook in 'mining_runetomes'
 
 
                 while findtype ORES|INGOTS ground any any 2 as ore and diffweight > 50
-                # while findtype 6585|7125 ground any any 2 as ore and diffweight > 50
                     hotkey 'Grab Item'
                     wft action_delay
-                    # if targetexists 'neutral'
-                    sysmsg 'GETTING ORE FROM GROUND' 51
-                    overhead '* ore from ground *' 51
-                    target ore
-                    # endif
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
-                    # settimer 'last_sysmsg_timer' 0
+
+                    if targetexists 'any'
+                        sysmsg 'GETTING ORE FROM GROUND' 51
+                        overhead '* ore from ground *' 51
+                        target ore
+                    endif
                 endwhile
 
 
@@ -2299,9 +2147,6 @@ foreach runebook in 'mining_runetomes'
                             endif
                         endfor
 
-                        # setvar! reset_last_sysmsg_timer 1
-                        # cooldown RESOURCES resource_cooldown_value
-
                     else
                         overhead '! HEAVY !' 90
                     endif
@@ -2322,29 +2167,10 @@ foreach runebook in 'mining_runetomes'
                 overhead '!! PK !!' 54
 
                 if auto_escape_pks == 1
-                    # make sure char wont get stuck due to overweighting
-                    # while weigth > maxweigth
-                    #     if weigth > maxweigth and findtype ORES backpack 0 as ore_serial
-                    #         lift ore_serial 20
-                    #         wait action_delay
-                    #         drop ground
-                    #         wait action_delay
-                    #     elseif weigth > maxweigth and findtype ORES backpack any as ore_serial
-                    #         lift ore_serial 20
-                    #         wait action_delay
-                    #         drop ground
-                    #         wait action_delay
-                    #     elseif weigth > maxweigth
-                    #         overhead '*HEAVY BUT NO ORES*' 54
-                    #         break
-                    #     endif
-                    # endwhile
-
                     sysmsg '>>> ESCAPING PK!!!' 41
                     overhead '!! ESCAPING PK !!' 41
 
                     setvar! recall_home_now 1
-
                 endif
 
 
@@ -2363,8 +2189,6 @@ foreach runebook in 'mining_runetomes'
         
                 if insysmsg 'World save complete in {{waiting_world_save_timer}}'
                     overhead '*save complete!*' 90
-                    # setvar! reset_last_sysmsg_timer 1
-                    # cooldown RESOURCES resource_cooldown_value
                 endif
 
             # handle tools breaking
@@ -2385,192 +2209,17 @@ foreach runebook in 'mining_runetomes'
                     else
                         overhead "✩ You are out of pickaxes✩"
                         setvar! recall_home_now 1
-                        # stop
                     endif
                 endif
-
-                # setvar! reset_last_sysmsg_timer 1
-                # cooldown RESOURCES resource_cooldown_value
-
 
 
             # no resources where char is
             elseif insysmsg "You do not see any harvestable resources nearby"
 
-                #########################################
-                # AUTO RAIL ROUTINE
-                #########################################
-            
-                if auto_rail == 1
-                    # sysmsg 'FAILED TO MINE. MOVING'
-            
-        #             sysmsg 'DOING RAIL INDEX {{current_rail_index}}' rail_msg_color
-        # 
-        #             if current_rail_index >= list 'moveList'
-        #                 sysmsg 'GOT TO END OF RAIL LIST. RESETING RAIL INDEX' rail_msg_color
-        #                 setvar! current_rail_index 0
-        #             endif
-        
-                    if list 'moveList' == 0
-                        sysmsg 'RAIL COMPLETE! GOING TO NEXT RUNE!' success_msg_color
-                        setvar! go_to_next_rune 1
-                    else
-                        # sysmsg 'ENTERED WALK RAIL!!' 90
-
-                        # before moving check if we got to previous destinatiojn and if so, remove destination from front of list to go to next
-                        if varexist rail_x and varexist rail_y
-                            if position rail_x rail_y
-                                # sysmsg '[RAIL] REACHED POINT {{rail_x}}, {{rail_y}}!' 49
-                                # sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' rail_msg_color
-    
-                                # poplist moveList 'front'
-                                # poplist xCoord 'front'
-                                # poplist yCoord 'front'
-                            # else
-                            #     if failed_rail_attempts == 0
-                            #         setvar! failed_rail_attempts 1
-                            #     elseif failed_rail_attempts == 1
-                            #         setvar! failed_rail_attempts 2
-                            #     elseif failed_rail_attempts == 2
-                            #         setvar! failed_rail_attempts 3
-                            #     elseif failed_rail_attempts == 3
-                            #         setvar! failed_rail_attempts 4
-                            #     elseif failed_rail_attempts == 4
-                            #         setvar! failed_rail_attempts 5
-                            #     endif
-
-                            #     if failed_rail_attempts == 5
-                            #         sysmsg 'FAILED TO REACH POINT 5 times' 54
-                            #         setvar! failed_rail_attempts 0
-                            #         setvar! go_to_next_rune 1
-                            #     endif
-                            endif
-                        endif
-
-                        unsetvar rail_direction
-                        unsetvar rail_x
-                        unsetvar rail_y
-
-                        if atlist 'moveList' 0 as direction
-                            setvar! rail_direction direction
-                        else
-                            sysmsg 'CANT SET RAIL DIRECTION!!!' 39
-                        endif
-
-                        if atlist 'xCoord' 0 as x
-                            setvar! rail_x x
-                        endif
-                        if atlist 'yCoord' 0 as y
-                            setvar! rail_y y
-                        endif
-            
-                        # WALK THE RAIL!
-                        if varexist rail_direction and varexist rail_x and varexist rail_y
-                            settimer 'walking_the_rail' 0
-                            setvar! failed_rail_attempts 0
-
-                            while cooldown RESOURCES and not insysmsg 'you dig' and not insysmsg 'loosen some rocks but fail' and not insysmsg 'you must wait' and not insysmsg 'Harvesting is not allowed in this area' and not insysmsg 'You have recently traveled'
-                                if not position rail_x rail_y
-                                    sysmsg '[RAIL] WALKING TO POS: {{rail_x}}, {{rail_y}}' rail_msg_color
-                                    if rail_direction == 1
-                                        walk 'north'
-                                    endif
-                                    if rail_direction == 2
-                                        walk 'right'
-                                    endif
-                                    if rail_direction == 3
-                                        walk 'east'
-                                    endif
-                                    if rail_direction == 4
-                                        walk 'down'
-                                    endif
-                                    if rail_direction == 5
-                                        walk 'south'
-                                    endif
-                                    if rail_direction == 6
-                                        walk 'left'
-                                    endif
-                                    if rail_direction == 7
-                                        walk 'west'
-                                    endif
-                                    if rail_direction == 8
-                                        walk 'up'
-                                    endif
-
-                                    while not position rail_x rail_y and timer 'walking_the_rail' < movement_delay
-                                        wait 10
-                                    endwhile
-    
-                                    # wait movement_delay
-
-                                    if not position rail_x rail_y
-                                        if failed_rail_attempts == 0
-                                            setvar! failed_rail_attempts 1
-                                        elseif failed_rail_attempts == 1
-                                            setvar! failed_rail_attempts 2
-                                        elseif failed_rail_attempts == 2
-                                            setvar! failed_rail_attempts 3
-                                        elseif failed_rail_attempts == 3
-                                            setvar! failed_rail_attempts 4
-                                        elseif failed_rail_attempts == 4
-                                            setvar! failed_rail_attempts 5
-                                        endif
-
-                                        if failed_rail_attempts == 5
-                                            sysmsg 'FAILED TO REACH POINT 5 times' 54
-                                            setvar! failed_rail_attempts 0
-                                            setvar! go_to_next_rune 1
-
-                                            if current_rune_position in 'problematic_rails'
-                                            else
-                                                pushlist 'problematic_rails' current_rune_position
-                                            endif
-
-                                            break
-                                        endif
-                                    endif
-                
-                                endif
-                            endwhile
-
-                            if position rail_x rail_y
-                                sysmsg '[RAIL] GOT TO POINT {{rail_x}}, {{rail_y}}' 49
-
-                                poplist moveList 'front'
-                                poplist xCoord 'front'
-                                poplist yCoord 'front'
-                            endif
-
-                            clearsysmsg
-                            sysmsg 'IN HAND INSIDE RAIL'
-                            hotkey 'Use Item in Right Hand'
-                            wait action_delay
-    
-                        else
-                            sysmsg 'COULDNT SET RAIL VARIABLES' alert_msg_color
-                        endif
-                    endif
-            
-                endif
-
-
-
-
-    
-                if auto_walk_to_specific_direction == 1
-                    foreach direction in 'direction_to_walk'
-                        walk direction
-                        break
-                    endfor
-                endif
-
-                # setvar! reset_last_sysmsg_timer 1
-                # cooldown RESOURCES resource_cooldown_value
-                # overhead '| NO ORES HERE |' 54
                 overhead '! NO ORES HERE !' 54
 
-                if auto_walk_randomly == 1
-                    # update attempt number
+                # update attempt number
+                if auto_skip_runes_after_fails == 1
                     if attempts_to_find_new_ore_veins == 0
                         setvar! attempts_to_find_new_ore_veins 1
                     elseif attempts_to_find_new_ore_veins == 1
@@ -2612,50 +2261,16 @@ foreach runebook in 'mining_runetomes'
                     elseif attempts_to_find_new_ore_veins == 19
                         setvar! attempts_to_find_new_ore_veins 20
                     endif
-
-                    if attempts_to_find_new_ore_veins == max_walk_attempts_per_rune
+    
+                    if attempts_to_find_new_ore_veins == max_fails_before_going_to_next_rune
                         sysmsg '[RUNEBOOK {{runebook}} | RUNE {{rune_number}}] MAX ATTEMPTS REACHED: {{attempts_to_find_new_ore_veins}}' 40
                         setvar! go_to_next_rune 1
                     else
                         sysmsg '[RUNEBOOK {{runebook}} | RUNE {{rune_number}}] ATTEMPT {{attempts_to_find_new_ore_veins}}' 90
                     endif
-
-
-                    random 8
-                    if insysmsg 'Random: 1'
-                        foreach x in number_of_steps_per_walk
-                            walk 'south'
-                        endfor
-                    elseif insysmsg  'Random: 2'
-                        foreach x in number_of_steps_per_walk
-                            walk 'down'
-                        endfor
-                    elseif insysmsg  'Random: 3'
-                        foreach x in number_of_steps_per_walk
-                            walk 'east'
-                        endfor
-                    elseif insysmsg  'Random: 4'
-                        foreach x in number_of_steps_per_walk
-                            walk 'right'
-                        endfor
-                    elseif insysmsg  'Random: 5'
-                        foreach x in number_of_steps_per_walk
-                            walk 'north'    
-                        endfor
-                    elseif insysmsg  'Random: 6'
-                        foreach x in number_of_steps_per_walk
-                            walk 'up'
-                        endfor
-                    elseif insysmsg  'Random: 7'
-                        foreach x in number_of_steps_per_walk
-                            walk 'west'
-                        endfor
-                    elseif insysmsg  'Random: 8'
-                        foreach x in number_of_steps_per_walk
-                            walk 'left'
-                        endfor
-                    endif
                 endif
+
+            endif
 
 
             # mining fail message
@@ -3344,161 +2959,3 @@ foreach runebook in 'mining_runetomes'
 endfor
 
 
-#################################
-# CHANGELOG
-#################################
-#
-# v0.3.2
-# - Script now recalls home when cant find pickaxes to equip
-#
-# v0.3.1
-# - Disables autounload to free weigth before recalling home until i find a fix for it
-#
-# v0.3.0
-# - Opens regs bag when starting to make sure razor will detect pots and regs inside loadout bag
-# - Switches bandage timers for the new 'bandaging' command
-# - Updates packies weight check to conform to new material weight changes
-#
-# v0.2.1
-# - Adds gump serial to gumpresponse command on recall routine
-# - Adds Archery to supported weapon skills when defending against monsters
-# - Fix bug where script would keep trying to smelt packies ores, even if char got far from forge
-# - Fix bug where char would enter defense routine even without monsters nearby
-# - Adds missing gump serial to tracking gumpresponse and gumpclose calls
-# - Script now closes the tracking gump after Starting Hunting
-# - Script will now rename packies according to their weight status: 'full packie' and 'light packie', to make it easier to track which one is full or not
-# - Add weigth check on each packie unloading so char doenst try to iterate thought all packies even after completely unloaded
-# - Improves weight check logic to determine when packie is heavy
-# - Fix bandage delay reseting when full restoring hp while atacking mobs
-#
-# v0.2.0
-# - Switches from list configs back to variables using setvar!
-# - Script should now do ore maps as well when finding ore maps in backpack
-# - Temporary fix for the "removing from full packies list" bug that happened when a packie got full and then was unloaded, which would make script stop working
-# - Adds outpost forge position to smelt after recalling routine for players that dont have a house and use the outpost forge when escaping PKs/recalling
-#
-# v0.1.4-rc1
-# - Fix sysmsg that was mistakenly assuming char got iron instead of shadow iron (tkx GCinco!)
-# - Makes 'go home and unload' routine reusable and triggered in different parts of the script
-# - Tries to detect when all packies are heavy and takes char home and unload
-#
-# v0.1.3
-# - Fixed bug where char would keep equipping all combat weaopns found in backpack while fightning mobs
-# - Added some missing lists that were causing script to crash while fighting mobs
-# - Added startup warnings about script requirements
-#
-# v0.1.2
-# - Fixes bug where char would constantly use bandages when finding multiple mobs to kill
-#
-# v0.1.1
-# - Check for ores in char or packies before starting smelting routine
-# - addresses grab bug when ore fell on ground
-#
-# v0.1.0
-# - Adds more checks of ore and ingots on packie to determine if its heavy
-# - Improves combat and weapon equipping logic to fight monsters
-# - Fix bug where char would count ingots from its backpack while checking packies weight (tkx @Guga#1138 for noticing!)
-# - Fix some calls  to wrong variable name (tkx @daniel_#6593 for noticing!)
-#
-# v0.0.9
-# - Fixes error happening on chars without healing due to script trying to access a variable that is only created on chars with healing (tkx to @BaLLa#7588 for finding and reporting it)
-#
-# v0.0.8
-# - Makes char undress pickaxe to fight monsters with appropriate combat weapon
-# - Fixes error when char tried to heal himself when attacked
-# - Handles 'You have worn out your tool' sysmsgs
-# - Fixed blue chars not finding packies (tkx to @renatoestevao#8568 for subimitting a PR)
-#
-# v0.0.7
-# - Adds missing variables containing rune positions in runetome and runebook
- 
-# v0.0.6
-# - Adds survival routine to defend char against closed-ranged combat creatures
-# - Adds sysmsg check to see if char got far from forge while inside the smelting loop
-#
-# v0.0.5
-# - Stops double clicking packie to open packpack when unloading ores while heavy
-# - Adds wait timer after recalling and before unloading when getting home
-#
-# v0.0.4
-# - Adds setting to choose if script will auto smelt ores when close to forge
-#
-# v0.0.3
-# - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
-#
-# v0.0.2
-# - Adds checks for several map-forges around the world
-# - Adds option to not smelt colored ores (makes it hard for PKS to take them)
-#
-# v0.0.1
-# - Initial release
-# - Fix bug where script would keep trying to smelt packies ores, even if char got far from forge
-# - Fix bug where char would enter defense routine even without monsters nearby
-# - Adds missing gump serial to tracking gumpresponse and gumpclose calls
-# - Script now closes the tracking gump after Starting Hunting
-# - Script will now rename packies according to their weight status: 'full packie' and 'light packie', to make it easier to track which one is full or not
-# - Add weigth check on each packie unloading so char doenst try to iterate thought all packies even after completely unloaded
-# - Improves weight check logic to determine when packie is heavy
-# - Fix bandage delay reseting when full restoring hp while atacking mobs
-#
-# v0.2.0
-# - Switches from list configs back to variables using setvar!
-# - Script should now do ore maps as well when finding ore maps in backpack
-# - Temporary fix for the "removing from full packies list" bug that happened when a packie got full and then was unloaded, which would make script stop working
-# - Adds outpost forge position to smelt after recalling routine for players that dont have a house and use the outpost forge when escaping PKs/recalling
-#
-# v0.1.4-rc1
-# - Fix sysmsg that was mistakenly assuming char got iron instead of shadow iron (tkx GCinco!)
-# - Makes 'go home and unload' routine reusable and triggered in different parts of the script
-# - Tries to detect when all packies are heavy and takes char home and unload
-#
-# v0.1.3
-# - Fixed bug where char would keep equipping all combat weaopns found in backpack while fightning mobs
-# - Added some missing lists that were causing script to crash while fighting mobs
-# - Added startup warnings about script requirements
-#
-# v0.1.2
-# - Fixes bug where char would constantly use bandages when finding multiple mobs to kill
-#
-# v0.1.1
-# - Check for ores in char or packies before starting smelting routine
-# - addresses grab bug when ore fell on ground
-#
-# v0.1.0
-# - Adds more checks of ore and ingots on packie to determine if its heavy
-# - Improves combat and weapon equipping logic to fight monsters
-# - Fix bug where char would count ingots from its backpack while checking packies weight (tkx @Guga#1138 for noticing!)
-# - Fix some calls  to wrong variable name (tkx @daniel_#6593 for noticing!)
-#
-# v0.0.9
-# - Fixes error happening on chars without healing due to script trying to access a variable that is only created on chars with healing (tkx to @BaLLa#7588 for finding and reporting it)
-#
-# v0.0.8
-# - Makes char undress pickaxe to fight monsters with appropriate combat weapon
-# - Fixes error when char tried to heal himself when attacked
-# - Handles 'You have worn out your tool' sysmsgs
-# - Fixed blue chars not finding packies (tkx to @renatoestevao#8568 for subimitting a PR)
-#
-# v0.0.7
-# - Adds missing variables containing rune positions in runetome and runebook
-#
-# v0.0.6
-# - Adds survival routine to defend char against closed-ranged combat creatures
-# - Adds sysmsg check to see if char got far from forge while inside the smelting loop
-#
-# v0.0.5
-# - Stops double clicking packie to open packpack when unloading ores while heavy
-# - Adds wait timer after recalling and before unloading when getting home
-#
-# v0.0.4
-# - Adds setting to choose if script will auto smelt ores when close to forge
-#
-# v0.0.3
-# - Makes sysmsgs checks even when gump is detected (so char can escape PKs even when answering gumps)
-#
-# v0.0.2
-# - Adds checks for several map-forges around the world
-# - Adds option to not smelt colored ores (makes it hard for PKS to take them)
-#
-# v0.0.1
-# - Initial release
