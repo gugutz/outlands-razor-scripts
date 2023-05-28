@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v5.1.0
+
+- Moves config back to main script file and removes config file
+
 ## v5.0.0
 
 - Removes all walk implementations and references from script after razor `walk` command was disabled lol

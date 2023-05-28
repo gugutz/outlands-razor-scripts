@@ -20,6 +20,7 @@
 # CONFIGURATION
 ##################################
 
+setvar! action_delay 600
 setvar! runetome_rune_btn_number 100
 setvar! runebook_rune_btn_number 2
 
@@ -30,7 +31,6 @@ setvar! runebook_rune_btn_number 2
 
 setvar! runetome_gump_id 167090027
 setvar! runebook_gump_id 1551740969
-setvar! recall_book_color 0
 
 setvar! recall_travel_time 2800
 setvar! use_scroll 0
@@ -54,17 +54,17 @@ endif
 
 
 # search runetomes first
-unsetvar! recall_book
-if not varexist recall_book
+unsetvar! home_book
+
+if not varexist home_book
     while findtype 'runetome' backpack as found
         getlabel found rtome_label
         if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
-            sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
-            setvar! recall_book found
-            setvar! recall_book_gump_id 167090027
+            sysmsg 'FOUND HOME RUNETOME {{found}}: {{rtome_label}}' 54
+            setvar! home_book found
+            setvar! home_book_gump_id 167090027
             setvar! home_rune_btn_number runetome_rune_position
 
-            setvar! recall_book rtome
             # setvar! recall_by_charge_btn_number runetome_rune_position
             setvar! recall_by_charge_btn_number 100
 
@@ -76,13 +76,13 @@ endif
 @clearignore
 
 # if we couldnt find a home runetome, search for a home runebook
-if not varexist recall_book
+if not varexist home_book
     while findtype 'runebook' backpack as found
         getlabel found rbook_label
         if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
-            sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
-            setvar! recall_book found
-            setvar! recall_book_gump_id 1551740969
+            sysmsg 'FOUND HOME RUNEBOOK {{found}}: {{rtome_label}}' 54
+            setvar! home_book found
+            setvar! home_book_gump_id 1551740969
             setvar! home_rune_btn_number runetome_rune_position
             setvar! recall_by_charge_btn_number 2
         endif
@@ -92,7 +92,7 @@ if not varexist recall_book
     @clearignore
 endif
 
-if not varexist recall_book
+if not varexist home_book
     sysmsg "YOU NEED A RUNEBOOK OR RUNETOME NAMED 'HOME' WITH YOUR HOME RUNE SET TO DEFAULT TO RUN THIS SCRIPT" 54
     stop
 endif
@@ -171,22 +171,22 @@ if counttype "Black Pearl%s%" == 0 or counttype "Blood Moss" == 0 or counttype "
 endif
 
 # pick which book should script recall to
-# if findtype 'runetome' backpack recall_book_color as rtome
-#     setvar! recall_book rtome
-#     setvar! recall_book_gump_id 167090027
+# if findtype 'runetome' backpack home_book_color as rtome
+#     setvar! home_book rtome
+#     setvar! home_book_gump_id 167090027
 #     # setvar! recall_by_charge_btn_number runetome_rune_position
 #     setvar! recall_by_charge_btn_number 100
-# elseif findtype 'runebook' backpack recall_book_color as rbook
-#     setvar! recall_book rbook
-#     setvar! recall_book_gump_id 1551740969
+# elseif findtype 'runebook' backpack home_book_color as rbook
+#     setvar! home_book rbook
+#     setvar! home_book_gump_id 1551740969
 #     # setvar! recall_by_charge_btn_number runebook_rune_position
 #     setvar! recall_by_charge_btn_number 2
 # endif
 
 
-if use_charges == 1 and gumpexists recall_book_gump_id
-    # waitforgump recall_book_gump_id action_delay
-    gumpresponse recall_by_charge_btn_number recall_book_gump_id
+if use_charges == 1 and gumpexists home_book_gump_id
+    # waitforgump home_book_gump_id action_delay
+    gumpresponse recall_by_charge_btn_number home_book_gump_id
     stop
 endif
 
@@ -221,19 +221,19 @@ if use_charges == 0
         endif
     endwhile
 
-    target recall_book
+    target home_book
 else
     sysmsg '>> Recalling Home via Charges...' 56
     overhead '*going home using charges*' 56
-    dclick recall_book
-    waitforgump recall_book_gump_id action_delay
+    dclick home_book
+    waitforgump home_book_gump_id action_delay
 
     if insysmsg 'You have recently committed an aggressive action and must wait'
         overhead "AGGRESSION CD! REPLAYING..." 54
         replay
     endif
 
-    gumpresponse recall_by_charge_btn_number recall_book_gump_id
+    gumpresponse recall_by_charge_btn_number home_book_gump_id
 endif
 
 wait recall_travel_time

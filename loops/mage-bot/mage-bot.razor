@@ -1,5 +1,3 @@
-setvar! script_version 300
-
 sysmsg '#########################' 90
 # overhead '🤖 MAGE BOT 🤖' 55
 # overhead 'by gugutz' 55
@@ -8,6 +6,28 @@ sysmsg '★★ MAGE BOT ®' 55
 sysmsg '→ by gugutz ™' 55
 sysmsg 'Version: {{script_version}}' 56
 sysmsg '########################' 90
+
+
+#####################################
+# VARIABLES FOR MESSAGE COLORS
+#####################################
+setvar! debug_msg_color 41
+setvar! script_msg_color 2213
+setvar! default_sysmsg_color 1360
+setvar! default_overhead_color 1360
+
+setvar! spell_msg_color 49
+setvar! buff_msg_color 92
+setvar! warning_msg_color 1196
+setvar! alert_msg_color 1172
+setvar! success_msg_color 1272
+setvar! action_msg_color 90
+setvar! rail_msg_color 116
+setvar! on_cooldown_msg_color 53
+setvar! reset_timer_msg_color 1258
+setvar! boating_msg_color 84
+setvar! script_version 300
+
 sysmsg '.' instructions_msg_color
 
 if not timerexists 'execution_timer'
@@ -237,24 +257,6 @@ setvar! mushroom_limit_before_creating_more 2
 setvar! mushroom_stock_size 15
 
 
-#####################################
-# VARIABLES FOR MESSAGE COLORS
-#####################################
-setvar! debug_msg_color 41
-setvar! script_msg_color 2213
-setvar! default_sysmsg_color 1360
-setvar! default_overhead_color 1360
-
-setvar! spell_msg_color 49
-setvar! buff_msg_color 92
-setvar! warning_msg_color 1196
-setvar! alert_msg_color 1172
-setvar! success_msg_color 1272
-setvar! action_msg_color 90
-setvar! rail_msg_color 116
-setvar! on_cooldown_msg_color 53
-setvar! reset_timer_msg_color 1258
-setvar! boating_msg_color 84
 
 
 #####################################
@@ -488,6 +490,15 @@ if skill 'forensic' > 0 and auto_skin_corpses == 1 and not listexists 'skinned_c
     sysmsg '$$$ Creating list to control skinned corpses...' script_msg_color
     createlist 'skinned_corpses'
 endif
+
+
+if skill 'necromancy' >= 80
+    if not listexists 'consumed_corpses'
+        sysmsg '$$$ Creating list to control drained corpses...' script_msg_color
+        createlist 'consumed_corpses'
+    endif
+endif
+
 
 
 
@@ -1605,32 +1616,37 @@ while not dead 'self'
         if offensive_mode == 1 and dead lasttarget or offensive_mode == 0
             if auto_vampiric_embrace == 1 and skill 'necromancy' > 0
                 # if timer 'vampiric_embrace_cooldown_timer' >= 30000
-                if not cooldown 'Necro Ability'
+                if not cooldown 'Vampiric Embrace'
                     if findtype 'corpse' ground any any 10 as body
-                        if verbose == 1
-                            sysmsg '>>> VAMPIRIC EMBRACE' spell_msg_color
-                        endif
+                        if not inlist 'consumed_corpses' body
+                            pushlist 'consumed_corpses' body
 
-                        say '[vampiricembrace'
-                        wft action_delay
-                        if targetexists 'neutral'
                             if verbose == 1
-                                sysmsg '>>> CONSUMING NEARBY CORPSE...' action_msg_color
-                                overhead '*consuming corpse*' default_overhead_color
+                                sysmsg '>>> VAMPIRIC EMBRACE' spell_msg_color
                             endif
-                            # target body
-                            # TESTING trade target body to target self to avoid locking char trying to consume an out of sight body like one in another room
-                            hotkey 'Target Self'
-                            wait action_delay
-                            settimer 'vampiric_embrace_cooldown_timer' 0
-
-                            if debug == 1
-                                sysmsg 'RESETING LAST AFTER CONSUMING CORPSE' reset_timer_msg_color
-                            endif
-
-                            hotkey 'Set Last Target (Harmful)'
+    
+                            say '[vampiricembrace'
                             wft action_delay
-                            target last_target_serial
+                            if targetexists 'neutral'
+                                if verbose == 1
+                                    sysmsg '>>> CONSUMING NEARBY CORPSE...' action_msg_color
+                                    overhead '*consuming corpse*' default_overhead_color
+                                endif
+                                # target body
+                                # TESTING trade target body to target self to avoid locking char trying to consume an out of sight body like one in another room
+                                hotkey 'Target Self'
+                                wait action_delay
+                                settimer 'vampiric_embrace_cooldown_timer' 0
+                                settimer 'Vampiric Embrace' 0
+    
+                                if debug == 1
+                                    sysmsg 'RESETING LAST AFTER CONSUMING CORPSE' reset_timer_msg_color
+                                endif
+    
+                                hotkey 'Set Last Target (Harmful)'
+                                wft action_delay
+                                target last_target_serial
+                            endif
                         endif
 
                     endif
@@ -3444,10 +3460,6 @@ sysmsg 'chegou enemy mob attack routine'
 
                     hotkey 'Clear Target Queue'
 
-                    if debug == 1
-                        sysmsg '>>> FOUND ALIVE LAST && MAX SUMMONS' debug_msg_color
-                    endif
-
                     # save current target to compare with last saved last_target_serial to see if we have a new mob or just a old mob that went off screen of hid itself
                     if find 'last' ground any any find_last_target_max_range as serial
                         setvar! current_target_serial serial
@@ -3673,7 +3685,7 @@ sysmsg 'chegou kill close to loot'
                                 # poison
                                 if followers >= followers_max_limit and diffhits < max_diffhits_before_healing
                                     if use_poison == 1 and timer 'poison_timer' >= poison_delay
-                                        if is_noxer == 1
+                                        if is_noxxer == 1
                                             if verbose == 1
                                                 sysmsg '◎ POISON (ALL MOBS)' spell_msg_color
                                             endif
@@ -3698,7 +3710,7 @@ sysmsg 'chegou kill close to loot'
                                             hotkey 'Toggle Peace Only'
                                             
                                             foreach targ in 'poison_targets'
-                                                if not dead targ
+                                                if not dead targ and find targ ground any any 10
                                                     overhead '*poisoning*' 76 targ
                                                     cast 'poison'
                                                     wft 3000
@@ -3711,6 +3723,7 @@ sysmsg 'chegou kill close to loot'
 
                                             settimer 'poison_timer' 0
                                             cooldown 'POISON' poison_delay
+                                            clearlist 'poison_targets'
                                             setvar! last_cursed_serial lasttarget
                                         else
                                             sysmsg '◎ POISON' spell_msg_color
@@ -4347,148 +4360,6 @@ sysmsg 'chegou kill close to loot'
         overhead '!! RABBIT !!' 90 rabbit
     endif
 
-
-
-
-
-    #########################################
-    # AUTO RAIL ROUTINE
-    #########################################
-
-    if auto_rail == 1
-        if debug == 1
-           sysmsg '[DEBUG] ENTERED RAIL' debug_msg_color
-        endif
-
-        setvar! do_rail_now 0
-
-        hotkey 'Target Closest Non-Friendly Monster'
-        hotkey 'Set Last Target'
-        wft action_delay
-        hotkey 'Last Target'
-        wait spell_recovery_delay
-
-        if dead last_target_serial
-            if verbose == 1
-                sysmsg 'LAST TARGET DEAD. DOING RAIL' debug_msg_color
-            endif
-
-            setvar! do_rail_now 1
-        elseif insysmsg 'Target cannot be seen'
-            if verbose == 1
-              sysmsg 'LAST TARGET CANNOT BE SEEN. DOING RAIL' debug_msg_color
-            endif
-
-            setvar! do_rail_now 1
-        elseif insysmsg 'The requested target is out of range'
-            if verbose == 1
-                sysmsg 'TARGET IS OUT OF RANGE. DOING RAIL' alert_msg_color
-            endif
-
-            setvar! do_rail_now 1
-        endif
-
-
-        if do_rail_now == 1
-            sysmsg 'DOING RAIL INDEX {{current_rail_index}}' rail_msg_color
-
-            if current_rail_index >= list 'rail_directions'
-                sysmsg 'GOT TO END OF RAIL LIST. RESETING RAIL INDEX' rail_msg_color
-                setvar! current_rail_index 0
-            endif
-
-            unsetvar rail_direction
-            unsetvar rail_x
-            unsetvar rail_y
-
-            if atlist 'rail_directions' current_rail_index as direction
-                if direction == 10
-                    # sysmsg 'SETTING DIRECTION TO 0'
-                    setvar! rail_direction 0
-                else
-                    setvar! rail_direction direction
-                    # sysmsg 'SETTING DIRECTION TO {{rail_direction}}'
-                endif
-            endif
-            if atlist 'rail_x_positions' current_rail_index as x
-                setvar! rail_x x
-                # sysmsg 'SETTING X POSITION TO {{rail_x}}'
-            endif
-            if atlist 'rail_y_positions' current_rail_index as y
-                setvar! rail_y y
-                # sysmsg 'SETTING Y POSITION TO {{rail_y}}'
-            endif
-            # endfor
-
-            # WALK THE RAIL!
-            if varexist rail_direction and varexist rail_x and varexist rail_y
-                while not position rail_x rail_y
-                    sysmsg 'RAIL {{current_rail_index}}: DIRECTION: {{rail_direction}} | X: {{rail_x}} | Y: {{rail_y}}' rail_msg_color
-                    walk rail_direction
-
-                    if dead lasttarget
-                        hotkey 'Target Closest Non-Friendly Monster'
-                    endif
-
-                    if not dead lasttarget
-                        sysmsg '[RAIL] CHECKING LASTTARGET DISTANCE' rail_msg_color
-                        hotkey 'Set Last Target'
-                        wft action_delay
-                        hotkey 'Last Target'
-                    endif
-
-                    wait 400
-
-                    if not dead lastarget and not insysmsg 'not be seen' and not insysmsg 'out of range'
-                        if debug == 1
-                            sysmsg 'BREAKING ON RAIL' alert_msg_color
-                        endif
-                        break
-                    endif
-                endwhile
-            else
-                sysmsg 'COUNDNT SET RAIL VARIABLES' alert_msg_color
-            endif
-
-            if varexist rail_direction and varexist rail_x and varexist rail_y
-                if position rail_x rail_y
-                    sysmsg 'RAIL {{current_rail_index}} COMPLETE...' success_msg_color
-
-                        # lift trap_pouch
-                    if current_rail_index == 0
-                        setvar! current_rail_index 1
-                    elseif current_rail_index == 1
-                        setvar! current_rail_index 2
-                    elseif current_rail_index == 2
-                        setvar! current_rail_index 3
-                    elseif current_rail_index == 3
-                        setvar! current_rail_index 4
-                    elseif current_rail_index == 4
-                        setvar! current_rail_index 5
-                    elseif current_rail_index == 5
-                        setvar! current_rail_index 6
-                    elseif current_rail_index == 6
-                        setvar! current_rail_index 7
-                    elseif current_rail_index == 7
-                        setvar! current_rail_index 8
-                    elseif current_rail_index == 8
-                        setvar! current_rail_index 9
-                    elseif current_rail_index == 9
-                        setvar! current_rail_index 10
-                    elseif current_rail_index == 10
-                        setvar! current_rail_index 11
-                    elseif current_rail_index == 11
-                        setvar! current_rail_index 11
-                    elseif current_rail_index == 12
-                        setvar! current_rail_index 13
-                    endif
-
-                    sysmsg 'SETTING NEXT RAIL INDEX TO {{current_rail_index}}' success_msg_color
-                endif
-            endif
-
-        endif
-    endif
 
 
     if auto_patrol_when_no_active_lasttarget == 1 and timer 'all_patrol_timer' > all_patrol_delay

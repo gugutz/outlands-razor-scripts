@@ -7,16 +7,15 @@ setvar! use_script_overhead_messages 1
 # GENERAL SETTINGS
 setvar! auto_configure_script_based_on_skills 1
 
-setvar! auto_rail 0
 
 setvar! auto_heal 1
 setvar! auto_cure_poison 1
-setvar! auto_delectable 0
+setvar! auto_delectable 1
 setvar! hide_valuables_in_char_loot_pouch 1
 setvar! auto_move_regs_to_satchel 1
 setvar! recall_home_to_restock 1
 setvar! auto_escape_pks 1
-setvar! auto_escape_thiefs 1
+setvar! auto_escape_thiefs 0
 setvar! auto_meditate 1
 setvar! auto_escape_ground_burning_flames 0
 setvar! juggle_mode 0
@@ -123,36 +122,6 @@ setvar! heal_ship_crew_delay 20000
 setvar! ship_lesser_ability_delay 113000
 
 
-# AUTO RAIL DIRECTIONS
-clearlist rail_directions
-createlist rail_directions
-pushlist rail_directions 2
-pushlist rail_directions 6
-pushlist rail_directions 4
-pushlist rail_directions 4
-pushlist rail_directions 10
-pushlist rail_directions 10
-
-# AUTO RAIL X POSITIONS
-clearlist rail_x_positions
-createlist rail_x_positions
-pushlist rail_x_positions 5644
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-pushlist rail_x_positions 5641
-
-
-# AUTO RAIL Y POSITIONS
-clearlist rail_y_positions
-createlist rail_y_positions
-pushlist rail_y_positions 1010
-pushlist rail_y_positions 1010
-pushlist rail_y_positions 1019
-pushlist rail_y_positions 1029
-pushlist rail_y_positions 1021
-pushlist rail_y_positions 1010
 
 if debug == 1
     sysmsg '[DEBUG] FINISHED PLAYER SETTINGS IN {{script_settings_timer}} ms' debug_msg_color
@@ -169,7 +138,6 @@ if name == 'Neron'
     setvar! use_incognito 0
     setvar! juggle_mode 0
     setvar! auto_patrol_when_no_active_lasttarget 1
-    setvar! auto_rail 0
     setvar! lure_mobs_closer_before_killing 1
     setvar! boating_mode 1
 endif
@@ -178,10 +146,13 @@ if name == 'gugutz'
     sysmsg '[OPTS] APPLYING CONFIG FOR gugutz' script_msg_color
     setvar! auto_configure_script_based_on_skills 1
 
+    setvar! auto_get_new_targets 1
+    setvar! auto_escape_thiefs 0
+
     setvar! debug 1
     setvar! use_incognito 0
-    setvar! auto_patrol_when_no_active_lasttarget 1
-    setvar! lure_mobs_closer_before_killing 1
+    setvar! auto_patrol_when_no_active_lasttarget 0
+    setvar! lure_mobs_closer_before_killing 0
     setvar! auto_skin_corpses 1
 
 # char grimoire spells
