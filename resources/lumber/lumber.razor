@@ -1,12 +1,61 @@
-#####################################
-# READ AND APPLY CONFIG FILE
-#####################################
+sysmsg '#########################' 90
+sysmsg '>>> LUMBERJACKING BOT' 55
+sysmsg 'by gugutz' 45
+sysmsg 'version 0.4.0-rc1' 31
+sysmsg '########################' 90
 
-if not varexist mining_config_loaded
-    script 'resources\mining\config'
+
+###################################
+# GENERAL SETTINGS
+###################################
+
+setvar! average_ping 200
+setvar! movement_delay 150
+
+# should script use runetomes to travel to mine
+setvar! auto_cycle_runetomes 0
+# how many runes script should attempt to recall for each runebook
+setvar! max_runes_to_use_per_runebook 26
+
+# set to 1 to activate void armor on start
+setvar! use_harvest_aspect 0
+setvar! use_void_aspect 0
+
+# should script recall home when tracking pks
+setvar! auto_escape_pks 1
+setvar! auto_escape_thiefs 0
+
+# max resources a packie can have before being set as full
+setvar! max_resources_in_packie_before_unloading 1000
+
+# this requires you to run before my loot-organizer script to set the variable CHAR_LOOT_POUCH
+setvar! hide_colored_resources_in_char_loot_pouch 1
+
+# should script try to enter hotel room when traveling home
+setvar! use_hotel_room 0
+# set if characters should use own rooms or enter a friends room
+setvar! use_own_room 0
+
+
+#############################
+# CHARACTER SETTING OVERRIDES
+
+if name == 'Emacs'
+    setvar! auto_cycle_runetomes 1
+    setvar! use_void_aspect 1
 endif
 
-unsetvar! mining_config_loaded
+if name == 'nonato'
+    setvar! auto_cycle_runetomes 1
+    setvar! use_void_aspect 1
+endif
+
+if name == 'Nazareno'
+    setvar! auto_cycle_runetomes 1
+    setvar! max_runes_to_use_per_runebook 10
+    setvar! use_void_aspect 1
+endif
+
 
 #####################################
 
@@ -15,9 +64,24 @@ setvar! world_save_delay 8000
 setvar! action_delay 600
 setvar! spell_recovery_delay 120
 
+# VARIABLES FOR MESSAGE COLORS
+setvar! debug_msg_color 56
+setvar! script_msg_color 2213
+setvar! default_sysmsg_color 1360
+setvar! default_overhead_color 1360
+setvar! spell_msg_color 49
+setvar! buff_msg_color 92
+setvar! warning_msg_color 1196
+setvar! alert_msg_color 37
+setvar! success_msg_color 1272
+setvar! action_msg_color 90
+setvar! on_cooldown_msg_color 53
+setvar! reset_timer_msg_color 1258
+setvar! boating_msg_color 84
+
 
 if skill 'magery' < 90 and auto_summon == 1
-    sysmsg 'DISABLING AUTO SUMMON (LOW MAGERY)'
+    sysmsg 'DISABLING AUTO SUMMON (MAGERY LOWER THAN 90)' alert_msg_color
     setvar! auto_summon 0
 endif
 
@@ -25,25 +89,21 @@ if auto_summon == 0
     setvar! summon_max_limit 0
 endif
 
-sysmsg '#########################' 90
-sysmsg '>>> LUMBERJACKING BOT' 55
-sysmsg 'by gugutz' 45
-sysmsg 'version 0.4.0-rc1' 31
-sysmsg '########################' 90
 
 #################################
 # IN GAME INSTRUCTIONS / OBSERVATIONS
 #################################
 
-sysmsg "PLEASE READ the instructions in the README file to avoid potential bugs/misbehaviors" 34
-sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/mining/README.md" 34
+sysmsg "PLEASE READ the instructions in the README file to avoid potential bugs/misbehaviors" warning_msg_color
+sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/lumber/README.md" warning_msg_color
 
 
 # TEST IF REQUIRED COOLDOWN WAS CREATED
 cooldown RESOURCES 3000
+
 if not cooldown RESOURCES
     sysmsg "Cooldown resources not found. Please read instructions in README file" 34
-    sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/mining/README.md" 34
+    sysmsg "https://github.com/gugutz/outlands-razor-scripts/resources/lumber/README.md" 34
     stop
 endif
 
@@ -73,32 +133,6 @@ endif
 # default cooldown value to set the lumber cooldown on script actions
 setvar! resource_cooldown_value 10000
 setvar! recall_casting_time 4500
-
-# set all characters that should use void
-foreach charname in 'void_characters'
-    if name == charname
-        sysmsg 'USING VOID ASPECT'
-        setvar! use_void_aspect 1
-    endif
-endfor
-
-# set all characters who own a hotel room
-foreach charname in 'hotel_room_owners'
-    if name == charname
-        sysmsg 'USING OWN HOTEL ROOM FOR TRIS CHARACTER' 90
-        setvar! use_hotel_room 1
-        setvar! use_own_room 1
-    endif
-endfor
-
-# set all characters who own a hotel room
-foreach charname in 'hotel_room_renters'
-    if name == charname
-        sysmsg 'USING FRIENDS HOTEL ROOM FOR TRIS CHARACTER' 90
-        setvar! use_hotel_room 1
-        setvar! use_own_room 0
-    endif
-endfor
 
 
 #############################
@@ -169,6 +203,11 @@ foreach x in 'lumber_runetomes'
 endfor
 
 
+if auto_cycle_runetomes == 1 and list 'lumber_runetomes' == 0
+    sysmsg 'SCRIPT IS SET TO CYCLE RUNETOMES BUT NO LUMBER RUNETOMES WERE FOUND.' 41
+    sysmsg 'PLEASE HAVE AT LEAST 1 RUNETOME NAMED LUMBER INSIDE YOUR BACKPACK AND RE-RUN THE SCRIPT' 41
+    stop
+endif
 
 
 ###################################
@@ -176,20 +215,6 @@ endfor
 # (USUALLY THERES NO NEED TO EDIT THESE)
 ###################################
 
-# VARIABLES FOR MESSAGE COLORS
-setvar! debug_msg_color 56
-setvar! script_msg_color 2213
-setvar! default_sysmsg_color 1360
-setvar! default_overhead_color 1360
-setvar! spell_msg_color 49
-setvar! buff_msg_color 92
-setvar! warning_msg_color 1196
-setvar! alert_msg_color 37
-setvar! success_msg_color 1272
-setvar! action_msg_color 90
-setvar! on_cooldown_msg_color 53
-setvar! reset_timer_msg_color 1258
-setvar! boating_msg_color 84
 
 # max time we should wait for hatchet target to open before reclicking it
 setvar! max_wait_for_hatchet_target 2000
@@ -751,7 +776,6 @@ if findtype LOGS backpack or findtype BOARDS backpack
     endif
 endif
 
-sysmsg '2'
 
 # before starting check if char is not heavy and go home unload
 # same conditions as bellow to check if needs to go home and unload
@@ -760,15 +784,13 @@ if diffweight <= max_diffweight_before_unloading and findtype LOGS backpack
     sysmsg 'HEAVY. GOING HOME TO UNLOAD WEIGTH' 54
     setvar recall_home_now 1
 endif
-sysmsg '8'
 
-if counttype LOGS >= max_resources_on_packie_before_unloading or counttype BOARDS >= max_resources_on_packie_before_unloading
-    sysmsg 'OVER {{max_resources_on_packie_before_unloading}} LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
+if counttype LOGS >= max_resources_in_packie_before_unloading or counttype BOARDS >= max_resources_in_packie_before_unloading
+    sysmsg 'OVER {{max_resources_in_packie_before_unloading}} LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
     setvar recall_home_now 1
 endif
 
 
-sysmsg '3'
 
 
 
@@ -914,12 +936,11 @@ if recall_home_now != 1 and auto_summon == 1 and followers < summon_max_limit
         #########################
         # prepare to cast the summon spell for this summon
         if cast_summon_spell == 1
-            sysmsg 'msg 1'
 
 
             foreach summonspell in 'summonspells'
                 if summonspell in summon
-                    sysmsg 'inside summonspell {{summonspell}} 2'
+                    # sysmsg 'inside summonspell {{summonspell}} 2'
 
                     # first make a mana check for this specific summon spell
                     unsetvar! summon_spell_required_mana
@@ -1741,7 +1762,7 @@ foreach runebook in 'lumber_runetomes'
                 sysmsg 'HEAVY. GOING HOME TO UNLOAD WEIGTH' 54
                 setvar recall_home_now 1
             endif
-            if counttype LOGS >= max_resources_on_packie_before_unloading or counttype BOARDS >= max_resources_on_packie_before_unloading
+            if counttype LOGS >= max_resources_in_packie_before_unloading or counttype BOARDS >= max_resources_in_packie_before_unloading
                 sysmsg 'OVER 1k LOGS OR BOARDS. GOING HOME TO UNLOAD WEIGTH' 54
                 setvar recall_home_now 1
             endif
