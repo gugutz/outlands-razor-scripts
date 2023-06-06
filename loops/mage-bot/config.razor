@@ -14,7 +14,8 @@ setvar! auto_delectable 1
 setvar! hide_valuables_in_char_loot_pouch 1
 setvar! auto_move_regs_to_satchel 1
 setvar! recall_home_to_restock 1
-setvar! auto_escape_pks 1
+setvar! auto_escape_tracked_pks 1
+setvar! auto_escape_pks_on_screen 1
 setvar! auto_escape_thiefs 0
 setvar! auto_meditate 1
 setvar! auto_escape_ground_burning_flames 0
@@ -63,13 +64,16 @@ setvar! use_lightning 1
 setvar! use_mind_blast 0
 setvar! use_eb 0
 setvar! use_flamestrike 1
-setvar! use_pain_spike 0
 setvar! use_chain_lightning 1
 setvar! use_meteor_swarm 0
 setvar! use_earthquake 0
 if skill 'poisoning' >= 100
     setvar! use_poison 1
 endif
+
+setvar! use_poison_strike 0
+setvar! use_pain_spike 0
+
 
 
 # SPELL GRIMOIRE INTERVALS
@@ -155,18 +159,21 @@ if name == 'gugutz'
     setvar! lure_mobs_closer_before_killing 0
     setvar! auto_skin_corpses 1
 
-# char grimoire spells
+    # char grimoire spells
     setvar! use_ma 1
     setvar! use_harm 1
-    setvar! use_fireball 1
+    setvar! use_fireball 0
     setvar! use_lightning 1
     setvar! use_mind_blast 1
     setvar! use_eb 0
     setvar! use_flamestrike 0
-    setvar! use_pain_spike 0
     setvar! use_chain_lightning 0
     setvar! use_meteor_swarm 0
     setvar! use_earthquake 0
+
+    # necro spells
+    setvar! use_poison_strike 0
+    setvar! use_pain_spike 0
 
     setvar! mana_drain_delay 60000
     setvar! curse_delay 180000

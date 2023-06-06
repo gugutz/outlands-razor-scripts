@@ -94,6 +94,7 @@ hotkey "Resynchronize Client"
 
 if not varexist CHAR_BOAT_HATCH
     sysmsg 'CHAR_BOAT_HATCH DOENST EXIST' 37
+    setvar CHAR_BOAT_HATCH
     # stop
 elseif varexist CHAR_BOAT_HATCH and not find CHAR_BOAT_HATCH ground any any 2
     sysmsg 'CANT FIND SAVED BOAT HATCH {{CHAR_BOAT_HATCH}} WITHIN 2 TILES' 39

@@ -238,7 +238,7 @@ endif
 settimer 'script_related_settings_timer' 0
 
 setvar! action_delay 550
-setvar! spell_recovery_delay 120
+setvar! spell_recovery_delay 130
 setvar! find_last_target_max_range 18
 setvar! find_enemy_boats_max_range 15
 setvar! find_summon_range 8
@@ -499,6 +499,19 @@ if skill 'necromancy' >= 80
     endif
 endif
 
+if skill 'poisoning' >= 80
+    if not listexists 'poison_targets'
+        sysmsg '$$$ Creating list to control current poison targets...' script_msg_color
+        createlist 'poison_targets'
+    endif
+
+    if not listexists 'poisoned_mobs'
+        sysmsg '$$$ Creating list to control history of poisoned mobs...' script_msg_color
+        createlist 'poisoned_mobs'
+    endif
+
+endif
+
 
 
 
@@ -542,6 +555,9 @@ if not varexist timers_setup_done
     pushlist 'mage_bot_timers' 'chain_lightning_timer'
     pushlist 'mage_bot_timers' 'meteor_swarm_timer'
     pushlist 'mage_bot_timers' 'earthquake_timer'
+    pushlist 'mage_bot_timers' 'painspike_timer'
+    pushlist 'mage_bot_timers' 'poison_strike_timer'
+
     pushlist 'mage_bot_timers' 'medit_msg_timer'
     pushlist 'mage_bot_timers' 'auto_get_new_targets_timer'
     pushlist 'mage_bot_timers' 'get_new_target_msg'
@@ -563,6 +579,8 @@ if not varexist timers_setup_done
     pushlist 'mage_bot_timers' 'reload_cannons_timer'
     pushlist 'mage_bot_timers' 'fire_cannons_timer'
     pushlist 'mage_bot_timers' 'ship_lesser_ability_timer'
+    pushlist 'mage_bot_timers' 'scanning_poison_target'
+
 
     if skill 'necromancy' > 0
         pushlist 'mage_bot_timers' 'vengeful_spirit_timer'
@@ -932,7 +950,7 @@ while findtype 'runetome' backpack as found
     getlabel found rtome_label
     if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
         sysmsg 'FOUND HOME RUNETOME {{rtome}}' 54
-        setvar! home_book rtome
+        setvar! home_book found
         setvar! home_book_gump_id 167090027
         setvar! home_rune_btn_number runetome_rune_position
     endif
@@ -947,7 +965,7 @@ if not varexist home_book
         getlabel found rbook_label
         if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
             sysmsg 'FOUND HOME RUNEBOOK {{rtome}}' 54
-            setvar! home_book rtome
+            setvar! home_book found
             setvar! home_book_gump_id 167090027
             setvar! home_rune_btn_number runetome_rune_position
         endif
@@ -957,9 +975,11 @@ if not varexist home_book
     @clearignore
 endif
 
-if recall_home_to_restock == 1 and not varexist home_book
-    sysmsg "YOU NEED A RUNEBOOK OR RUNETOME NAMED 'HOME' WITH YOUR HOME RUNE SET TO DEFAULT TO RUN THIS SCRIPT" 54
-    stop
+if recall_home_to_restock == 1 or auto_escape_pks_on_screen == 1
+    if not varexist home_book
+        sysmsg "YOU NEED A RUNEBOOK OR RUNETOME NAMED 'HOME' WITH YOUR HOME RUNE SET TO DEFAULT TO RUN THIS SCRIPT" 54
+        stop
+    endif
 endif
 
 
@@ -2159,6 +2179,11 @@ while not dead 'self'
                     overhead 'meditating' action_msg_color
                 endif
                 while findbuff 'actively meditating' and diffhits < max_diffhits_before_meditating and mana < min_mana_to_attack
+                    if insysmsg 'Now tracking'
+                        sysmsg 'TRACKED PK WHILE MEDITATING. BREAKING TO ESCAPE' alert_msg_color
+                    endif
+
+
                     if mana < mana_limit_to_eat_mushroom and timer 'use_mushroom_timer' >= use_mushroom_delay
                         if findtype 'mushroom' backpack as mush
                             useobject mush
@@ -2177,6 +2202,62 @@ while not dead 'self'
                         endif
                         settimer 'medit_msg_timer' 0
                     endif
+
+                    if auto_escape_pks_on_screen == 1
+                        if verbose == 1
+                            sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+                        endif
+                        # hotkey 'Clear Target Queue'
+                        clearsysmsg
+                        hotkey 'Next Murderer Player Target'
+                        if insysmsg 'New target'
+                            sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                            sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                
+                            overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                            overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                
+                            cast 'recall'
+                
+                            clearsysmsg
+                            @settimer 'waiting_target_timer' 0
+                            while not targetexists 'neutral' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+                                wft 10
+                                if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                    if verbose == 1
+                                        overhead '▽▽ BREAKING RECALL ON ESCAPE PKS ▽▽' warning_msg_color
+                                        sysmsg 'BREAKING WHILE WAITING FOR RECALL TO ESCAPE PKS {{crew_member}}' warning_msg_color
+                                    endif
+                
+                                    wait spell_recovery_delay
+                                    break
+                                endif
+                
+                                if diffhits >= max_diffhits_before_heal_pot
+                                    if findtype 'yellow potion' backpack as pot
+                                        if verbose == 1
+                                            sysmsg '>>> LOW HP! USING HEAL POTION.. ' action_msg_color
+                                        endif
+                        
+                                        if use_script_overhead_messages == 1
+                                            overhead '*using heal potion*' action_msg_color
+                                        endif
+                        
+                                        useobject pot
+                                        wait action_delay
+                                    endif
+                                endif
+                
+                            endwhile
+                
+                            if targetexists 'beneficial'
+                                target home_book
+                                wait spell_recovery_delay
+                            endif
+                
+                        endif
+                    endif
+
                 endwhile
             endif
         endif
@@ -2363,7 +2444,25 @@ while not dead 'self'
         endif
     endif
 
-    if auto_escape_pks == 1
+    # we need to first check for pks or else the other msgs might not allow us to get to this check
+    if auto_escape_tracked_pks == 1
+        if insysmsg 'now tracking'
+            sysmsg '>>> PK...' 19
+            sysmsg '>>> PK...' 49
+            sysmsg '>>> PK...' 54
+            overhead '!! PK !!' 19
+            overhead '!! PK !!' 49
+            overhead '!! PK !!' 54
+    
+            sysmsg '>>> ESCAPING PK!!!' 41
+            overhead '!! ESCAPING PK !!' 41
+
+            setvar! recall_home_now 1
+        endif
+    endif
+
+
+    if auto_escape_pks_on_screen == 1
         if verbose == 1
             sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
         endif
@@ -3227,7 +3326,7 @@ while not dead 'self'
         endif
 
         settimer 'auto_get_new_targets_timer' 0
-    elseif auto_get_new_targets == 0 && timer 'get_new_target_msg' > 4000
+    elseif auto_get_new_targets == 0 and timer 'get_new_target_msg' > 4000
         overhead 'waiting for new target' overhead_color
         settimer 'get_new_target_msg' 0
     endif
@@ -3240,13 +3339,23 @@ while not dead 'self'
 
     # make sure char has high hp and mana for FS before attacking
 
-    if followers >= followers_max_limit and diffhits < max_diffhits_before_healing
+    if followers >= followers_max_limit and diffhits < max_diffhits_before_healing and mana >= min_mana_to_attack
         # if auto_attack_targets == 1 and diffhits < max_diffhits_before_healing and mana >= min_mana_to_attack
         if auto_attack_targets == 1
             # if targetr queue is active, we need to clear it here or else the script cant detect the first target opened (for mana drain) cause its queued
             # make sure char is always max summon before attacking
             # if not dead 'last' and followers >= followers_max_limit and find 'last' ground any any find_last_target_max_range as last_target_serial_found
-            while not dead lasttarget or enemy_boat_present == 1
+            # while not dead lasttarget or enemy_boat_present == 1
+            setvar! last_serial lasttarget
+
+            # if target is farther than 10 tiles, warn player
+            if not find last_serial ground any any 10 and find last_serial ground any any 20
+                overhead 'MOB TOO FAR! COME CLOSER TO ATTACK' warning_msg_color
+                overhead 'TOO FAR TO ATTACK!' warning_msg_color
+            endif
+
+            while find last_serial ground any any 10 or enemy_boat_present == 1
+                sysmsg '# MAIN ATTACK LOOP'
 
 
                 #----------------------------------------
@@ -3422,7 +3531,6 @@ while not dead 'self'
 
 
 
-sysmsg 'chegou enemy mob attack routine'
                 #----------------------------------------
                 # ENEMY/MONSTER ATTACK ROUTINE
                 if not dead last target
@@ -3497,6 +3605,7 @@ sysmsg 'chegou enemy mob attack routine'
 
                             settimer 'mana_drain_timer' mana_drain_delay
                             settimer 'curse_timer' mana_drain_delay
+                            settimer 'poison_time' mana_drain_delay
                             settimer 'medit_msg_timer' 6000
                             settimer 'auto_get_new_targets_timer' 1000
                             settimer 'all_guard_timer' all_guard_delay
@@ -3684,53 +3793,121 @@ sysmsg 'chegou kill close to loot'
 
                                 # poison
                                 if followers >= followers_max_limit and diffhits < max_diffhits_before_healing
+
+                                    if is_noxxer == 1
+
+                                        # if poison timer is up, reset the control list
+                                        if use_poison == 1 and timer 'poison_timer' >= poison_delay
+                                            clearlist 'poisoned_mobs'
+                                        endif
+
+                                        createlist 'poison_targets'
+                                        clearlist 'poison_targets'
+
+                                        settimer 'scanning_poison_target' 0
+
+                                        while not dead self and timer 'scanning_poison_targets' < 1000
+                                            clearsysmsg
+                                            hotkey "Next Non-Friendly Monster Target"
+
+                                            if insysmsg 'New target'
+                                                setvar! targserial lasttarget
+
+                                                if inlist 'poison_targets' targserial
+                                                    sysmsg 'MOB {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' warning_msg_color
+                                                    break
+                                                endif
+
+                                                if not inlist 'poisoned_mobs' targserial
+                                                    if find targserial ground any any 10
+                                                        sysmsg 'NEW POISON TARGET {{targserial}}'
+
+                                                        pushlist 'poison_targets' targserial
+                                                        settimer 'poison_timer' poison_delay
+                                                    else
+                                                        sysmsg 'MOB {{mob}} TOO FAR TO POISON!' alert_msg_color
+                                                        overhead 'TOO FAR TO POISON!' alert_msg_color targ
+                                                    endif
+                                                endif
+
+                                                ignore targserial
+                                                ignore lasttarget
+                                            else
+                                                sysmsg 'NO NEW TARGETS TO SCAN FOR POISON' warning_msg_color
+                                                break
+                                            endif
+                                        endwhile
+
+                                        clearignore
+                                    endif
+
                                     if use_poison == 1 and timer 'poison_timer' >= poison_delay
                                         if is_noxxer == 1
                                             if verbose == 1
                                                 sysmsg '◎ POISON (ALL MOBS)' spell_msg_color
                                             endif
-                                            createlist 'poison_targets'
-                                            clearlist 'poison_targets'
                                             
-                                            while not dead self
-                                                hotkey "Next Non-Friendly Monster Target"
-                                                if insysmsg 'New target'
-                                                    setvar! targserial lasttarget
-                                                    if not inlist 'poison_targets' targserial
-                                                        sysmsg 'PUSHING {{targserial}} TO LIST'
-                                                        pushlist 'poison_targets' targserial
-                                                    else
-                                                        sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
-                                                        break
-                                                    endif
-                                                endif
-                                            endwhile
 
                                             hotkey 'Clear Target Queue'
                                             hotkey 'Toggle Peace Only'
                                             
                                             foreach targ in 'poison_targets'
-                                                if not dead targ and find targ ground any any 10
-                                                    overhead '*poisoning*' 76 targ
+                                                if find targ ground any any 10
+                                                    overhead '*POISONING*' 76 targ
                                                     cast 'poison'
-                                                    wft 3000
-                                                    target targ
-                                                    wait spell_recovery_delay
+
+                                                    @settimer 'waiting_target_timer' 0
+                                                    @clearsysmsg
+                                                    while not targetexists 'harmful' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 3500
+                                                        wait 10
+    
+                                                        if insysmsg 'disturbed' or insysmsg 'cannot cast a spell'
+                                                            if verbose == 1
+                                                                sysmsg 'BREAKING WHILE WAITING FOR POISON TARGET' warning_msg_color
+                                                            endif
+    
+                                                            wait spell_recovery_delay
+                                                            break
+                                                        endif
+                                                    endwhile
+    
+                                                    if targetexists 'harmful'
+                                                        @clearsysmsg
+                                                        target targ
+                                                        wait spell_recovery_delay
+    
+                                                        if not insysmsg 'Target cannot be seen'
+                                                            if debug == 1
+                                                                sysmsg '+++ RESETING MANA DRAIN TIMER' reset_timer_msg_color
+                                                            endif
+    
+                                                            pushlist 'poisoned_mobs' targserial
+                                                            settimer 'poison_timer' 0
+                                                            cooldown 'POISON' poison_delay
+
+                                                            setvar! last_poisoned_serial lasttarget
+                                                        endif
+                                                    endif
+
                                                 else
-                                                    sysmsg 'MOB {{mob}} ALREADY DEAD!' 54
+                                                    sysmsg 'MOB {{mob}} TOO FAR TO POISON!' 54
+                                                    overhead 'TOO FAR TO POISON!' alert_msg_color targ
                                                 endif
                                             endfor
 
-                                            settimer 'poison_timer' 0
-                                            cooldown 'POISON' poison_delay
-                                            clearlist 'poison_targets'
-                                            setvar! last_cursed_serial lasttarget
+
                                         else
                                             sysmsg '◎ POISON' spell_msg_color
                                             cast 'poison'
                                             wft 3000
                                             hotkey 'Last Target'
                                         endif
+
+                                        sysmsg 'RESETING LAST AFTER POISON' warning_msg_color
+                                        hotkey 'Set Last Target (Harmful)'
+                                        wft 600
+                                        target last_target_serial
+
                                     endif
                                 endif
 
@@ -4124,6 +4301,64 @@ sysmsg 'chegou kill close to loot'
                                     endif
                                 endif
 
+
+                                # try to catch pks on screen while inside attack loop
+                                if auto_escape_pks_on_screen == 1
+                                    if verbose == 1
+                                        sysmsg '▷ SEARCHING FOR PKS ON SCREEN'
+                                    endif
+                                    # hotkey 'Clear Target Queue'
+                                    clearsysmsg
+                                    hotkey 'Next Murderer Player Target'
+                                    if insysmsg 'New target'
+                                        sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                                        sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                            
+                                        overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                                        overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
+                            
+                                        cast 'recall'
+                            
+                                        clearsysmsg
+                                        @settimer 'waiting_target_timer' 0
+                                        while not targetexists 'neutral' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
+                                            wft 10
+                                            if insysmsg 'disturbed' or insysmsg 'spell will not adhere' or insysmsg 'cannot cast a spell'
+                                                if verbose == 1
+                                                    overhead '▽▽ BREAKING RECALL ON ESCAPE PKS ▽▽' warning_msg_color
+                                                    sysmsg 'BREAKING WHILE WAITING FOR RECALL TO ESCAPE PKS {{crew_member}}' warning_msg_color
+                                                endif
+                            
+                                                wait spell_recovery_delay
+                                                break
+                                            endif
+                            
+                                            if diffhits >= max_diffhits_before_heal_pot
+                                                if findtype 'yellow potion' backpack as pot
+                                                    if verbose == 1
+                                                        sysmsg '>>> LOW HP! USING HEAL POTION.. ' action_msg_color
+                                                    endif
+                                    
+                                                    if use_script_overhead_messages == 1
+                                                        overhead '*using heal potion*' action_msg_color
+                                                    endif
+                                    
+                                                    useobject pot
+                                                    wait action_delay
+                                                endif
+                                            endif
+                            
+                                        endwhile
+                            
+                                        if targetexists 'beneficial'
+                                            target home_book
+                                            wait spell_recovery_delay
+                                        endif
+                            
+                                    endif
+                                endif
+
+
                                 # USE FLAMESTRIKE
                                 if followers >= followers_max_limit and diffhits < max_diffhits_before_healing and not dead 'last' and find 'last' ground any any find_last_target_max_range
                                     if use_flamestrike == 1
@@ -4269,6 +4504,131 @@ sysmsg 'chegou kill close to loot'
                                 endif
 
 
+                                # ###############################
+                                # # POISON STRIKE
+                                # ###############################
+
+                                if use_poison_strike == 1
+                                    if skill 'necromancy' > 20 and findtype 'corpse' ground any any 30
+                                        # if timer 'poison_strike_timer' >= 30000
+                                        if not cooldown 'POISON STRIKE'
+                                            while not dead self
+                                                hotkey "Next Non-Friendly Monster Target"
+                                                if insysmsg 'New target'
+                                                    setvar! targserial lasttarget
+                                                    if not inlist 'poison_targets' targserial
+                                                        sysmsg 'PUSHING {{targserial}} TO LIST'
+                                                        pushlist 'poison_targets' targserial
+                                                    else
+                                                        sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
+                                                        break
+                                                    endif
+                                                endif
+                                            endwhile
+
+                                            hotkey 'Clear Target Queue'
+                                            hotkey 'Toggle Peace Only'
+                                            
+                                            unsetvar! lethal_poison_ticks
+                                            unsetvar! deadly_poison_ticks
+                                            setvar! poison_strike_now 0
+
+                                            foreach targ in 'poison_targets'
+                                                getlabel targ targ_label
+                                                if '10 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 10
+                                                elseif '9 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 9
+                                                elseif '8 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 8
+                                                elseif '7 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 7
+                                                elseif '6 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 6
+                                                elseif '5 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 5
+                                                elseif '4 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 4
+                                                elseif '3 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 3
+                                                elseif '2 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 2
+                                                elseif '1 Lethal' in last_label
+                                                    setvar! lethal_poison_ticks 1
+                                                elseif '10 Deadly' in last_label
+                                                    setvar! lethal_poison_ticks 10
+                                                # DEADLY TICKS
+                                                elseif '9 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 9
+                                                elseif '8 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 8
+                                                elseif '7 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 7
+                                                elseif '6 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 6
+                                                elseif '5 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 5
+                                                elseif '4 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 4
+                                                elseif '3 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 3
+                                                elseif '2 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 2
+                                                elseif '1 Deadly' in last_label
+                                                    setvar! deadly_poison_ticks 1
+                                                endif
+
+                                                if varexist lethal_poison_ticks
+                                                    if lethal_poison_ticks <= 4
+                                                        setvar! poison_strike_now 1
+                                                        sysmsg 'BREAKING POISON STRIKE LETHAL'
+                                                        break
+                                                    endif
+                                                elseif varexist deadly_poison_ticks
+                                                    if deadly_poison_ticks <= 4
+                                                        setvar! poison_strike_now 1
+                                                        sysmsg 'BREAKING POISON STRIKE DEADLY'
+                                                        break
+                                                    endif
+                                                endif
+                                            endfor
+
+                                            if verbose == 1
+                                                sysmsg '>>> Using poison strike...'
+                                            endif
+
+                                            if poison_strike_now == 1
+                                                say '[poisonstrike'
+                                                wft action_delay
+                                                if targetexists 'neutral'
+                                                    if verbose == 1
+                                                        sysmsg '◎ POISON STRIKE' spell_msg_color
+                                                    endif
+    
+                                                    hotkey 'Last Target'
+                                                    wait action_delay
+                                                    if insysmsg 'Unholy symbols remaining'
+                                                        if verbose == 1
+                                                            sysmsg '>>> POISON STRIKED CORPSE!' 30
+                                                        endif
+    
+                                                        if use_script_overhead_messages == 1
+                                                            overhead '*poison striked corpse*' 30
+                                                        endif
+    
+                                                        settimer 'poison_strike_timer' 0
+                                                        cooldown 'POISON STRIKE' 30000
+                                                    endif
+                                                endif
+                                                wait action_delay
+                                            endif
+                                        else
+                                            if verbose == 1
+                                                sysmsg 'POISON Strike cooldown...' 56
+                                            endif
+                                        endif
+                                    endif
+                                endif
 
 
                                 # ###############################
@@ -4276,15 +4636,9 @@ sysmsg 'chegou kill close to loot'
                                 # ###############################
 
                                 if use_pain_spike == 1
-                                    if not timerexists 'painspike_timer'
-                                        createtimer 'painspike_timer'
-                                        settimer 'painspike_timer' 30001
-                                    endif
-
-
-
                                     if skill 'necromancy' > 20 and findtype 'corpse' ground any any 30
-                                        if timer 'painspike_timer' >= 30000
+                                        # if timer 'painspike_timer' >= 30000
+                                        if not cooldown 'PAIN SPIKE'
                                             if verbose == 1
                                                 sysmsg '>>> Using pain spike...'
                                             endif
@@ -4308,6 +4662,7 @@ sysmsg 'chegou kill close to loot'
                                                     endif
 
                                                     settimer 'painspike_timer' 0
+                                                    cooldown 'PAIN SPIKE' 30000
                                                 endif
                                             endif
                                             wait action_delay
@@ -4341,6 +4696,7 @@ sysmsg 'chegou kill close to loot'
                 endif
             # CLOSES while not dead lasttarget or enemy_boat_present == 1
             endwhile
+            sysmsg 'AFTER WHILE NOT DEAD LAST' 90
         endif
     # CLOSES if followers >= followers_max_limit and diffhits < max_diffhits_before_healing
     endif
