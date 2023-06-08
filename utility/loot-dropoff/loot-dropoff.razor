@@ -1322,9 +1322,32 @@ if findtype 'resource container' ground any any 2 as stockpile
 
     # resources
     setvar! found_stockpile_item 0
-    while findtype "7154|log%s|cut up leather|empty bottle%s%|blank scroll%s%|cut up leather" backpack as found
+    while findtype "7154|29030|log%s|cut up leather|empty bottle%s%|blank scroll%s%|cut up leather" backpack as found
         setvar! found_stockpile_item 1
 
+
+        if print_unloaded_items == 1
+            getlabel found found_label
+
+            if not inlist 'items_unloaded' found_label
+                sysmsg '[DEBUG] Adding {{found_label}} stockpile item to unloaded list' 90
+                # sysmsg 'Adding {{item_label}}'
+                pushlist 'items_unloaded' found_label
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    # resources - fishing
+    #
+    # cut raw fish
+    while findtype "7710" backpack as found
+        setvar! found_stockpile_item 1
+
+
+        dclick found
+        wait action_delay
 
         if print_unloaded_items == 1
             getlabel found found_label
@@ -1375,7 +1398,7 @@ if findtype 'resource container' ground any any 2 as stockpile
                     sysmsg '> Restocking Stockpile From Pack Animal...' sysmsgs_color
                 endif
 
-                while findtype "7154|log%s|cut up leather|aspect core|3836|17686|phylactery|empty bottle%s%|blank scroll%s%|29030|bag of seeds|seed of renewal|cut up leather|rub%ies/y%|tourmaline%s%|emerald%s%|diamond%s%|piece%s% of amber|amethyst%s%|start sapphire%s%|citrine%s%|sapphire%s%" packanimal as found
+                while findtype "7154|29030|log%s|cut up leather|aspect core|3836|17686|phylactery|empty bottle%s%|blank scroll%s%|29030|bag of seeds|seed of renewal|cut up leather|rub%ies/y%|tourmaline%s%|emerald%s%|diamond%s%|piece%s% of amber|amethyst%s%|start sapphire%s%|citrine%s%|sapphire%s%" packanimal as found
                     getlabel found item_label
 
                     if print_unloaded_items == 1

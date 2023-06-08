@@ -16,6 +16,8 @@ setvar! movement_delay 150
 setvar! auto_cycle_runetomes 0
 # how many runes script should attempt to recall for each runebook
 setvar! max_runes_to_use_per_runebook 26
+setvar! auto_skip_runes_after_fails 0
+setvar! max_fails_before_going_to_next_rune 1
 
 # set to 1 to activate void armor on start
 setvar! use_harvest_aspect 0
@@ -614,6 +616,7 @@ if activate_aspect == 1
                         waitforgump aspect_gump_id action_delay
                     endwhile
                 endif
+            endif
     
     
             # ACTIVATE ASPECT ON ARMOR

@@ -510,6 +510,12 @@ if skill 'poisoning' >= 80
         createlist 'poisoned_mobs'
     endif
 
+    if not listexists 'scanned_poison_targets'
+        sysmsg '$$$ Creating list to control history of poison targets...' script_msg_color
+        createlist 'scanned_poison_targets'
+    endif
+
+
 endif
 
 
@@ -579,7 +585,6 @@ if not varexist timers_setup_done
     pushlist 'mage_bot_timers' 'reload_cannons_timer'
     pushlist 'mage_bot_timers' 'fire_cannons_timer'
     pushlist 'mage_bot_timers' 'ship_lesser_ability_timer'
-    pushlist 'mage_bot_timers' 'scanning_poison_target'
 
 
     if skill 'necromancy' > 0
@@ -590,6 +595,7 @@ if not varexist timers_setup_done
     pushlist 'mage_bot_timers' 'heal_pets_timer'
     pushlist 'mage_bot_timers' 'ress_pets_timer'
 
+    pushlist 'mage_bot_timers' 'scanning_poison_targets'
 
     # start each timer with a high value since most actions we want to execute on first runs
     foreach timer in 'mage_bot_timers'
@@ -3804,19 +3810,21 @@ sysmsg 'chegou kill close to loot'
                                         createlist 'poison_targets'
                                         clearlist 'poison_targets'
 
-                                        settimer 'scanning_poison_target' 0
+                                        settimer 'scanning_poison_targets' 0
 
+                                        clearlist 'scanned_poison_targets'
                                         while not dead self and timer 'scanning_poison_targets' < 1000
                                             clearsysmsg
                                             hotkey "Next Non-Friendly Monster Target"
 
                                             if insysmsg 'New target'
                                                 setvar! targserial lasttarget
-
-                                                if inlist 'poison_targets' targserial
+                                                if inlist 'scanned_poison_targets' targserial
                                                     sysmsg 'MOB {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' warning_msg_color
                                                     break
                                                 endif
+
+                                                pushlist 'scanned_poison_targets' targserial
 
                                                 if not inlist 'poisoned_mobs' targserial
                                                     if find targserial ground any any 10
@@ -3830,9 +3838,7 @@ sysmsg 'chegou kill close to loot'
                                                     endif
                                                 endif
 
-                                                ignore targserial
-                                                ignore lasttarget
-                                            else
+                                            if insysmsg 'No one matching that was found on your screen'
                                                 sysmsg 'NO NEW TARGETS TO SCAN FOR POISON' warning_msg_color
                                                 break
                                             endif
