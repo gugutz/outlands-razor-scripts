@@ -90,7 +90,7 @@ endwhile
 
 if targetexists 'neutral'
     if not findtype 'corpse' ground any any 2
-        overhead '*no corpses to skin*' 45
+        overhead '*NO CORPSES TO SKIN*' 54
         while targetexists 'neutral'
             wait 100
         endwhile
@@ -99,7 +99,7 @@ if targetexists 'neutral'
 
     if findtype 'corpse' ground any any 2 as body
         if inlist 'skinned_corpses' body
-            overhead '*no new corpses to skin*' 45
+            overhead '*no new corpses to skin*' 54
         endif
 
         overhead '*skinning corpses*' 56 'self'
@@ -139,5 +139,5 @@ elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype '
 endif
 
 if boating_mode == 1
-    script 'ships\search-ships'
+    script 'ships\search-ships-loop'
 endif

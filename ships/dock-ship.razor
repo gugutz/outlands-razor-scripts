@@ -4,37 +4,50 @@ setvar! dockmaster_gump_id 3287496917
 setvar! action_delay 600
 
 clearignore
-overhead "Docking"
+overhead "*docking ship*"
 
-# shelter docks Uriah the Dockmaster
+
+######################################
+# PUBLIC DOCKMASTERS
+#
+# shelter
 menu 0x11A32F 1
-# Horseshoe Bay Beaumont the Dockmaster
+# horseshoe bay
 menu 0x80600 1
-# Prevalia Kisa the Dockmaster
+# prevalia dockmasters
 menu 0x80788 1
-# Prevalia Vanda the Dockmaster
 menu 0x80786 1
-# Prevalia Meta the Dockmaster
 menu 0x80782 1
-# Ivar the Dockmaster (GH)
-menu 0x19E66 1
-# Calandra Granite Docks dockmaster
+# granite docks
 menu 0x54B 1
-# Winona Terran Dockmaster
+# terran
 menu 0x805E 1
-# Marvin Terran Dockmaster
 menu 0xA3 1
-# Winona Terran Dockmaster
 menu 0x805E 1
-# Keane Winter Harbor dockmaster
+# winter harbor
 menu 0x5A4 1
-# a dockmaster from the void (NW corner of the map in a floating concrete platform)
+# sunken city docks
 menu 0x2629 1
+# pub 6 - andaria beach
+menu 0x1D9022
 
+######################################
 # FS DOCKMASTERS
 #
 # FS-00
 menu 0x20CE 1
+# fs 15
+menu 0xCED00 1
+# FS-26
+menu 0x13D2DE 1
+# fs 30
+menu 0x120FB9 1
+# FS 33 (GH)
+menu 0xCB2D0 1
+# fs 44
+menu 0x212835 1
+# fs 45
+menu 0x3C74A5 1
 
 menu 0x20CE8 1
 menu 0x553084 1
@@ -65,7 +78,6 @@ menu 0x702D8C 1
 menu 0xA6DEB 1
 menu 0xCE6E1 1
 menu 0x319A9C 1
-menu 0x13D2DE 1
 menu 0xE3E63 1
 menu 0xA92A8 1
 menu 0xA368EB 1
@@ -90,8 +102,11 @@ menu 0x223B1F 1
 menu 0x23E9F2 1
 menu 0xE4764 1
 menu 0x192EF0 1
-# fs 44
-menu 0x212835 1
+
+
+######################################
+# SyN DOCKMASTERS
+#
 
 waitforgump 3287496917 action_delay
 

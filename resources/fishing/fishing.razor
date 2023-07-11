@@ -1,26 +1,19 @@
-# Fishing with Captcha Detection (cooldown) by Jaseowns
-# UO Outlands
-# Requirements
-#    Setup a cooldown named "Fish" - it must match that name.
-#    If you run the script without the cooldown, it will show you instructions.
-#    but you want to have 3 entries with 10 seconds on each
-#            sysmsg: fish
-#            sysmsg: You retrieve a
-#            overhead: You catch
-#    The script works by checking the cooldown firing
+# FISHING v0.1.0
+# by gugutz
 
 clearsysmsg
 
-@setvar! fishing_CD 10000
+@setvar! fishing_skill_cooldown 10000
 setvar! success_msg_color 65
 setvar! warning_msg_color 54
 setvar! dockmaster_gump_id 3287496917
 setvar! action_delay 600
 setvar! deposit_catch_delay 60000
+setvar! auto_dock_when_attacked 1
 
 if not timerexists fishing_timer
     createtimer fishing_timer
-    settimer fishing_timer fishing_CD
+    settimer fishing_timer fishing_skill_cooldown
 endif
 
 if not timerexists deposit_catch_timer
@@ -28,17 +21,19 @@ if not timerexists deposit_catch_timer
     settimer deposit_catch_timer deposit_catch_delay
 endif
 
-cooldown FISHING fishing_CD
+cooldown FISHING fishing_skill_cooldown
 
 if not cooldown FISHING
-    overhead "Please setup a cooldown named:" 34
-    overhead "Fish" 88
-    sysmsg "Please setup a cooldown named:" 34
-    sysmsg "Fish" 88
+    overhead "COOLDOWN NOT FOUND. READ INSTRUCTIONS!" 34
+    sysmsg "The required cooldown was not found set in this client." 34
+    sysmsg "Please setup a cooldown named 'FISHING', with a 10s default timer and the following triggers:" 34
     sysmsg "Add these with 10 second cooldown" 66
     sysmsg "sysmsg: fish"
     sysmsg "sysmsg: You retrieve a"
+    sysmsg "sysmsg: Harvesting is not allowed in this area"
+    sysmsg "sysmsg: before you may begin harvesting"
     sysmsg "overhead: You catch"
+    sysmsg "overhead: Captcha successful"
     stop
 endif
 
@@ -86,44 +81,19 @@ endwhile
 
 while not dead
 
-    # dock ship if boat being attacked
-    if findtype 'status bar' ground 150 any as found
-        getlabel found hull_label
-
-        # first make sure its the chars boat, and not a friend boat
-        if '/2305' in hull_label
-            # if it is, check full hull hp and see if it matches chat boat hull (EDIT HERE)
-            if '2305/2305' in hull_label
-            else
-                sysmsg 'BOAT BEING ATTACKED. TRYING TO DOCK!'
-                if gumpexists dockmaster_gump_id
-                    sysmsg '>>> DOCKING SHIP!' warning_msg_color
-                    gumpresponse 7
-                    waitforgump dockmaster_gump_id action_delay
-                    waitforgump 4216593270
-                    waitforgump dockmaster_gump_id action_delay
-                else
-    
-                    foreach dockmaster in 'dockmasters_serials'
-                        if find dockmaster ground any any 25
-                            sysmsg '>> FOUND DOCKMASTER!' success_msg_color
-                            overhead '* FOUND DOCKMASTER *' success_msg_color
-                            menu dockmaster 1
-                            waitforgump dockmaster_gump_id action_delay
-                    
-                            if gumpexists dockmaster_gump_id
-                                sysmsg '>>> DOCKING SHIP!' warning_msg_color
-                                gumpresponse 7
-                                waitforgump dockmaster_gump_id action_delay
-                                waitforgump 4216593270
-                                waitforgump dockmaster_gump_id action_delay
-                            endif
-                        endif
-                    endfor
-                endif
+    # first make sure its the chars boat, and not a friend boat
+    if auto_dock_when_attacked == 1
+        if gumpexists dockmaster_gump_id
+            if diffhits > 0
+                # if it is, check full hull hp and see if it matches chat boat hull (EDIT HERE)
+                sysmsg '>>> UNDER ATTACK! DOCKING SHIP!' warning_msg_color
+                gumpresponse 7
+                waitforgump dockmaster_gump_id action_delay
+                waitforgump 4216593270
+                waitforgump dockmaster_gump_id action_delay
             endif
         else
-            sysmsg 'CANT FIND HULL STATUS BAR! TRY TO TURN THE SHIP!' 39
+            sysmsg 'AUTO DOCK ENABLED BUT DOCKMASTER GUMP NOT FOUND' 39
         endif
     endif
 
@@ -139,26 +109,15 @@ while not dead
         endif
     endif
 
-    # if insysmsg "The world will save in 15 seconds"
-    #     for 30
-    #         overhead 'Waiting for world save...'
-    #         wait 1000
-    #         if insysmsg 'save complete'
-    #             overhead 'Save complete - continue on!' 88
-    #             # replay
-    #         endif
-    #     endfor
-    # endif
 
-
-    if timer fishing_timer >= fishing_CD
+    if timer fishing_timer >= fishing_skill_cooldown
         if cooldown FISHING
             hotkey 'Use item in hand'
             wait action_delay
             settimer fishing_timer 0
-            cooldown Fish 0
+            cooldown FISHING 0
         else
-            if not cooldown Fish
+            if not cooldown FISHING
                 overhead 'Captcha break!' 34
                 overhead 'Awaiting Captcha...' 34
                 wait 1000
@@ -175,7 +134,7 @@ while not dead
             sysmsg 'DEPOSITING CATCH IN HATCH' 54
             organizer 20
             wait 250
-    
+
             while queued
                 wait 50
             endwhile
@@ -186,10 +145,12 @@ while not dead
 
     if insysmsg 'You retrieve a special fishing net'
         sysmsg 'FISHING NET!' 90
-        # settimer 'fishing_timer' 0
+        settimer 'fishing_timer' fishing_skill_cooldown
     elseif insysmsg 'You have recently traveled and must wait'
         overhead '! travel harvest cooldown !' 43
-        # settimer 'fishing_timer' 0
+        settimer 'fishing_timer' fishing_skill_cooldown
+    elseif insysmsg 'you catch'
+        settimer 'fishing_timer' fishing_skill_cooldown
     endif
 
 endwhile

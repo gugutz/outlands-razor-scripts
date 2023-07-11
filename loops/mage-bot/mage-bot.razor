@@ -18,7 +18,8 @@ setvar! default_overhead_color 1360
 
 setvar! spell_msg_color 49
 setvar! buff_msg_color 92
-setvar! warning_msg_color 1196
+# setvar! warning_msg_color 1196
+setvar! warning_msg_color 54
 setvar! alert_msg_color 1172
 setvar! success_msg_color 1272
 setvar! action_msg_color 90
@@ -150,13 +151,13 @@ if auto_configure_script_based_on_skills == 1
         sysmsg 'SUMMONER DETECTED. OPTIMIZING...' script_msg_color
 
         sysmsg '[STACK] Setting Summons Options...' script_msg_color
-        
-        
+
+
         clearlist 'summons'
         pushlist 'summons' 'an earth elemental'
         pushlist 'summons' 'a fire elemental'
         pushlist 'summons' 'summ. creature'
-        
+
         sysmsg '[OPTIONS] ENABLING auto_summon' script_msg_color
         sysmsg '[OPTIONS] APPLYING SUMMON OPTIONS' script_msg_color
         setvar! auto_summon 1
@@ -164,7 +165,7 @@ if auto_configure_script_based_on_skills == 1
         setvar! auto_all_guard 1
         setvar! auto_patrol_when_no_active_lasttarget 0
         setvar! auto_vampiric_embrace 1
-    
+
         # if summ creature is one of players summons, change limit to 5 so even with 4 followers, we still make the char cast to summon the fifth creature
         # if not, then we just want 2 elementals so limit should be 4, since they take up 2 slots each and the fifth wouldnt be possible
         if inlist 'summons' 'summ. creature'
@@ -183,7 +184,7 @@ if auto_configure_script_based_on_skills == 1
             sysmsg '[OPTIONS] DISABLING auto_summon' script_msg_color
             setvar! auto_summon 0
         endif
-    
+
         # for tamers we dont want the char to think its under max summons right?
         setvar! followers_max_limit 1
     endif
@@ -288,16 +289,16 @@ setvar! 4th_circle_spell_mana_cost 12
 
 
 if is_summoner == 1
-    
+
     #####################################
     # SUMMONS SPELL LISTS
     #####################################
-    
+
     if not listexists 'summonspells'
         createlist 'summonspells'
     endif
     clearlist 'summonspells'
-    
+
     if inlist 'summons' 'an air elemental'
         @pushlist 'summonspells' 'air elemental'
     endif
@@ -889,18 +890,18 @@ if auto_unload_items_in_pack_animal == 1
     else
         setvar! recreate_packies_list true
     endif
-    
-    
+
+
     # ONLY START THIS ROUTINE IF CHAR HAS FOLLOWERS AND WE FIND EITHER A PACK LLAMA OR HORSE NEARBY
     if followers > 0 and findtype 292 ground 0 any 5 as llama or findtype 291 ground 0 any 5 as horse
         if varexist recreate_packies_list
             if debug == 1
                 sysmsg '[DEBUG] RECREATING PACKIES LIST' debug_msg_color
             endif
-    
+
             unsetvar! recreate_packies_list
             unsetvar! pack_animal
-    
+
             # FIND AND SAVE PLAYER LLAMA
             if findtype 292 ground 0 any 5 as llama
                 overhead 'scanning' 55 llama
@@ -914,12 +915,12 @@ if auto_unload_items_in_pack_animal == 1
                     setvar! pack_animal horse
                 endif
             endif
-    
+
             if varexist pack_animal
                 sysmsg "FOUND PLAYER PACK LLAMA" 55
                 overhead "found and saving llama!" 55 'self'
                 overhead 'found player llama' 55 pack_animal
-    
+
                 overhead '*renaming*' 55 pack_animal
                 rename pack_animal 'i'
                 menu pack_animal 4
@@ -937,8 +938,9 @@ endif
 
 # IF OFFENSIVE MODE IS ON, TRY TO GET A TARGET SO WE CAN SKIP THE BUFFS AND ATTACK ASAP
 if offensive_mode == 1 and auto_get_new_targets == 1 and keep_getting_closest_target == 1
-        # sysmsg '[OFFENSIVE MODE] GETTING CLOSEST TARGET' action_msg_color
-
+    if verbose == 1
+        sysmsg '[OFFENSIVE MODE] GETTING CLOSEST TARGET' action_msg_color
+    endif
     hotkey 'Target Closest Non-Friendly Monster'
 endif
 
@@ -1024,7 +1026,7 @@ if not listexists 'runetome_page_numbers'
     pushlist 'runetome_page_numbers' 211
     pushlist 'runetome_page_numbers' 212
     pushlist 'runetome_page_numbers' 213
-    
+
     # runetome page 2
     pushlist 'runetome_page_numbers' 214
     pushlist 'runetome_page_numbers' 215
@@ -1053,11 +1055,11 @@ while not dead 'self'
     if cycle_runetome_farming == 1
         foreach runebook in 'lumber_runebooks'
             sysmsg '>>> STARTING RUNEBOOK {{index}}: {{runebook}}'
-        
+
             foreach page_number in 'runetome_page_numbers'
                 if recall_home_now != 1
                     # travel to the rune
-        
+
                     while mana <= 11
                         sysmsg 'MEDITATING TO RECALL' warning_msg_color
                         if not findbuff 'actively meditating'
@@ -1066,10 +1068,10 @@ while not dead 'self'
                         endif
                         wait action_delay
                     endwhile
-        
+
                     sysmsg 'OPENING RUNEBOOK {{runebook}}'
                     dclick runebook
-        
+
                     settimer 'waiting_runebook_gump_timer' 0
                     if not gumpexists runetome_gump_id and timer 'waiting_runebook_gump_timer' < 2000
                         if insysmsg 'You must wait'
@@ -1079,13 +1081,13 @@ while not dead 'self'
                                 wait action_delay
                             endwhile
                         endif
-        
+
                         sysmsg 'waiting for runebook gump'
                         while not gumpexists runetome_gump_id and timer 'waiting_runebook_gump_timer' < 2000
                             waitforgump runetome_gump_id action_delay
                         endwhile
                     endif
-        
+
                     if gumpexists runetome_gump_id
                         waitforgump runetome_gump_id action_delay
                         gumpresponse page_number runetome_gump_id
@@ -1650,7 +1652,7 @@ while not dead 'self'
                             if verbose == 1
                                 sysmsg '>>> VAMPIRIC EMBRACE' spell_msg_color
                             endif
-    
+
                             say '[vampiricembrace'
                             wft action_delay
                             if targetexists 'neutral'
@@ -1664,12 +1666,13 @@ while not dead 'self'
                                 wait action_delay
                                 settimer 'vampiric_embrace_cooldown_timer' 0
                                 settimer 'Vampiric Embrace' 0
-    
+
                                 if debug == 1
                                     sysmsg 'RESETING LAST AFTER CONSUMING CORPSE' reset_timer_msg_color
                                 endif
-    
-                                hotkey 'Set Last Target (Harmful)'
+
+                                hotkey 'Clear Target Queue'
+                                hotkey 'Set Last Target'
                                 wft action_delay
                                 target last_target_serial
                             endif
@@ -1941,9 +1944,9 @@ while not dead 'self'
                     if verbose == 1
                         sysmsg '>>> STRENGTH' spell_msg_color
                     endif
-    
+
                     cast 'Strength'
-    
+
                     @settimer 'waiting_target_timer' 0
                     while not findbuff 'strength' and not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 1500
                         wft 10
@@ -1951,17 +1954,17 @@ while not dead 'self'
                             if verbose == 1
                                 sysmsg 'BREAKING WHILE WAITING FOR STRENGTH TARGET' warning_msg_color
                             endif
-    
+
                             wait spell_recovery_delay
                             break
                         endif
                     endwhile
-    
+
                     if targetexists 'beneficial'
                         hotkey 'Target Self'
                         wait spell_recovery_delay
                     endif
-    
+
                     if findbuff 'strength'
                         overhead '+strength' buff_msg_color
                     endif
@@ -2002,9 +2005,9 @@ while not dead 'self'
                 if verbose == 1
                     sysmsg '>>> ARCH CURING!' spell_msg_color
                 endif
-    
+
                 cast 'arch cure'
-    
+
                 @settimer 'waiting_spell_timer' 0
                 while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
                     wft 10
@@ -2012,12 +2015,12 @@ while not dead 'self'
                         if verbose == 1
                             sysmsg 'BREAKING WHILE WAITING FOR ARCH CURE TARGET' warning_msg_color
                         endif
-    
+
                         wait spell_recovery_delay
                         break
                     endif
                 endwhile
-    
+
                 if targetexists 'neutral'
                     hotkey 'Target Self'
                     wait spell_recovery_delay
@@ -2052,10 +2055,10 @@ while not dead 'self'
                 if verbose == 1
                     sysmsg '>>> GREATER HEALING...' 76
                 endif
-    
+
                 hotkey 'Clear Target Queue'
                 cast 'greater heal'
-    
+
                 @settimer 'waiting_target_timer' 0
                 while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
                     wft 10
@@ -2067,15 +2070,16 @@ while not dead 'self'
                         break
                     endif
                 endwhile
-    
+
                 if targetexists 'beneficial' and hits < maxhits
                     hotkey 'Target Self'
                     wait spell_recovery_delay
-    
+
                     if debug == 1
                         sysmsg 'RESETING LAST AFTER GHEAL' debug_msg_color
                     endif
-                    hotkey 'Set Last Target (Harmful)'
+                    hotkey 'Clear Target Queue'
+                    hotkey 'Set Last Target'
                     wft action_delay
                     target last_target_serial
                 endif
@@ -2108,7 +2112,8 @@ while not dead 'self'
                     sysmsg 'RESETING LAST AFTER MINI HEAL' debug_msg_color
                 endif
 
-                hotkey 'Set Last Target (Harmful)'
+                hotkey 'Clear Target Queue'
+                hotkey 'Set Last Target'
                 wft action_delay
                 target last_target_serial
             endif
@@ -2219,12 +2224,12 @@ while not dead 'self'
                         if insysmsg 'New target'
                             sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
                             sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
-                
+
                             overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
                             overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
-                
+
                             cast 'recall'
-                
+
                             clearsysmsg
                             @settimer 'waiting_target_timer' 0
                             while not targetexists 'neutral' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
@@ -2234,33 +2239,33 @@ while not dead 'self'
                                         overhead '▽▽ BREAKING RECALL ON ESCAPE PKS ▽▽' warning_msg_color
                                         sysmsg 'BREAKING WHILE WAITING FOR RECALL TO ESCAPE PKS {{crew_member}}' warning_msg_color
                                     endif
-                
+
                                     wait spell_recovery_delay
                                     break
                                 endif
-                
+
                                 if diffhits >= max_diffhits_before_heal_pot
                                     if findtype 'yellow potion' backpack as pot
                                         if verbose == 1
                                             sysmsg '>>> LOW HP! USING HEAL POTION.. ' action_msg_color
                                         endif
-                        
+
                                         if use_script_overhead_messages == 1
                                             overhead '*using heal potion*' action_msg_color
                                         endif
-                        
+
                                         useobject pot
                                         wait action_delay
                                     endif
                                 endif
-                
+
                             endwhile
-                
+
                             if targetexists 'beneficial'
                                 target home_book
                                 wait spell_recovery_delay
                             endif
-                
+
                         endif
                     endif
 
@@ -2459,7 +2464,7 @@ while not dead 'self'
             overhead '!! PK !!' 19
             overhead '!! PK !!' 49
             overhead '!! PK !!' 54
-    
+
             sysmsg '>>> ESCAPING PK!!!' 41
             overhead '!! ESCAPING PK !!' 41
 
@@ -2507,11 +2512,11 @@ while not dead 'self'
                         if verbose == 1
                             sysmsg '>>> LOW HP! USING HEAL POTION.. ' action_msg_color
                         endif
-        
+
                         if use_script_overhead_messages == 1
                             overhead '*using heal potion*' action_msg_color
                         endif
-        
+
                         useobject pot
                         wait action_delay
                     endif
@@ -2964,13 +2969,13 @@ while not dead 'self'
 
                     sysmsg 'Hiding {{found_label}}' 54 'self'
                     overhead 'hiding {{found_label}}' 91 'self'
-            
+
                     if varexist CHAR_LOOT_POUCH
                         lift found 999
                         wait 50
                         while queued
                         endwhile
-            
+
                         drop CHAR_LOOT_POUCH
                         wait 50
                         while queued
@@ -2984,7 +2989,7 @@ while not dead 'self'
                         endwhile
                     endif
                 endif
-            
+
             endwhile
             @clearignore
 
@@ -3259,7 +3264,7 @@ while not dead 'self'
                             cast 'greater heal'
                             getlabel crew_member crew_member_label
                             sysmsg 'HEALING CREW MEMBER {{crew_member_label}}'
-            
+
                             clearsysmsg
                             @settimer 'waiting_target_timer' 0
                             while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
@@ -3274,7 +3279,7 @@ while not dead 'self'
                                     break
                                 endif
                             endwhile
-                
+
                             if targetexists 'beneficial'
                                 target crew_member
                                 wait spell_recovery_delay
@@ -3290,7 +3295,8 @@ while not dead 'self'
                         if debug == 1
                             sysmsg 'RESETING LAST AFTER GHEAL' debug_msg_color
                         endif
-                        hotkey 'Set Last Target (Harmful)'
+                        hotkey 'Clear Target Queue'
+                        hotkey 'Set Last Target'
                         wft action_delay
                         target last_target_serial
                     endif
@@ -3307,34 +3313,30 @@ while not dead 'self'
     # SEARCH NEW ENEMIES
     #########################################
 
-    if auto_get_new_targets == 1 and timer 'auto_get_new_targets_timer' > 1000
-        if verbose == 1
-            sysmsg '> SEARCHING MONSTERS TARGETS...' action_msg_color
-        endif
-
-        if use_script_overhead_messages == 1
-            overhead '*searching monsters*' action_msg_color
-        endif
-
-        hotkey 'Target Closest Non-Friendly Monster'
-        if get_players_on_auto_target == 1
+    if dead lasttarget or not find lasttarget ground any any 10
+        if auto_get_new_targets == 1 and timer 'auto_get_new_targets_timer' > 1000
             if verbose == 1
-                sysmsg '> SEARCHING PLAYER TARGETS...' action_msg_color
+                sysmsg '> SEARCHING MONSTERS TARGETS...' action_msg_color
+                overhead '*searching monsters*' action_msg_color
             endif
 
-            if use_script_overhead_messages == 1
-                overhead '*searching players*' action_msg_color
+            hotkey 'Target Closest Non-Friendly Monster'
+            if get_players_on_auto_target == 1
+                if verbose == 1
+                    sysmsg '> SEARCHING PLAYER TARGETS...' action_msg_color
+                    overhead '*searching players*' action_msg_color
+                endif
+
+                hotkey 'Next Grey Humanoid Target'
+                # TESTING removing wait
+                # wait action_delay
             endif
 
-            hotkey 'Next Grey Humanoid Target'
-            # TESTING removing wait
-            # wait action_delay
+            settimer 'auto_get_new_targets_timer' 0
+        elseif auto_get_new_targets == 0 and timer 'get_new_target_msg' > 4000
+            overhead 'waiting for new target' overhead_color
+            settimer 'get_new_target_msg' 0
         endif
-
-        settimer 'auto_get_new_targets_timer' 0
-    elseif auto_get_new_targets == 0 and timer 'get_new_target_msg' > 4000
-        overhead 'waiting for new target' overhead_color
-        settimer 'get_new_target_msg' 0
     endif
 
 
@@ -3356,8 +3358,8 @@ while not dead 'self'
 
             # if target is farther than 10 tiles, warn player
             if not find last_serial ground any any 10 and find last_serial ground any any 20
-                overhead 'MOB TOO FAR! COME CLOSER TO ATTACK' warning_msg_color
-                overhead 'TOO FAR TO ATTACK!' warning_msg_color
+                sysmsg 'MOB TOO FAR TO ATTACK' warning_msg_color
+                overhead 'TOO FAR TO ATTACK!' warning_msg_color last_serial
             endif
 
             while find last_serial ground any any 10 or enemy_boat_present == 1
@@ -3500,7 +3502,7 @@ while not dead 'self'
                                 sysmsg 'HEALING CREW' boating_msg_color
                                 foreach crew_member in 'ship_crew'
                                     cast 'greater heal'
-                        
+
                                     @settimer 'waiting_target_timer' 0
                                     while not targetexists 'beneficial' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
                                         wft 10
@@ -3513,17 +3515,18 @@ while not dead 'self'
                                             break
                                         endif
                                     endwhile
-                        
+
 
                                 endfor
 
                                 settimer 'heal_ship_crew_timer' 0
-            
+
                                 if varexist last_target_serial
                                     if debug == 1
                                         sysmsg 'RESETING LAST AFTER GHEAL' debug_msg_color
                                     endif
-                                    hotkey 'Set Last Target (Harmful)'
+                                    hotkey 'Clear Target Queue'
+                                    hotkey 'Set Last Target'
                                     wft action_delay
                                     target last_target_serial
                                 endif
@@ -3568,14 +3571,14 @@ while not dead 'self'
                         getlabel eldrich_proc proc_label
                         overhead '*using eldrich mana well*' success_msg_color
                         sysmsg 'Using ElDRICH MANA WELL: {{proc_label}}' success_msg_color
-                        cooldown 'Proc' 5000
+                        cooldown 'ASPECT PROC' 5000
                     endif
 
 
                     hotkey 'Clear Target Queue'
 
                     # save current target to compare with last saved last_target_serial to see if we have a new mob or just a old mob that went off screen of hid itself
-                    if find 'last' ground any any find_last_target_max_range as serial
+                    if find lasttarget ground any any find_last_target_max_range as serial
                         setvar! current_target_serial serial
                     else
                         if verbose == 1
@@ -3586,20 +3589,21 @@ while not dead 'self'
                         break
                     endif
 
-                    if noto 'last' == hostile or noto 'last' == murderer or noto 'last' == criminal
-                        if debug == 1
-                            if noto 'last' == hostile
-                                sysmsg 'NOTO LAST HOSTILE!!!' debug_msg_color
-                            endif
-
-                            sysmsg '>>> FOUND HOSTILE LASTTARGET' debug_msg_color
-                        endif
+                    if noto lasttarget == hostile or noto lasttarget == murderer or noto lasttarget == criminal
+#                         if debug == 1
+#                             if noto 'last' == hostile
+#                                 sysmsg 'NOTO LAST HOSTILE!!!' debug_msg_color
+#                             endif
+#
+#                             sysmsg '>>> FOUND HOSTILE LASTTARGET' debug_msg_color
+#                         endif
 
                         # # save last target serial on custom var to re-set after healing friendly targets
 
                         if last_target_serial != current_target_serial
                             if verbose == 1
-                                sysmsg '+++ RESETING LAST TARGET SERIAL VAR (NEW MOB)' alert_msg_color
+                                sysmsg '+++ NEW MOB! RESETING LAST TARGET VAR.' alert_msg_color
+                                overhead '* NEW MOB *' warning_msg_color lasttarget
                             endif
 
                             unsetvar last_target_serial
@@ -3618,7 +3622,8 @@ while not dead 'self'
                             settimer 'all_patrol_timer' all_patrol_delay
                         elseif last_target_serial == current_target_serial
                             if verbose == 1
-                                sysmsg '+++ MOB {{current_target_serial}} IS SAME AS LAST TARGET FOUND {{last_target_serial}}' alert_msg_color
+                                sysmsg '+++ MOB {{current_target_serial}} == LAST FOUND {{last_target_serial}}' warning_msg_color
+                                overhead '* SAME MOB *' warning_msg_color lasttarget
                             endif
                         endif
 
@@ -3662,7 +3667,7 @@ while not dead 'self'
                             endif
                         endif
 
-sysmsg 'chegou kill close to loot'
+# sysmsg 'chegou kill close to loot'
 
                         # kill close to loot mob easier
                         if lure_mobs_closer_before_killing == 1 and timer 'lure_mob_closer_timer' > 4000
@@ -3711,10 +3716,10 @@ sysmsg 'chegou kill close to loot'
                             if verbose == 1
                                 sysmsg 'RE-GETTING CLOSEST TARGET' action_msg_color
                             endif
-                    
+
                             hotkey 'Target Closest Non-Friendly Monster'
                         endif
-                    
+
                         # TRY TO DETECT AND CANCEL ENEMIES OUT OF LOS
                         if not dead 'last' and not find 'last' ground any any find_last_target_max_range
                             sysmsg 'LASTTARGET NOT FOUND. CANCELLING CURRENT TARGET' alert_msg_color
@@ -3727,7 +3732,7 @@ sysmsg 'chegou kill close to loot'
                             endif
                             break
                         endif
-                    
+
                         setvar! last_target_serial lasttarget
 
                         # before each spell and every attack, we first check 2 things:
@@ -3800,10 +3805,14 @@ sysmsg 'chegou kill close to loot'
                                 # poison
                                 if followers >= followers_max_limit and diffhits < max_diffhits_before_healing
 
+                                    # save current target to re-set last target after iterating through all mobs
+                                    setvar! previous_target last_target_serial
+
                                     if is_noxxer == 1
 
                                         # if poison timer is up, reset the control list
                                         if use_poison == 1 and timer 'poison_timer' >= poison_delay
+                                            sysmsg 'CLEARING POISONED MOBS LIST' warning_msg_color
                                             clearlist 'poisoned_mobs'
                                         endif
 
@@ -3820,7 +3829,7 @@ sysmsg 'chegou kill close to loot'
                                             if insysmsg 'New target'
                                                 setvar! targserial lasttarget
                                                 if inlist 'scanned_poison_targets' targserial
-                                                    sysmsg 'MOB {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' warning_msg_color
+                                                    sysmsg 'NO NEW POISON TARGETS ({{targserial}} ALREADY ON LIST)' warning_msg_color
                                                     break
                                                 endif
 
@@ -3834,30 +3843,45 @@ sysmsg 'chegou kill close to loot'
                                                         settimer 'poison_timer' poison_delay
                                                     else
                                                         sysmsg 'MOB {{mob}} TOO FAR TO POISON!' alert_msg_color
-                                                        overhead 'TOO FAR TO POISON!' alert_msg_color targ
+                                                        overhead 'TOO FAR TO POISON!' alert_msg_color targserial
                                                     endif
+                                                else
+                                                    overhead 'ALREADY POISONED!' warning_msg_color targserial
                                                 endif
 
-                                            if insysmsg 'No one matching that was found on your screen'
+                                            elseif insysmsg 'No one matching that was found on your screen'
                                                 sysmsg 'NO NEW TARGETS TO SCAN FOR POISON' warning_msg_color
                                                 break
                                             endif
                                         endwhile
 
                                         clearignore
+
+                                        sysmsg 'RESETING LAST (SCANNED POISON TARGETS)' warning_msg_color
+                                        overhead 'RESETING LAST TO THIS MOB' warning_msg_color previous_target
+                                        hotkey 'Clear Target Queue'
+                                        hotkey 'Set Last Target'
+                                        wft 600
+                                        target last_target_serial
                                     endif
+
 
                                     if use_poison == 1 and timer 'poison_timer' >= poison_delay
                                         if is_noxxer == 1
                                             if verbose == 1
                                                 sysmsg '◎ POISON (ALL MOBS)' spell_msg_color
                                             endif
-                                            
+
 
                                             hotkey 'Clear Target Queue'
                                             hotkey 'Toggle Peace Only'
-                                            
+
                                             foreach targ in 'poison_targets'
+                                                if inlist 'poisoned_mobs' targ
+                                                    sysmsg '{{targ}} ALREADY POISONED. BREAKING POISON LOOP...'
+                                                    break
+                                                endif
+
                                                 if find targ ground any any 10
                                                     overhead '*POISONING*' 76 targ
                                                     cast 'poison'
@@ -3866,32 +3890,33 @@ sysmsg 'chegou kill close to loot'
                                                     @clearsysmsg
                                                     while not targetexists 'harmful' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 3500
                                                         wait 10
-    
+
                                                         if insysmsg 'disturbed' or insysmsg 'cannot cast a spell'
                                                             if verbose == 1
                                                                 sysmsg 'BREAKING WHILE WAITING FOR POISON TARGET' warning_msg_color
                                                             endif
-    
+
                                                             wait spell_recovery_delay
                                                             break
                                                         endif
                                                     endwhile
-    
+
                                                     if targetexists 'harmful'
                                                         @clearsysmsg
                                                         target targ
                                                         wait spell_recovery_delay
-    
-                                                        if not insysmsg 'Target cannot be seen'
+
+                                                        if not insysmsg 'Target cannot be seen' and not insysmsg 'out of sight' and not insysmsg 'too far'
                                                             if debug == 1
-                                                                sysmsg '+++ RESETING MANA DRAIN TIMER' reset_timer_msg_color
+                                                                sysmsg '+++ RESETING POISON TIMER' reset_timer_msg_color
                                                             endif
-    
-                                                            pushlist 'poisoned_mobs' targserial
+
+                                                            pushlist 'poisoned_mobs' targ
                                                             settimer 'poison_timer' 0
                                                             cooldown 'POISON' poison_delay
+                                                            overhead 'POISONED!' success_msg_color targ
 
-                                                            setvar! last_poisoned_serial lasttarget
+                                                            setvar! last_poisoned_serial targ
                                                         endif
                                                     endif
 
@@ -3909,10 +3934,12 @@ sysmsg 'chegou kill close to loot'
                                             hotkey 'Last Target'
                                         endif
 
-                                        sysmsg 'RESETING LAST AFTER POISON' warning_msg_color
-                                        hotkey 'Set Last Target (Harmful)'
+                                        sysmsg '!!!!!!!!!!!!!!!!!!!1 RESETING LAST AFTER POISON' warning_msg_color
+                                        sysmsg 'RESETING LAST TO THIS MOB' warning_msg_color previous_target
+                                        hotkey 'Clear Target Queue'
+                                        hotkey 'Set Last Target'
                                         wft 600
-                                        target last_target_serial
+                                        target previous_target
 
                                     endif
                                 endif
@@ -4123,7 +4150,7 @@ sysmsg 'chegou kill close to loot'
                                 ########################################
                                 # KEEP HEALING PETS
                                 ########################################
-                            
+
                                 if is_veterinarian == 1 and auto_heal_pets == 1 and not targetexists 'any'
                                     if not cooldown Bandage
                                         if findtype 'veterinary supplies' as vet_supplies
@@ -4286,7 +4313,7 @@ sysmsg 'chegou kill close to loot'
                                 ########################################
                                 # KEEP HEALING PETS
                                 ########################################
-                            
+
                                 if is_veterinarian == 1 and auto_heal_pets == 1 and not targetexists 'any'
                                     if not cooldown Bandage
                                         if findtype 'veterinary supplies' as vet_supplies
@@ -4319,12 +4346,12 @@ sysmsg 'chegou kill close to loot'
                                     if insysmsg 'New target'
                                         sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
                                         sysmsg '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
-                            
+
                                         overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
                                         overhead '!!!!!!! FOUND PK! RUN!!!!!!!' alert_msg_color
-                            
+
                                         cast 'recall'
-                            
+
                                         clearsysmsg
                                         @settimer 'waiting_target_timer' 0
                                         while not targetexists 'neutral' and not insysmsg 'disturbed' and not insysmsg 'cannot cast a spell' and timer 'waiting_target_timer' < 4000
@@ -4334,33 +4361,33 @@ sysmsg 'chegou kill close to loot'
                                                     overhead '▽▽ BREAKING RECALL ON ESCAPE PKS ▽▽' warning_msg_color
                                                     sysmsg 'BREAKING WHILE WAITING FOR RECALL TO ESCAPE PKS {{crew_member}}' warning_msg_color
                                                 endif
-                            
+
                                                 wait spell_recovery_delay
                                                 break
                                             endif
-                            
+
                                             if diffhits >= max_diffhits_before_heal_pot
                                                 if findtype 'yellow potion' backpack as pot
                                                     if verbose == 1
                                                         sysmsg '>>> LOW HP! USING HEAL POTION.. ' action_msg_color
                                                     endif
-                                    
+
                                                     if use_script_overhead_messages == 1
                                                         overhead '*using heal potion*' action_msg_color
                                                     endif
-                                    
+
                                                     useobject pot
                                                     wait action_delay
                                                 endif
                                             endif
-                            
+
                                         endwhile
-                            
+
                                         if targetexists 'beneficial'
                                             target home_book
                                             wait spell_recovery_delay
                                         endif
-                            
+
                                     endif
                                 endif
 
@@ -4515,7 +4542,7 @@ sysmsg 'chegou kill close to loot'
                                 # ###############################
 
                                 if use_poison_strike == 1
-                                    if skill 'necromancy' > 20 and findtype 'corpse' ground any any 30
+                                    if skill 'necromancy' > 20
                                         # if timer 'poison_strike_timer' >= 30000
                                         if not cooldown 'POISON STRIKE'
                                             while not dead self
@@ -4534,7 +4561,7 @@ sysmsg 'chegou kill close to loot'
 
                                             hotkey 'Clear Target Queue'
                                             hotkey 'Toggle Peace Only'
-                                            
+
                                             unsetvar! lethal_poison_ticks
                                             unsetvar! deadly_poison_ticks
                                             setvar! poison_strike_now 0
@@ -4610,18 +4637,18 @@ sysmsg 'chegou kill close to loot'
                                                     if verbose == 1
                                                         sysmsg '◎ POISON STRIKE' spell_msg_color
                                                     endif
-    
+
                                                     hotkey 'Last Target'
                                                     wait action_delay
                                                     if insysmsg 'Unholy symbols remaining'
                                                         if verbose == 1
                                                             sysmsg '>>> POISON STRIKED CORPSE!' 30
                                                         endif
-    
+
                                                         if use_script_overhead_messages == 1
                                                             overhead '*poison striked corpse*' 30
                                                         endif
-    
+
                                                         settimer 'poison_strike_timer' 0
                                                         cooldown 'POISON STRIKE' 30000
                                                     endif

@@ -18,7 +18,7 @@ if varexist shelf
             overhead 'Get back closer to the shelf!'
             wait 2000
         endwhile
-    
+
 
         while find shelf ground any any 2
 
@@ -38,32 +38,29 @@ if varexist shelf
                 endwhile
             endwhile
 
-            # if counttype "pouch" backpack 0 < 2
-            if not findtype "pouch" backpack 0
-                sysmsg 'RESSUPLYING...' 55
-                menu shelf 1
-                waitforgump 3232825965 600
+            sysmsg 'RESSUPLYING...' 55
+            menu shelf 1
+            waitforgump 3232825965 600
 
-                if gumpexists 3232825965
-                    gumpclose 3232825965
-                endif
-
-                wait 600
-
+            if gumpexists 3232825965
+                gumpclose 3232825965
             endif
-    
-    
+
+            wait 600
+
+
+
             for 30
                 cast 'create food'
                 wft 1100
             endfor
-    
+
             sysmsg 'RESTOCKING SELF...' 55
             menu shelf 0
             wft 600
-    
+
             hotkey 'Target Self'
-    
+
         endwhile
     endwhile
 endif

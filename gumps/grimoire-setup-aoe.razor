@@ -1,0 +1,133 @@
+#GRIMOIRE AOE SETUP
+
+setvar! action_delay 1000
+setvar! grimoire_gump_id 1281623709
+
+
+if findtype 'wizards grimoire' backpack as found
+    setvar! grimoire found
+else
+    sysmsg 'NO GRIMOIRE FOUND!' 39
+    overhead 'NO GRIMOIRE FOUND!' 39
+    stop
+endif
+
+dclick grimoire
+
+#PUT ON PAGE 1
+for 7
+    waitforgump 1281623709
+    gumpresponse 3 1281623709
+endfor
+for 5
+    waitforgump 1281623709
+    gumpresponse 2 1281623709
+endfor
+
+
+#RESET
+gumpresponse 4
+waitforgump 1281623709
+gumpresponse 4
+waitforgump 1281623709
+gumpresponse 4
+waitforgump 1281623709
+
+if insysmsg 'before you may reset your points distribution'
+    sysmsg 'GRIMOIRE RESET COOLDOWN!' 54
+    stop
+endif
+
+#########################################
+# PAGE 1
+#########################################
+
+#CREATE FOOD
+gumpresponse 20
+waitforgump 1281623709
+gumpresponse 20
+waitforgump 1281623709
+gumpresponse 20
+waitforgump 1281623709
+
+#MAGIC ARROW
+gumpresponse 21
+waitforgump 1281623709
+# gumpresponse 21
+# waitforgump 1281623709
+
+#HARM
+gumpresponse 23
+waitforgump 1281623709
+# gumpresponse 23
+# waitforgump 1281623709
+
+#########################################
+# PAGE 2
+#########################################
+
+# NEXT PAGE
+gumpresponse 3
+waitforgump 1281623709
+
+#########################################
+# PAGE 3
+#########################################
+
+# NEXT PAGE
+gumpresponse 3
+waitforgump 1281623709
+
+#LIGHTNING
+#gumpresponse 20
+#waitforgump 1281623709
+#gumpresponse 20
+#waitforgump 1281623709
+
+#MASS CURSE
+#gumpresponse 22
+#waitforgump 1281623709
+#gumpresponse 22
+#waitforgump 1281623709
+#gumpresponse 22
+#waitforgump 1281623709
+
+# MANA DRAIN
+gumpresponse 23
+waitforgump 1281623709
+gumpresponse 23
+waitforgump 1281623709
+gumpresponse 23
+waitforgump 1281623709
+
+#########################################
+# PAGE 4
+#########################################
+
+#NEXT PAGE
+gumpresponse 3
+waitforgump 1281623709
+
+#########################################
+# PAGE 5
+#########################################
+
+#NEXT PAGE
+gumpresponse 3
+waitforgump 1281623709
+
+#METEOR SWARM
+gumpresponse 21
+waitforgump 1281623709
+gumpresponse 21
+waitforgump 1281623709
+gumpresponse 21
+waitforgump 1281623709
+
+#CHAIN LIGHTNING
+gumpresponse 22
+waitforgump 1281623709
+gumpresponse 22
+waitforgump 1281623709
+gumpresponse 22
+waitforgump 1281623709

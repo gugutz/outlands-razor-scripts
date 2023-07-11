@@ -1,0 +1,39 @@
+say 'AFK. Dont be a dick...'
+wait 5000
+
+setvar! auto_dock_when_attacked 1
+
+# first make sure its the chars boat, and not a friend boat
+if auto_dock_when_attacked == 1
+    if diffhits > 0
+        # if it is, check full hull hp and see if it matches chat boat hull (EDIT HERE)
+        sysmsg 'BOAT BEING ATTACKED. TRYING TO DOCK!'
+        if gumpexists dockmaster_gump_id
+            sysmsg '>>> DOCKING SHIP!' warning_msg_color
+            gumpresponse 7
+            waitforgump dockmaster_gump_id action_delay
+            waitforgump 4216593270
+            waitforgump dockmaster_gump_id action_delay
+        else
+            foreach dockmaster in 'dockmasters_serials'
+                if find dockmaster ground any any 25
+                    sysmsg '>> FOUND DOCKMASTER!' success_msg_color
+                    overhead '* FOUND DOCKMASTER *' success_msg_color
+                    menu dockmaster 1
+                    waitforgump dockmaster_gump_id action_delay
+
+                    if gumpexists dockmaster_gump_id
+                        sysmsg '>>> DOCKING SHIP!' warning_msg_color
+                        gumpresponse 7
+                        waitforgump dockmaster_gump_id action_delay
+                        waitforgump 4216593270
+                        waitforgump dockmaster_gump_id action_delay
+                    endif
+                endif
+            endfor
+        endif
+    endif
+endif
+
+
+loop

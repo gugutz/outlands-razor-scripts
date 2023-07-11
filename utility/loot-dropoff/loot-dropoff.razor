@@ -275,7 +275,7 @@ if followers > 0 and unload_from_packies == 1
 
         @ignore packie
     endwhile
-    
+
     while findtype 291 ground any any 2 as packie
         # if noto packie = noto 'self'
         if noto packie = friend
@@ -478,13 +478,13 @@ if open_loot_pouch_when_unloading  == 1
         dclick CHAR_LOOT_POUCH
         wait action_delay
 #         if insysmsg 'You must wait'
-# 
+#
 #             while insysmsg 'You must wait'
 #                 # clearsysmsg
 #                 dclick CHAR_LOOT_POUCH
 #                 wait action_delay
 #             endwhile
-# 
+#
 #         endif
     endif
 endif
@@ -689,18 +689,18 @@ endwhile
 
 if followers > 0 and unload_from_packies == 1
     sysmsg '> Searching for ores or logs in packies...' sysmsgs_color
-    
+
     # smelt ores or make boards from resources inside packies to deposit them in resource stockpile
     if list 'packies' > 0
         foreach packanimal in 'packies'
-    
+
             # smelt ores
             while findtype ORE packanimal any any 2 as ores_from_packie
                 if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
                     if verbose_mode  == 1
                         overhead '*smelting packie ores*' 49 packanimal
                     endif
-    
+
                     dclick ores_from_packie
                     wait action_delay
                 else
@@ -709,11 +709,11 @@ if followers > 0 and unload_from_packies == 1
                     break
                 endif
             endwhile
-    
+
             # make boards from logs
             while findtype 'log%s' packanimal any any 2 as logs_from_packie
                 overhead '*cutting packie boards*' 49 packanimal
-    
+
                 if findtype 'hatchet' backpack
                     dclick logs_from_packie
                     wait action_delay
@@ -1163,7 +1163,7 @@ endif
 if unload_magery_scroll_in_tome == 1
     if findtype 'book' tomes_location_serial 2227 1 2 as magery_scroll_tome
         sysmsg '> Searching for Magery Scrolls...' sysmsgs_color
-    
+
         if print_unloaded_items == 1
             if not listexists 'magery_scrolls'
                 createlist 'magery_scrolls'
@@ -1181,26 +1181,26 @@ if unload_magery_scroll_in_tome == 1
                 pushlist 'magery_scrolls' 'Lightning Scroll'
                 pushlist 'magery_scrolls' 'Energy Bolt Scroll'
             endif
-    
+
             while findtype "Recall|Invisibility|Bless" backpack any any as found
                 getlabel found item_label
-    
+
                 if not inlist 'items_unloaded' item_label
                     sysmsg 'Adding {{item_label}}'
                     pushlist 'items_unloaded' item_label
                 endif
-    
+
                 @ignore found
             endwhile
-    
+
             @clearignore
         endif
-    
+
         if findtype "Recall|Invisibility" backpack any any as found
             if verbose_mode  == 1
                 sysmsg '> Unloading Magery Scrolls' sysmsgs_color
             endif
-    
+
             menu magery_scroll_tome 0
         endif
     endif
@@ -1215,25 +1215,27 @@ endif
 if findtype 'repair bench' ground any any 2 as bench
     sysmsg '> Searching for Repair Bench status...' sysmsgs_color
 
-    if print_unloaded_items == 1
-        while not insysmsg 'in need of repairs' and not insysmsg 'Repaired'
-            wait 100
-            if timer 'waiting_repair_timer' >= max_wait_for_repair_to_finish
-                break
-            endif
+    while not insysmsg 'in need of repairs' and not insysmsg 'Repaired'
+        wait 100
+        if timer 'waiting_repair_timer' >= max_wait_for_repair_to_finish
+            sysmsg 'REPAIR BENCH CASE 0'
+            break
+        endif
 
-            if insysmsg 'That repair bench is out of charges'
-                setvar! repair_finish_status 2
-                break
-            elseif insysmsg 'You do not have any items equipped or in your backpack in need of repairs'
-                setvar! repair_finish_status 0
-                break
-            elseif insysmsg 'item' or insysmsg 'items'
-                setvar! repair_finish_status 1
-                break
-            endif
-        endwhile
-    endif
+        if insysmsg 'That repair bench is out of charges'
+        sysmsg 'REPAIR BENCH CASE 1'
+            setvar! repair_finish_status 2
+            break
+        elseif insysmsg 'You do not have any items equipped or in your backpack in need of repairs'
+        sysmsg 'REPAIR BENCH CASE 2'
+            setvar! repair_finish_status 0
+            break
+        elseif insysmsg 'item' or insysmsg 'items'
+        sysmsg 'REPAIR BENCH CASE 3'
+            setvar! repair_finish_status 1
+            break
+        endif
+    endwhile
 endif
 
 
@@ -1270,7 +1272,7 @@ if findtype 'storage shelf' ground any any 2 as shelf
       if list 'packies' > 0
           foreach packanimal in 'packies'
               sysmsg '> Restocking Shelf From Pack Animal...' sysmsgs_color
-  
+
               menu shelf 0
               wft action_delay
               if targetexists 'neutral'
@@ -1289,7 +1291,7 @@ else
         @unsetvar shelf
     endif
     overhead 'no shelfs nearby'
-    
+
 endif
 
 
@@ -1306,7 +1308,7 @@ if findtype 'resource container' ground any any 2 as stockpile
     if unload_aspect_items_in_stockpile == 1
         while findtype "aspect core|3836|17686|phylactery" backpack as found
             setvar! found_stockpile_item 1
-    
+
             if print_unloaded_items == 1
                 getlabel found found_label
 
@@ -1315,14 +1317,14 @@ if findtype 'resource container' ground any any 2 as stockpile
                     pushlist 'items_unloaded' found_label
                 endif
             endif
-    
+
             @ignore found
         endwhile
     endif
 
     # resources
     setvar! found_stockpile_item 0
-    while findtype "7154|29030|log%s|cut up leather|empty bottle%s%|blank scroll%s%|cut up leather" backpack as found
+    while findtype "7154|29030|17087|log%s|cut up leather|empty bottle%s%|blank scroll%s%|cut up leather" backpack as found
         setvar! found_stockpile_item 1
 
 
@@ -1342,7 +1344,7 @@ if findtype 'resource container' ground any any 2 as stockpile
     # resources - fishing
     #
     # cut raw fish
-    while findtype "7710" backpack as found
+    while findtype "7710|2508" backpack as found
         setvar! found_stockpile_item 1
 
 
@@ -1436,7 +1438,7 @@ if findtype 'garden shelf' ground any any 2 as gardenshelf
     endif
 
     if print_unloaded_items == 1
-        while findtype 'seed|bag of seeds|seed of renewal' as found
+        while findtype "22326|seed|'bag of seeds'|'seed of renewal'|'dungeon seed'" as found
             getlabel found item_label
 
             if not inlist 'items_unloaded' item_label
@@ -1448,7 +1450,7 @@ if findtype 'garden shelf' ground any any 2 as gardenshelf
         @clearignore
     endif
 
-    if findtype "2323|seed|bag of seeds|seed of renewal"
+    if findtype "22326|seed|'bag of seeds'|'seed of renewal'|'dungeon seed'"
         menu gardenshelf 0
         wft action_delay
         if targetexists 'neutral'

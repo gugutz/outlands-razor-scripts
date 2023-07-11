@@ -17,7 +17,6 @@
 ################################
 
 if not varexist magic_mushroom_first_run_done
-    setvar! magic_mushroom_first_run_done true
 
     setvar! action_delay 600
     setvar! auto_meditate_when_on_mushroom_timer true
@@ -40,6 +39,7 @@ if not varexist magic_mushroom_first_run_done
         endfor
     endif
 
+    setvar! magic_mushroom_first_run_done true
 endif
 
 

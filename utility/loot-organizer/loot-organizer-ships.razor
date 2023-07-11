@@ -119,15 +119,28 @@ setvar! found_something_to_hide_in_pouch 0
 # HIDE GENERAL LOOT ITEMS
 
 
+clearsysmsg
 dclick CHAR_BOAT_HATCH
 wait action_delay
 
+while insysmsg 'you must wait'
+    sysmsg 'Opening hatch...' 53
+    clearsysmsg
+    dclick hatch
+    # wait action_delay
+    wait 100
+    while queued
+        sysmsg 'QUEUED AFTER DCLICK HATCH'
+    endwhile
+endwhile
+
 if not findtype 'backpack' CHAR_BOAT_HATCH
     sysmsg 'CANT FIND BACKPACK IN HATCH!' 54
+
     while findtype 'backpack' as found
         getlabel found packlabel
         if 'Hotbag' in packlabel or '0 items' in packlabel
-            sysmsg 'FOUND BACKPACK IN HATCH!' 54
+            sysmsg 'PUTTING BACKPACK IN HATCH...' 54
 
             lift found 1
             wait 100
@@ -138,6 +151,10 @@ if not findtype 'backpack' CHAR_BOAT_HATCH
             wait 100
             while queued
             endwhile
+            sysmsg 'SETTING BACKPACK AS ORGANIZER 20 HOTBAG...' 54
+            hotkey 'Set Organizer HotBag-20'
+            wft 1000
+            target found
         endif
         @ignore found
     endwhile
@@ -145,17 +162,11 @@ if not findtype 'backpack' CHAR_BOAT_HATCH
     @clearignore
 endif
 
-while insysmsg 'you must wait'
-    sysmsg 'Opening hatch...' 53
-    clearsysmsg
-    dclick hatch
-    wait action_delay
-endwhile
 
 for 2
     organizer 20
     wait 100
-    
+
     while queued
         wait 100
         sysmsg 'Unloading in hatch'
@@ -186,7 +197,7 @@ elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype '
 endif
 
 if boating_mode == 1
-    script 'ships\search-ships'
+    script 'ships\search-ships-loop'
 endif
 
 

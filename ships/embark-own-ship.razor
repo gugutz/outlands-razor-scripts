@@ -1,15 +1,35 @@
 
-setvar! action_delay 300
+setvar! action_delay 600
 
 setvar! ship_main_gump_id 4216593270
 
-if not varexist SHIP_MAST
+if not varexist embark_own_ship_first_run_done or not varexist SHIP_MAST
     overhead '*select ship mast*'
     setvar! SHIP_MAST
 endif
 
+
+if not varexist embark_own_ship_first_run_done and not find SHIP_MAST ground any any 15
+    overhead '*mast not found!*'
+    setvar! SHIP_MAST
+endif
+
+if insysmsg 'invalid serial'
+    overhead 'PEGOU RAZOR INVALID MSG'
+    unsetvar! SHIP_MAST
+endif
+
+sysmsg 'EMBARKING OWN SHIP...' 54
+
 dclick SHIP_MAST
-wait action_delay
+waitforgump 4216593270 action_delay
+
+if not gumpexists 4216593270
+    overhead '*ship gump not found!*'
+    setvar! SHIP_MAST
+    replay
+endif
+
 if gumpexists 4216593270
     if followers > 0
         gumpresponse 22 4216593270
@@ -18,5 +38,8 @@ if gumpexists 4216593270
 
     gumpresponse 21 4216593270
     waitforgump 4216593270 1000
+    gumpclose 4216593270
 
 endif
+
+setvar! embark_own_ship_first_run_done 1
