@@ -1,0 +1,233 @@
+
+
+
+#############################
+# TRAVEL CONFIG
+#############################
+
+if not varexist farm_travel_setup_done
+    # SET THE HOME BOOK
+    if not varexist home_book
+        while findtype 'runetome' backpack as found
+            getlabel found rtome_label
+            if 'home' in rtome_label or 'Home' in rtome_label or 'HOME' in rtome_label
+                sysmsg 'HOME RUNETOME: {{found}}' success_msg_color
+                setvar! home_book found
+                setvar! home_book_gump_id 167090027
+                setvar! home_rune_btn_number runetome_rune_position
+                break
+            endif
+
+            @ignore found
+        endwhile
+        @clearignore
+
+        # if we couldnt find a home runetome, search for a home runebook
+        if not varexist home_book
+            while findtype 'runebook' backpack as found
+                getlabel found rbook_label
+                if 'home' in rbook_label or 'Home' in rbook_label or 'HOME' in rbook_label
+                    sysmsg 'FOUND HOME RUNEBOOK {{rbook_label}}' success_msg_color
+                    setvar! home_book found
+                    setvar! home_book_gump_id 167090027
+                    setvar! home_rune_btn_number runetome_rune_position
+                    break
+                endif
+
+                @ignore found
+            endwhile
+            @clearignore
+        endif
+
+        if not varexist home_book
+            sysmsg "YOU NEED A RUNEBOOK OR RUNETOME NAMED 'HOME' WITH YOUR HOME RUNE SET TO DEFAULT TO RUN THIS SCRIPT" 54
+            stop
+        endif
+    endif
+
+
+    # RUNEBOOK / RUNETOME RECALL SETTINGS
+    setvar! warning_msg_color 1161
+    setvar! action_delay 600
+    setvar! runetome_gump_id 167090027
+    setvar! runebook_gump_id 1551740969
+    setvar! recall_travel_time 3000
+
+    # runetomes recall via scroll buttons have a interval of 6, so first button is 2, second is 8, and so on...
+    if not listexists 'runetome_page_numbers'
+        createlist 'runetome_page_numbers'
+
+        # runetome page 1
+        pushlist 'runetome_page_numbers' 200 //1st_rune
+        pushlist 'runetome_page_numbers' 201 //2nd_rune
+        pushlist 'runetome_page_numbers' 202 //3rd_rune
+        pushlist 'runetome_page_numbers' 203 //4th_rune
+        pushlist 'runetome_page_numbers' 204 //5th_rune
+        pushlist 'runetome_page_numbers' 205 //6th_rune
+        pushlist 'runetome_page_numbers' 206 //7th_rune
+        pushlist 'runetome_page_numbers' 207 //8th_rune
+        pushlist 'runetome_page_numbers' 208 //9th_rune
+        pushlist 'runetome_page_numbers' 209 //10th_rune
+        pushlist 'runetome_page_numbers' 210 //11th_rune
+        pushlist 'runetome_page_numbers' 211 //12th_rune
+        pushlist 'runetome_page_numbers' 212 //13th_rune
+        pushlist 'runetome_page_numbers' 213 //14th_rune
+
+        # runetome page 2
+        pushlist 'runetome_page_numbers' 214 //15th_rune
+        pushlist 'runetome_page_numbers' 215 //16th_rune
+        pushlist 'runetome_page_numbers' 216 //17th_rune
+        pushlist 'runetome_page_numbers' 217 //18th_rune
+        pushlist 'runetome_page_numbers' 218 //19th_rune
+        pushlist 'runetome_page_numbers' 219 //21th_rune
+        pushlist 'runetome_page_numbers' 220 //22th_rune
+        pushlist 'runetome_page_numbers' 221 //23th_rune
+        pushlist 'runetome_page_numbers' 222 //24th_rune
+        pushlist 'runetome_page_numbers' 223 //25th_rune
+        pushlist 'runetome_page_numbers' 224 //26th_rune
+    endif
+
+
+    #------------------------------
+    # SET THE FARM RUNEBOOKS
+    clearlist 'farm_runetomes'
+    createlist 'farm_runetomes'
+
+    while findtype 'runetome' backpack as found
+        getlabel found rbook_label
+        if 'farm' in rbook_label or 'Farm' in rbook_label or 'FARM' in rbook_label
+            pushlist 'farm_runetomes' found
+
+            setvar! recall_book_gump_id 167090027
+            setvar! recall_by_charge_btn_number runetome_rune_position
+        endif
+
+        @ignore found
+    endwhile
+
+    @clearignore
+    foreach x in 'farm_runetomes'
+        sysmsg 'FARM RUNEBOOK {{index}}: {{x}}'
+    endfor
+
+    if cycle_runetome_farming == 1 and list 'farm_runetomes' == 0
+        sysmsg 'SCRIPT IS SET TO CYCLE RUNETOMES BUT NO LUMBER RUNETOMES WERE FOUND.' 41
+        sysmsg 'PLEASE HAVE AT LEAST 1 RUNETOME NAMED LUMBER INSIDE YOUR BACKPACK AND RE-RUN THE SCRIPT' 41
+        stop
+    endif
+
+
+    setvar! farm_travel_setup_done 1
+endif
+
+
+#############################
+# CODE
+#############################
+
+# if first rune, need to hard set the number here
+if not varexist rune_number
+    setvar! rune_number 10
+endif
+
+if followers > 0
+    say 'all follow me'
+endif
+
+foreach runebook in 'farm_runetomes'
+    foreach page_number in 'runetome_page_numbers'
+        # travel to the rune
+
+        while mana <= 11
+            if verbose == 1
+                sysmsg 'MEDITATING TO RECALL' warning_msg_color
+            endif
+            setvar! meditate_now 1
+            replay
+        endwhile
+
+        if verbose == 1
+            sysmsg 'OPENING RUNEBOOK {{runebook}}'
+        endif
+
+        dclick runebook
+
+        settimer 'waiting_runebook_gump_timer' 0
+        if not gumpexists runetome_gump_id and timer 'waiting_runebook_gump_timer' < 2000
+            if insysmsg 'You must wait'
+                while insysmsg 'You must wait'
+                    clearsysmsg
+                    dclick steal_container
+                    wait action_delay
+                endwhile
+            endif
+
+            sysmsg 'waiting for runebook gump'
+            while not gumpexists runetome_gump_id and timer 'waiting_runebook_gump_timer' < 2000
+                waitforgump runetome_gump_id action_delay
+            endwhile
+        endif
+
+        sysmsg '>> RUNEBOOK {{runebook}} | PAGE: {{page_number}} | RUNE: {{rune_number}}'
+        if gumpexists runetome_gump_id
+            waitforgump runetome_gump_id action_delay
+            # switch to correct page
+            gumpresponse page_number runetome_gump_id
+            waitforgump runetome_gump_id action_delay
+
+            # click the gump button to travel
+            clearsysmsg
+            gumpresponse rune_number runetome_gump_id
+            wait recall_travel_time
+
+            if insysmsg 'Magical travel from inside a dungeon'
+                sysmsg 'CANT TRAVEL INSIDE DUNGEON!' warning_msg_color
+                stop
+            endif
+
+            # if travel succeeds, set next rune in the runetome
+            if not insysmsg 'disturbed' and not insysmsg 'cast a spell while frozen'
+                sysmsg 'TRAVEL SUCEEDED. SETTING NEXT RUNE' warning_msg_color
+
+                # SET NEXT RUNE TO TRAVEL
+                if rune_number == 10
+                    setvar! rune_number 20
+                elseif rune_number == 20
+                    setvar! rune_number 10
+                endif
+
+                # SET NEXT RUNETOME PAGE
+                poplist 'runetome_page_numbers' 'front'
+                pushlist 'runetome_page_numbers' page_number 'back'
+
+                # SET NEXT RUNETOME IF LAST PAGE OF CURRENT ONE
+                if page_number == 224
+                    sysmsg 'FINISHED CURRENT RUNETOME {{runebook}}' warning_msg_color
+                    poplist 'farm_runetomes' 'front'
+                    pushlist 'farm_runetomes' page_number 'back'
+                    say 'all follow me'
+                    break
+                endif
+
+            endif
+        else
+            sysmsg 'COULDNT OPEN RUNEBOOK TO TRAVEL!' 37
+        endif
+
+
+
+
+        # this break has to happen, or the script will loop through
+        # all the runes in the book without ever trying to get targets
+        if debug == 1
+            sysmsg 'BREAKING 1st TRAVEL FOR' debug_msg_color
+        endif
+        break
+    endfor
+
+    if debug == 1
+        sysmsg 'BREAKING 2nd TRAVEL FOR' debug_msg_color
+    endif
+
+    break
+endfor

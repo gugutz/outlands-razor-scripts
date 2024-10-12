@@ -4,18 +4,25 @@ setvar! stack_trace 0
 setvar! verbose 0
 setvar! use_script_overhead_messages 1
 
+
+# TRAVEL SETTINGS
+setvar! cycle_runetome_farming 0
+setvar! max_runes_to_use_per_runebook 26
+setvar! wait_to_loot_before_travelling_to_next_rune 1
+setvar! time_to_wait_for_looting 5000
+
+
 # GENERAL SETTINGS
 setvar! auto_configure_script_based_on_skills 1
-
 
 setvar! auto_heal 1
 setvar! auto_cure_poison 1
 setvar! auto_delectable 1
-setvar! hide_valuables_in_char_loot_pouch 1
+setvar! hide_valuables_in_char_loot_pouch 0
 setvar! auto_move_regs_to_satchel 1
 setvar! recall_home_to_restock 1
 setvar! auto_escape_tracked_pks 1
-setvar! auto_escape_pks_on_screen 1
+setvar! auto_escape_pks_on_screen 0
 setvar! auto_escape_thiefs 0
 setvar! auto_meditate 1
 setvar! auto_escape_ground_burning_flames 0
@@ -25,6 +32,8 @@ setvar! use_mushroom_delay 60000
 setvar! all_guard_delay 5000
 setvar! all_patrol_delay 6000
 setvar! cast_summons_delay 3300
+setvar! ress_pets_delay 10000
+setvar! find_pet_range 8
 
 # SKILL BUFF SETTINGS
 setvar! auto_spirit_speak 0
@@ -34,17 +43,34 @@ setvar! auto_skin_corpses 0
 setvar! auto_get_new_targets 0
 setvar! auto_attack_targets 1
 setvar! hold_targets 0
-setvar! keep_getting_closest_target 0
-setvar! get_players_on_auto_target 0
+setvar! keep_getting_closest_target 1
+setvar! lure_out_of_range_mobs 1
 setvar! lure_mobs_closer_before_killing 0
+setvar! lure_mobs_closer_to_poison 0
+setvar! get_players_on_auto_target 0
+setvar! keep_pets_close_to_vet 0
 setvar! lure_mobs_distance_to_lure 2
 setvar! offensive_mode 1
 
 
 # FOLLOWER SETTINGS
 setvar! auto_herd_mobs 0
-setvar! patrol_first_relative_direction 0
-setvar! patrol_second_relative_direction -10
+# setvar! patrol_first_relative_direction 0
+# setvar! patrol_second_relative_direction -10
+
+if list summons == 0
+    clearlist 'summons'
+    pushlist 'summons' 'an earth elemental'
+    pushlist 'summons' 'an earth elemental'
+    pushlist 'summons' 'summ. creature'
+endif
+setvar! repeated_summon_in_list 1
+
+setvar! auto_summon 1
+setvar! use_undead_summons 1
+setvar! auto_all_guard 1
+setvar! auto_patrol_when_no_active_lasttarget 0
+setvar! auto_vampiric_embrace 1
 
 
 # SPELLS TO AUTO CAST
@@ -64,14 +90,17 @@ setvar! use_lightning 1
 setvar! use_mind_blast 0
 setvar! use_eb 0
 setvar! use_flamestrike 1
-setvar! use_chain_lightning 1
+setvar! use_chain_lightning 0
 setvar! use_meteor_swarm 0
 setvar! use_earthquake 0
+setvar! use_poison 0
 if skill 'poisoning' >= 100
     setvar! use_poison 1
 endif
+setvar! multiple_poison_targets 0
 
 setvar! use_poison_strike 0
+setvar! min_poison_ticks_before_poison_striking 8
 setvar! use_pain_spike 0
 
 
@@ -136,65 +165,155 @@ endif
 # CHAR BASED CUSTOMIZATIONS
 #######################################################
 
-if name == 'Neron'
-    sysmsg '[OPTS] APPLYING CONFIG FOR Neron' script_msg_color
-    setvar! debug 1
-    setvar! use_incognito 0
-    setvar! juggle_mode 0
-    setvar! auto_patrol_when_no_active_lasttarget 1
-    setvar! lure_mobs_closer_before_killing 1
-    setvar! boating_mode 1
-endif
 
 if name == 'gugutz'
     sysmsg '[OPTS] APPLYING CONFIG FOR gugutz' script_msg_color
     setvar! auto_configure_script_based_on_skills 1
 
+
+    clearlist summons
+    if list summons == 0
+        clearlist summons
+        pushlist summons 'an earth elemental'
+        pushlist summons 'an earth elemental'
+    endif
+
+
+    setvar! cycle_runetome_farming 1
+    #setvar! max_runes_to_use_per_runebook 6
+    setvar! wait_to_loot_before_travelling_to_next_rune 1
+    setvar! time_to_wait_for_looting 6000
+
     setvar! auto_get_new_targets 1
     setvar! auto_escape_thiefs 0
+    setvar! auto_escape_pks_on_screen 1
 
     setvar! debug 1
-    setvar! use_incognito 0
     setvar! auto_patrol_when_no_active_lasttarget 0
+    setvar! keep_getting_closest_target 1
     setvar! lure_mobs_closer_before_killing 0
-    setvar! auto_skin_corpses 1
+    setvar! keep_pets_close_to_vet 0
+    setvar! auto_skin_corpses  1
+    setvar! hide_valuables_in_char_loot_pouch 0
+
+    setvar! juggle_mode 1
 
     # char grimoire spells
+    setvar! use_incognito 0
     setvar! use_ma 1
     setvar! use_harm 1
     setvar! use_fireball 0
     setvar! use_lightning 1
-    setvar! use_mind_blast 1
+    setvar! use_mind_blast 0
     setvar! use_eb 0
-    setvar! use_flamestrike 0
+    setvar! use_flamestrike 1
     setvar! use_chain_lightning 0
     setvar! use_meteor_swarm 0
     setvar! use_earthquake 0
+
+    # noxxer options
+    setvar! use_poison 1
+    setvar! lure_mobs_closer_to_poison 1
+    setvar! multiple_poison_targets 1
+
+    # necro spells
+    setvar! use_mind_rot 1
+    setvar! use_corpse_skin 1
+    setvar! use_poison_strike 1
+    setvar! use_pain_spike 1
+
+    setvar! mana_drain_delay 60000
+    setvar! curse_delay 60000
+    setvar! ma_delay 40000
+    setvar! harm_delay 40000
+    setvar! fireball_delay 60000
+    setvar! lightning_delay 40000
+    setvar! chain_lightning_delay 20000
+    setvar! meteor_swarm_delay 20000
+    setvar! earthquake_delay 60000
+endif
+
+if name == 'matsumi'
+    sysmsg '[OPTS] APPLYING CONFIG FOR matsumi' script_msg_color
+    setvar! debug 1
+    setvar! auto_patrol_when_no_active_lasttarget 0
+    setvar! lure_mobs_closer_before_killing 0
+    setvar! lure_mobs_closer_to_poison 0
+
+    setvar! cycle_runetome_farming 0
+
+    # char grimoire spells
+    setvar! use_curse 0
+    setvar! use_ma 0
+    setvar! use_harm 0
+    setvar! use_fireball 0
+    setvar! use_lightning 0
+    setvar! use_mind_blast 0
+    setvar! use_eb 0
+    setvar! use_flamestrike 1
+    setvar! use_chain_lightning 0
+    setvar! use_meteor_swarm 0
+    setvar! use_earthquake 0
+
+    setvar! multiple_poison_targets 1
 
     # necro spells
     setvar! use_poison_strike 1
     setvar! use_pain_spike 1
 
     setvar! mana_drain_delay 60000
-    setvar! curse_delay 180000
-    setvar! ma_delay 60000
-    setvar! harm_delay 60000
+    setvar! curse_delay 60000
+    setvar! ma_delay 20000
+    setvar! harm_delay 40000
     setvar! fireball_delay 60000
-    setvar! lightning_delay 60000
+    setvar! lightning_delay 40000
     setvar! chain_lightning_delay 20000
     setvar! meteor_swarm_delay 20000
     setvar! earthquake_delay 60000
 endif
 
 # BUGUEI SETTINGS
-if name == 'Yorixiriamori-'
-    sysmsg '[OPTS] APPLYING CONFIG FOR Yorixiriamori-' script_msg_color
-    setvar! boating_mode 0
+if name == 'Flyday Chinatown'
+    sysmsg '[OPTS] APPLYING CONFIG FOR Flyday Chinatown' script_msg_color
+
+    clearlist summons
+    if list summons == 0
+        clearlist summons
+        pushlist summons 'an earth elemental'
+        pushlist summons 'an earth elemental'
+    endif
+
+    setvar! debug 0
+    setvar! verbose 0
+    setvar! auto_get_new_targets 1
     setvar! use_mind_blast 0
+    setvar! use_mana_drain 0
     setvar! use_fireball 1
     setvar! use_incognito 1
     setvar! auto_get_new_targets 0
-    setvar! kill_close_to_loot 0
+    setvar! use_mind_rot 1
+    setvar! use_corpse_skin 1
+
+    setvar! cycle_runetome_farming 0
+    setvar! wait_to_loot_before_travelling_to_next_rune 1
+    setvar! time_to_wait_for_looting 5000
+
+    setvar! use_magic_reflection 0
+    setvar! use_protection 0
+    setvar! use_strength 1
+    setvar! use_mana_drain 1
+    setvar! use_undead_summons 0
+
+    setvar! use_poison 1
+    setvar! multiple_poison_targets 0
+
+    # SPELL GRIMOIRE INTERVALS
+    setvar! curse_delay 60000
+    setvar! poison_delay 60000
+    setvar! ma_delay 20000
+    setvar! harm_delay 20000
+    setvar! fireball_delay 60000
+    setvar! lightning_delay 20000
 endif
 
 setvar! mage_bot_config_loaded 1

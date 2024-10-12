@@ -1,2 +1,16 @@
 overhead '*lesser ability*' 72
+sysmsg '> LESSER ABILITY!'
 say '[LesserAbility'
+wait 600
+
+while targetexists 'harmful'
+    wait 100
+endwhile
+
+########################################
+# SEARCH SHIPS
+########################################
+
+if boating_mode == 1
+    script 'ships\search-ships-loop'
+endif

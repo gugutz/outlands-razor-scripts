@@ -1,0 +1,293 @@
+
+if not timerexists 'setup_timers_timer'
+    createtimer 'setup_timers_timer'
+endif
+settimer 'setup_timers_timer' 0
+
+
+if not timerexists loop_on_warning_msg
+    createtimer loop_on_warning_msg
+    settimer loop_on_warning_msg 99999
+endif
+
+if not timerexists script_running_warning_msg_timer
+    createtimer script_running_warning_msg_timer
+    settimer script_running_warning_msg_timer 99999
+endif
+
+if not timerexists script_debug_stats_msg_timer
+    createtimer script_debug_stats_msg_timer
+    settimer script_debug_stats_msg_timer 99999
+endif
+
+if not timerexists script_stats_msg_timer
+    createtimer script_stats_msg_timer
+    settimer script_stats_msg_timer 99999
+endif
+
+if not timerexists spirit_speak_cooldown_timer
+    createtimer spirit_speak_cooldown_timer
+    settimer spirit_speak_cooldown_timer 99999
+endif
+
+if not timerexists use_mushroom_timer
+    createtimer use_mushroom_timer
+    settimer use_mushroom_timer 99999
+endif
+
+
+#####################################
+# SPELL CAST TIMERS
+#####################################
+
+if not timerexists mana_drain_timer
+    createtimer mana_drain_timer
+    settimer mana_drain_timer 99999
+endif
+
+if not timerexists curse_timer
+    createtimer curse_timer
+    settimer curse_timer 99999
+endif
+
+if not timerexists poison_timer
+    createtimer poison_timer
+    settimer poison_timer 99999
+endif
+
+if not timerexists mass_curse_timer
+    createtimer mass_curse_timer
+    settimer mass_curse_timer 99999
+endif
+
+if not timerexists ma_timer
+    createtimer ma_timer
+    settimer ma_timer 99999
+endif
+
+if not timerexists harm_timer
+    createtimer harm_timer
+    settimer harm_timer 99999
+endif
+
+if not timerexists fireball_timer
+    createtimer fireball_timer
+    settimer fireball_timer 99999
+endif
+
+if not timerexists lightning_timer
+    createtimer lightning_timer
+    settimer lightning_timer 99999
+endif
+
+if not timerexists eb_timer
+    createtimer eb_timer
+    settimer eb_timer 99999
+endif
+
+if not timerexists chain_lightning_timer
+    createtimer chain_lightning_timer
+    settimer chain_lightning_timer 99999
+endif
+
+if not timerexists meteor_swarm_timer
+    createtimer meteor_swarm_timer
+    settimer meteor_swarm_timer 99999
+endif
+
+if not timerexists earthquake_timer
+    createtimer earthquake_timer
+    settimer earthquake_timer 99999
+endif
+
+if not timerexists painspike_timer
+    createtimer painspike_timer
+    settimer painspike_timer 99999
+endif
+if not timerexists poison_strike_timer
+    createtimer poison_strike_timer
+    settimer poison_strike_timer 99999
+endif
+
+if not timerexists medit_msg_timer
+    createtimer medit_msg_timer
+    settimer medit_msg_timer 99999
+endif
+
+if not timerexists auto_get_new_targets_timer
+    createtimer auto_get_new_targets_timer
+    settimer auto_get_new_targets_timer 99999
+endif
+
+if not timerexists get_new_target_msg
+    createtimer get_new_target_msg
+    settimer get_new_target_msg 99999
+endif
+
+if not timerexists all_guard_timer
+    createtimer all_guard_timer
+    settimer all_guard_timer 99999
+endif
+
+if not timerexists all_patrol_timer
+    createtimer all_patrol_timer
+    settimer all_patrol_timer 99999
+endif
+
+if not timerexists holding_target_warning_msg
+    createtimer holding_target_warning_msg
+    settimer holding_target_warning_msg 99999
+endif
+
+if not timerexists waiting_summon_timer
+    createtimer waiting_summon_timer
+    settimer waiting_summon_timer 99999
+endif
+
+if not timerexists waiting_spell_timer
+    createtimer waiting_spell_timer
+    settimer waiting_spell_timer 99999
+endif
+
+if not timerexists waiting_target_timer
+    createtimer waiting_target_timer
+    settimer waiting_target_timer 99999
+endif
+
+if not timerexists lure_mob_closer_timer
+    createtimer lure_mob_closer_timer
+    settimer lure_mob_closer_timer 99999
+endif
+
+if not timerexists low_mana_for_summoning_warning_msg_timer
+    createtimer low_mana_for_summoning_warning_msg_timer
+    settimer low_mana_for_summoning_warning_msg_timer 99999
+endif
+
+if not timerexists fun_timer
+    createtimer fun_timer
+    settimer fun_timer 99999
+endif
+
+
+#####################################
+# BOATING TIMERS
+#####################################
+
+if not timerexists heal_ship_crew_timer
+    createtimer heal_ship_crew_timer
+    settimer heal_ship_crew_timer 99999
+endif
+
+if not timerexists search_ships_timer
+    createtimer search_ships_timer
+    settimer search_ships_timer 99999
+endif
+
+if not timerexists repair_ship_hull_timer
+    createtimer repair_ship_hull_timer
+    settimer repair_ship_hull_timer 99999
+endif
+
+if not timerexists repair_ship_sails_timer
+    createtimer repair_ship_sails_timer
+    settimer repair_ship_sails_timer 99999
+endif
+
+if not timerexists repair_ship_guns_timer
+    createtimer repair_ship_guns_timer
+    settimer repair_ship_guns_timer 99999
+endif
+
+if not timerexists reload_cannons_timer
+    createtimer reload_cannons_timer
+    settimer reload_cannons_timer 99999
+endif
+
+if not timerexists fire_cannons_timer
+    createtimer fire_cannons_timer
+    settimer fire_cannons_timer 99999
+endif
+
+if not timerexists ship_lesser_ability_timer
+    createtimer ship_lesser_ability_timer
+    settimer ship_lesser_ability_timer 99999
+endif
+
+
+if skill 'necromancy' > 0
+    if not timerexists vengeful_spirit_timer
+        createtimer vengeful_spirit_timer
+        settimer vengeful_spirit_timer 99999
+    endif
+
+    if not timerexists wither_timer
+        createtimer wither_timer
+        settimer wither_timer 99999
+    endif
+
+    if not timerexists vampiric_embrace_cooldown_timer
+        createtimer vampiric_embrace_cooldown_timer
+        settimer vampiric_embrace_cooldown_timer 99999
+    endif
+
+    if not timerexists mind_rot_timer
+        createtimer mind_rot_timer
+        settimer mind_rot_timer 99999
+    endif
+
+    if not timerexists corpse_skin_timer
+        createtimer corpse_skin_timer
+        settimer corpse_skin_timer 99999
+    endif
+endif
+
+if not timerexists heal_pets_timer
+    createtimer heal_pets_timer
+    settimer heal_pets_timer 99999
+endif
+
+
+if not timerexists ress_pets_timer
+    createtimer ress_pets_timer
+    settimer ress_pets_timer 99999
+endif
+
+if not timerexists scanning_poison_targets
+    createtimer scanning_poison_targets
+    settimer scanning_poison_targets 99999
+endif
+
+
+# ZERO THE TIMERS OF ACTIONS WE DONT WANNA EXECUTE RIGHTAWAY
+settimer 'holding_target_warning_msg' 0
+settimer 'waiting_summon_timer' 0
+settimer 'waiting_spell_timer' 0
+settimer 'waiting_target_timer' 0
+settimer 'script_stats_msg_timer' 0
+# settimer 'mana_drain_timer' mana_drain_delay
+# settimer 'curse_timer' curse_delay
+# settimer 'ma_timer' ma_delay
+# settimer 'harm_timer' harm_delay
+# settimer 'fireball_timer' fireball_delay
+# settimer 'lightning_timer' lightning_delay
+# settimer 'chain_lightning_timer' lightning_delay
+# settimer 'meteor_swarm_timer' lightning_delay
+# settimer 'earthquake_timer' lightning_delay
+# settimer 'eb_timer' eb_delay
+# settimer 'medit_msg_timer' 1000
+# settimer 'auto_get_new_targets_timer' 1000
+# settimer 'get_new_target_msg' 120000
+# settimer 'all_guard_timer' all_guard_delay
+# settimer 'all_patrol_timer' all_patrol_delay
+# settimer 'lure_mob_closer_timer' 5000
+# settimer 'script_running_warning_msg_timer' 2000
+# settimer 'use_mushroom_timer' use_mushroom_delay
+settimer 'spirit_speak_cooldown_timer' 1000
+
+
+setvar! timers_setup_done 1
+setvar! setup_timers_execution_time setup_timers_timer
+
+sysmsg '>> FINISHED TIMERS IN {{timers_setup_time}} ms' script_msg_color
+script 'loops\mage-bot\mage-bot'

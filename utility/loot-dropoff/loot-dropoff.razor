@@ -14,6 +14,8 @@ sysmsg '♥ LOOT DROPOFF by gugutz ♥' 55
 setvar! action_delay 300
 setvar! sysmsgs_color 50
 setvar! debug_msgs_color 43
+setvar! warning_msg_color 1161
+setvar! alert_msg_color 2773
 setvar! max_wait_for_repair_to_finish 4000
 
 # choose if you also want to unload misc items (skill orbs,, rms, etc...)
@@ -91,6 +93,10 @@ settimer 'execution_timer' 0
 
 clearlist 'items_unloaded'
 
+if not timerexists 'waiting_repair_timer'
+    createtimer 'waiting_repair_timer'
+endif
+
 
 ########################################
 # SET NON TOME ITEMS CONTAINER
@@ -111,7 +117,12 @@ endif
 # SET TOMES LOCATION (GROUND/CHEST)
 ########################################
 
-unsetvar! tomes_location_serial
+if varexist tomes_location_serial
+    if tomes_location_serial != ground and not find tomes_location_serial ground any any 2
+        unsetvar! tomes_location_serial
+    endif
+endif
+
 while findtype 'book' ground any 1 2 as found
     if hue found == 2618 hue found == 2963 or hue found == 2990 or hue found == 1495 or hue found == 1494 or hue found == 2227 or hue found == 2085 or hue found == 2799 or hue found == 2651 or hue found == 2796 or hue found == 2722 or hue found == 2877 or hue found == 2091
         setvar! tomes_location_serial ground
@@ -124,9 +135,18 @@ endwhile
 if not varexist tomes_location_serial
     overhead 'set your tomes container' 90
     sysmsg 'SET YOUR TOMES CONTAINER' 90
-    setvar! tomes_location_serial
+    setvar tomes_location_serial
 endif
 
+if varexist tomes_location_serial
+    if find tomes_location_serial ground any any 2
+        sysmsg 'OPENING TOMES CHEST...' warning_msg_color
+        dclick tomes_location_serial
+        wait action_delay
+    else
+        sysmsg 'TOMES CONTAINER NOT FOUND!' alert_msg_color
+    endif
+endif
 
 ########################################
 # SET GOLD/DOUBLOON DEPOSIT CONTAINER
@@ -327,9 +347,6 @@ if findtype 'repair bench' ground any any 2 as bench
     overhead '*reparing items*' 65
     clearsysmsg
 
-    if not timerexists 'waiting_repair_timer'
-        createtimer 'waiting_repair_timer'
-    endif
     settimer 'waiting_repair_timer' 0
 
     dclick bench
@@ -580,7 +597,7 @@ endif
 
 sysmsg '> Searching for gold or doubloon...' sysmsgs_color
 
-while findtype "gold coin|muffins" backpack as currency
+while findtype "gold coin|doubloon" backpack as currency
     getlabel currency currency_label
 
     lift currency 60000
@@ -788,6 +805,48 @@ if findtype 'book' tomes_location_serial 2877 1 2 as skill_scroll_tome
         endif
 
         menu skill_scroll_tome 0
+    endif
+endif
+
+#################################
+# MIBs and SOSes
+#################################
+
+# upgrades
+setvar! MIB_COLOR 2882
+if findtype 'scrolls' tomes_location_serial 0 1 2 as sos_case
+    sysmsg '> Searching for MIBs and SOSes...' sysmsgs_color
+    if findtype 'bottle of ale' backpack MIB_COLOR any as mib
+        if verbose_mode  == 1
+            sysmsg '> Openings MIBs...' sysmsgs_color
+        endif
+
+        while findtype 'bottle of ale' backpack MIB_COLOR as mib
+            dclick mib
+            wait action_delay
+        endwhile
+    endif
+
+    if print_unloaded_items == 1
+        while findtype 'rolled map' backpack any any as found
+            getlabel found item_label
+
+            if not inlist 'items_unloaded' item_label
+                sysmsg 'Adding {{item_label}}'
+                pushlist 'items_unloaded' item_label
+            endif
+
+            @ignore found
+        endwhile
+        @clearignore
+    endif
+
+    if findtype 'rolled map' backpack any any as skill_scroll
+        if verbose_mode  == 1
+            sysmsg '> Unloading SOSes...' sysmsgs_color
+        endif
+
+        menu sos_case 0
     endif
 endif
 
@@ -1344,7 +1403,7 @@ if findtype 'resource container' ground any any 2 as stockpile
     # resources - fishing
     #
     # cut raw fish
-    while findtype "7710|2508" backpack as found
+    while findtype "7710|2508|28833" backpack as found
         setvar! found_stockpile_item 1
 
 
@@ -1622,6 +1681,38 @@ if recycler_mode == 0
 endif
 
 
+# CHECK HOUSE SIGN STATUS
+createlist 'house_signs'
+clearlist 'house_signs'
+if findtypelist 'house_signs' 'brass sign' ground any any 30
+    getlabel found sign_label
+    if 'days' in sign_label
+        sysmsg 'FOUND HOUSE SIGN {{found}}' 70
+        setvar! HOUSE_SIGN found
+
+        if '5 days until' in sign_label
+            sysmsg 'HOUSE IS 5 DAY FROM COLLAPSING.' 70
+        elseif '4 days until' in sign_label
+            sysmsg 'HOUSE IS 4 DAY FROM COLLAPSING.' 64
+        elseif '3 days until' in sign_label
+            sysmsg 'HOUSE IS 3 DAY FROM COLLAPSING.' 54
+        elseif '2 days until' in sign_label
+            sysmsg 'HOUSE IS 2 DAY FROM COLLAPSING. REFRESH THE HOUSE!' 42
+        elseif '1 days until' in sign_label
+            sysmsg 'HOUSE IS 1 DAY FROM COLLAPSING. REFRESH THE HOUSE!' 39
+            sysmsg 'HOUSE IS 1 DAY FROM COLLAPSING. REFRESH THE HOUSE!' 54
+            sysmsg 'HOUSE IS 1 DAY FROM COLLAPSING. REFRESH THE HOUSE!' 70
+            sysmsg 'HOUSE IS 1 DAY FROM COLLAPSING. REFRESH THE HOUSE!' 90
+            sysmsg 'HOUSE IS 1 DAY FROM COLLAPSING. REFRESH THE HOUSE!' 41
+        elseif '1 days until' in sign_label
+            sysmsg 'HOUSE WILL COLLAPSE SOON! REFRESH THE HOUSE!' 39
+            sysmsg 'HOUSE WILL COLLAPSE SOON! REFRESH THE HOUSE!' 54
+            sysmsg 'HOUSE WILL COLLAPSE SOON! REFRESH THE HOUSE!' 70
+            sysmsg 'HOUSE WILL COLLAPSE SOON! REFRESH THE HOUSE!' 90
+            sysmsg 'HOUSE WILL COLLAPSE SOON! REFRESH THE HOUSE!' 41
+        endif
+    endif
+endif
 
 #################################
 # PRINT ITEMS UNLOADED

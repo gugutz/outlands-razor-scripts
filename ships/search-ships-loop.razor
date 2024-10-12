@@ -32,7 +32,7 @@ if findtype 'spyglass' backpack as tool
         waitforgump search_ships_gump 600
         if gumpexists search_ships_gump
             sysmsg 'SEARCHING SHIPS...' 89
-            overhead 'searching ships...' 89
+            #overhead 'searching ships...' 89
             gumpresponse 4 search_ships_gump
             waitforgump search_ships_gump 600
         endif
@@ -45,22 +45,22 @@ if findtype 'spyglass' backpack as tool
         # WARN ABOUT NPC BOATS NEARBY
         if ingump "a daemon" 2890020940
             setvar! found_npc_boat 1
-            sysmsg 'NPC DAEMON BOAT NEARBY!'
+            #sysmsg 'NPC DAEMON BOAT NEARBY!'
         endif
 
         if ingump "an explorer galeon" 2890020940 or ingump "a merchant galeon" 2890020940 or ingump "an orc reaver galeon" 2890020940
             setvar! found_npc_boat 1
-            sysmsg 'NPC GALEON NEARBY!'
+            #sysmsg 'NPC GALEON NEARBY!'
         endif
 
         if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
             setvar! found_npc_boat 1
-            sysmsg 'NPC CARRACK NEARBY!'
+            #sysmsg 'NPC CARRACK NEARBY!'
         endif
 
         if ingump "an explorer carrack" 2890020940 or ingump "a merchant carrack" 2890020940 or ingump "an orc reaver carrack" 2890020940
             setvar! found_npc_boat 1
-            sysmsg 'MEDIUM NPC BOAT NEARBY!'
+            #sysmsg 'MEDIUM NPC BOAT NEARBY!'
         endif
 
         # SEARCH PLAYER BOATS
@@ -100,16 +100,16 @@ if findtype 'spyglass' backpack as tool
         endif
 
         if found_player_boat == 1
-            overhead "FOUND PLAYER BOAT" 43
-            overhead "FOUND PLAYER BOAT" 43
-            overhead "FOUND PLAYER BOAT" 43
-            sysmsg "FOUND PLAYER BOAT!" 43
-            sysmsg "FOUND PLAYER BOAT!" 43
-            sysmsg "FOUND PLAYER BOAT!" 43
+            #overhead "FOUND PLAYER BOAT" 43
+            # overhead "FOUND PLAYER BOAT" 43
+            # overhead "FOUND PLAYER BOAT" 43
+            #sysmsg "FOUND PLAYER BOAT!" 43
+            # sysmsg "FOUND PLAYER BOAT!" 43
+            # sysmsg "FOUND PLAYER BOAT!" 43
             settimer 'spyglass_timer' 0
             replay
         else
-            sysmsg 'NO PLAYER BOATS NEARBY!' 74
+            #sysmsg 'NO PLAYER BOATS NEARBY!' 74
             #overhead 'no player boats nearby!' 74
             #overhead '*no ships nearby*' 54
             # gumpclose 2890020940

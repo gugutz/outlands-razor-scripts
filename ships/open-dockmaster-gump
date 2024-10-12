@@ -1,0 +1,13 @@
+@clearignore
+sysmsg 'SEARCHING DOCKMASTERS...' 54
+
+while findtype 400 ground any any 30 as found
+    if noto found == invulnerable
+      getlabel found foundlabel
+      if 'dockmaster' in foundlabel
+          overhead 'yes'
+          menu found 1
+      endif
+    endif
+    @ignore found
+endwhile

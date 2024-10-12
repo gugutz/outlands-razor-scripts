@@ -1,6 +1,5 @@
-
 if followers == 0
-    overhead 'NO FOLLOWERS TO DISEMBARK' 41
+    overhead 'NO FOLLOWERS TO EMBARK' 1161
     stop
 endif
 
@@ -12,4 +11,9 @@ if targetexists 'neutral'
     while targetexists 'neutral'
         overhead 'where to embark followers?' 53
     endwhile
+endif
+
+
+if boating_mode == 1
+    script 'ships\search-ships-loop'
 endif

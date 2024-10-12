@@ -1,0 +1,149 @@
+
+# LIST USEFULL FOR LOOTING SCRIPTS, LIKE MY TCHEST LOOTER
+# USE BY FOLLOWING SCRIPTS:
+# - summoner bot
+# - hide itens in trap pouch
+# - loot corpses
+
+
+# ITEMS LIST
+if not listexists 'loot_items'
+    createlist 'loot_items'
+    pushlist 'loot_items' 'chain link'
+    # greater paragon chests
+    pushlist 'loot_items' 29833
+    pushlist 'loot_items' 42517
+    pushlist 'loot_items' 29040
+    pushlist 'loot_items' 52615
+    pushlist 'loot_items' 17083
+    pushlist 'loot_items' 'map'
+    pushlist 'loot_items' 48261 //aspect_focis
+    pushlist 'loot_items' 'bold and arrow keg' //bolt_and_arrow_bundle
+    pushlist 'loot_items' 'void orb' //skill_ball
+    pushlist 'loot_items' 'research materials'
+    pushlist 'loot_items' 'scroll of calling' //skill_scroll
+    pushlist 'loot_items' 22336
+    pushlist 'loot_items' 'Book of Truth' //mcd
+    pushlist 'loot_items' 5359 //spell_hue_deeds
+    pushlist 'loot_items' 'folded cloth' //rare_cloths
+    pushlist 'loot_items' 'sandals'
+    pushlist 'loot_items' 'aspect core'
+    pushlist 'loot_items' 3836 //aspect_extract
+    pushlist 'loot_items' 17686 //aspect_destil
+    pushlist 'loot_items' 'parchment' //collectable_cards
+    pushlist 'loot_items' 'carpet'
+    # runebook, backpack, hair, headwear, shield and quiver (and maybe more) dyes
+    # this single name unifies several dye types and replaces several of the graphics bellow
+    pushlist 'loot_items' 'bottle'
+    # pushlist 'loot_items' 3838 //runebook_dyes
+    # pushlist 'loot_items' 3839 //backpack_dyes
+    # pushlist 'loot_items' 3843 //acessory_dyes
+    # pushlist 'loot_items' 3842 //headwear_dyes
+    pushlist 'loot_items' 3843 //facial_dyes
+    pushlist 'loot_items' 29025 //fortuniture_dyes
+    pushlist 'loot_items' 29036 //carpet_dyes
+    pushlist 'loot_items' 'blank scroll%s%' //arcane_scrolls
+    pushlist 'loot_items' 29030 //plant_chemicals
+    # pushlist 'loot_items' 'mushroom' //magic_mushroom
+    # pushlist 'loot_items' 'rope' //adventurers_rope_and_boating_rope
+
+    # adventurers rope (any rope really, but the intetion is to hide my adventurers rope)
+    pushlist 'loot_items' 'elven spellblade'
+endif
+
+
+if not listexists 'items_to_move_to_llama'
+    @createlist 'items_to_move_to_llama'
+
+    if move_gold == 1
+        @pushlist 'items_to_move_to_llama' 'gold coin'
+    endif
+
+    if move_resources == 1
+        @pushlist 'items_to_move_to_llama' 'cut up leather'
+        @pushlist 'items_to_move_to_llama' 'log%s'
+        @pushlist 'items_to_move_to_llama' 'board%s'
+        @pushlist 'items_to_move_to_llama' 'ingot%s'
+    endif
+
+    # gems
+    if move_gems == 1
+        @pushlist 'items_to_move_to_llama' 'rub%ies/y%'
+        @pushlist 'items_to_move_to_llama' 'tourmaline%s%'
+        @pushlist 'items_to_move_to_llama' 'emerald%s%'
+        @pushlist 'items_to_move_to_llama' 'diamond%s%'
+        @pushlist 'items_to_move_to_llama' 'piece%s% of amber'
+        @pushlist 'items_to_move_to_llama' 'amethyst%s%'
+        @pushlist 'items_to_move_to_llama' 'star sapphire%s%'
+        @pushlist 'items_to_move_to_llama' 'citrine%s%'
+        @pushlist 'items_to_move_to_llama' 'sapphire%s%'
+    endif
+    #
+    # foods
+    if move_food == 1
+        @pushlist 'items_to_move_to_llama' 'sliced ham'
+        @pushlist 'items_to_move_to_llama' 'raw chicken leg%s%'
+        @pushlist 'items_to_move_to_llama' 'raw leg%s% of lamb'
+        @pushlist 'items_to_move_to_llama' 'slab%s% of bacon'
+        @pushlist 'items_to_move_to_llama' 'sausage%s%'
+        @pushlist 'items_to_move_to_llama' 'ham%s%'
+        @pushlist 'items_to_move_to_llama' 'cut%s% of raw ribs'
+    endif
+    #
+    # foods
+endif
+
+# LIST USED FOR VALUABLE ITEMS THAT DONT GO IN SHELFS, STOCKPILES AND SUCH
+
+
+if not listexists 'non_storable_items'
+    createlist 'non_storable_items'
+    pushlist 'non_storable_items' 22336 //skill_orb
+    pushlist 'non_storable_items' 'research materials'
+    pushlist 'non_storable_items' 5359 //spell_hue_deeds
+    pushlist 'non_storable_items' 'sandals'
+    pushlist 'non_storable_items' 'parchment' //collectable_cards
+    pushlist 'non_storable_items' 'carpet'
+
+    if unload_links_in_misc_container == 1
+        pushlist 'non_storable_items' 'chain link'
+    endif
+
+    # outlands event cards, like kings faire tickets or st patricks game cards
+    pushlist 'non_storable_items' 'card'
+    pushlist 'non_storable_items' 3712
+    pushlist 'non_storable_items' 3648
+    # greater paragon chests
+    pushlist 'non_storable_items' 29833
+    pushlist 'non_storable_items' 42517
+    pushlist 'non_storable_items' 29040
+    pushlist 'non_storable_items' 52615
+    pushlist 'non_storable_items' 17083
+
+    # ASPECT OILS, FOCIS AND BUNDLES - will only get dump if they dont go to the aspect tome item before this point
+    pushlist 'non_storable_items' 45285 //weapon_oils
+    pushlist 'non_storable_items' 48261 //aspect_focis
+    pushlist 'non_storable_items' 39856 //arrow_bundles
+    pushlist 'non_storable_items' 15178 //battle_commendation
+
+    # SHIP STUFF
+    pushlist 'non_storable_items' 'bag of gems' //pirate_booty
+endif
+
+
+if not listexists 'reagents'
+    @createlist 'reagents'
+    @pushlist 'reagents' 'Blood Moss'
+    @pushlist 'reagents' 'Black Pearl%s%'
+    @pushlist 'reagents' 'Garlic'
+    @pushlist 'reagents' 'Mandrake Root%s%'
+    @pushlist 'reagents' 'Ginseng'
+    @pushlist 'reagents' 'Nightshade'
+    @pushlist 'reagents' 'Sulfurous Ash'
+    @pushlist 'reagents' "Spider's Silk"
+endif
+
+setvar! LISTS_INITIALIZED 1
+
+# come back to init-vars script
+script 'constants\init-vars'

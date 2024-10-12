@@ -1,0 +1,13 @@
+
+if not varexist GAME_TYPES_INITIALIZED
+    script 'constants\game-types'
+endif
+
+#if not varexist LISTS_INITIALIZED
+#    script 'constants\lists'
+#endif
+
+setvar! VARIABLES_INITIALIZED 1
+
+sysmsg 'CALLING BACK SMARTKEY SCRIPT' 70
+script 'utility\smartkey'

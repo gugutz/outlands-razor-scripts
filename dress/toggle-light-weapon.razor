@@ -1,143 +1,38 @@
+#setvar! BOW 5042
+#setvar! VIKING_SWORD 5049
+#setvar! LONGSWORD 3937
+#setvar! BROADSWORD 0001
+#setvar! MACE 3932
+#setvar! MAUL 5179
+#setvar! WAR_MACE 5127
+#setvar! WARFORK  5125
 
-#################################
-# SCRIPT CONFIGURATION
-#################################
 
-setvar! action_delay 400
+sysmsg 'TOGGLE LIGHT WEAPON' 1161
 
-if not varexist toggle_light_weapon_first_run_done
-    setvar dont_unequip_if_already_equiped 0
-
-    ################################
-    # CREATE ALL TIMERS
-    ################################
-
-    if not timerexists 'waiting_dress_timer'
-        createtimer 'waiting_dress_timer'
-        settimer 'waiting_dress_timer' 0
-    endif
-
-    setvar! toggle_light_weapon_first_run_done 1
+# if a weapon of the same type we wanna equip is already equiped,
+#just unequipt it and exit to simulate a 'toggle' effect
+if findtype 5042 lefthand or findtype 5049|3937|0001|3932|5179|5044|5125 righthand
+    cast 'Magic Lock'
+    stop
 endif
 
 
-#################################
-# SCRIPT CONFIGURATION
-#
+if findtype 5042|5049|3937|0001|3932|5179|5044|5125 backpack as found
+    if not dead lasttarget
+        attack lasttarget
+    endif
 
+    if targetexists
+        # check if theres need to undress hands before equiping
+        if not rhandempty or not lhandempty
+            cast 'Magic Lock'
+        endif
 
-if not listexists 'light_weapons'
-    createlist 'light_weapons'
-    if skill 'archery' >= 50
-        pushlist 'light_weapons' 'bow'
-    elseif skill 'fencing' >= 50
-        pushlist 'light_weapons' 'short spear'
-        pushlist 'light_weapons' 'war fork'
-    elseif skill 'mace fighting' >= 50
-        pushlist 'light_weapons' 'war mace'
-    elseif skill 'swordsmanship' >= 50 or findtype 'viking sword' backpack or findtype 'longsword' backpack
-        pushlist 'light_weapons' 'viking sword'
-        pushlist 'light_weapons' 'longsword'
+        @drop backpack
+        lift found
+        drop self FirstValid
     else
-        overhead 'char has no weapon skill'
+        dclick found
     endif
 endif
-
-if list 'light_weapons' == 0
-    overhead 'no light_weapons in list'
-endif
-
-sysmsg '[DEBUG] BEFORE FOR'
-foreach weapon in 'light_weapons'
-    sysmsg '[DEBUG] {{weapon}}'
-    if findtype weapon lefthand
-        sysmsg '[DEBUG] {{weapon}} 1'
-        if dont_unequip_if_already_equiped == 1
-            overhead 'equiped on left hand' 54
-            break
-        else
-            hotkey 'Toggle Peace Only'
-            hotkey 'Undress Left Hand'
-            break
-        endif
-    elseif findtype weapon righthand
-
-        sysmsg '[DEBUG] {{weapon}} 2'
-        if dont_unequip_if_already_equiped == 1
-            overhead 'equiped on right hand' 54
-            break
-        else
-            sysmsg '[DEBUG] {{weapon}} 22'
-            hotkey 'Toggle Peace Only'
-            hotkey 'Undress Right Hand'
-            break
-        endif
-    else
-        if not rhandempty
-            if targetexists 'any'
-                # overhead '*undressing right hand*'
-                hotkey 'Toggle Peace Only'
-                hotkey 'Undress Right Hand'
-
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                wait 200
-            endif
-        elseif not lhandempty
-            if targetexists 'any'
-                # overhead '*undressing left hand*'
-
-                hotkey 'Toggle Peace Only'
-                hotkey 'Undress Left Hand'
-
-                wait 200
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
-            endif
-        endif
-
-        if findtype weapon backpack as weap
-            sysmsg '000000'
-            # EQUIP THE WEAPON
-            settimer 'waiting_dress_timer' 0
-            while not findtype weapon lefthand and not findtype weapon righthand
-
-                if targetexists
-                    sysmsg 'LIFT'
-                    lift weap 1
-                    wait action_delay
-                    drop 'self' LeftHand
-                else
-                    sysmsg 'DCLICK'
-                    dclick weap
-                endif
-
-                wait 100
-                while queued
-                    sysmsg 'queued'
-                endwhile
-                # wait action_delay
-
-                if timer 'waiting_dress_timer' >= 400
-                    sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
-                    break
-                endif
-            endwhile
-
-            if not lhandempty or not rhandempty
-                overhead 'WEAPON EQUIPED!' 52
-                if noto lasttarget == hostile
-                    overhead 'ATTACKING!' 41 'last'
-                    overhead 'attacking lasttarget!' 41
-                    hotkey 'Attack Last Target'
-                endif
-                break
-            else
-                hotkey 'Toggle Peace Only'
-            endif
-        endif
-    endif
-endfor
-
-sysmsg '[DEBUG] after for'
-
-
-hotkey "Resynchronize Client"

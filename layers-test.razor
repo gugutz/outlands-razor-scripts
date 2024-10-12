@@ -1,0 +1,40 @@
+createlist 'layers'
+clearlist 'layers'
+
+pushlist 'layers' righthand
+pushlist 'layers' lefthand
+pushlist 'layers' shoes
+pushlist 'layers' pants
+pushlist 'layers' shirt
+pushlist 'layers' head
+pushlist 'layers' gloves
+pushlist 'layers' ring
+pushlist 'layers' talisman
+pushlist 'layers' neck
+pushlist 'layers' hair
+pushlist 'layers' waist
+pushlist 'layers' innertorso
+pushlist 'layers' bracelet
+pushlist 'layers' face
+pushlist 'layers' facialhair
+pushlist 'layers' middletorso
+pushlist 'layers' earrings
+pushlist 'layers' arms
+pushlist 'layers' cloak
+pushlist 'layers' backpack
+pushlist 'layers' outertorso
+pushlist 'layers' outerlegs
+pushlist 'layers' outerarms
+pushlist 'layers' innerlegs
+pushlist 'layers' onehandedsecondary
+pushlist 'layers' quiver
+pushlist 'layers' outerbody
+pushlist 'layers' underarms
+pushlist 'layers' outerwaist
+
+foreach layername in 'layers'
+    sysmsg 'CHECKING LAYER {{layername}}' 54
+    if findlayer self layername
+        sysmsg 'FOUND LAYER {{layername}}' 74
+    endif
+endfor

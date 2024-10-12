@@ -129,4 +129,60 @@ endwhile
 @setvar onABoat 0
 
 
+@clearignore
+if not listexists npcs_scanned
+    createlist npcs_scanned
+endif
+
+clearlist npcs_scanned
+setvar! find_npc_max_range 12
+while findtype 400 ground any any find_npc_max_range as npc
+    pushlist npcs_scanned npc
+    if npc in npcs_scanned
+        sysmsg 'SCANNED ALL NPCS, CANT FIND BANKER' 1161
+    endif
+
+
+    sysmsg 'SCANNING {{npc_label}}'
+    overhead '*scanning*' 1161 npc
+    if noto npc == invulnerable
+        getlabel npc npc_label
+
+
+        if 'banker' in npc_label
+            overhead 'FOUND BANKER. OPENING BANKBOX...' 1161 npc
+            menu npc 3
+            break
+        elseif 'stablemaster' in npc_label
+            overhead 'FOUND STABLEMASTER. ACCESSING STABLES...' 1161 npc
+            menu npc 3
+            break
+        elseif 'dockmaster' in npc_label
+            overhead 'FOUND DOCKMASTER. LAUNCHING DOCK MENU...' 1161 npc
+            menu npc 3
+            waitforgump 3287496917 1000
+            gumpresponse 7 3287496917
+            wait 600
+
+            while insysmsg "The ship has not been"
+                waitforgump 3287496917
+                gumpresponse 7 3287496917
+                wait 300
+            endwhile
+
+            setvar! boating_mode 1
+            break
+        elseif 'bowyer' in npc_label
+            overhead 'FOUND BOWYER. BUYING FOR ARROWS...' 1161 npc
+            menu npc 1
+            break
+        else
+        endif
+    else
+        sysmsg 'not invul {{npc_label}}' 1161
+
+    endif
+    @ignore npc
+endwhile
+
 

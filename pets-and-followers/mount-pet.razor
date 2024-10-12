@@ -15,22 +15,22 @@ endif
 
 if not mounted and not findbuff 'dismount'
     # mount tokens
-    if findtype "8484|8438" as mount_token
+    if findtype 8484|8438|8502 backpack as mount_token
         dclick mount_token
     # horses or llamas
-    elseif findtype 204 true as 'pet' and noto 'pet' = 'friend'
-        useobject 'pet'
+    elseif findtype 204 ground any any 10 as found and noto found = 'friend'
+        useobject found
     # horses diff graphic
-    elseif findtype 228 true as 'pet' and noto 'pet' = 'friend'
-        useobject 'pet'
+    elseif findtype 228 ground any any 10 as found and noto found = 'friend'
+        useobject found
     # llamas
-    elseif findtype 220 true as 'pet' and noto 'pet' = 'friend'
-        useobject 'pet'
+    elseif findtype 220 ground any any 10 as found and noto found = 'friend'
+        useobject found
     # forest ostards
-    elseif findtype 219 true as 'pet' and noto 'pet' = 'friend'
-        useobject 'pet'
-    elseif findtype 218 true as 'pet' and noto 'pet' = 'friend'
-        useobject 'pet'
+    elseif findtype 219 ground any any 10 as found and noto found = 'friend'
+        useobject found
+    elseif findtype 218 ground any any 10 as found and noto found = 'friend'
+        useobject found
     endif
 
 

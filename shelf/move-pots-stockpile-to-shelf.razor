@@ -1,0 +1,34 @@
+# 102 - GH potion
+# 103 - CURE potion
+
+setvar! POT_BUTTON 102
+if not gumpexists 1859005118
+    if findtype 'resource container' ground any any 2 as found
+        dclick found
+        waitforgump 1859005118
+        if gumpexists 1859005118
+            gumpresponse 5 1859005118
+        endif
+    else
+        sysmsg 'NO RESOURCE CONTAINER NEARBY' 1161
+    endif
+endif
+
+for 4
+    waitforgump 1859005118
+    gumpresponse POT_BUTTON 1859005118
+    waitforgump 3409272452 1000
+    while gumpexists 3409272452
+        wait 100
+    endwhile
+
+    waitforgump 1859005118 1000
+    if insysmsg 'Your backpack is too full'
+        break
+    endif
+endfor
+
+menu 0x442558F0 0
+waitfortarget 600
+target backpack
+replay

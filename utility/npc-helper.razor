@@ -1,0 +1,140 @@
+sysmsg 'NPC HELPER v{{vendor_helper_version}}' 1151
+
+if not varexist npc_helper_first_run_done
+    setvar! vendor_helper_version 100
+    setvar! action_delay 600
+    setvar! dockmaster_gump_id 3287496917
+    setvar! ship_main_gump_id 4216593270
+    setvar! boat_gump_btn 12
+    setvar! warning_msg_color 1161
+
+    if not listexists npcs_scanned
+        createlist npcs_scanned
+    endif
+    setvar! npc_helper_first_run_done 1
+endif
+
+clearlist npcs_scanned
+@clearignore
+setvar! find_npc_max_range 30
+while findtype 400|401 ground any any find_npc_max_range as npc
+    if npc in npcs_scanned
+        sysmsg 'FINISHED SCANNING NPCS' 1161
+        stop
+    endif
+
+    pushlist npcs_scanned npc
+
+
+    sysmsg 'SCANNING {{npc_label}}'
+    overhead '*scanning*' 1161 npc
+    if noto npc == invulnerable
+        getlabel npc npc_label
+
+
+        # npcs that are used in short distances
+        if find npc ground any any 12
+            if 'banker' in npc_label
+                overhead 'FOUND BANKER. OPENING BANKBOX...' 1161 npc
+                menu npc 3
+                break
+            elseif 'Prevalian merchant' in npc_label
+                overhead 'FOUND MERCHANT. BUYING...' 1161 npc
+                menu npc 3
+                break
+            elseif 'stablemaster' in npc_label
+                overhead 'FOUND STABLEMASTER. ACCESSING STABLES...' 1161 npc
+                menu npc 3
+                break
+            elseif 'salvage master' in npc_label
+                overhead 'FOUND DOCKMASTER. LAUNCHING DOCK MENU...' 1161 npc
+            elseif 'bowyer' in npc_label
+                overhead 'FOUND BOWYER. BUYING FOR ARROWS...' 1161 npc
+                menu npc 1
+                break
+            endif
+        endif
+
+        # npcs that are used further away like dockmasters
+        if 'dockmaster' in npc_label
+            overhead 'FOUND DOCKMASTER. LAUNCHING DOCK MENU...' 1161 npc
+            menu npc 1
+            waitforgump 3287496917 1000
+
+            if ingump "Dock Ship"  3287496917
+                sysmsg 'DOCKING SHIP' 1161
+                gumpresponse 7 3287496917
+                wait 600
+
+                while insysmsg "The ship has not been"
+                    waitforgump 3287496917
+                    gumpresponse 7 3287496917
+                    wait 300
+                endwhile
+
+                setvar! boating_mode 0
+            else
+                sysmsg '>>> LAUNCHING SHIP!' warning_msg_color
+
+                # launch ship
+                gumpresponse boat_gump_btn dockmaster_gump_id
+                waitfortarget 1000
+                while insysmsg 'you have traveled too recently and must wait another' or insysmsg 'You have been sunk at sea too recently and must wait'
+                    sysmsg 'LAUNCH SHIP TRAVEL COOLDOWN!' alert_msg_color
+                    gumpresponse boat_gump_btn dockmaster_gump_id
+                    waitfortarget 1000
+                    # replay
+                endwhile
+
+                clearsysmsg
+                while targetexists 'neutral'
+                    overhead 'where to place the ship?' 54
+
+                    while targetexists 'neutral'
+                        wait 100
+                    endwhile
+
+                    wait action_delay
+
+                    if insysmsg 'A ship cannot be placed there'
+                        sysmsg 'SHIP PLACEMENT FAILED. RETRYING...' 54
+                        gumpresponse boat_gump_btn dockmaster_gump_id
+                        waitfortarget 1000
+                        # replay
+                    endif
+                endwhile
+
+                if insysmsg 'A ship rune has been placed both in your bank box and your backpack'
+                    say '[ship'
+                    waitforgump ship_main_gump_id 1000
+                    if gumpexists ship_main_gump_id
+                        sysmsg 'SHIP PLACED. OPENING SHIP GUMPS...' warning_msg_color
+                        # embark
+                        gumpresponse 21 ship_main_gump_id
+                        waitforgump ship_main_gump_id action_delay
+                        # embark followers
+                        gumpresponse 22 ship_main_gump_id
+                        waitforgump ship_main_gump_id action_delay
+                        # reload cannons
+                        gumpresponse 25 ship_main_gump_id
+                        waitforgump ship_main_gump_id action_delay
+                        # ready crew
+                        gumpresponse 29 ship_main_gump_id
+                        waitforgump ship_main_gump_id action_delay
+                        gumpclose ship_main_gump_id
+                    else
+                        sysmsg 'FAILED TO PLACE SHIP' warning_msg_color
+                    endif
+                endif
+
+            endif
+
+            break
+        endif
+
+    # else
+    #     sysmsg 'not invul {{npc_label}}' 1161
+
+    endif
+    @ignore npc
+endwhile

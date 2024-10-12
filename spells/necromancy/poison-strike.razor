@@ -152,11 +152,15 @@ if targetexists 'neutral'
         cooldown 'POISON STRIKE' 30000
 
     endif
+
+    if boating_mode == 1
+        script 'ships\search-ships-loop'
+    endif
 #     if not insysmsg 'Target cannot be seen'
 #         if verbose == 1
 #             sysmsg '+++ RESETING CHAIN LIGHTNING TIMER' reset_timer_msg_color
 #         endif
-# 
+#
 #         cooldown 'Pain Spike' 30
 #     endif
 endif

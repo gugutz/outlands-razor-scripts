@@ -1,0 +1,59 @@
+sysmsg '##################' 1161
+sysmsg 'RESS BOT by gugutz' 1161
+sysmsg '##################' 1161
+
+setvar! action_delay 600
+setvar! spell_recovery_delay 300
+setvar! ressurection_mana_cost 50
+
+if not listexists ressed_serials
+    createlist ressed_serials
+endif
+clearlist ressed_serials
+
+while not dead
+    if mana < ressurection_mana_cost
+        sysmsg 'Meditating to ressurect...' 1161
+        say 'Meditating to get mana for ress...'
+
+        while mana < ressurection_mana_cost
+            while not findbuff 'Actively Meditading'
+                useskill 'meditation'
+                wait action_delay
+            endwhile
+            wait 100
+        endwhile
+    endif
+
+    hotkey 'Next Target'
+    if insysmsg 'New target set'
+        
+        setvar! ress_target lasttarget
+        if noto ress_target == friendly or noto ress_target == friend
+            if dead ress_target
+                pushlist ressed_serials ress_target
+                overhead '*ressing*' 33 ress_target
+                say "Ressing..."
+
+                yell '[wither'
+                while not targetexists
+                    cast 'Resurrection'
+                    wft 6000
+                endwhile
+
+                if targetexists 'beneficial'
+                    clearsysmsg
+                    target ress_target
+                    wait spell_recovery_delay
+                    
+                    if insysmsg 'That is too far away'
+                        say 'COME CLOSER MOTHERFUCKER'
+                    else
+                        say 'Ressed target'
+                        overhead 'ressed succesfully'
+                    endif
+                endif
+            endif
+        endif
+    endif
+endwhile

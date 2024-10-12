@@ -292,6 +292,382 @@ if varexist hatch
         wait action_delay
     endwhile
 
+    if varexist CHAR_LOOT_POUCH
+        setvar! destination_container CHAR_LOOT_POUCH
+    else
+        setvar! destination_container backpack
+    endif
+
+    hotkey "Set Grab Item HotBag"
+    wft action_delay
+    target destination_container
+
+    sysmsg 'SEARCHING RARES...' 54
+    # 5901 - sandals
+    # 48407 - ???
+    while findtype 17686|4026|5901|48407|3821|2539|45315|17087|3985|3836|29833|42517|29040|52615|17083|5356|48261|8826|3827|29030|29036|5090|3834|2539|3856|3742|3861|3862|5060|7179|45315|7177|3877|5205|5042|22187|5123|5105|3865|5089|5106|7035|3934|7031|3859|3903|7029|5063|5078|22326|2545|5070|3740|5076|5129|5146|5139|5061|5059|3885|3913|5125|3617|7163|5121|3719|7173|5179|7034|7033|3917|5203|7610|3573|5074|5204|3878|3920|5117|3911|5056|5143|3721|3762|5201|5085|10245|5103|5177|5119|5046|7027|5040|3932|5131|7181|5127|5132|5135|7169|3713|3937|3873|7175|3854|5101|5185|5207|4225|5182|3763|3909|5049|3938|3568|5115|9917|8012|5142|7170|5187|3915|39891|5138|5181|7026|29971|3191|5112|5044 hatch as found
+
+        #getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        #if 'Link' in item_label
+        #    overhead 'found a link: {{item_label}}' 51 'self'
+        #    sysmsg 'FOUND A LINK: {{item_label}}' 51
+        #endif
+
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    while findtype 17087|3985|3836|29833|42517|29040|52615|17083|5356|48261|8826|3827|29030|29036 hatch as found
+
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        if 'Link' in item_label
+            overhead 'found a link: {{item_label}}' 51 'self'
+            sysmsg 'FOUND A LINK: {{item_label}}' 51
+        endif
+
+        if varexist CHAR_LOOT_POUCH
+            setvar! destination_container CHAR_LOOT_POUCH
+        else
+            setvar! destination_container backpack
+        endif
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING GOLD, DOUBLOONS AND BOOTY...' 54
+    while findtype 3821|2539|45315 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING COMMON hatch ITEMS...' 54
+    while findtype 5090|3834|2539|3856|3742|3861|3862|5060|7179|45315|7177|3877|5205|5042|22187|5123|5105|3865|5089|5106|7035|3934|7031|3859|3903|7029|5063|5078|22326|2545|5070|3740|5076|5129|5146|5139|5061|5059|3885|3913|5125|3617|7163|5121|3719|7173|5179|7034|7033|3917|5203|7610|3573|5074|5204|3878|3920|5117|3911|5056|5143|3721|3762|5201|5085|10245|5103|5177|5119|5046|7027|5040|3932|5131|7181|5127|5132|5135|7169|3713|3937|3873|7175|3854|5101|5185|5207|4225|5182|3763|3909|5049|3938|3568|5115|9917|8012|5142|7170|5187|3915|39891|5138|5181|7026|29971|3191|5112|5044 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING NEW EXPANSION BOWS hatch ITEMS...' 54
+    while findtype 30990|31184|31186|30994 hatch as found
+        getlabel found item_label
+            sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING NEW EXPANSION INSTRUMENTS hatch ITEMS...' 54
+    while findtype 20008|20010|20012|20016|20006 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+
+    sysmsg 'SEARCHING NEW EXPANSION STAFFS hatch ITEMS...' 54
+    while findtype 31037|31025|31035|31045|31049|31017 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+
+    sysmsg 'SEARCHING NEW EXPANSION WEAPONS hatch ITEMS...' 54
+    while findtype 30997|30991|31000|31001|30998|31188|30992|30989|30995|30999|31176|31190|31178|31182|31128 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING NEW EXPANSION ARMORS hatch ITEMS...' 54
+    while findtype 31003|31191|31141|31010|31006|31130|3100|31012|310153|31140|31011|31008|31015 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING NEW EXPANSION SHIELDS hatch ITEMS...' 54
+    while findtype 7109 hatch as found
+        getlabel found item_label
+            sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING REAGENTS...' 54
+    while findtype 3980|3974|3963|3976|3973|3972|3962|3981 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
+    sysmsg 'SEARCHING SCROLLS...' 54
+    while findtype 8006|8005|8011|8009 hatch as found
+        getlabel found item_label
+        sysmsg '>>> LOOTING {{item_label}}...' 53
+
+        hotkey "Set Grab Item HotBag"
+        wft action_delay
+        target destination_container
+
+        hotkey 'Grab Item'
+        wft 600
+        target found
+
+        wait 100
+        while queued
+            wait 20
+        endwhile
+
+        # check char container limit
+        if insysmsg 'That container cannot hold more weight'
+            if timer 'char_heavy_warning_msg_timer' >= 5000
+                overhead 'BACKPACK FULL! UNLOAD!' 37
+                settimer 'char_heavy_warning_msg_timer' 0
+            endif
+        endif
+
+        @ignore found
+    endwhile
+
     restock 10
     wft 550
     target hatch
@@ -307,15 +683,6 @@ sysmsg '>>> LOOT HATCHES FINISHED!' 53
 ########################################
 # SEARCH SHIPS
 ########################################
-
-# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
-if findtype 2594|2598|2578|30580 self
-    sysmsg 'BOATING MODE ON'
-    setvar! boating_mode 1
-elseif findtype 2597|3947 self and not findtype 2597|3947 backpack or findtype 'dungeon torch' backpack
-    sysmsg 'BOATING MODE OFF'
-    setvar! boating_mode 0
-endif
 
 if boating_mode == 1
     script 'ships\search-ships-loop'

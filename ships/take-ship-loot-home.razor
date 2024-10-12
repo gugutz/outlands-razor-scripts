@@ -26,31 +26,31 @@ endif
 dclick ship_loot_backpack
 
 # deposit gold and doubloons that drop on the floor after docking
-if findtype 'bank deposit safe' ground any any 2 as deposit_box_serial
-    while findtype "gold coin|muffins" ground any 1 2 as found
-        getlabel found currency_label
-        sysmsg '> Unloading {{currency_label}} From ground' 49
+# if findtype 'bank deposit safe' ground any any 2 as deposit_box_serial
+#     while findtype "gold coin|doubloon" ground any 1 2 as found
+#         getlabel found currency_label
+#         sysmsg '> Unloading {{currency_label}} From ground' 49
 
-        lift found 60000
-        wait action_delay
-        # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
-        drop deposit_box_serial -1 -1 0
-        wait action_delay
-    endwhile
+#         lift found 60000
+#         wait action_delay
+#         # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
+#         drop deposit_box_serial -1 -1 0
+#         wait action_delay
+#     endwhile
 
-    while findtype "gold coin|muffins" ship_loot_backpack any 1 2 as found
-        getlabel currency currency_label
-        sysmsg '> Unloading {{currency_label}} From SHIP LOOT BACKPACK' 49
+#     while findtype "gold coin|doubloon" ship_loot_backpack any 1 2 as found
+#         getlabel currency currency_label
+#         sysmsg '> Unloading {{currency_label}} From SHIP LOOT BACKPACK' 49
 
-        lift found 60000
-        wait action_delay
-        # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
-        drop deposit_box_serial -1 -1 0
-        wait action_delay
-    endwhile
-else
-    sysmsg 'COULDNT FIND BANK DEPOSIT SAFE IN GROUND' 37
-endif
+#         lift found 60000
+#         wait action_delay
+#         # gold here has to be droped at -1 -1 0, or else is ends up 'inside' the vault, and not in the bank
+#         drop deposit_box_serial -1 -1 0
+#         wait action_delay
+#     endwhile
+# else
+#     sysmsg 'COULDNT FIND BANK DEPOSIT SAFE IN GROUND' 37
+# endif
 
 # make sure noone is hidden nearby
 # cast 'Reveal'
@@ -137,7 +137,7 @@ dclick ship_loot_backpack
 wait action_delay
 
 # deposit gold and doubloons
-while findtype "gold coin|muffins" ship_loot_backpack as currency
+while findtype "gold coin|doubloon" ship_loot_backpack as currency
     if findtype 'bank deposit safe' ground any any 2 as deposit_box
         getlabel currency currency_label
         sysmsg '> Unloading {{currency_label}} From SHIP BACKPACK' 49

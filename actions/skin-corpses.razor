@@ -99,10 +99,10 @@ if targetexists 'neutral'
 
     if findtype 'corpse' ground any any 2 as body
         if inlist 'skinned_corpses' body
-            overhead '*no new corpses to skin*' 54
+            sysmsg 'No new corpses to skin' 54
         endif
 
-        overhead '*skinning corpses*' 56 'self'
+        # overhead '*skinning corpses*' 56 'self'
         sysmsg '>>> SKINNING CORPSES NEARBY' 49
         hotkey 'Target Self'
         wait 600

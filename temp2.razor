@@ -1,0 +1,18 @@
+if not cooldown 'NEXT EVENT TICK' or cooldown 'NEXT EVENT TICK' > 6000 and not hidden
+    cast 'invisibility'
+    wft 4500
+    target self
+endif
+    
+if cooldown 'NEXT EVENT TICK' < 3000 and cooldown 'NEXT EVENT TICK' > 0
+    cast 'invisibility'
+    wft 4000
+    while targetexists 'neutral'
+        wait 100
+        if insysmsg 'beacon'
+            target self
+        endif
+    endwhile
+endif
+loop
+    

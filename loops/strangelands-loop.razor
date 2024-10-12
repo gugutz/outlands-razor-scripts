@@ -1,0 +1,145 @@
+
+if not varexist strangelands_loop_first_run_done
+    setvar! find_items_max_range 30
+    setvar! loop_on_warning_msg_delay 8000
+    setvar! trophy_warning_msg_delay 2000
+    setvar! warning_msg_color 1161
+    setvar! default_msg_color 1151
+
+    if not timerexists stragelands_loop_on_warning_msg_timer
+        createtimer stragelands_loop_on_warning_msg_timer
+        settimer stragelands_loop_on_warning_msg_timer loop_on_warning_msg_delay
+    endif
+    if not timerexists trophy_warning_timer
+        createtimer trophy_warning_timer
+        settimer trophy_warning_timer trophy_warning_msg_delay
+    endif
+endif
+
+# warn about loop on
+if timer stragelands_loop_on_warning_msg_timer >= loop_on_warning_msg_delay
+    sysmsg 'STRANGELANDS LOOP by gugutz (iteration {{index}}' default_msg_color
+    settimer stragelands_loop_on_warning_msg_timer 0
+endif
+
+# storages to put trophies for points
+while findtype "secret door|grass" ground -1 -1 find_items_max_range as found
+    overhead 'STORAGE!' warning_msg_color found
+    @ignore found
+endif
+@clearignore
+
+# enter tunnels and secret doors
+if not targetexists 'any' and findtype "secret door|grass" ground -1 -1 2 as found
+    dclick found
+endif
+
+# gather all types of trophies, then check that first before clicking cachey
+while findtype "magic rock|skull" backpack as found
+    if timer trophy_warning_timer >= trophy_warning_msg_delay
+        overhead "we got a trophy"
+        overhead "*trophy*" warning_msg_color found
+        settimer trophy_warning_timer 0
+    endif
+    @ignore found
+endif
+@clearignore
+
+# 4655 2880 blood smear
+# 4651 2880 blood
+
+#############################EEE
+# WATER
+
+# warn about water on ground
+while findtype 4650|4655|4651|4653 ground 2880 -1 find_items_max_range as found
+    overhead 'FOOD OR WATER!' warning_msg_color found
+    @ignore found
+endwhile
+@clearignore
+
+# collect water on ground
+if not targetexists 'any' and findtype 4650|4655|4651|4653 ground 2880 -1 2 as found
+    dclick found
+    wait action_delay
+endif
+
+#############################EEE
+# ELIXIRS
+
+# warn about mushrooms on the ground
+while findtype "mushroom" ground -1 -1 find_items_max_range as found
+    overhead 'MUSHROOM!' warning_msg_color found
+    @ignore found
+endwhile
+@clearignore
+
+# consume mushrooms on the ground
+if not targetexists 'any' and findtype "mushroom" ground -1 -1 2 as found
+    dclick found
+    wait action_delay
+endif
+
+#############################EEE
+# elixirs
+
+if not targetexists 'any' and findtype "jar" ground -1 -1 find_items_max_range as found
+    hotkey "Grab Item"
+    wft action_delay
+    target found
+    wait action_delay
+endif
+
+# these are buff bottles
+if not targetexists 'any' and findtype "jar" ground -1 -1 2 as found
+    sysmsg 'COLLECTING ELIXIR!' warning_msg_color
+    hotkey "Grab Item"
+    wft action_delay
+    target found
+    wait action_delay
+endif
+
+while not targetexists 'any' and findtype "jar" backpack as found
+    sysmsg 'USING ELIXIR!' warning_msg_color
+    dclick found
+    wait action_delay
+    @ignore found
+endwhile
+@clearignore
+
+# supply manifest 29107 2220
+
+# shovel 3897  2796
+#
+# use shovel
+if findtype 3897 backpack 2796 as found
+    if hp <= 25
+        sysmsg 'ESCAPING THROUGH TUNNEL!' warning_msg_color
+        dclick found
+        wait action_delay
+        if skill magery > 20
+            sysmsg 'HEALING AFTER ESCAPING...' warning_msg_color
+            cast 'greater heal'
+            wft 3500
+            target self
+        endif
+    endif
+endif
+
+# book on ground, grab it
+if not targetexists 'any' and findtype "book" ground -1 -1 2 as found
+    hotkey "Grab Item"
+    wft action_delay
+    target found
+    wait action_delay
+endif
+
+if not targetexists 'any' and findtype 4029 backpack 0 as found
+    dclick found
+    wait 200
+    if insysmsg "You are not familiar enough with that skill to use a skill manual for it."
+        @ignore found
+    endif
+endif
+
+replay

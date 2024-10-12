@@ -268,7 +268,7 @@ if followers > 0 and unload_from_packies == 1
 
         @ignore packie
     endwhile
-    
+
     while findtype 291 ground any any 2 as packie
         # if noto packie = noto 'self'
         if noto packie = friend
@@ -469,13 +469,13 @@ if open_loot_pouch_when_unloading  == 1
         dclick CHAR_LOOT_POUCH
         wait action_delay
 #         if insysmsg 'You must wait'
-# 
+#
 #             while insysmsg 'You must wait'
 #                 # clearsysmsg
 #                 dclick CHAR_LOOT_POUCH
 #                 wait action_delay
 #             endwhile
-# 
+#
 #         endif
     endif
 endif
@@ -568,7 +568,7 @@ endif
 
 sysmsg '> Searching for gold or doubloon...' sysmsgs_color
 
-while findtype "gold coin|muffins" backpack as currency
+while findtype "gold coin|doubloon" backpack as currency
     getlabel currency currency_label
 
     lift currency 60000
@@ -677,18 +677,18 @@ endwhile
 
 if followers > 0 and unload_from_packies == 1
     sysmsg '> Searching for ores or logs in packies...' sysmsgs_color
-    
+
     # smelt ores or make boards from resources inside packies to deposit them in resource stockpile
     if list 'packies' > 0
         foreach packanimal in 'packies'
-    
+
             # smelt ores
             while findtype ORE packanimal any any 2 as ores_from_packie
                 if findtype 'forge' ground any any 2 or findtype 'large forge' ground any any 2
                     if verbose_mode  == 1
                         overhead '*smelting packie ores*' 49 packanimal
                     endif
-    
+
                     dclick ores_from_packie
                     wait action_delay
                 else
@@ -697,11 +697,11 @@ if followers > 0 and unload_from_packies == 1
                     break
                 endif
             endwhile
-    
+
             # make boards from logs
             while findtype 'log%s' packanimal any any 2 as logs_from_packie
                 overhead '*cutting packie boards*' 49 packanimal
-    
+
                 if findtype 'hatchet' backpack
                     dclick logs_from_packie
                     wait action_delay
@@ -1146,7 +1146,7 @@ endif
 if unload_magery_scroll_in_tome == 1
     if findtype 'book' tomes_location_serial 2227 1 2 as magery_scroll_tome
         sysmsg '> Searching for Magery Scrolls...' sysmsgs_color
-    
+
         if print_unloaded_items == 1
             if not listexists 'magery_scrolls'
                 createlist 'magery_scrolls'
@@ -1164,26 +1164,26 @@ if unload_magery_scroll_in_tome == 1
                 pushlist 'magery_scrolls' 'Lightning Scroll'
                 pushlist 'magery_scrolls' 'Energy Bolt Scroll'
             endif
-    
+
             while findtype "Recall|Invisibility|Bless" backpack any any as found
                 getlabel found item_label
-    
+
                 if not inlist 'items_unloaded' item_label
                     sysmsg 'Adding {{item_label}}'
                     pushlist 'items_unloaded' item_label
                 endif
-    
+
                 @ignore found
             endwhile
-    
+
             @clearignore
         endif
-    
+
         if findtype "Recall|Invisibility" backpack any any as found
             if verbose_mode  == 1
                 sysmsg '> Unloading Magery Scrolls' sysmsgs_color
             endif
-    
+
             menu magery_scroll_tome 0
         endif
     endif
@@ -1253,7 +1253,7 @@ if findtype 'storage shelf' ground any any 2 as shelf
       if list 'packies' > 0
           foreach packanimal in 'packies'
               sysmsg '> Restocking Shelf From Pack Animal...' sysmsgs_color
-  
+
               menu shelf 0
               wft action_delay
               if targetexists 'neutral'
@@ -1272,7 +1272,7 @@ else
         @unsetvar shelf
     endif
     overhead 'no shelfs nearby'
-    
+
 endif
 
 

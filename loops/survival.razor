@@ -132,7 +132,7 @@ endif
 while not dead 'self'
 
     # open chivarly hotbar on start
-    
+
     if skill 'chivalry' > 0 and not gumpexists chivalry_gump_id
         sysmsg 'Opening chivalry Hotbar...' 100
         say '[chivalryhotbar'
@@ -200,17 +200,19 @@ while not dead 'self'
     # BANDAGE SEFL
     ####################################
 
-    if counttype 'clean bandage%s%' == 0
-        overhead '!!☠ NO BANDAGES ☠!!' 39
-    endif
+    if skill 'healing' > 0
+        if counttype 'clean bandage%s%' == 0
+            overhead '!!☠ NO BANDAGES ☠!!' 39
+        endif
 
-    if skill 'healing' > 10 and diffhits > max_diffhits_before_healing_with_bandages
-        # heal with healing
-        if counttype 'clean bandage%s%' > 0
-            if not bandaging
-                overhead 'START BANDAGING' 91
-                hotkey 'Bandage Self'
-                wait action_delay
+        if diffhits > max_diffhits_before_healing_with_bandages
+            # heal with healing
+            if counttype 'clean bandage%s%' > 0
+                if not bandaging
+                    overhead 'START BANDAGING' 91
+                    hotkey 'Bandage Self'
+                    wait action_delay
+                endif
             endif
         endif
 

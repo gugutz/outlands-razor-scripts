@@ -1,0 +1,30 @@
+# 336 is exp pot
+setvar! POT_BUTTON 336
+
+dclick 0x442558F0
+waitforgump 3232825965
+# select shelf category
+gumpresponse 50
+#waitforgump 3232825965
+for 4
+    waitforgump 3232825965
+    gumpresponse POT_BUTTON 3232825965
+    
+    # wait for ammount box
+    waitforgump 3200655738 1000
+    while gumpexists 3200655738
+        wait 100
+    endwhile
+
+    waitforgump 3232825965 1000
+    if insysmsg 'Your backpack is too full' or insysmsg 'You have exceeded'
+        clearsysmsg
+        break
+    endif
+endfor
+
+#restock stockpile with item
+menu 0x44BC9840 0
+waitfortarget
+target self
+loop

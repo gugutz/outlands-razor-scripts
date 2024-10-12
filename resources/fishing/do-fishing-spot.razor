@@ -1,11 +1,38 @@
-while findtype '28935|rowboat|18821|39434|28990|28820|18824|25769|26683|29410|29230|39345' ground any any 10 as spot
-    if findtype 'fishing net' backpack as net
-        dclick net
-        wft action_delay
-        target spot
-        wait 1000
+
+if findtype '42403' ground any any 10
+    sysmsg 'FOUND FISHING FRENZY'
+    sysmsg '*start fishing frenzy*'
+    if findtype 'fishing pole' backpack as pole
+        lift pole
+        wait 100
+        while queued
+            wait 10
+        endwhile
+
+        drop self LeftHand
+        wait 300
     else
-        sysmsg 'NO FISHING NETS!' 39
+        sysmsg 'NO FISHING POLES!
     endif
-endwhile
+
+    while findtype '42403' ground any any 10 as spot
+        hotkey 'use item in hand'
+        wft 1000
+        target spot
+        wait 600
+    endwhile
+endif
+
+if findtype '28935|rowboat|18821|39434|28990|28820|18824|25769|26683|29410|29230|39345' ground any any 10 as spot
+    while findtype '28935|rowboat|18821|39434|28990|28820|18824|25769|26683|29410|29230|39345' ground any any 10 as spot
+        if findtype 'fishing net' backpack as net
+            dclick net
+            wft action_delay
+            target spot
+            wait 1000
+        else
+            sysmsg 'NO FISHING NETS!' 39
+        endif
+    endwhile
+endif
 sysmsg 'FISHING SPOT COMPLETED!' 90

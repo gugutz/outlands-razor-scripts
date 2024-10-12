@@ -1,0 +1,26 @@
+if paralyzed 
+    sysmsg 'POUCH!' 1161
+    say '[pouch'
+endif
+
+if diffstam > 0
+    if targetexists 'any'
+        sysmsg 'SKIPPING REFRESH (TARGET OPEN)' 1161
+        replay
+    endif
+    sysmsg 'REFRESH!' 1161
+    potion 'refresh'
+endif
+
+if not timerexists pouch_refresh_on_msg_timer
+    createtimer pouch_refresh_on_msg_timer
+    settimer pouch_refresh_on_msg_timer 5000
+endif
+
+if timer pouch_refresh_on_msg_timer >= 5000
+    sysmsg 'RUNNING POUCH & REFRESH LOOP!' 1151
+    settimer pouch_refresh_on_msg_timer 0
+endif
+
+
+replay

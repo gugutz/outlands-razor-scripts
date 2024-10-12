@@ -342,13 +342,13 @@ if varexist chest
             sysmsg 'ENTERED UNLOCK CHEST' 54
 
 #             while not dead and not insysmsg 'You have successfully cleared it of traps'
-# 
+#
 #                 sysmsg 'CLEARING TRAPS...' 54
 #                 if auto_hide == 1
 #                     if only_start_chest_if_hidden == 1
 #                         while not hidden
 #                             sysmsg 'TRYING TO HIDE...' 54
-# 
+#
 #                             if skill 'hiding' >= 50
 #                                 useskill 'hiding'
 #                                 wait 1000
@@ -377,15 +377,15 @@ if varexist chest
 #                         endif
 #                     endif
 #                 endif
-# 
-# 
+#
+#
 #                 # Skip ahead if devoid of traps
 #                 if insysmsg 'You have successfully cleared it of traps'
 #                     overhead '* TRAPS CLEARED * ' 72
 #                     break
 #                 endif
-# 
-# 
+#
+#
 #                 if findtype drill backpack as tool
 #                     # unlock using tool instead of using the chest gump (this allows the char to remain hidden)
 #                     if use_tools_instead_of_chest_gump == 1
@@ -393,9 +393,9 @@ if varexist chest
 #                         dclick tool
 #                         waitfortarget action_delay
 #                         target chest
-# 
+#
 #                         wait action_delay
-# 
+#
 #                     # unlock using the chest gump instead of directly clicking tool
 #                     elseif use_tools_instead_of_chest_gump == 0
 #                         if not gumpexists locked_chest_gump
@@ -407,13 +407,13 @@ if varexist chest
 #                             wait action_delay
 #                         endif
 #                     endif
-# 
+#
 #                     if ingump 'Cleared of Traps' 736038070 or insysmsg 'appears to be devoid'
 #                         sysmsg 'CHEST ALREADY CLARED OF TRAPS....'
 #                         break
 #                     endif
-# 
-# 
+#
+#
 #                     if insysmsg 'You do not have any trap tools of that material on hand'
 #                         if use_tools_instead_of_chest_gump == 1
 #                             overhead 'NO MORE DRILLS' 55
@@ -436,8 +436,8 @@ if varexist chest
 #                     overhead 'NO MORE DRILLS' 37
 #                     stop
 #                 endif
-# 
-# 
+#
+#
 #             endwhile
 
             #################################
@@ -569,7 +569,7 @@ if varexist chest
 
         # while findtype "'chain link'|29833|42517|29040|52615|17083|map|48261|'bold and arrow keg'|'void orb'|'research materials'|'scroll of calling'|22336|'Book of Truth'|5359|'folded cloth'|sandals|'aspect core'|3836|17686|parchment|carpet|bottle|3838|3839|3843|3842|3843|29025|29036|'blank scroll%s%'|29030|'elven spellblade'" chest as found
         sysmsg 'SEARCHING RARES...' 54
-        while findtype 17087|3985|3836|29833|42517|29040|52615|17083|5356|48261|8826|3827|29030|29036 chest as found
+        while findtype 22336|17087|3985|3836|29833|42517|29040|52615|17083|5356|48261|8826|3827|29030|29036 chest as found
 
             getlabel found item_label
             sysmsg '>>> LOOTING {{item_label}}...' 53
@@ -836,14 +836,14 @@ if looted_chest == 1
                 setvar! home_rune_btn_number runetome_rune_position
                 # setvar! recall_by_charge_btn_number runetome_rune_position
                 setvar! recall_by_charge_btn_number 100
-        
+
             endif
-        
+
             @ignore found
         endwhile
     endif
     @clearignore
-    
+
     # if we couldnt find a home runetome, search for a home runebook
     if not varexist home_book
         while findtype 'runebook' backpack as found
@@ -855,7 +855,7 @@ if looted_chest == 1
                 setvar! home_rune_btn_number runetome_rune_position
                 setvar! recall_by_charge_btn_number 2
             endif
-    
+
             @ignore found
         endwhile
         @clearignore

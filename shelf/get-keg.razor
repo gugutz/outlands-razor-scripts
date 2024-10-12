@@ -1,0 +1,38 @@
+sysmsg 'getting 1 keg from shelf'
+setvar! SHELF_GUMP 3232825965
+dclick 0x442558F0
+# get keg
+waitforgump SHELF_GUMP 600
+gumpresponse 23
+waitforgump SHELF_GUMP 600
+gumpresponse 341
+waitforgump SHELF_GUMP 600
+gumpresponse 23
+waitforgump SHELF_GUMP 600
+
+gumpresponse 336
+
+waitforgump 3200655738 600
+sysmsg 'SELECT EXP POT AMOUNT...'
+while gumpexists 3200655738
+    wait 50
+endwhile
+
+wait 200
+
+# get empty bottle
+waitforgump SHELF_GUMP 600
+gumpresponse 340 SHELF_GUMP
+
+waitforgump 3200655738 600
+sysmsg 'SELECT EMPTY BOTTLE AMOUNT...'
+while gumpexists 3200655738
+    wait 50
+endwhile
+
+wait 200
+
+sysmsg 'CLOSING SHELF GUMP'
+waitforgump SHELF_GUMP 600
+gumpclose SHELF_GUMP
+

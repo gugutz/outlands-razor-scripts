@@ -31,6 +31,7 @@ clearsysmsg
 # CONFIGURATIOn
 #################################
 
+setvar! action_delay 600
 setvar! warning_msg_color 54
 setvar! alert_msg_color 39
 
@@ -51,9 +52,9 @@ if not varexist home_book
             setvar! home_rune_btn_number runetome_rune_position
             # setvar! recall_by_charge_btn_number runetome_rune_position
             setvar! recall_by_charge_btn_number 100
-    
+
         endif
-    
+
         @ignore found
     endwhile
 endif

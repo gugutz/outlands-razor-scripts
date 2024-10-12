@@ -24,4 +24,8 @@ if targetexists 'neutral'
         sysmsg 'CONSUMED CORPSE!' 90
         cooldown 'VAMPIRIC EMBRACE' 30000
     endif
+
+    if boating_mode == 1
+        script 'ships\search-ships-loop'
+    endif
 endif

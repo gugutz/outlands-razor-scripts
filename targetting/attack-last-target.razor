@@ -9,8 +9,6 @@
 # SCRIPT CONFIGURATION
 ################################
 
-hotkey 'Attack Last Target'
-whisper '[FireCannons'
 
 setvar! action_delay 350
 
@@ -35,77 +33,138 @@ if not timerexists 'painspike_timer'
 endif
 
 
-# ###############################
-# # apply bandages if has healing
-# ###############################
 
-# if diffhits > 0 and skill 'healing' >= 20 and findtype 'clean bandage%s%' backpack
-#     if not timerexists 'bandage_timer'
-#         createtimer 'bandage_timer'
-#         settimer 'bandage_timer' 99999
-#     endif
-
-#     # set bandage_delay based on char dex
-#     removelist 'bandage_delay'
-#     createlist 'bandage_delay'
-
-#     if dex >= 100
-#         pushlist 'bandage_delay' 10000
-#     elseif dex <= 80
-#         pushlist 'bandage_delay' 15000
-#     endif
-
-#     if atlist 'bandage_delay' 0 as bandage_delay
-#         if timer 'bandage_timer' >= bandage_delay
-#             script 'items\bandage-self'
-#         endif
-#     endif
-# endif
-
-###########################################
-# IF LAST TARGET DEAD OR NOT SET, WE NEED TO SET IT
-# BY EITHER HERDING PETS ON IT, OR SETTING LAST TARGET
-###########################################
-
-
+setvar! reset_target 0
+setvar! current_target_serial lasttarget
+# getlabel current_target_serial last_target_label
 
 unsetvar! herded_last_target
 
-if dead lasttarget
-    # overhead '! no last target !' 39
-    sysmsg '> Last Target Is Dead!' 39
+if dead current_target_serial and not find current_target_serial ground any any 30
+    overhead "last target dead!" 1161
+    sysmsg '> LAST TARGET IS DEAD!' 1161
+    setvar! reset_target 1
+    # stop
+endif
 
-    # clearlist 'last_herded_mob'
+if dead current_target_serial and find current_target_serial ground any any 30
+    overhead "last target item?" 1161
+    sysmsg '> LAST TARGET ITEM? KEEPING TARGET.' 1161
+    # setvar! reset_target 1
+    # stop
+endif
+
+if reset_target != 1 and current_target_serial == self
+    overhead 'last == self!' 1161
+    setvar! reset_target 1
+    # stop
+endif
+
+if reset_target != 1 and not dead current_target_serial and not find current_target_serial ground any any 10 and find current_target_serial ground any any 11 as last_target_serial
+    overhead 'cant find set target!' 1161
+    sysmsgl 'Cant Find Set Target {{current_target_serial}}' 1161
+    setvar! reset_target 1
+    # stop
+endif
+
+if reset_target != 1 and not dead current_target_serial and not find current_target_serial ground any any 10 and find current_target_serial ground any any 11 as last_target_serial
+    overhead "out of range" 1161 current_target_serial
+    sysmsg 'TARGET {{current_target_serial}} OUT OF RANGE'
+endif
+
+if reset_target != 1 and not dead current_target_serial
+    if noto current_target_serial == friend or noto current_target_serial == friendly
+        overhead 'last == friendly!' 52
+        overhead 'cant attack (friendly)' 52 current_target_serial
+        setvar! reset_target 1
+        # clearall
+        # stop
+    endif
+endif
 
 
-    ###############################
-    # HERDING OR SET LAST TARGET
-    ###############################
+# overhead '! no last target !' 39
 
-    if skill 'herding' > 0
-        if followers <= 1
-            overhead '! no followers to herd !' 40
 
-        elseif not findtype 3713 backpack
-            overhead '! no sheps crook !' 39
-            # overhead '! cant focus aggresion !' 39 lasttarget
+if reset_target == 1
+    hotkey 'Set Last Target'
+    sysmsg 'SET NEW TARGET' 1161
+    while targetexists 'neutral'
+        wait 10
+    endwhile
 
-        elseif findtype 3713 backpack as crook
-            useobject crook
-            wft action_delay
-            if targetexists 'harmful'
+    setvar! current_target_serial current_target_serial
+    # getlabel current_target_serial last_target_label
+endif
 
-                while targetexists 'harmful'
-                    if timer  'choose_target_waiting_msg_timer' >= 3000
-                        overhead 'herd against who?' 91
-                        settimer 'choose_target_waiting_msg_timer' 0
-                    endif
-                endwhile
 
+if followers > 1
+    if skill 'taming' > 20 or skill 'magery' > 80
+        say 'all guard'
+        wft action_delay
+        # if targetexists 'harmful'
+        #     hotkey "Last Target"
+        # endif
+    endif
+endif
+
+
+if boating_mode == 1
+    sysmsg 'FIRING CANNONS!' 1161
+    whisper '[FireCannons'
+endif
+
+if not dead current_target_serial
+    attack current_target_serial
+    sysmsg 'ATTACKING: {{current_target_serial}}' 1161
+    overhead '▼▼▼▼▼▼ ATTACKING ▼▼▼▼▼▼' 1161 current_target_serial
+endif
+
+
+###############################
+# HERDING
+###############################
+
+if skill 'herding' > 0
+    if followers <= 1
+        overhead '! no followers to herd !' 40
+
+    elseif not findtype 3713 backpack
+        overhead '! no sheps crook !' 39
+        # overhead '! cant focus aggresion !' 39 current_target_serial
+
+    elseif findtype 3713 backpack as crook
+        if crook != ACTIVE_SHEPS_CROOK
+            clearsysmsg
+            dclick crook
+            if insyusmsg 'Activated'
+                sysmsg 'SETTING ACTIVE CROOK AS {{crook}}' 1161
+                setvar! ACTIVE_SHEPS_CROOK crook
             endif
         endif
 
+        say '[focusaggression'
+        wft action_delay
+        if targetexists 'harmful'
 
+            while targetexists 'harmful'
+                if timer  'choose_target_waiting_msg_timer' >= 3000
+                    overhead 'herd against who?' 91
+                    settimer 'choose_target_waiting_msg_timer' 0
+                endif
+            endwhile
+
+            wait 100
+
+            if insysmsg 'You focus'
+                overhead '▼ HERDED ▼' 40 current_target_serial
+
+                # update last herded mob to be this one
+                setvar! last_herded_mob_serial current_target_serial
+                setvar! herded_last_target 1
+            endif
+
+        endif
     endif
 endif
 
@@ -114,205 +173,30 @@ clearsysmsg
 
 
 
+
+
+
+
 ###############################
-# if in arena, inform about poison tick timer
+# BLOODOATH
 ###############################
-if not 'dead'
-    if timerexists 'next_poison_tick'
-        if timer 'next_poison_tick' <= 6000
-            if timer 'next_poison_tick' >= 4000
-                overhead 'poison tick NOW' 91 lasttarget
-                removetimer 'next_poison_tick'
-            elseif timer 'next_poison_tick' >= 3000
-                overhead 'POISON TICK IN 1s' 91 lasttarget
-            elseif timer 'next_poison_tick' >= 2000
-                overhead 'poison tick in 2s' 91 lasttarget
-            elseif timer 'next_poison_tick' >= 1000
-                overhead 'poison tick in 3s' 91 lasttarget
-            endif
-        endif
-    endif
-endif
+
+# if skill 'necromancy' > 20
+#     if timer 'bloodoath_timer' >= 30000
+#         sysmsg '>>> Using bloodoath...'
+#         say '[bloodoath'
+#         wait action_delay
+#         if insysmsg 'Unholy symbols remaining'
+#             settimer 'bloodoath_timer' 0
+#             overhead '*bloodoath*' 30
+#             sysmsg '>>> BLOODOATH!' 30
+#         endif
+#     else
+#         sysmsg 'Bloodoath cooldown...' 56
+#     endif
+# endif
 
 
-
-
-############################################
-# IF LAST TARGET IS CRIMINAL, MURDERER OR GRAY
-############################################
-
-if not dead lasttarget
-    if find lasttarget ground any any 30 as last_target_serial
-        getlabel lasttarget last_target_label
-    endif
-
-    sysmsg '> LAST TARGET: {{last_target_label}}' 67
-
-    if 'paragon' in last_target_label
-        overhead '>>>>>>> PARAGON <<<<<<<' 51 lasttarget
-        overhead '>>>>>>> PARAGON <<<<<<<' 51 lasttarget
-        overhead '>>>>>>> PARAGON <<<<<<<' 51 lasttarget
-        overhead '>>>>>>> PARAGON <<<<<<<' 51 lasttarget
-    endif
-
-    if noto self == murderer
-        hotkey 'Attack Last Target'
-    endif
-
-    if noto lasttarget == friend or noto lasttarget == friendly
-        overhead 'cancelling friendly target on attack last' 52
-        clearall
-        stop
-    endif
-
-    if not varexist herded_last_target
-
-        if not findtype 3713 backpack
-            overhead '! no sheps crook !' 39
-            # overhead '! cant focus aggresion !' 39 lasttarget
-            #
-        elseif followers <= 1
-            overhead '! no followers to herd !' 39
-
-
-        elseif findtype 3713 backpack as crook
-
-            if varexist last_herded_mob_serial
-                overhead 'EXISTE LAST DEAD TARGET SERIAL' 39
-
-                if last_herded_mob_serial == lasttarget
-                    overhead 'MOB {{lasttarget}} == LASTMOB {{last_herded_mob_serial}}' 52 lasttarget
-                endif
-
-                if last_herded_mob_serial != lasttarget
-                    overhead 'MOB {{lasttarget}} != LASTMOB {{last_herded_mob_serial}}' 39 lasttarget
-                    setvar! herd_this_mob true
-                endif
-            else
-                overhead 'NO LAST HERDED MOB. WILL HERD NEXT' 39
-                setvar! herd_this_mob true
-            endif
-
-
-
-            if varexist herd_this_mob
-                while not targetexists 'harmful'
-                    useobject crook
-                    wft action_delay
-                endwhile
-
-                if targetexists 'harmful'
-                    target lasttarget
-                    wait action_delay
-
-                    if insysmsg 'You focus'
-                        overhead '▼ FOCUSED AGGRESION ▼' 40 lasttarget
-
-                        # update last herded mob to be this one
-                        unsetvar! last_herded_mob_serial
-                        setvar! last_herded_mob_serial lasttarget
-
-                        unsetvar! herded_last_target
-                        setvar! herded_last_target true
-                    endif
-                endif
-            endif
-        endif
-    endif
-
-    if not varexist herded_last_target
-        if skill 'taming' = 0 or followers <= 1
-            overhead 'attacking last target' 90
-            overhead '*** ATTACKING ***' 90 lasttarget
-            hotkey 'Attack Last Target'
-        endif
-    endif
-
-    # if find lasttarget 'ground' 'any' 1 find_last_target_max_range as last_target_serial
-    #    sysmsg 'FOUDN ALST TARGET SERIAL'
-    # endif
-
-
-    ###############################
-    # BLOODOATH
-    ###############################
-
-    if skill 'necromancy' > 20
-        if timer 'bloodoath_timer' >= 30000
-            sysmsg '>>> Using bloodoath...'
-            say '[bloodoath'
-            wait action_delay
-            if insysmsg 'Unholy symbols remaining'
-                settimer 'bloodoath_timer' 0
-                overhead '*bloodoath*' 30
-                sysmsg '>>> BLOODOATH!' 30
-            endif
-        else
-            sysmsg 'Bloodoath cooldown...' 56
-        endif
-    endif
-
-
-    # ###############################
-    # # PAIN SPIKE
-    # ###############################
-
-    # if skill 'necromancy' > 20 and findtype 'corpse' ground any any 30
-    #     if timer 'painspike_timer' >= 30000
-    #         sysmsg '>>> Using pain spike...'
-    #         say '[painspike'
-    #         wft action_delay
-    #         if targetexists 'neutral'
-    #             sysmsg '>>> PAIN SPIKE!' 89
-    #             hotkey 'Last Target'
-    #             wait action_delay
-    #             if insysmsg 'Unholy symbols remaining'
-    #                 overhead '*exploded corpse*' 30
-    #                 sysmsg '>>> EXPLODED CORPSE!' 30
-    #                 settimer 'painspike_timer' 0
-    #             endif
-    #         endif
-    #         wait action_delay
-    #     else
-    #         sysmsg 'Pain spike cooldown...' 56
-    #     endif
-    # endif
-
-    # > than 1 so pack llamas dont make char say all kill
-    # also if we herded this mob, we dont need to say all kill cause herding now says all kill automatically
-    # if followers > 1 and not varexist herded_last_target
-    if followers > 1
-        if skill 'taming' > 20 or skill 'magery' > 80
-            say 'all guard'
-            wft action_delay
-            # if targetexists 'harmful'
-            #     hotkey "Last Target"
-            # endif
-        endif
-    endif
-    stop
-endif
-
-overhead "last target not set!" 55
-
-
-########################################
-# SEARCH SHIPS
-########################################
-
-# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
-setvar! boating_mode 0
-if findtype 2578 self
-    sysmsg 'BOATING MODE ON'
-    setvar! boating_mode 1
-elseif findtype 3947 self
-    sysmsg 'BOATING MODE OFF'
-    setvar! boating_mode 0
-endif
-
-if boating_mode == 1
-    say '[firecannons'
-endif
 
 #################################
 # CHANGELOG

@@ -1,2 +1,17 @@
 overhead '*second regular ability*' 72
 say '[SecondRegularAbility'
+
+
+wait 600
+
+while targetexists 'harmful'
+    wait 100
+endwhile
+
+########################################
+# SEARCH SHIPS
+########################################
+
+if boating_mode == 1
+    script 'ships\search-ships-loop'
+endif

@@ -7,7 +7,7 @@ createlist 'broken_targets'
 clearlist 'broken_targets'
 
 while not dead self
-sysmsg 'TRY {{index}}'
+    #sysmsg 'TRY {{index}}'
     hotkey "Next Enemy Player Target"
     if insysmsg 'New target'
         setvar! targserial lasttarget
@@ -18,7 +18,11 @@ sysmsg 'TRY {{index}}'
             sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
             break
         endif
+    elseif insysmsg 'No one matching that was found'
+        sysmsg 'NO TARGETS TO ATTACK!' 1161
+        stop
     endif
+
     if index >= 9
         sysmsg 'STOPING ON 9TH ATTEMPT TO FIND TARGET' 54
         stop

@@ -87,7 +87,15 @@ while not dead
             if diffhits > 0
                 # if it is, check full hull hp and see if it matches chat boat hull (EDIT HERE)
                 sysmsg '>>> UNDER ATTACK! DOCKING SHIP!' warning_msg_color
-                gumpresponse 7
+                gumpresponse 7 3287496917
+                wait 600
+
+                while insysmsg "The ship has not been"
+                    waitforgump 3287496917 1000
+                    gumpresponse 7 3287496917
+                    wait 600
+                endwhile
+
                 waitforgump dockmaster_gump_id action_delay
                 waitforgump 4216593270
                 waitforgump dockmaster_gump_id action_delay
@@ -112,8 +120,15 @@ while not dead
 
     if timer fishing_timer >= fishing_skill_cooldown
         if cooldown FISHING
+            clearsysmsg
+            say '[greaterability'
             hotkey 'Use item in hand'
-            wait action_delay
+            wait 1000
+            if not insysmsg 'to use another greater ability' and not insysmsg 'World saving'
+                cooldown 'MARINERS FORTUNE' 180000
+            endif
+
+
             settimer fishing_timer 0
             cooldown FISHING 0
         else
@@ -123,6 +138,7 @@ while not dead
                 wait 1000
                 if insysmsg 'Captcha successful'
                     overhead 'Success - continue on!' 88
+                    settimer fishing_timer fishing_skill_cooldown
                 endif
             endif
         endif
@@ -147,7 +163,10 @@ while not dead
         sysmsg 'FISHING NET!' 90
         settimer 'fishing_timer' fishing_skill_cooldown
     elseif insysmsg 'You have recently traveled and must wait'
-        overhead '! travel harvest cooldown !' 43
+        overhead 'TRAVEL COOLDOWN...' 54
+        settimer 'fishing_timer' fishing_skill_cooldown
+    elseif insysmsg 'You do not see any harvestable resources'
+        overhead '!NOTHING TO FISH HERE!' 43
         settimer 'fishing_timer' fishing_skill_cooldown
     elseif insysmsg 'you catch'
         settimer 'fishing_timer' fishing_skill_cooldown

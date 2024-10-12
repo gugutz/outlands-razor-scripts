@@ -1,149 +1,38 @@
-#################################
-# SCRIPT CONFIGURATION
-#################################
+#setvar! BOW 5042
+#setvar! KATANA 5119
+#setvar! CLUB 5044
+#setvar! HAMMER_PICK 5081
+#setvar! WAR_AXE 5040
+#setvar! KRYSS 5121
+#setvar! HATCHET 3908 (for lumberjackers)
+#setvar! PICKAXE 3718 (for miners)
+#setvar! SPELLBOOK 3834 (for pvm mages)
 
-setvar! action_delay 400
+sysmsg 'TOGGLE INTERRUPT WEAPON' 1161
 
-if not varexist toggle_interrupt_weapon_first_run_done
-    setvar dont_unequip_if_already_equiped 0
-
-    ################################
-    # CREATE ALL TIMERS
-    ################################
-
-    if not timerexists 'waiting_dress_timer'
-        createtimer 'waiting_dress_timer'
-        settimer 'waiting_dress_timer' 0
-    endif
-
-    setvar! toggle_interrupt_weapon_first_run_done 1
+# if a weapon of the same type we wanna equip is already equiped,
+#just unequipt it and exit to simulate a 'toggle' effect
+if findtype 5042 lefthand or findtype 5119|5044|5081|5040|5121|3908|3718| righthand
+    cast 'Magic Lock'
+    stop
 endif
 
 
-#################################
-# CODE
-
-if listexists 'disturb_weapons'
-    if list 'disturb_weapons' == 0
-        clearlist 'disturb_weapons'
+if findtype 5042|5119|5044|5081|5040|5121|3908|3718 backpack as found
+    if not dead lasttarget
+        attack lasttarget
     endif
-endif
 
-if not listexists 'disturb_weapons'
-    createlist 'disturb_weapons'
-    # PS: ARCHERY DONT HAVE INTERRUPT WEAPON, SO WE USE THE BOW AGAIN
-    if skill 'archery' >= 50
-        pushlist 'disturb_weapons' 'bow'
-    elseif skill 'fencing' >= 50 or findtype 'kryss' backpack
-        if findtype 'kryss' backpack
-            pushlist 'disturb_weapons' 'kryss'
+    if targetexists
+        # check if theres need to undress hands before equiping
+        if not rhandempty or not lhandempty
+            cast 'Magic Lock'
         endif
-    elseif skill 'mace fighting' >= 50 or findtype 'club' backpack or findtype 'hammer pick' backpack or findtype 'war axe' backpack
-        if findtype 'club' backpack
-            pushlist 'disturb_weapons' 'club'
-        elseif findtype 'hammer pick' backpack
-            pushlist 'disturb_weapons' 'Hammer Pick'
-        elseif findtype 'war axe' backpack
-            pushlist 'disturb_weapons' 'war axe'
-        endif
-    elseif skill 'swordsmanship' >= 50 or findtype 'katana' backpack or findtype 'cutlass' backpack or findtype 'scimitar' backpack
-        if findtype 'katana' backpack
-            pushlist 'disturb_weapons' 'katana'
-        elseif findtype 'cutlass' backpack
-            pushlist 'disturb_weapons' 'cutlass'
-        elseif findtype 'scimitar' backpack
-            pushlist 'disturb_weapons' 'scimitar'
-        endif
+
+        @drop backpack
+        lift found
+        drop self FirstValid
     else
-        overhead 'char has no weapon skill'
+        dclick found
     endif
 endif
-
-if list 'disturb_weapons' == 0
-    overhead 'no disturb weapons in list'
-endif
-
-foreach weapon in 'disturb_weapons'
-    if findtype weapon lefthand
-        if dont_unequip_if_already_equiped == 1
-            overhead 'equiped on left hand' 54
-            break
-        else
-            hotkey 'Toggle Peace Only'
-            hotkey 'Undress Left Hand'
-            break
-        endif
-    elseif findtype weapon righthand
-        if dont_unequip_if_already_equiped == 1
-            overhead 'equiped on right hand' 54
-            break
-        else
-            hotkey 'Toggle Peace Only'
-            hotkey 'Undress Right Hand'
-            break
-        endif
-    else
-        if not rhandempty
-            if targetexists 'any'
-                # overhead '*undressing right hand*'
-                hotkey 'Toggle Peace Only'
-                hotkey 'Undress Right Hand'
-
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
-                wait 200
-            endif
-        elseif not lhandempty
-            if targetexists 'any'
-                # overhead '*undressing left hand*'
-
-                hotkey 'Toggle Peace Only'
-                hotkey 'Undress Left Hand'
-
-                wait 200
-                # toggle war before undress to avoid wasting swings with punches (arena usefull)
-            endif
-        endif
-
-        if findtype weapon backpack as weap
-            sysmsg '000000'
-            # EQUIP THE WEAPON
-            settimer 'waiting_dress_timer' 0
-            while not findtype weapon lefthand and not findtype weapon righthand
-
-                if targetexists
-                    sysmsg 'LIFT'
-                    lift weap 1
-                    wait action_delay
-                    drop 'self' LeftHand
-                else
-                    sysmsg 'DCLICK'
-                    dclick weap
-                endif
-
-                wait 100
-                while queued
-                    sysmsg 'queued'
-                endwhile
-                wait 10
-                # wait action_delay
-
-                if timer 'waiting_dress_timer' >= 400
-                    sysmsg 'BREAKING WHILE WAITING TO EQUIP HALBERD'
-                    break
-                endif
-            endwhile
-
-            if not lhandempty or not rhandempty
-                overhead 'WEAPON EQUIPED!' 52
-                if noto lasttarget == hostile
-                    overhead 'ATTACKING!' 41 'last'
-                    overhead 'attacking lasttarget!' 41
-                    hotkey 'Attack Last Target'
-                endif
-                break
-            else
-                hotkey 'Toggle Peace Only'
-            endif
-        endif
-    endif
-endfor

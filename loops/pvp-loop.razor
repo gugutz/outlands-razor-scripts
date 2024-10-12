@@ -1,0 +1,192 @@
+##########################
+# SURVIVAL LOOP
+# by gugutz
+# version 0.0.2
+#################################
+
+
+#################################
+# CREDITS :)
+#################################
+
+sysmsg '♥ SURVIVAL LOOP by gugutz ♥' 91
+
+
+#################################
+# CHANGELOG
+#################################
+#
+# v0.0.2
+# - Fixed some types in monitor list
+#
+# v0.0.1
+# - Initial release
+
+
+#################################
+# CREATE ALL TIMERS
+#################################
+
+if not varexist survival_first_run_done
+    createlist 'survival_script_timers'
+    pushlist 'survival_script_timers' 'loop_on_warning_msg'
+    pushlist 'survival_script_timers' 'waiting_save'
+    pushlist 'survival_script_timers' 'last_sysmsg_timer'
+    pushlist 'survival_script_timers' 'out_of_item_warning_msg'
+    pushlist 'survival_script_timers' 'waiting_dress_timer'
+
+
+
+    foreach timer in 'survival_script_timers'
+        if not timerexists timer
+            createtimer timer
+            settimer timer 99999
+        endif
+    endfor
+
+
+    ################################
+    # SCRIPT CONFIGURATION
+    ################################
+
+    # if char is dexxer we want to undress and re-arm our main weaopn
+    # if mage its probably a pvp char so we want to switch to 1 hand (if no target)
+    if dex == 100
+        setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping 1
+    else
+        setvar! prefer_switching_to_1hand_weapon_instead_of_unequiping 0
+    endif
+
+    setvar! unequip_hands_to_drink_potion 1
+    setvar! monitor_items_amounts 0
+    setvar! warn_when_items_amount_is_bellow 5
+    setvar! action_delay 600
+    setvar! max_diffhits_before_healing_with_bandages 0
+    setvar! max_diffhits_before_healing_with_potion 40
+    setvar! max_diffhits_before_healing_with_chivalry 40
+    setvar! max_diffweight_before_unloading 50
+    setvar! monitor_items_warning_delay 6000
+    setvar! use_razor_native_undress_hands_for_potions 1
+
+    setvar! chivalry_gump_id 1387930325
+
+    # sysmsg '[DEBUG] 1'
+
+
+    ################################
+    # CODE
+    ################################
+
+    if prefer_switching_to_1hand_weapon_instead_of_unequiping == 1
+        # this list  is created separatedely cause we also seed it with values
+        if not listexists 'one_handed_weapons'
+            createlist 'one_handed_weapons'
+            pushlist 'one_handed_weapons' 'kryss'
+            pushlist 'one_handed_weapons' 'war fork'
+            pushlist 'one_handed_weapons' 'katana'
+            pushlist 'one_handed_weapons' 'viking sword'
+            pushlist 'one_handed_weapons' 'broadsword'
+            pushlist 'one_handed_weapons' 'longsword'
+        endif
+    endif
+endif
+
+
+
+
+while not dead 'self'
+
+    # remember player the loop is active every 5s
+    if timer 'loop_on_warning_msg' >= 5000
+        settimer 'loop_on_warning_msg' 0
+        sysmsg 'PvP Helper Loop On...' 89
+    endif
+
+
+    ####################################
+    # HANDLE PARALYZE
+    ####################################
+
+    if paralyzed
+        if findtype pouch backpack 38 as trap_pouch
+            sysmsg '>>> Using Trapped Pouch!'
+            overhead 'TRAP POUCH' 54
+            useobject trap_pouch
+        else
+            overhead '!! NO TRAP POUCHES !!' 37
+        endif
+    endif
+
+
+    ####################################
+    # CHIVALRY HOLY LIGHT
+    ####################################
+
+    if skill 'chivalry' > 10 and diffhits > max_diffhits_before_healing_with_chivalry
+        overhead 'HOLY LIGHT' 89
+        whisper '[holylight'
+    endif
+
+    ####################################
+    # BANDAGE SELF
+    ####################################
+
+    if skill 'healing' > 0 and diffhits > max_diffhits_before_healing_with_bandages
+        if counttype 'clean bandage%s%' == 0
+            overhead '!!☠ NO BANDAGES ☠!!' 39
+        else
+            if not bandaging
+                overhead 'START BANDAGING' 91
+                hotkey 'Bandage Self'
+                wait action_delay
+            endif
+        endif
+    endif
+
+
+
+    ####################################
+    # POTIONS!!!
+    ####################################
+
+
+    # decide first which potion char needs to use this iteration
+    if not targetexists 'any'
+        # CURE POISONS BEFORE ANYTHING
+        if poisoned
+            potion 'cure'
+        endif
+
+        if diffhits > max_diffhits_before_healing_with_potion
+            potion 'heal'
+        endif
+
+        if diffstam > 5
+            potion 'refresh'
+        endif
+    endif
+
+
+
+    ####################################
+    # HEAL SPELL OR BANDAGE
+    ####################################
+
+    if not targetexists 'any'
+        if str <= 100 and counttype 'White Potion' > 0
+            hotkey 'Drink Strength'
+        endif
+    endif
+
+
+    if not targetexists 'any'
+        if skill 'chivalry' > 20 or dex == 100
+            if not findbuff 'Magic Resist Potion' and findtype 'Black Potion' backpack as mrpot
+                dclick mrpot
+                wait action_delay
+            endif
+        endif
+    endif
+
+
+endwhile

@@ -1,33 +1,16 @@
-#################################
-# DRESS SET
-# by gugutz
-# version 0.0.3
-#################################
-
-
-#################################
-# CREDITS :)
-#################################
+setvar! version 006
 
 sysmsg '##########################' 90
-sysmsg '♥ Dress Set by gugutz ♥' 91
+sysmsg '♥ Dress Set by gugutz v{{version}}♥' 91
 
-#################################
-# SCRIPT CONFIGURATION
-#################################
 
-setvar! action_delay 300
-setvar! inform_when_equipping_items 1
-setvar! inform_when_searching_for_items 0
+# CONFIRM RESS GUMP IF IT EXISTS
+while dead and gumpexists 2957810225
+    overhead 'RESSING...' 10
+    gumpresponse 1 2957810225
+    wait action_delay
+endwhile
 
-#################################
-# SCRIPT VARIABLES
-#################################
-
-setvar! searching_for_items_msg_color 49
-setvar! equipping_items_msg_color 90
-setvar! no_items_found_for_layer_msg_color 40
-setvar! layer_already_equipped_msg_color 65
 
 if dead 'self'
     overhead 'cant dress set while dead!' 53
@@ -35,41 +18,66 @@ if dead 'self'
 endif
 
 
-if not varexist 'dress_set_first_run_done'
-    createlist 'righthand_items'
+if not varexist dress_set_first_run_done
+    sysmsg 'FIRST RUN! CONFIGURING SCRIPT...' 54
+
+    #################################
+    # SCRIPT CONFIGURATION
+
+    setvar! action_delay 300
+    setvar! inform_when_equipping_items 1
+    setvar! inform_when_searching_for_items 0
+
+    #################################
+    # SCRIPT VARIABLES
+
+    setvar! searching_for_items_msg_color 49
+    setvar! equipping_items_msg_color 90
+    setvar! no_items_found_for_layer_msg_color 40
+    setvar! layer_already_equipped_msg_color 65
+
+    setvar! equip_weapons 0
+    setvar! equip_quiver 1
+
+    #################################
+    # SCRIPT LISTS
+
+    createlist righthand_items
     createlist 'lefthand_items'
     # second list for left hand items in case the char uses weapon + shield
     createlist 'shields'
-    createlist 'head_items'
+    createlist head_items
     createlist 'neck_items'
     createlist 'shirt_items'
     createlist 'arms_items'
-    createlist 'gloves_items'
-    createlist 'pants_items'
-    createlist 'shoes_items'
-    createlist 'waist_items'
-    createlist 'innertorso_items'
+    createlist gloves_items
+    createlist pants_items
+    createlist shoes_items
+    createlist waist_items
+    createlist innertorso_items
     createlist 'middletorso_items'
-    createlist 'outertorso_items'
-    createlist 'cloak_items'
-    createlist 'innerlegs_items'
-    createlist 'outerlegs_items'
-    createlist 'ring_items'
-    createlist 'bracelet_items'
-    createlist 'earrings_items'
-    createlist 'talisman_items'
+    createlist outertorso_items
+    createlist cloak_items
+    createlist innerlegs_items
+    createlist outerlegs_items
+    createlist ring_items
+    createlist bracelet_items
+    createlist earrings_items
+    createlist talisman_items
     createlist 'hair_items'
-    createlist 'face_items'
+    createlist face_items
     createlist 'facialhair_items'
     createlist 'backpack_items'
 
     # new ones
     createlist 'onehandedsecondary_items'
-    createlist 'lightsource_items'
-    createlist 'shoulder_items'
-    createlist 'quiver_items'
-    createlist 'outerbody_items'
-    createlist 'underarms_items'
+    createlist lightsource_items
+    createlist shoulder_items
+    createlist outerarms_items
+    createlist quiver_items
+    createlist outerbody_items
+    createlist underarms_items
+    createlist outerwaist_items
 
 
     ###########################
@@ -77,47 +85,65 @@ if not varexist 'dress_set_first_run_done'
 
     # --------------------
     # RIGHTHAND ITEMS
-    pushlist 'righthand_items' 'crossbow'
-    pushlist 'righthand_items' 'katana'
-    pushlist 'righthand_items' 'viking sword'
-    pushlist 'righthand_items' 'broadsword'
-    pushlist 'righthand_items' 'longsword'
-    pushlist 'righthand_items' 'war mace'
-    pushlist 'righthand_items' 'club'
-    pushlist 'righthand_items' 'spellbook'
+    pushlist righthand_items 'crossbow'
+    pushlist righthand_items 'katana'
+    pushlist righthand_items 'viking sword'
+    pushlist righthand_items 'broadsword'
+    pushlist righthand_items 'longsword'
+    pushlist righthand_items 'war mace'
+    pushlist righthand_items 'club'
+    pushlist righthand_items 'spellbook'
 
     # --------------------
     # LEFT HAND ITEMS (TWO HANDED WEAPONS)
     pushlist 'lefthand_items' 'double axe'
 
     # LEFT HAND ITEMS (SHIELDs)
+    pushlist 'shields' 'buckler'
+    pushlist 'shields' 'wooden kite shield'
+    pushlist 'shields' 'metal kite shield'
     pushlist 'shields' 'wooden shield'
 
     # --------------------
     # HEAD ITEMS
-    pushlist 'head_items' 'gold piped tricorne'
-    pushlist 'head_items' "wizard's hat"
-    pushlist 'head_items' 'sorcerers hat'
-    pushlist 'head_items' 'jester hat'
-    pushlist 'head_items' 'tricorne hat'
+    # medable helmets
+    pushlist head_items 'gold piped tricorne'
+    pushlist head_items "wizard's hat"
+    pushlist head_items 'sorcerers hat'
+    pushlist head_items 'jester hat'
+    pushlist head_items 'tricorne hat'
+    pushlist head_items 'straw hat'
+    pushlist head_items 'tribal mask'
+    pushlist head_items 'hood' //rangers_hood
+    pushlist head_items 'balaclava'
+    pushlist head_items 'tassled antler mask'
+    pushlist head_items 'spiked habit'
+    pushlist head_items 'fur hood' //fur_winter_clothing
+    pushlist head_items 'primal mask' //kings_faire_2021???
+    pushlist head_items 'fur trimmed hood' //fur_winter_clothing
+    pushlist head_items 'barbaric mask' //barbaric_summer_2022
+    pushlist head_items 'Kasa' //lunar_year_feb_2024
+    pushlist head_items 'leather cap'
+    # non-medable helmets
+    pushlist head_items 'orc helm'
+    pushlist head_items 'bascinet'
+    pushlist head_items 'closed helm'
+    pushlist head_items 'norse helm'
+    pushlist head_items 'plate helm'
+    pushlist head_items 'helm'
+    pushlist head_items 'bone helmet'
 
-    # ranger's hood
-    pushlist 'head_items' 'hood'
-    pushlist 'head_items' 'closed helm'
-    pushlist 'head_items' 'bascinet'
-    pushlist 'head_items' 'norse helm'
-    pushlist 'head_items' 'plate helm'
-    pushlist 'head_items' 'leather cap'
-    pushlist 'head_items' 'bone helmet'
 
     # --------------------
     # GORGETS (NECK)
-    pushlist 'neck_items' 'neckerchief'
-    pushlist 'neck_items' 'scarf'
-    pushlist 'neck_items' 'leather gorget'
+    pushlist neck_items 'neckerchief'
+    pushlist neck_items 'tied scarf'
+    pushlist neck_items 'scarf'
+    pushlist neck_items 'leather gorget'
+    pushlist neck_items 'neck guard'
     # this gorget bellow works for both studded and bone armor
-    pushlist 'neck_items' 'studded gorget'
-    pushlist 'neck_items' 'platemail gorget'
+    pushlist neck_items 'studded gorget'
+    pushlist neck_items 'platemail gorget'
 
     # --------------------
     # ARMS / SLEEVES
@@ -127,298 +153,382 @@ if not varexist 'dress_set_first_run_done'
 
     # --------------------
     # GLOVES
-    # waxed gloves (prev item)
-    pushlist 'gloves_items' 22429
-    # evening gloves prev item
-    pushlist 'gloves_items' 'white gloves'
-    pushlist 'gloves_items' 'leather gloves'
-    pushlist 'gloves_items' 'studded gloves'
-    pushlist 'gloves_items' 'bone gloves'
-    pushlist 'gloves_items' 'platemail gloves'
+    pushlist gloves_items 22429 //waxed_gloves_prev_merchant_item
+    pushlist gloves_items 'white gloves' //evening_gloves_prev_merchant_item
+    pushlist gloves_items 'leather gloves'
+    pushlist gloves_items 'studded gloves'
+    pushlist gloves_items 'bone gloves'
+    pushlist gloves_items 'platemail gloves'
+    pushlist gloves_items 'fur mittens' //fur_winter_clothing
+    pushlist gloves_items 'wraith greaves'
+    pushlist gloves_items 'fingerless gloves'
+    pushlist gloves_items 'hook'
 
     # --------------------
     # INNERTORSO / TUNICS / CHEST
-    pushlist 'innertorso_items' 'platemail'
-    pushlist 'innertorso_items' 'leather tunic'
-    pushlist 'innertorso_items' 'bone armor'
+    pushlist innertorso_items 'platemail'
+    pushlist innertorso_items 'leather tunic'
+    pushlist innertorso_items 'bone armor'
 
     # --------------------
     # SHIRTS
-    pushlist 'shirt_items' 'shirt'
+    pushlist shirt_items 'shirt'
 
     # --------------------
     # TUNICS / DOUBLETS
-    pushlist 'middletorso_items' 'doublet'
-    pushlist 'middletorso_items' 'torn tunic'
-    pushlist 'middletorso_items' 'tunic'
+    pushlist middletorso_items 'doublet'
+    pushlist middletorso_items 'ringmaster jacket'
+    pushlist middletorso_items 'torn tunic'
+    pushlist middletorso_items 'tunic'
+    pushlist middletorso_items 'bodice' //valentines_2001
+    pushlist middletorso_items 'skint tunic'
+    pushlist middletorso_items 'wrapped tunic'
 
     # PANTS (LEGGINGS)
-    pushlist 'pants_items' 'platemail legs'
-    pushlist 'pants_items' 'leather leggings'
-    pushlist 'pants_items' 'leather skirt'
-    pushlist 'pants_items' 'bone legs'
-    pushlist 'pants_items' 'bone skirt'
+    pushlist pants_items 'platemail legs'
+    pushlist pants_items 'leather leggings'
+    pushlist pants_items 'leather skirt'
+    pushlist pants_items 'bone legs'
+    pushlist pants_items 'bone skirt'
 
     # INNERLEGS (i think it might be pants and pant-like stuff)
-    pushlist 'innerlegs_items' 'accented trousers'
-    pushlist 'innerlegs_items' 'short pants'
+    pushlist innerlegs_items 'accented trousers'
+    pushlist innerlegs_items 'jodhpurs'
+    pushlist innerlegs_items 'long pants'
+    pushlist innerlegs_items 'short pants'
+    pushlist innerlegs_items 'bloomers'
+    pushlist innerlegs_items 'capri pants'
+    pushlist innerlegs_items 'cut offs' //breeches_seafarer_reward
 
     # OUTERLEGS (skirts, over-armor clothing)
-    pushlist 'outerlegs_items' 'skirt'
-    pushlist 'outerlegs_items' 'kilt'
+    pushlist outerlegs_items 'chaps' //valentines_2001
+    pushlist outerlegs_items 'skirt'
+    pushlist outerlegs_items 'kilt'
+    pushlist outerlegs_items 'torn short skirt' //halloween_2021_torn_waist_wrap
+    pushlist outerlegs_items 'beach sarong' //halloween_2021
+    pushlist outerlegs_items 'frond skirt' //halloween_2021
+    pushlist outerlegs_items 'hula skirt' //halloween_2021
+    pushlist outerlegs_items 'shaman skirt' //barbaric_summer_2022
+    pushlist outerlegs_items 'hide skirt' //barbaric_summer_2022
 
 
 
+    # ------------------------
     # ROBES AND OUTER TORSO
-    # ------------------------
-    # fringed vest
-    pushlist 'outertorso_items' 'woven vest'
-    # long overcoat - artisan clothing
-    pushlist 'outertorso_items' 'long coat'
-    pushlist 'outertorso_items' 'robe'
-    # ------------------------
-    # >>> Regular Outer Torso Items
-    pushlist 'outertorso_items' 'beach wrap'
-    pushlist 'outertorso_items' 'beach wrap tube'
+
+    pushlist outertorso_items 'embroidered tunic'
+    pushlist outertorso_items 'embroidered jacket'
+    pushlist outertorso_items 'woven vest' //fringed_vest
+    pushlist outertorso_items 'long coat' //long_overcoat_(artisan_clothing)
+    pushlist outertorso_items 'robe'
+    pushlist outertorso_items 'beach wrap'
+    pushlist outertorso_items 'beach wrap tube'
+    pushlist outertorso_items 'wool coat' //brocate_jacket_halloween_2021
+    pushlist outertorso_items 'web sleeved tunic' //spider_jacket_halloween_2021
+    pushlist outertorso_items 'plague doctor coat' //plague_coat_halloween_2021
+    pushlist outertorso_items 'web shoulder dress' //spiderweb_gown_halloween_2021
+    pushlist outertorso_items 'fur coat' //fur_winter_clothing
+    pushlist outertorso_items 'fur bolero' //barbaric_summer_2022
+    pushlist outertorso_items 'fur vest' //barbaric_summer_2022
+    pushlist outertorso_items 'open jacket' //barbaric_summer_2022
+    pushlist outertorso_items 'fabio shirt'
+    pushlist outertorso_items 'reinforced jacket'
+    pushlist outertorso_items 'ragged sarape'
+    pushlist outertorso_items 'jacket with broach'
 
 
     # CLOAKS
-    # ruffled cloak
-    pushlist 'cloak_items' 21943
-    # regular cloak
-    pushlist 'cloak_items' 5397
+    pushlist cloak_items 21943 //ruffled_cloak
+    pushlist cloak_items 5397 //regular_cloak
+    pushlist cloak_items 'fur lined fur cloak' //fur_winter_clothing
+    pushlist cloak_items 'high collar cloak' //halloween_2023
 
     # WAIST
-    pushlist 'waist_items' 'skull belt'
-    pushlist 'waist_items' 'half apron'
+    pushlist waist_items 'belt with bones' //halloween_2021
+    pushlist waist_items 'skull belt'
+    pushlist waist_items 'half apron'
+    pushlist waist_items 'sheathed sword'
+    pushlist waist_items 'utility belt'
+    pushlist waist_items 'waist sash'
+    pushlist waist_items 'waist wrap'
 
     # SHOES
     # Batwing Boots (prev item)
-    pushlist 'shoes_items' 22419
-    pushlist 'shoes_items' 'long boots'
-    pushlist 'shoes_items' 'boots'
-    pushlist 'shoes_items' 'shoes'
-    pushlist 'shoes_items' 'desert boots'
+    pushlist shoes_items 22419
+    pushlist shoes_items 'desert boots'
+    pushlist shoes_items 'sandals'
+    pushlist shoes_items 'short sandals'
+    pushlist shoes_items 'long boots'
+    pushlist shoes_items 'boots'
+    pushlist shoes_items 'shoes'
+    pushlist shoes_items 'overknee fur boots' //fur_winter_clothing
+    pushlist shoes_items 'spiked boots' //fur_winter_clothing
+    pushlist shoes_items 'sinew sandals' //halloween_2021?????
+    pushlist shoes_items 'clawed boots' //barbaric_summer_2022
+    pushlist shoes_items 'wraith sabatons' //halloween_2023
+    pushlist shoes_items 'fur lined boots'
+    pushlist shoes_items 'fur boots'
+    pushlist shoes_items 'belted boots'
+    pushlist shoes_items 'clogs'
 
 
     # RINGS
-    pushlist 'ring_items' 'ring'
+    pushlist ring_items 'ring'
+
 
     # BRACELETS
-    pushlist 'bracelet_items' 'bracelet'
+    # blood vial aegis 4 opening event item
+    pushlist bracelet_items 'blood vial necklace' //aegis_4_opening
+    pushlist bracelet_items 'bracelet'
 
-    # EARRINGS
-    pushlist 'earrings_items' 'earrings'
+    # FACE ITEMS (masks, etc...)
+    pushlist face_items 'face mask'
 
     # LIGHTSOURCES (new custom outlands layer (march 2022)
-    pushlist 'lightsource_items' 'yuletide candle'
-    pushlist 'lightsource_items' 'torch%es%'
-    pushlist 'lightsource_items' 'lantern'
-    pushlist 'lightsource_items' 'dungeon torch'
+    pushlist lightsource_items 'torch%es%' //regular_torches_and_original_cavernam_torch
+    pushlist lightsource_items 'yuletide candle'
+    pushlist lightsource_items 'dungeon torch'
+    pushlist lightsource_items 'shillelagh'
+    pushlist lightsource_items 'lantern'
 
     # TALISMAN (Cavernam Torches, Mastery Chain, Fur Coat)
 
 
+    # EARRINGS
+    pushlist earrings_items 'earrings'
+    pushlist earrings_items 'web earrings'
+
+
     # ONE HANDED SECONDARY ITEMS LAYER (Pipes)
-    pushlist 'onehandedsecondary_items' 'large pipe'
+    pushlist onehandedsecondary_items 'large pipe'
 
     # QUIVER LAYER (specifically for quivers)
-    pushlist 'quiver_items' 'quiver'
-    pushlist 'quiver_items' 'quiver'
+    pushlist quiver_items 'quiver'
+    pushlist quiver_items 'quiver'
 
 
     # OUTER BODY LAYER ( for Suspenders, Leather Satchel, Leather Harness, and Brown Leather Harness )
     # leather satchel
-    pushlist 'outerbody_items' 'leather sash'
-    pushlist 'outerbody_items' 'suspenders'
-    pushlist 'outerbody_items' 'leather satchel'
-    pushlist 'outerbody_items' 'leather harness'
+    pushlist outerbody_items 'leather sash'
+    pushlist outerbody_items 'embroidered sash'
+    pushlist outerbody_items 'suspenders'
+    pushlist outerbody_items 'leather satchel'
+    pushlist outerbody_items 'leather harness'
+    pushlist outerbody_items 'fur loin cloth' //barbaric_summer_2022
+    pushlist outerbody_items 'quilled stole' //barbaric_summer_2022
+
     if name == 'C A R O L' or name == 'TaylorSwifting'
         sysmsg 'CLEARLING OUTERBODY ITEMS'
-        clearlist 'outerbody_items'
+        clearlist outerbody_items
     endif
 
 
     # UNDERARMS
     if name == 'C A R O L' or name == 'TaylorSwifting'
         sysmsg 'CLEARLING UNDERARM ITEMS'
-        # pushlist 'outerbody_items' 'reagent satchel'
-        clearlist 'underarms_items'
+        # pushlist outerbody_items 'reagent satchel'
+        clearlist underarms_items
     endif
 
-    ######################################
-    # EVENT EXCLUSIVE COLLECTIONS
-    ######################################
 
-    # FUR WINTER CLOTHING COLLECTION
-    pushlist 'head_items' 'fur hood'
-    pushlist 'head_items' 'fur trimmed hood'
-    pushlist 'shoes_items' 'overknee fur boots'
-    pushlist 'shoes_items' 'spiked boots'
-    pushlist 'cloak_items' 'fur lined fur cloak'
-    pushlist 'outertorso_items' 'fur coat'
-    pushlist 'gloves_items' 'fur mittens'
-    pushlist 'shoulder_items' 'fur shoulder wrap'
+    # SHOULDER
+    pushlist shoulder_items 'fur shoulder wrap' //fur_winter_clothing
+    pushlist shoulder_items 'belted fur pauldron' //barbaric_summer_2022
+    pushlist shoulder_items 'clawed fur stole' //barbaric_summer_2022
+    pushlist shoulder_items 'windblown scarf'
+    pushlist shoulder_items 'draped mantle'
 
+    # OUTER ARMS, layer for items that go above the shoulder
+    pushlist outerarms_items 'wraith vambraces'
+    pushlist outerarms_items 'horned arms'
 
-    # HAVE TO REMEMBEWR WHAT THIS COLLECTINO WER
-    # I THINK KINGS FAIRE 2021 MAYBE
-    pushlist 'head_items' 'primal mask'
-
-
-    # HALLOWEEN 2021 COLLECTION WEAR
-    pushlist 'waist_items' 'belt with bones'
-    # brocade jacket
-    pushlist 'outertorso_items' 'wool coat'
-    # spider jacket
-    pushlist 'outertorso_items' 'web sleeved tunic'
-    # plague coat
-    pushlist 'outertorso_items' 'plague doctor coat'
-    # spiderweb gown
-    pushlist 'outertorso_items' 'web shoulder dress'
-
-    # HALLOWEEN 2021 RETURNING ITEMS
-    # torn waist wrap (halloween 2021 returning prev item - type of skirt)
-    pushlist 'outerlegs_items' 'torn short skirt'
-    pushlist 'outerlegs_items' 'beach sarong'
-    pushlist 'outerlegs_items' 'frond skirt'
-    pushlist 'outerlegs_items' 'hula skirt'
-    # confirm if sinew sandals was actually halloween or other
-    pushlist 'shoes_items' 'sinew sandals'
-
-
-    # SUMMER BARBARIC 2022 EVENT
-    pushlist 'head_items' 'barbaric mask'
-    pushlist 'shoulder_items' 'belted fur pauldron'
-    pushlist 'shoulder_items' 'clawed fur stole'
-    pushlist 'shoes_items' 'clawed boots'
-
-    pushlist 'outertorso_items' 'fur bolero'
-    pushlist 'outertorso_items' 'fur vest'
-    pushlist 'outerbody_items' 'fur loin cloth'
-    pushlist 'outerbody_items' 'quilled stole'
-
-
-    pushlist 'outerlegs_items' 'shaman skirt'
-    pushlist 'outerlegs_items' 'hide skirt'
+    # OUTER WAIST, new layer created for the gilded hip lanterns
+    pushlist outerwaist_items 'gilded hip lantern'
 
 
     ######################################
 
 
-    # SET SOME CONSTANTS
-    setvar! DEATH_ROBE_COLOR 0
     # flag scripts first run as done
     setvar! dress_set_first_run_done 1
 
+    sysmsg 'ITEM LISTS CREATED!' 54
 endif
+
+
+
 ###########################
 # CODE
+###########################
+
+
+# DRINK POT IF LOW HEALTH
+if not dead and diffhits > 0
+    if findtype 'Yellow Potion' backpack
+        hotkey "Drink Heal"
+        wait action_delay
+        while insysmsg 'you must wait'
+            clearsysmsg
+            hotkey "Drink Heal"
+        endwhile
+    endif
+endif
+
+
+# MOUNT IF NOT MOUNTED
+if not mounted and not findbuff 'dismount'
+    # mount tokens
+    # 8503 - forest ostard
+    if findtype 8484|8438|8502|8503 backpack as mount_token
+        dclick mount_token
+    # horses or llamas
+    elseif findtype 204 ground any any 10 as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    # horses diff graphic
+    elseif findtype 228 ground any any 10 as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    # llamas
+    elseif findtype 220 ground any any 10 as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    # forest ostards
+    elseif findtype 219 ground any any 10 as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    elseif findtype 218 ground any any 10 as 'pet' and noto 'pet' = 'friend'
+        useobject 'pet'
+    endif
+
+
+    # check pet status by monitoring sysmsgs when clikcking it
+    while insysmsg 'That is too far away to ride.'
+        clearsysmsg
+        overhead '** calling **' 37 'pet'
+        say 'all follow me'
+    endwhile
+
+    while insysmsg 'This mount is too ill to ride.'
+        clearsysmsg
+        overhead '** curing pet **' 37 'pet'
+        cast 'cure'
+        waitfortarget
+        target 'pet'
+        wait 300
+    endwhile
+
+    overhead '* mounting *'
+endif
+
+
+
 
 sysmsg 'Starting Dress...' 90
 # righthand
 #
-if findlayer self outertorso
+if findlayer self outertorso as found
     sysmsg 'Searching For Death Robe...' searching_for_items_msg_color
-    if findtype robe outertorso as robe_serial
-        getlabel robe_serial robe_label
-        if 'death robe' in robe_label
-            sysmsg 'Removing Death Robe from Char First'
-            while findtype robe outertorso as robe_serial
-                lift robe_serial 1
-                wait 100
-                while queued
-                endwhile
+    getlabel found robe_label
 
-                drop backpack
-                wait 100
-                while queued
-                endwhile
-            endwhile
-        endif
-    endif
-endif
-
-if not findlayer self righthand
-
-    # if char has magery and no weapon skill, it shoudl definately equip a magic spell book
-    if skill 'magery' >= 50 and skill 'swords' == 0 and skill 'macefightning' == 0 and skill 'fencing' == 0 and skill 'archery' == 0
-        if inform_when_searching_for_items == 1
-            sysmsg 'Searching for Magic Spellbooks...' searching_for_items_msg_color
-        endif
-        if findtype 'spellbook' backpack 2606 as book
-            if inform_when_equipping_items == 1
-                sysmsg 'Equipping Magic Spellbook!' equipping_items_msg_color
-            endif
-            lift book
+    if 'death robe' in robe_label
+        sysmsg 'Removing Death Robe from Char First'
+        while find found self
+            drop backpack
+            lift found 1
             wait 100
             while queued
             endwhile
 
-            drop 'self' RightHand
+            drop backpack
             wait 100
             while queued
             endwhile
-        endif
-    elseif skill 'archery' >= 50 or skill 'swords' >= 50 or skill 'macefightning' >= 50 or skill 'fencing' >= 50
-        if inform_when_searching_for_items == 1
-            sysmsg 'Searching for One Handed Weapons...' searching_for_items_msg_color
-        endif
-        foreach type in 'righthand_items'
-            if findtype type backpack as found
-                sysmsg 'Equipping One Handed Weapon!' equipping_items_msg_color
-                dclick found
-                wait action_delay
-                break
-            endif
-        endfor
+        endwhile
     endif
-else
-    sysmsg 'Right Hand Already Equipped' layer_already_equipped_msg_color
 endif
 
 
-if not findlayer self lefthand
-    if skill 'parrying' >= 20 and findlayer self righthand
-        if inform_when_searching_for_items == 1
-            sysmsg 'Searching for Shields' searching_for_items_msg_color
-        endif
-        foreach type in 'shields'
-            if findtype type backpack as found
+if equip_weapons == 1
+    if rhandempty and lhandempty
+
+        # if char has magery and no weapon skill, it shoudl definately equip a magic spell book
+        if skill 'magery' >= 50 and skill 'swords' == 0 and skill 'macefightning' == 0 and skill 'fencing' == 0 and skill 'archery' == 0
+            if inform_when_searching_for_items == 1
+                sysmsg 'Searching for Magic Spellbooks...' searching_for_items_msg_color
+            endif
+            if findtype 'spellbook' backpack 2606 as book
                 if inform_when_equipping_items == 1
-                    sysmsg 'Equipping Shield!' equipping_items_msg_color
+                    sysmsg 'Equipping Magic Spellbook!' equipping_items_msg_color
                 endif
-                while not findlayer self lefthand
+                lift book
+                wait 100
+                while queued
+                endwhile
+
+                drop 'self' RightHand
+                wait 100
+                while queued
+                endwhile
+            endif
+        elseif skill 'archery' >= 50 or skill 'swords' >= 50 or skill 'macefightning' >= 50 or skill 'fencing' >= 50
+            if inform_when_searching_for_items == 1
+                sysmsg 'Searching for One Handed Weapons...' searching_for_items_msg_color
+            endif
+            foreach type in righthand_items
+                if findtype type backpack as found
+                    sysmsg 'Equipping One Handed Weapon!' equipping_items_msg_color
                     dclick found
                     wait 100
                     while queued
                     endwhile
-                endwhile
-                wait action_delay
-                break
-            endif
-        endfor
-    elseif skill 'swords' >= 50 or skill 'macefightning' >= 50 or skill 'fencing' >= 50
-        if inform_when_searching_for_items == 1
-            sysmsg 'Searching for Two Handed Weapons' searching_for_items_msg_color
-        endif
-        foreach type in 'lefthand_items'
-            if findtype type backpack as found
-                if inform_when_equipping_items == 1
-                    sysmsg 'Equipping Left Hand!' equipping_items_msg_color
+                    break
                 endif
-                while not findlayer self lefthand
-                    dclick found
-                    wait 100
-                    while queued
-                    endwhile
-                endwhile
-                break
-            endif
-        endfor
+            endfor
+        endif
+    else
+        sysmsg 'Right Hand Already Equipped' layer_already_equipped_msg_color
     endif
-else
-    sysmsg 'Left Hand Already Equipped' layer_already_equipped_msg_color
+
+
+    if lhandempty
+        if skill 'parrying' >= 20 and findlayer self righthand
+            if inform_when_searching_for_items == 1
+                sysmsg 'Searching for Shields' searching_for_items_msg_color
+            endif
+            foreach type in 'shields'
+                if findtype type backpack as found
+                    if inform_when_equipping_items == 1
+                        sysmsg 'Equipping Shield!' equipping_items_msg_color
+                    endif
+                    while not findlayer self lefthand
+                        dclick found
+                        wait 100
+                        while queued
+                        endwhile
+                    endwhile
+                    wait action_delay
+                    break
+                endif
+            endfor
+        elseif skill 'swords' >= 50 or skill 'macefightning' >= 50 or skill 'fencing' >= 50
+            if inform_when_searching_for_items == 1
+                sysmsg 'Searching for Two Handed Weapons' searching_for_items_msg_color
+            endif
+            foreach type in 'lefthand_items'
+                if findtype type backpack as found
+                    if inform_when_equipping_items == 1
+                        sysmsg 'Equipping Left Hand!' equipping_items_msg_color
+                    endif
+                    while not findlayer self lefthand
+                        dclick found
+                        wait 100
+                        while queued
+                        endwhile
+                    endwhile
+                    break
+                endif
+            endfor
+        endif
+    else
+        sysmsg 'Left Hand Already Equipped' layer_already_equipped_msg_color
+    endif
 endif
 
 
@@ -427,7 +537,7 @@ if not findlayer self head
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Head Items' searching_for_items_msg_color
     endif
-    foreach type in 'head_items'
+    foreach type in head_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Head!' equipping_items_msg_color
@@ -471,14 +581,16 @@ if not findlayer self innertorso
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Inner Torso Items' searching_for_items_msg_color
     endif
-    foreach type in 'innertorso_items'
+    foreach type in innertorso_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Inner Torso!' equipping_items_msg_color
             endif
             while not findlayer self innertorso
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -499,7 +611,9 @@ if not findlayer self arms
             endif
             while not findlayer self arms
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -513,14 +627,16 @@ if not findlayer self gloves
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Glove Items' searching_for_items_msg_color
     endif
-    foreach type in 'gloves_items'
+    foreach type in gloves_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Gloves!' equipping_items_msg_color
             endif
             while not findlayer self gloves
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -541,7 +657,9 @@ if not findlayer self pants
             endif
             while not findlayer self pants
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -554,14 +672,17 @@ if not findlayer self innerlegs
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Inner Legs Items' searching_for_items_msg_color
     endif
-    foreach type in 'innerlegs_items'
+
+    foreach type in innerlegs_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Inner Legs!' equipping_items_msg_color
             endif
             while not findlayer self innerlegs
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -581,7 +702,9 @@ if not findlayer self outerlegs
             endif
             while not findlayer self outerlegs
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -595,14 +718,16 @@ if not findlayer self shoes
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Shoes Items' searching_for_items_msg_color
     endif
-    foreach type in 'shoes_items'
+    foreach type in shoes_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Shoes!' equipping_items_msg_color
             endif
             while not findlayer self shoes
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -624,7 +749,9 @@ if not findlayer self cloak
             endif
             while not findlayer self cloak
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -638,14 +765,16 @@ if not findlayer self shirt
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Shirt Items' searching_for_items_msg_color
     endif
-    foreach type in 'shirt_items'
+    foreach type in shirt_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Shirt!' equipping_items_msg_color
             endif
             while not findlayer self shirt
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -668,7 +797,9 @@ if not findlayer self waist
             endif
             while not findlayer self waist
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -684,14 +815,16 @@ if not findlayer self middletorso
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Middle Torso Items' searching_for_items_msg_color
     endif
-    foreach type in 'middletorso_items'
+    foreach type in middletorso_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Middle Torso!' equipping_items_msg_color
             endif
             while not findlayer self middletorso
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -705,14 +838,16 @@ if not findlayer self outertorso
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Outer Torso Items' searching_for_items_msg_color
     endif
-    foreach type in 'outertorso_items'
+    foreach type in outertorso_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Outer Torso / Robe!' equipping_items_msg_color
             endif
             while not findlayer self outertorso
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -728,14 +863,16 @@ if not findlayer self ring
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Ring Items' searching_for_items_msg_color
     endif
-    foreach type in 'bracelet_items'
+    foreach type in ring_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
-                sysmsg 'Equipping Bracelet!' equipping_items_msg_color
+                sysmsg 'Equipping Ring!' equipping_items_msg_color
             endif
             while not findlayer self ring
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -744,19 +881,58 @@ else
     sysmsg 'Ring Already Equipped' layer_already_equipped_msg_color
 endif
 
-# EARRINGS
+# BRACELETS
 if not findlayer self bracelet
+    if inform_when_searching_for_items == 1
+        sysmsg 'Searching for Bracelet Items' searching_for_items_msg_color
+    endif
+    foreach type in bracelet_items
+        if findtype type backpack as found
+            if inform_when_equipping_items == 1
+                sysmsg 'Equipping Bracelet!' equipping_items_msg_color
+            endif
+            while not findlayer self bracelet
+                dclick found
+                wait 100
+                while queued
+                endwhile
+            endwhile
+            break
+        endif
+    endfor
+else
+    sysmsg 'Bracelet Already Equipped' layer_already_equipped_msg_color
+endif
+
+# EARRINGS
+if not findlayer self earrings
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Earrings Items' searching_for_items_msg_color
     endif
-    foreach type in 'earrings_items'
+    foreach type in earrings_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping {{type}}!' equipping_items_msg_color
             endif
-            while not findlayer self bracelet
-                dclick found
-                wait action_delay
+
+            while not findlayer self earrings
+                if type == 'reagent satchel'
+                    drop backpack
+                    lift found
+                    wait 100
+                    while queued
+                    endwhile
+
+                    drop self outerbody
+                    wait 100
+                    while queued
+                    endwhile
+                else
+                    dclick found
+                    wait 100
+                    while queued
+                    endwhile
+                endif
             endwhile
             break
         endif
@@ -779,14 +955,16 @@ if not findlayer self lightsource
     #         wait action_delay
     #     endwhile
     # else
-    foreach type in 'lightsource_items'
+    foreach type in lightsource_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping {{type}}!' equipping_items_msg_color
             endif
             while not findlayer self lightsource
                 dclick found
-                wait action_delay
+                wait 100
+                while queued
+                endwhile
             endwhile
             break
         endif
@@ -804,7 +982,7 @@ if not findlayer self talisman
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Talisman Items' searching_for_items_msg_color
     endif
-    foreach type in 'talisman_items'
+    foreach type in talisman_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Talisman!' equipping_items_msg_color
@@ -823,47 +1001,28 @@ else
 endif
 
 
-if not findlayer self onehandedsecondary
-    if inform_when_searching_for_items == 1
-        sysmsg 'Searching for Pipes' searching_for_items_msg_color
-    endif
-    foreach type in 'onehandedsecondary_items'
-        if findtype type backpack as found
-            sysmsg 'Equipping Pipe!' equipping_items_msg_color
 
-            while not findlayer self onehandedsecondary
-                hotkey "Clear Drag/Drop Queue"
-
-                lift found
-                wait 100
-                while queued
-                endwhile
-
-                drop self onehandedsecondary
-                wait 100
-                while queued
-                endwhile
-            endwhile
-
-            break
-        endif
-    endfor
-else
-    sysmsg 'Pipe Already Equipped' layer_already_equipped_msg_color
-endif
-
-if not findlayer self innerlegs
-    if inform_when_searching_for_items == 1
-        sysmsg 'Searching for Inner Legs Items' searching_for_items_msg_color
-    endif
-else
-    sysmsg 'Inner Legs Already Equipped' layer_already_equipped_msg_color
-endif
 
 if not findlayer self face
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Face Items' searching_for_items_msg_color
     endif
+
+    foreach type in face_items
+        if findtype type backpack as found
+            if inform_when_equipping_items == 1
+                sysmsg 'Equipping Face!' equipping_items_msg_color
+            endif
+
+            while not findlayer self face
+                dclick found
+                wait 100
+                while queued
+                endwhile
+            endwhile
+            break
+        endif
+    endfor
 else
     sysmsg 'Face Already Equipped' layer_already_equipped_msg_color
 endif
@@ -893,37 +1052,39 @@ endif
 # endif
 
 # quiver layer
-if not findlayer self quiver
-    if inform_when_searching_for_items == 1
-        sysmsg 'Searching for Quiver Items' searching_for_items_msg_color
-    endif
-    foreach type in 'quiver_items'
-        if findtype type backpack as found
-            if inform_when_equipping_items == 1
-                sysmsg 'Equipping Quiver!' equipping_items_msg_color
-            endif
-            while not findlayer self quiver
-                hotkey "Clear Drag/Drop Queue"
-
-                lift found
-                wait 100
-                while queued
-                endwhile
-
-                drop self quiver
-                wait 100
-                while queued
-                endwhile
-            endwhile
-            break
-        endif
-    endfor
-
+if equip_quiver == 1
     if not findlayer self quiver
-        sysmsg 'No quivers found' no_items_found_for_layer_msg_color
+        if inform_when_searching_for_items == 1
+            sysmsg 'Searching for Quiver Items' searching_for_items_msg_color
+        endif
+        foreach type in 'quiver_items'
+            if findtype type backpack as found
+                if inform_when_equipping_items == 1
+                    sysmsg 'Equipping Quiver!' equipping_items_msg_color
+                endif
+                while not findlayer self quiver
+                    hotkey "Clear Drag/Drop Queue"
+
+                    lift found
+                    wait 100
+                    while queued
+                    endwhile
+
+                    drop self quiver
+                    wait 100
+                    while queued
+                    endwhile
+                endwhile
+                break
+            endif
+        endfor
+
+        if not findlayer self quiver
+            sysmsg 'No quivers found' no_items_found_for_layer_msg_color
+        endif
+    else
+        sysmsg 'Quive Already Equipped' layer_already_equipped_msg_color
     endif
-else
-    sysmsg 'Quive Already Equipped' layer_already_equipped_msg_color
 endif
 
 
@@ -939,8 +1100,8 @@ if not findlayer self outerbody
             endif
             while not findlayer self outerbody
             if type == 'reagent satchel'
-                hotkey "Clear Drag/Drop Queue"
 
+                drop backpack
                 lift found
                 wait 100
                 while queued
@@ -991,35 +1152,63 @@ else
     sysmsg 'Shoulder Already Equipped' layer_already_equipped_msg_color
 endif
 
+# new outerarms layer for things that go over the shoulder items
+if not findlayer self outerarms
+    if inform_when_searching_for_items == 1
+        sysmsg 'Searching for Outer Arms Items' searching_for_items_msg_color
+    endif
+    foreach type in outerarms_items
+        if findtype type backpack as found
+            if inform_when_equipping_items == 1
+                sysmsg 'Equipping Outer Arms!' equipping_items_msg_color
+            endif
+            while not findlayer self outerarms
+                dclick found
+                wait action_delay
+            endwhile
+            break
+        endif
+    endfor
+
+    if not findlayer self outerarms
+        sysmsg 'No Items Found for Outer Arms' no_items_found_for_layer_msg_color
+    endif
+else
+    sysmsg 'Outer Arms Already Equipped' layer_already_equipped_msg_color
+endif
+
 
 # new outerbody for Suspenders, Leather Satchel, Leather Harness, and Brown Leather Harness
 if not findlayer self underarms
     if inform_when_searching_for_items == 1
         sysmsg 'Searching for Under Arms Items' searching_for_items_msg_color
     endif
-    foreach type in 'underarms_items'
+
+    foreach type in underarms_items
         if findtype type backpack as found
             if inform_when_equipping_items == 1
                 sysmsg 'Equipping Underarms!' equipping_items_msg_color
             endif
+
             while not findlayer self outerbody
-            if type == 'reagent satchel'
-                hotkey "Clear Drag/Drop Queue"
+                if type == 'reagent satchel'
+                    hotkey "Clear Drag/Drop Queue"
 
-                lift found
-                wait 100
-                while queued
-                endwhile
+                    drop backpack
+                    lift found
+                    wait 100
+                    while queued
+                    endwhile
 
-                drop self outerbody
-                wait 100
-                while queued
-                endwhile
-            else
-                dclick found
-                wait action_delay
-            endif
-            break
+                    drop self FirstValid
+                    wait 100
+                    while queued
+                    endwhile
+                else
+                    dclick found
+                    wait action_delay
+                endif
+            endwhile
         endif
     endfor
 
@@ -1029,6 +1218,110 @@ if not findlayer self underarms
 else
     sysmsg 'Underarms Already Equipped' layer_already_equipped_msg_color
 endif
+
+
+
+if not findlayer self onehandedsecondary
+    if inform_when_searching_for_items == 1
+        sysmsg 'Searching for Pipes' searching_for_items_msg_color
+    endif
+
+    foreach type in onehandedsecondary_items
+        if findtype type backpack as found
+            sysmsg 'Equipping Pipe!' equipping_items_msg_color
+
+            # FIXME: swithing this while for an if and also adding check to see if the serial is still in the backpack
+            # until they fix this buggy layer (razor cant find itens in it even when they are equiped)
+            #
+            # while not findlayer self onehandedsecondary
+            if not findlayer self onehandedsecondary and find found backpack
+                hotkey "Clear Drag/Drop Queue"
+
+                lift found
+                wait 100
+                while queued
+                endwhile
+
+                # drop self onehandedsecondary
+                drop self FirstValid
+                wait 100
+                while queued
+                endwhile
+            endif
+            # endwhile
+
+            break
+        endif
+    endfor
+else
+    sysmsg 'One Handed Secondary Already Equipped' layer_already_equipped_msg_color
+endif
+
+
+
+# HACK FOR THE GILDED HIP LANTERNS WHILE THEY DOINT ADD THE OUTERWAIST LAYER TO RAZOR
+while not findtype 'gilded hip lantern' self and findtype 'gilded hip lantern' backpack as found
+    sysmsg 'Equipping (Hip Lantern)!' equipping_items_msg_color
+    dclick found
+    wait action_delay
+endwhile
+# new outerwaist for Gilded Hip Lanterns
+# if not findlayer self outerwaist
+#     if inform_when_searching_for_items == 1
+#         sysmsg 'Searching for Outer Waist Items' searching_for_items_msg_color
+#     endif
+#     foreach type in outerwaist_items
+#         if findtype type backpack as found
+#             if inform_when_equipping_items == 1
+#                 sysmsg 'Equipping Outer Waist!' equipping_items_msg_color
+#             endif
+
+#             while not findlayer self outerwaist
+#                 dclick found
+#                 wait action_delay
+#             endwhile
+#         endif
+#     endfor
+
+#     if not findlayer self outerwaist
+#         sysmsg 'No Items Found for Outer Waist' no_items_found_for_layer_msg_color
+#     endif
+# else
+#     sysmsg 'Outer Waist Already Equipped' layer_already_equipped_msg_color
+# endif
+
+
+
+# ACTIVATE ARMOR ASPECT AFTER DRESSING
+while not gumpexists 2424293173
+    say '[aspects'
+    waitforgump 2424293173 600
+endwhile
+
+# Switch aspect gump to Aspect Details page so we know which button to press
+if ingump 'Aspect Overview' 2424293173
+    gumpresponse 102 2424293173
+    waitforgump 2424293173 600
+    setvar! switch_aspect_gump_back_to_overview 1
+endif
+
+if ingump 'Aspect Details' 2424293173
+    sysmsg 'ACTIVATING ARMOR ASPECT...' 1161
+    gumpresponse 17
+    waitforgump 2424293173
+    gumpresponse 17
+    waitforgump 2424293173 600
+endif
+
+if switch_aspect_gump_back_to_overview == 1
+    while not ingump 'Aspect Overview' 2424293173
+        gumpresponse 103 2424293173
+        waitforgump 2424293173 600
+    endwhile
+endif
+
+gumpclose 2424293173
+
 
 
 sysmsg '########################' 91

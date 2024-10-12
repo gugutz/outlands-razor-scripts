@@ -52,7 +52,7 @@ setvar! disrupt_chain_interval 20000
 # CREATE ALL LISTS FOR CONFIG
 
 if not varexist arena_heal_bot_first_run_done
-    setvar! arena_heal_bot_first_run_done
+    setvar! arena_heal_bot_first_run_done 1
 
     createlist 'arena_heal_bot_script_timers'
     pushlist 'arena_heal_bot_script_timers' 'loop_on_warning_msg'
@@ -951,7 +951,7 @@ while not dead 'self' or dead 'self'
                     walk 'right'
                     walk 'right'
                 elseif insysmsg  'Random: 5'
-                    walk 'north'    
+                    walk 'north'
                     walk 'north'
                     walk 'north'
                 elseif insysmsg  'Random: 6'

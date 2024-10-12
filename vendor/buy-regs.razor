@@ -197,12 +197,20 @@ if not listexists 'vendors_serials'
     ###################################
     # HORSESHOE BAY MAGE SHOP
 
-    # Caitlin the alchemist
-    pushlist 'vendors_serials' 0x15F
-    # Thera the mage
-    pushlist 'vendors_serials' 0x15E
-    # Raymond the scribe
-    pushlist 'vendors_serials' 0x160
+    # # Caitlin the alchemist
+    # pushlist 'vendors_serials' 0x15F
+    # # Thera the mage
+    # pushlist 'vendors_serials' 0x15E
+    # # Raymond the scribe
+    # pushlist 'vendors_serials' 0x160
+    # Dedee the alchemist
+    pushlist 'vendors_serials' 0xB4F
+    # Natale the herbalist
+    pushlist 'vendors_serials' 0xB4C
+    # Keenan the mage
+    pushlist 'vendors_serials' 0xB62
+    # Kador the scribe
+    pushlist 'vendors_serials' 0xB6B
 
     ###################################
     # CORPSE CREEK MAGE SHOP
@@ -398,9 +406,12 @@ if list 'packies' > 0
                         sysmsg '>> TRYING TO MOVE {{reg_label}} FROM GROUND TO PACKIE!' 90
                         overhead 'dumping {{reg_label}}' 53 packie
 
+                        drop backpack
                         lifttype reg 999 ground
                         # lift reg_serial 100
-                        wait action_delay
+                        wait 100
+                        while queued
+                        endwhile
                         # drop packie -1 -1 0
                         drop packie
                         wait 50
@@ -442,10 +453,15 @@ if list 'packies' > 0
                         while find reg_serial backpack and not find reg_serial packie any any
                             overhead "*unloading {{reg}} from backpack" 56 packie
 
+                            drop backpack
                             lift reg_serial 999
-                            wait action_delay
+                            wait 100
+                            while queued
+                            endwhile
                             drop packie -1 -1 0
-                            wait action_delay
+                            wait 100
+                            while queued
+                            endwhile
                         endwhile
 
                         sysmsg 'Moved {{reg_label}}!' 63

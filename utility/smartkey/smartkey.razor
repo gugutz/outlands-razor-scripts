@@ -2,32 +2,44 @@
 # Order of checks and actions:
 # 1 -
 
+if not timerexists smartkey_execution_timer
+    createtimer smartkey_execution_timer
+endif
+settimer smartkey_execution_timer 0
+
+setvar! auto_move_regs_to_satchel 1
+setvar! strangelands_gump_id 00000000
 #################################
 # CREATE ALL LISTS FOR CONFIG
 #################################
 
 clearsysmsg
 
-if not targetexists 'any'
-    interrupt
-endif
+#if not targetexists 'any'
+#     interrupt
+# endif
 
 
 setvar! action_delay 350
 
+# if not varexist VARIABLES_INITIALIZED
+#     script 'constants\init-vars'
+# endif
 
 ###############################
 # ENTER MOONGATES
 ###############################
 
 
-if findtype 3948|27754 ground any any 2 as gate
-    while not gumpexists 3773199800 and not gumpexists 687547349 and not gumpexists 3899019871
-        sysmsg 'OPENING GATE' 54
-        dclick gate
-        waitforgump any 1000
-        # script 'actions\enter-moongate'
-    endwhile
+if not dead self
+    if findtype 3948|27754 ground any any 2 as gate
+        while not gumpexists 3773199800 and not gumpexists 687547349 and not gumpexists 3899019871
+            sysmsg 'OPENING GATE' 54
+            dclick gate
+            waitforgump any 1000
+            # script 'actions\enter-moongate'
+        endwhile
+    endif
 endif
 
 # enter gate confirmation gump
@@ -61,460 +73,772 @@ while gumpexists 687547349
     waitforgump 3773199800 action_delay
 endwhile
 
+if not dead self
 
-###############################
-# HANDLE PARALYZE
-###############################
+    ###############################
+    # HANDLE PARALYZE
+    ###############################
 
-if findbuff 'paralyze'
-    if not findtype pouch backpack 38
-        overhead '┃ NO TRAPPED POUCHES ┃' 39
+    if findbuff 'paralyze'
+        if not findtype pouch backpack 38
+            overhead '┃ NO TRAPPED POUCHES ┃' 39
+            stop
+        endif
+
+        say '[pouch'
+        overhead '*using trap pouch*' 52
+    endif
+
+
+    ###############################
+    # PICK SHIP BOMBS ON GROUND
+    ###############################
+
+    while findtype 5188|5189 ground 2825 any 2 as found
+        dclick found
+        sysmsg 'PICKING BOMB!' 54
+        overhead 'PICKING BOMB!' 54
+        stop
+    endwhile
+
+
+
+    ###############################
+    # SOLVE CHAR OVERWEIGHT
+    ###############################
+
+    if stam < 5
+       if weigth >= maxweigth
+           if findtype 'white potion' backpack
+               sysmsg 'DRINKING STR POT' 90
+               potion 'strength'
+               wait action_delay
+           else
+               sysmsg 'CANT FIND STR POT TO INCREASE WEIGHT!' 54
+           endif
+       endif
+
+
+       if findtype 'red potion' backpack
+           sysmsg 'DRINKING REFRESH'
+           potion 'refresh'
+           wait action_delay
+       else
+           sysmsg 'CANT FIND REFRESH POTION TO INCREASE STAMINA!' 54
+       endif
+    endif
+
+
+
+    ###############################
+    # BREAK EVENT ITEMS (GRAVEYARD BASH VASES, etc...)
+    ###############################
+
+    if findtype 24804 ground any any 1 as found
+        sysmsg 'BREAKING EVENT ITEM' 70
+        dclick founkd
+    endif
+
+
+    ###############################
+    # ENTER/HIT FACTION GATE
+    ###############################
+
+    if findtype 36317|36327|36326|36314 ground any any 1 as found
+        sysmsg 'BREAKING FACTION GATE!' 70
+        dclick found
+    endif
+
+    ###############################
+    # IF LAST HARMFUL UP, DROP ON LAST AND SHOOT ARROW
+    ###############################
+
+
+
+    if targetexists 'harmful'
+        overhead 'DROPPING!' 39 lasttarget
+        hotkey "Last Target"
+        wait 50
+
+        overhead 'attacking!' 41 'last'
+        overhead 'attacking lasttarget!' 41
+        hotkey 'Attack Last Target'
+
+        drop backpack
+        lifttype 'bow' 1
+        drop self FirstValid
         stop
     endif
 
-    say '[pouch'
-    overhead '*using trap pouch*' 52
-endif
-
-
-###############################
-# PICK SHIP BOMBS ON GROUND
-###############################
-
-if findtype 5188|5189 ground 2825 any 2 as found
-    dclick found
-    sysmsg 'PICKING BOMB!' 54
-    overhead 'PICKING BOMB!' 54
-    stop
-endif
 
 
 
-###############################
-# SOLVE CHAR OVERWEIGHT
-###############################
 
-if stam < 5
-    if weigth >= maxweigth
-        if findtype 'white potion' backpack
-            sysmsg 'DRINKING STR POT' 90
-            potion 'strength'
-            wait action_delay
-        else
-            sysmsg 'CANT FIND STR POT TO INCREASE WEIGHT!' 54
+
+
+
+    #if targetexists 'harmful'
+    #    sysmsg 'DROPPING...'
+    #    if noto lasttarget == hostile
+    #        overhead 'attacking!' 41 'last'
+    #        sysmsg 'Attacking last!'
+    #        hotkey 'Attack Last Target'
+    #    endif
+
+    #    #overhead 'equipping bow' 74
+    #    if targetexists
+    #        dress 'interrupt weapons'
+    #    else
+    #        dclick found
+    #    endif
+
+    #    stop
+    #endif
+
+
+    ###############################
+    # EQUIP INTERRUPT WEAPON AND ATTACK
+    ###############################
+
+    #if skill 'archery' >= 80 and lhandempty and findtype 'crossbow' backpack as found
+    #    if noto lasttarget == hostile and noto lasttarget != friend
+    #        sysmsg 'Attacking last!'
+    #        hotkey 'Attack Last Target'
+    #    endif
+
+    #    overhead 'equipping bow' 74
+    #    if targetexists
+    #        dress 'medium weapons'
+    #    else
+    #        dclick found
+    #    endif
+
+    #    stop
+    #elseif skill 'swordsmanship' >= 80 and rhandempty and findtype 'katana' backpack as found
+    #    if noto lasttarget == hostile and noto lasttarget != friend
+    #        overhead 'attacking!' 41 'last'
+    #        sysmsg 'Attacking last!'
+    #        hotkey 'Attack Last Target'
+    #    endif
+
+    #    #overhead 'equipping katana' 74
+    #    if targetexists
+    #        dress 'interrupt weapons'
+    #    else
+    #        dclick found
+    #    endif
+
+    #    stop
+    #endif
+
+
+
+    if insysmsg 'disturbed'
+        overhead 'disrupted before first run!'
+        stop
+    endif
+
+    ###############################
+    # TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
+    ###############################
+
+
+    #setvar! boating_mode 0
+    #if findtype 2578 self
+    #    sysmsg 'BOATING MODE ON'
+    #    setvar! boating_mode 1
+    #elseif findtype 3947 self
+    #    sysmsg 'BOATING MODE OFF'
+    #    setvar! boating_mode 0
+    #endif
+
+
+    ###############################
+    # maintain food satisfaction buff
+    ###############################
+
+    #if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
+    #    setvar! done_something 1
+
+    #    if not findtype 'tray' backpack
+    #        overhead '! no delectable !' 39
+    #    elseif findtype 'tray' backpack as food
+    #        overhead '*eating delectable*' 65
+    #        dclick food
+    #        wait action_delay
+    #    endif
+    #endif
+
+    ###############################
+    # grab stools on ground blocking the way
+    ###############################
+
+    # if findtype 'foot stool' ground any any 2 as stool
+    if findtype 'stool' ground any any 1 as stool
+        overhead '*GRABBING STOOL*' 55
+        hotkey "Grab Item"
+        wft 600
+        target stool
+        stop
+    endif
+
+    # if insysmsg 'disturbed'
+    #     overhead 'disrupted before first run!'
+    #     stop
+    # endif
+
+
+    ###############################
+    # ress followers if gump present
+    ###############################
+
+    if followers > 0 and gumpexists 1277013995
+        overhead 'RESSING FOLLOWERS...' 10
+        gumpresponse 10 1277013995
+        waitforgump 1277013995
+        gumpresponse 11 1277013995
+        waitforgump 1277013995
+        gumpresponse 12 1277013995
+        waitforgump 1277013995
+        gumpresponse 2 1277013995
+        stop
+    endif
+
+    ###############################
+    # grab stools on ground blocking the way
+    ###############################
+
+
+    if insysmsg 'disturbed'
+        overhead 'disrupted before first run!'
+        stop
+    endif
+
+
+    ###############################
+    # first run actions
+    ###############################
+
+    if not dead 'self' and not targetexists 'any'
+        if diffhits < 10 and not varexist first_run_done
+            sysmsg 'STARTING FIRST RUN...' 91
+            clearsysmsg
+
+            # we only need to open the backpack first if we cant find a bag, which might indicate char isnt seeing whats inside his backpack
+            if not findtype 'bag' backpack
+                if backpack_opened_once != 1
+                    if findlayer self 'backpack' as char_backpack
+                        sysmsg 'Opening backpack first time...' 91
+                        overhead 'opening backpack...' 91
+                        dclick char_backpack
+                        wait 550
+                        if insysmsg 'You must wait to perform another action'
+                            overhead 'failed to open backpack!' 41
+                            stop
+                        endif
+                        setvar! backpack_opened_once 1
+                    endif
+                endif
+            endif
+
+            if loadout_bag_opened_once != 1
+                if findtype 'bag' backpack as reg_bag
+                    sysmsg 'Opening reagent bag first time...' 91
+                    #overhead 'opening main bag...' 91
+                    dclick reg_bag
+                    wait 550
+                    if insysmsg 'You must wait to perform another action'
+                        #overhead 'failed to open reg bag!' 41
+                        sysmsg 'failed to open reg bag!' 41
+                        stop
+                    endif
+                    setvar! loadout_bag_opened_once 1
+                endif
+            endif
+
+            sysmsg 'FIRST RUN FINISHED' 91
+            setvar! first_run_done 1
         endif
     endif
 
 
-    if findtype 'red potion' backpack
-        sysmsg 'DRINKING REFRESH'
-        potion 'refresh'
-        wait action_delay
-    else
-        sysmsg 'CANT FIND REFRESH POTION TO INCREASE STAMINA!' 54
-    endif
-endif
+    #################################
+    # RESTOCK & RESSUPLY IF SHELF NEARBY (2 tiles)
+    #################################
 
 
+    if findtype 'storage shelf' ground any any 2 as storageshelf
+        # first find all char packies to unload them too
+        removelist 'packies'
+        createlist 'packies'
+
+        while findtype 292 ground any any 2 as packie
+            if noto packie = noto 'self'
+                pushlist 'packies' packie
+            endif
+            @ignore packie
+        endwhile
+
+        while findtype 291 ground any any 2 as packie
+            if noto packie = noto 'self'
+                pushlist 'packies' packie
+            endif
+            @ignore packie
+        endwhile
+        clearignore
 
 
+        @setvar storage_shelf storageshelf
+        #overhead 'using shelf' 68 'shelf'
+        sysmsg 'Restocking Storage Shelf...' sysmsgs_color
+        menu storage_shelf 0
+        wft 600
+        if targetexists 'neutral'
+            target 'self'
+        endif
+        waitforgump 3232825965 600
+        gumpclose 3232825965
 
+        # restock shelf from packies
+        if list 'packies' > 0 and varexist storage_shelf
+            foreach packanimal in 'packies'
+                sysmsg '> Restocking Shelf From Pack Animal...' sysmsgs_color
+                menu storage_shelf 0
+                wft 600
+                if targetexists 'neutral'
+                    overhead "unloading on shelf" 56 packanimal
+                    target packanimal
+                endif
+            endfor
+        endif
 
-###############################
-# ENTER/HIT FACTION GATE
-###############################
+        sysmsg '> Ressuplying From Storage Shelf...'
+        menu storage_shelf 1
 
-if findtype 36317|36327|36326|36314 ground any any 1 as found
-    sysmsg 'BREAKING FACTION GATE!' 70
-    dclick found
-endif
+        waitforgump 3232825965 600
 
-
-
-###############################
-# EQUIP INTERRUPT WEAPON AND ATTACK
-###############################
-
-if skill 'archery' >= 80 and lhandempty and findtype 'bow' backpack as weap
-    if noto lasttarget == hostile
-        overhead 'attacking!' 41 'last'
-        overhead 'attacking lasttarget!' 41
-        hotkey 'Attack Last Target'
-    endif
-    overhead 'equipping bow' 74
-
-    # clear possible previous stuck queues
-    while queued
-        hotkey "Clear Drag/Drop Queue"
-    endwhile
-    sysmsg 'LIFT'
-
-    if targetexists
-        sysmsg 'LIFT'
-        lift weap 1
-        wait 200
-        while queued
         wait 100
+        if insysmsg 'You have exceeded your maximum item limit'
+            sysmsg 'ITEM LIMIT REACHED. RESSUPLYING AGAIN TO GET ALL LOADOUT' 53
+            menu shelf 1
+        endif
+
+        gumpclose 3232825965
+
+        @removelist 'packies'
+        @clearignore
+        @clearsysmsg
+        gumpclose
+    endif
+
+
+
+    if insysmsg 'disturbed'
+        overhead 'disrupted after ress!'
+        stop
+    endif
+
+
+
+    # ###############################
+    # # open door if one nearby (1 tile)
+    # ###############################
+
+    # if findtype 'wooden door' ground any any 1 as doorx
+    #     overhead 'clicking door...' 53
+    #     useobject doorx
+    #     stop
+    # elseif findtype 'metal door' ground any any 1 as doorx
+    #     overhead 'clicking door...' 53
+    #     useobject doorx
+    #     stop
+    # endif
+
+
+    ###############################
+    # destroy caravans close to char
+    # before they spawn mobs
+    ###############################
+
+    # if findtype 'status bar' ground any any 2 as caravan or findtype 28114 ground any any 2 as caravan
+    # if boating_mode == 0
+    #     if findtype 'status bar' ground any any 2 as bar
+    #         while findtype 'status bar' ground any any 2 as bar
+    #             overhead 'PUNCHING STATUS BAR' 90
+    #             dclick bar
+    #         endwhile
+    #     endif
+    # endif
+
+    ###############################
+    # DESTROY TOKENS BOSSES DROP
+    # ON GROUND THAT SPAWNS ADS
+    ###############################
+
+    # TYPES:
+    # hand that locks char mount petram mini statue graphic ttype 27782
+    # mount petram mini statue graphic ttype 13807
+    # ossuary boss tombstones - 29449
+    # shadowspire statues - 'REKT 5K Statue'
+
+    if findtype "13807|29449|'REKT 5K Statue'" ground any any 2 as found
+        while find found ground any any 2
+            guild 'STONE/TOMB/STATUE ON ME!!'
+            sysmsg '*PUNCHING BOSS TRAP*' 91
+            overhead '>>> TRAP! HIT! <<< ' 92 stone_serial
+
+            dclick stone_serial
+            wait 600
+
         endwhile
 
-        drop 'self' LeftHand
-    else
-        sysmsg 'DCLICK'
-        dclick weap
+        if find found ground any any 20
+            sysmsg '!!! STONE IN ROOM !!!' 39
+            overhead '!! FOUND STONE !!' 39
+            overhead '!!! STONE IN ROOM !!!' 39 stone_serial
+        endif
     endif
 
-    stop
-elseif skill 'swordsmanship' >= 80 and rhandempty and findtype 'katana' backpack as weap
-    if noto lasttarget == hostile
-        overhead 'attacking!' 41 'last'
-        overhead 'attacking lasttarget!' 41
-        hotkey 'Attack Last Target'
+
+
+
+    #####################################
+    # KEEP REGS STACKED INSIDE CHAR SATCHEL
+    #####################################
+
+    if not dead self and dead lasttarget and not poisoned and not paralyzed
+        if auto_move_regs_to_satchel == 1
+
+            # CHAR WIZARDS SATCHEL
+            if not varexist char_reg_bag or not find char_reg_bag backpack and not find char_reg_bag self
+                if findtype 'reagent satchel' as satchel
+                    sysmsg 'FOUND AND SAVED CHAR REG SATCHEL' script_msg_color
+                    setvar! char_reg_bag satchel
+                endif
+            endif
+
+            while findtype "Blood Moss|Black Pearl%s%|Garlic|Mandrake Root%s%|Ginseng|Nightshade|Sulfurous Ash|Spider's Silk" backpack as reg
+            # while findtype "Blood Moss|Black Pearl%s%" backpack as reg
+                getlabel reg reg_label
+                while find reg backpack and not find reg char_reg_bag
+
+                    sysmsg '>>> MOVING {{reg_label}} TO SATCHEL.' action_msg_color
+                    menu char_reg_bag 0
+                    wait action_delay
+                endwhile
+
+                @ignore reg
+            endwhile
+            @clearignore
+        endif
     endif
-    overhead 'equipping katana' 74
-
-    if targetexists
-        sysmsg 'LIFT'
-        lift weap 1
-        wait 50
-        while queued
-        endwhile
-
-        drop 'self' RightHand
-    else
-        sysmsg 'DCLICK'
-        dclick weap
-    endif
-
-    stop
-endif
-
-if targetexists 'harmful'
-    script 'targetting\last-target-bow-shot'
-endif
 
 
-if insysmsg 'disturbed'
-    overhead 'disrupted before first run!'
-    stop
-endif
+    ######################################
+    # IF NOTHING TO DO, AND NOT INSIDE ARENA,
+    # DROP BOTTLES TO LOOSE WEIGHT
+    ######################################
 
-###############################
-# TOGGLE BOATING MODE IF CAV TORCH IS AT HAND AND TURNED OFF
-###############################
+    if not find OUTLANDS_ARENA_STONE_SERIAL ground any any 30
 
+        # salvaged crates from SOSs
+        if findtype 2473|3710|3647 backpack 2915 as trash
+            sysmsg 'DISPOSING SHELLS AND SEA JUNK...'
+            while findtype 2473 backpack as trash
+                lift trash 999
+                wait 100
+                while queued
+                    wait 10
+                endwhile
 
-setvar! boating_mode 0
-if findtype 2578 self
-    sysmsg 'BOATING MODE ON'
-    setvar! boating_mode 1
-elseif findtype 3947 self
-    sysmsg 'BOATING MODE OFF'
-    setvar! boating_mode 0
-endif
+                if findtype 3711|3703 ground 0 1 2 as trashcan
+                    sysmsg "Dropping trash On trash barrel" sysmsgs_color
+                    drop trashcan -1 -1 0
+                else
+                    sysmsg "Dropping trash on the ground" sysmsgs_color
+                    droprelloc 0 0
+                endif
+                wait 100
+                while queued
+                    wait 10
+                endwhile
+            endwhile
+        endif
+        # fish, shells and stuff from SOSs
+        if findtype 4036|7710|2508|4039|4038|4041|17617|17619 backpack as trash
+            sysmsg 'DISPOSING SHELLS AND SEA JUNK...'
+            while findtype 4036|7710|2508|4039|4038|4041|17617|17619 backpack as trash
+                lift trash 999
+                wait 100
+                while queued
+                    wait 10
+                endwhile
 
-
-###############################
-# maintain food satisfaction buff
-###############################
-
-if not findbuff 'Food Satisfaction' and findtype 'tray' backpack
-    setvar! done_something 1
-
-    if not findtype 'tray' backpack
-        overhead '! no delectable !' 39
-    elseif findtype 'tray' backpack as food
-        overhead '*eating delectable*' 65
-        dclick food
-        wait action_delay
-    endif
-endif
-
-###############################
-# grab stools on ground blocking the way
-###############################
-
-# if findtype 'foot stool' ground any any 2 as stool
-if findtype 'stool' ground any any 1 as stool
-    overhead '*GRABBING STOOL*' 55
-    hotkey "Grab Item"
-    wft 600
-    target stool
-    stop
-endif
-
-# if insysmsg 'disturbed'
-#     overhead 'disrupted before first run!'
-#     stop
-# endif
-
-###############################
-# confirm ress if gump present
-###############################
-
-if dead and gumpexists 2957810225
-    overhead 'RESSING...' 10
-    gumpresponse 1 2957810225
-    wait action_delay
-    if not dead
-        if findtype 'yellow potion' backpack
-            hotkey "Drink Heal"
-            wait action_delay
-            while insysmsg 'you must wait'
-                clearsysmsg
-                hotkey "Drink Heal"
+                if findtype 3711|3703 ground 0 1 2 as trashcan
+                    sysmsg "Dropping trash On trash barrel" sysmsgs_color
+                    drop trashcan -1 -1 0
+                else
+                    sysmsg "Dropping trash on the ground" sysmsgs_color
+                    droprelloc 0 0
+                endif
+                wait 100
+                while queued
+                    wait 10
+                endwhile
             endwhile
         endif
 
-        script 'actions\recall-home'
+        if findtype "fish" backpack as trash
+            sysmsg 'DISPOSING FISH...'
+            while findtype "fish" backpack as trash
+                lift trash 999
+                wait 100
+                while queued
+                    wait 10
+                endwhile
+
+                if findtype 3711|3703 ground 0 1 2 as trashcan
+                    sysmsg "Dropping trash On trash barrel" sysmsgs_color
+                    drop trashcan -1 -1 0
+                else
+                    sysmsg "Dropping trash on the ground" sysmsgs_color
+                    droprelloc 0 0
+                endif
+                wait 100
+                while queued
+                    wait 10
+                endwhile
+            endwhile
+        endif
+
+        # if findtype 3854 backpack as trash
+        #     sysmsg 'DISPOSING EMPTY BOTTLES...'
+        #     while findtype "3854" backpack as trash
+        #         lift trash 999
+        #         wait 100
+        #         while queued
+        #             wait 10
+        #         endwhile
+
+        #         if findtype 'barrel' ground 0 1 2 as trashcan
+        #             sysmsg "Dropping trash On trash barrel" sysmsgs_color
+        #             drop trashcan -1 -1 0
+        #         else
+        #             sysmsg "Dropping trash on the ground" sysmsgs_color
+        #             droprelloc 0 0
+        #         endif
+        #         wait 100
+        #         while queued
+        #             wait 10
+        #         endwhile
+        #     endwhile
+        # endif
     endif
-    stop
-endif
-
-###############################
-# ress followers if gump present
-###############################
-
-if followers > 0 and gumpexists 1277013995
-    overhead 'RESSING FOLLOWERS...' 10
-    gumpresponse 10 1277013995
-    waitforgump 1277013995
-    gumpresponse 11 1277013995
-    waitforgump 1277013995
-    gumpresponse 12 1277013995
-    waitforgump 1277013995
-    gumpresponse 2 1277013995
-    stop
-endif
-
-###############################
-# grab stools on ground blocking the way
-###############################
 
 
-if insysmsg 'disturbed'
-    overhead 'disrupted before first run!'
-    stop
-endif
+    ###########################################
+    # FROM DOWN HERE, ONLY NON IMPORTANT / NON VITAL ACTIONS
+    # THAT WONT HOLD DOWN THE CHAR
+    # IN CASE OF DANGER
 
 
-###############################
-# first run actions
-###############################
 
-if not dead 'self' and not targetexists 'any'
-    if diffhits < 10 and not varexist first_run_done
-        clearsysmsg
+    if findtype 'brass sign' ground any any 30 as found
+        getlabel found sign_label
+        sysmsg 'PEGOU LABEL SIGN {{sign_label}}' 1161
+        if 'until owner refresh required' in sign_label
+            sysmsg 'CLOSE TO OR INSIDE A HOUSE' 1161
+            overhead 'house sign!' 1161 found
+            say 'i ban thee'
+        endif
+    else
+        @clearignore
+        if not listexists npcs_scanned
+            createlist npcs_scanned
+        endif
 
-        # we only need to open the backpack first if we cant find a bag, which might indicate char isnt seeing whats inside his backpack
-        if not findtype 'bag' backpack
-            if backpack_opened_once != 1
-                if findlayer self 'backpack' as char_backpack
-                    sysmsg 'Opening backpack first time...' 91
-                    overhead 'opening backpack...' 91
-                    dclick char_backpack
-                    wait 550
-                    if insysmsg 'You must wait to perform another action'
-                        overhead 'failed to open backpack!' 41
-                        stop
+        clearlist npcs_scanned
+        setvar! find_npc_max_range 12
+        while findtype 400|401 ground any any find_npc_max_range as npc
+            pushlist npcs_scanned npc
+            if npc in npcs_scanned
+                sysmsg 'SCANNED ALL NPCS, CANT FIND BANKER' 1161
+            endif
+
+
+            sysmsg 'SCANNING {{npc_label}}'
+            overhead '*scanning*' 1161 npc
+            if noto npc == invulnerable
+                getlabel npc npc_label
+
+
+                if 'banker' in npc_label
+                    overhead 'FOUND BANKER. OPENING BANKBOX...' 1161 npc
+                    menu npc 3
+                    break
+                elseif 'stablemaster' in npc_label
+                    overhead 'FOUND STABLEMASTER. ACCESSING STABLES...' 1161 npc
+                    menu npc 3
+                    break
+                elseif 'dockmaster' in npc_label
+                    overhead 'FOUND DOCKMASTER. LAUNCHING DOCK MENU...' 1161 npc
+                    menu npc 1
+                    waitforgump 3287496917 1000
+
+                    if ingump "Dock"  3287496917
+                        sysmsg 'DOCKING SHIP' 1161
+                        gumpresponse 7 3287496917
+                        wait 600
+
+                        while insysmsg "The ship has not been"
+                            waitforgump 3287496917
+                            gumpresponse 7 3287496917
+                            wait 300
+                        endwhile
+
+                        setvar! boating_mode 0
                     endif
-                    setvar! backpack_opened_once 1
+                    break
+
+                elseif 'bowyer' in npc_label
+                    overhead 'FOUND BOWYER. BUYING FOR ARROWS...' 1161 npc
+                    menu npc 1
+                    break
+                else
                 endif
+            else
+                sysmsg 'not invul {{npc_label}}' 1161
+
             endif
-        endif
-
-        if loadout_bag_opened_once != 1
-            if findtype 'bag' backpack as reg_bag
-                sysmsg 'Opening reagent bag first time...' 91
-                overhead 'opening main bag...' 91
-                dclick reg_bag
-                wait 550
-                if insysmsg 'You must wait to perform another action'
-                    overhead 'failed to open reg bag!' 41
-                    stop
-                endif
-                setvar! loadout_bag_opened_once 1
-            endif
-        endif
-
-        overhead 'FIRST RUN FINISHED' 91
-        setvar! first_run_done 1
-    endif
-endif
-
-
-#################################
-# RESTOCK & RESSUPLY IF SHELF NEARBY (2 tiles)
-#################################
-
-
-if findtype 'storage shelf' ground any any 2 as storageshelf
-    # first find all char packies to unload them too
-    removelist 'packies'
-    createlist 'packies'
-
-    while findtype 292 ground any any 2 as packie
-        if noto packie = noto 'self'
-            pushlist 'packies' packie
-        endif
-        @ignore packie
-    endwhile
-
-    while findtype 291 ground any any 2 as packie
-        if noto packie = noto 'self'
-            pushlist 'packies' packie
-        endif
-        @ignore packie
-    endwhile
-    clearignore
-
-
-    @setvar storage_shelf storageshelf
-    #overhead 'using shelf' 68 'shelf'
-    sysmsg 'Restocking Storage Shelf...' sysmsgs_color
-    menu storage_shelf 0
-    wft 600
-    if targetexists 'neutral'
-        target 'self'
-    endif
-    waitforgump 3232825965 600
-    gumpclose 3232825965
-
-    # restock shelf from packies
-    if list 'packies' > 0 and varexist storage_shelf
-        foreach packanimal in 'packies'
-            sysmsg '> Restocking Shelf From Pack Animal...' sysmsgs_color
-            menu storage_shelf 0
-            wft 600
-            if targetexists 'neutral'
-                overhead "unloading on shelf" 56 packanimal
-                target packanimal
-            endif
-        endfor
-    endif
-
-    sysmsg '> Ressuplying From Storage Shelf...'
-    menu storage_shelf 1
-
-    waitforgump 3232825965 600
-
-    wait 100
-    if insysmsg 'You have exceeded your maximum item limit'
-        sysmsg 'ITEM LIMIT REACHED. RESSUPLYING AGAIN TO GET ALL LOADOUT' 53
-        menu shelf 1
-    endif
-
-    gumpclose 3232825965
-
-    @removelist 'packies'
-    @clearignore
-    @clearsysmsg
-    gumpclose
-endif
-
-
-
-if insysmsg 'disturbed'
-    overhead 'disrupted after ress!'
-    stop
-endif
-
-
-
-# ###############################
-# # open door if one nearby (1 tile)
-# ###############################
-
-# if findtype 'wooden door' ground any any 1 as doorx
-#     overhead 'clicking door...' 53
-#     useobject doorx
-#     stop
-# elseif findtype 'metal door' ground any any 1 as doorx
-#     overhead 'clicking door...' 53
-#     useobject doorx
-#     stop
-# endif
-
-
-###############################
-# destroy caravans close to char
-# before they spawn mobs
-###############################
-
-# if findtype 'status bar' ground any any 2 as caravan or findtype 28114 ground any any 2 as caravan
-# if boating_mode == 0
-#     if findtype 'status bar' ground any any 2 as bar
-#         while findtype 'status bar' ground any any 2 as bar
-#             overhead 'PUNCHING STATUS BAR' 90
-#             dclick bar
-#         endwhile
-#     endif
-# endif
-
-###############################
-# DESTROY TOKENS BOSSES DROP
-# ON GROUND THAT SPAWNS ADS
-###############################
-
-# TYPES:
-# hand that locks char mount petram mini statue graphic ttype 27782
-# mount petram mini statue graphic ttype 13807
-# ossuary boss tombstones - 29449
-# shadowspire statues - 'REKT 5K Statue'
-
-if findtype "13807|29449|'REKT 5K Statue'" ground any any 2 as found
-    while find found ground any any 2
-        guild 'STONE/TOMB/STATUE ON ME!!'
-        sysmsg '*PUNCHING BOSS TRAP*' 91
-        overhead '>>> TRAP! HIT! <<< ' 92 stone_serial
-
-        dclick stone_serial
-        wait 600
-
-    endwhile
-
-    if find found ground any any 20
-        sysmsg '!!! STONE IN ROOM !!!' 39
-        overhead '!! FOUND STONE !!' 39
-        overhead '!!! STONE IN ROOM !!!' 39 stone_serial
-    endif
-endif
-
-
-
-
-
-
-######################################
-# IF NOTHING TO DO, AND NOT INSIDE ARENA,
-# DROP BOTTLES TO LOOSE WEIGHT
-######################################
-
-if not find '0x40000ECB' ground any any 20
-    if findtype 3854 'backpack' as bottles and counttype 3854 > 3
-        overhead '✩ droping bottles ✩' 55
-        lift bottles 999
-        wait 50
-        while queued
+            @ignore npc
         endwhile
+    endif
 
-        droprelloc 1 1
+
+
+    # if skill 'chivalry' > 10
+    #     script 'loops\survival'
+    #   endif
+    # hotkey "Set Last Target"
+    # overhead 'nothing to do...' 55
+    # script 'loops\survival'
+
+endif
+#endifnotdead
+
+
+if dead self
+
+    ###############################
+    # confirm ress if gump present
+    ###############################
+
+    if dead and gumpexists 2957810225
+        overhead 'RESSING...' 10
+        gumpresponse 1 2957810225
+        wait action_delay
+        if not dead
+            if findtype 'yellow potion' backpack
+                hotkey "Drink Heal"
+                wait action_delay
+                while insysmsg 'you must wait'
+                    clearsysmsg
+                    hotkey "Drink Heal"
+                endwhile
+            endif
+
+            script 'actions\recall-home'
+        endif
         stop
     endif
 endif
 
 
-###########################################
-# FROM DOWN HERE, ONLY NON IMPORTANT / NON VITAL ACTIONS
-# THAT WONT HOLD DOWN THE CHAR
-# IN CASE OF DANGER
+##################################
+# STRANGELANDS STUFF
+##################################
 
+if name == 'a stranger'
+    sysmsg 'STRANGELANDS DETECTED!' 1161
 
+    #// these are the caches to put away trophies
+    # dclicking the cache will auto put away trophs
+    if findtype "secret door|grass" ground -1 -1 2 as jcachey
+        sysmsg 'CLICKING STORAGE!'
+        dclick jcachey
+    endif
 
+    # gather all types of trophies, then check that first before clicking cachey
+    if findtype "magic rock|skull" backpack as found
+        overhead "we got a trophy" warning_msg_color
+        overhead 'trophy!' warning_msg_color found
+    endif
 
+    # 4655 2880 blood smear
+    # 4651 2880 blood
 
-# if skill 'chivalry' > 10
-#     script 'loops\survival'
-# endif
-# hotkey "Set Last Target"
-# overhead 'nothing to do...' 55
-# script 'loops\survival'
+    # drink or food on ground
+    if findtype 4650|4655|4651|4653 ground 2880 -1 2 as item
+        sysmsg 'COLLECTING WATER' warning_msg_color
+        dclick item
+        wait 650
+    elseif findtype "mushroom" ground -1 -1 2 as item
+        sysmsg 'COLLECTING FOOD' warning_msg_color
+        dclick item
+        wait 650
+    endif
+
+    # these are buff bottles
+    while findtype "jar" ground -1 -1 2 as item
+        sysmsg 'GETTING ELIXIRS' warning_msg_color
+        hotkey "Grab Item"
+        wft 500
+        target item
+        wait 650
+    endwhile
+
+    while findtype "jar" backpack as found
+        sysmsg 'USING ELIXIRS' warning_msg_color
+        dclick found
+        wait action_delay
+        @ignore found
+    endwhile
+    @clearignore
+
+    # supply manifest 29107 2220
+
+    # shovel 3897  2796
+    #
+    if findtype 3897 backpack 2796 as item
+        if hp <= 25
+            sysmsg 'ESCAPING WITH SHOVEL!' warning_msg_color
+            overhead '*digging to escape*' warning_msg_color
+            dclick item
+        endif
+    endif
+
+    # book on ground, grab it
+    if findtype "book" ground -1 -1 2 as item
+        sysmsg 'GETTING SKILL MANUAL' warning_msg_color
+        hotkey "Grab Item"
+        wft action_delay
+        target item
+        wait action_delay
+    endif
+
+    if findtype 4029 backpack 0 as item
+        sysmsg 'READING SKILL MANUAL' warning_msg_color
+        dclick item
+        wait action_delay
+        if insysmsg "You are not familiar enough with that skill to use a skill manual for it."
+            @ignore item
+        endif
+    endif
+endif
+
+sysmsg 'SMARTKEY took {{smartkey_execution_timer}}' 1161
+
+if name == 'a stranger'
+    sysmsg 'IN STRANGELANDS. CALLING STRANGELANDS LOOP...' 1161
+    script 'loops\strangelands-loop'
+endif

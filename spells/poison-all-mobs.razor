@@ -4,6 +4,9 @@ setvar! spell_recovery_delay 180
 createlist 'poison_targets'
 clearlist 'poison_targets'
 
+
+sysmsg 'POISON ALL MOBS!' 75
+
 while not dead self
     hotkey "Next Non-Friendly Monster Target"
     if insysmsg 'New target'
@@ -15,6 +18,9 @@ while not dead self
             sysmsg 'TARGET {{targserial}} ALREADY ON LIST. ASSUMING NO NEW TARGETS' 54
             break
         endif
+    elseif insysmsg 'No one matching that was found'
+        sysmsg 'NO TARGETS TO ATTACK!' 1161
+        stop
     endif
 endwhile
 
